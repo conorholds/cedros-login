@@ -1,0 +1,868 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Cedros Login API",
+    "description": "Authentication and authorization service supporting JWT tokens, API keys, Solana wallet auth, and organization management.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Cedros"
+    }
+  },
+  "servers": [
+    {
+      "url": "/auth",
+      "description": "Default mount path (adjust based on your deployment)"
+    }
+  ],
+  "tags": [
+    {"name": "discovery", "description": "Service discovery and documentation"},
+    {"name": "auth", "description": "Authentication (login, register, tokens)"},
+    {"name": "solana", "description": "Solana wallet authentication (recommended for agents)"},
+    {"name": "api-keys", "description": "API key management"},
+    {"name": "user", "description": "Current user operations"},
+    {"name": "organizations", "description": "Organization management"},
+    {"name": "members", "description": "Organization member management"},
+    {"name": "roles", "description": "Custom role management"},
+    {"name": "policies", "description": "ABAC policy management"},
+    {"name": "invites", "description": "Organization invitations"},
+    {"name": "mfa", "description": "Multi-factor authentication"},
+    {"name": "sessions", "description": "Session management"},
+    {"name": "admin", "description": "System administration"}
+  ],
+  "paths": {
+    "/discovery": {
+      "get": {
+        "tags": ["discovery"],
+        "summary": "Get authentication discovery info",
+        "description": "Returns available authentication methods and usage instructions. Designed for AI agents to discover how to authenticate.",
+        "operationId": "getAuthConfig",
+        "responses": {
+          "200": {
+            "description": "Discovery information",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthConfigResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "tags": ["discovery"],
+        "summary": "Get OpenAPI specification",
+        "operationId": "getOpenApiSpec",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.0 specification",
+            "content": {"application/json": {}}
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["discovery"],
+        "summary": "Health check",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {"description": "Service is healthy"}
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register new user",
+        "operationId": "register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/RegisterRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login with email/password",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/LoginRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Refresh access token",
+        "operationId": "refresh",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/RefreshRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Logout (revoke session)",
+        "operationId": "logout",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {"description": "Logged out successfully"}
+        }
+      }
+    },
+    "/instant-link": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Send instant sign-in link",
+        "description": "Requests a passwordless sign-in link by email. Always returns a generic success message to prevent email enumeration.",
+        "operationId": "sendInstantLink",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/InstantLinkRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request accepted",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/MessageResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/instant-link/verify": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Verify instant sign-in link and login",
+        "description": "Verifies a one-time token from an instant sign-in email. On success returns an authenticated session (cookies) and/or tokens. If the user has MFA enabled, returns an MFA-required response.",
+        "operationId": "verifyInstantLink",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/VerifyInstantLinkRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {"$ref": "#/components/schemas/AuthResponse"},
+                    {"$ref": "#/components/schemas/MfaRequiredResponse"}
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/challenge": {
+      "post": {
+        "tags": ["solana"],
+        "summary": "Get Solana auth challenge",
+        "description": "Request a challenge nonce to sign with your Solana wallet. This is the first step in Solana wallet authentication.",
+        "operationId": "solanaChallenge",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/SolanaChallengeRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Challenge created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SolanaChallengeResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana": {
+      "post": {
+        "tags": ["solana"],
+        "summary": "Authenticate with Solana wallet",
+        "description": "Complete authentication by submitting the signed challenge. Returns JWT tokens and API key for new users.",
+        "operationId": "solanaAuth",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/SolanaAuthRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api-key/validate": {
+      "post": {
+        "tags": ["api-keys"],
+        "summary": "Validate an API key",
+        "operationId": "validateApiKey",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/ValidateApiKeyRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ValidateApiKeyResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get current user",
+        "operationId": "getUser",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Current user info",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/UserResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/api-key": {
+      "get": {
+        "tags": ["api-keys"],
+        "summary": "Get current API key info",
+        "operationId": "getApiKey",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "API key info (masked)",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ApiKeyResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/api-key/regenerate": {
+      "post": {
+        "tags": ["api-keys"],
+        "summary": "Regenerate API key",
+        "description": "Invalidates the current API key and generates a new one. The new key is returned in full only once.",
+        "operationId": "regenerateApiKey",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "New API key generated",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/RegenerateApiKeyResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs": {
+      "get": {
+        "tags": ["organizations"],
+        "summary": "List user's organizations",
+        "operationId": "listOrgs",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {"type": "integer", "minimum": 1, "maximum": 200, "default": 50}
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {"type": "integer", "minimum": 0, "default": 0}
+          }
+        ],
+        "responses": {
+          "200": {"description": "List of organizations"}
+        }
+      },
+      "post": {
+        "tags": ["organizations"],
+        "summary": "Create organization",
+        "operationId": "createOrg",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateOrgRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Organization created"}
+        }
+      }
+    },
+    "/orgs/{org_id}": {
+      "get": {
+        "tags": ["organizations"],
+        "summary": "Get organization",
+        "operationId": "getOrg",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Organization details"}
+        }
+      },
+      "patch": {
+        "tags": ["organizations"],
+        "summary": "Update organization",
+        "operationId": "updateOrg",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Organization updated"}
+        }
+      },
+      "delete": {
+        "tags": ["organizations"],
+        "summary": "Delete organization",
+        "operationId": "deleteOrg",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Organization deleted"}
+        }
+      }
+    },
+    "/orgs/{org_id}/switch": {
+      "post": {
+        "tags": ["organizations"],
+        "summary": "Switch to organization context",
+        "operationId": "switchOrg",
+        "security": [{"bearerAuth": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Context switched"}
+        }
+      }
+    },
+    "/orgs/{org_id}/members": {
+      "get": {
+        "tags": ["members"],
+        "summary": "List organization members",
+        "operationId": "listMembers",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "List of members"}
+        }
+      }
+    },
+    "/orgs/{org_id}/members/{user_id}": {
+      "patch": {
+        "tags": ["members"],
+        "summary": "Update member role",
+        "operationId": "updateMemberRole",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {"$ref": "#/components/parameters/orgId"},
+          {"$ref": "#/components/parameters/userId"}
+        ],
+        "responses": {
+          "200": {"description": "Role updated"}
+        }
+      },
+      "delete": {
+        "tags": ["members"],
+        "summary": "Remove member",
+        "operationId": "removeMember",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {"$ref": "#/components/parameters/orgId"},
+          {"$ref": "#/components/parameters/userId"}
+        ],
+        "responses": {
+          "200": {"description": "Member removed"}
+        }
+      }
+    },
+    "/orgs/{org_id}/roles": {
+      "get": {
+        "tags": ["roles"],
+        "summary": "List custom roles",
+        "operationId": "listCustomRoles",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "List of roles"}
+        }
+      },
+      "post": {
+        "tags": ["roles"],
+        "summary": "Create custom role",
+        "operationId": "createCustomRole",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Role created"}
+        }
+      }
+    },
+    "/orgs/{org_id}/policies": {
+      "get": {
+        "tags": ["policies"],
+        "summary": "List ABAC policies",
+        "operationId": "listPolicies",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "List of policies"}
+        }
+      },
+      "post": {
+        "tags": ["policies"],
+        "summary": "Create ABAC policy",
+        "operationId": "createPolicy",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Policy created"}
+        }
+      }
+    },
+    "/orgs/{org_id}/invites": {
+      "get": {
+        "tags": ["invites"],
+        "summary": "List pending invites",
+        "operationId": "listInvites",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "List of invites"}
+        }
+      },
+      "post": {
+        "tags": ["invites"],
+        "summary": "Create invite",
+        "operationId": "createInvite",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/orgId"}],
+        "responses": {
+          "200": {"description": "Invite created"}
+        }
+      }
+    },
+    "/invites/accept": {
+      "post": {
+        "tags": ["invites"],
+        "summary": "Accept invite",
+        "operationId": "acceptInvite",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "Invite accepted"}
+        }
+      }
+    },
+    "/authorize": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Check authorization",
+        "operationId": "authorize",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "Authorization result"}
+        }
+      }
+    },
+    "/permissions": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Get user permissions",
+        "operationId": "getPermissions",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "User permissions"}
+        }
+      }
+    },
+    "/sessions": {
+      "get": {
+        "tags": ["sessions"],
+        "summary": "List active sessions",
+        "operationId": "listSessions",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 200}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0}}
+        ],
+        "responses": {
+          "200": {"description": "List of sessions"}
+        }
+      },
+      "delete": {
+        "tags": ["sessions"],
+        "summary": "Revoke all sessions",
+        "operationId": "revokeAllSessions",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "Sessions revoked"}
+        }
+      }
+    },
+    "/mfa/setup": {
+      "post": {
+        "tags": ["mfa"],
+        "summary": "Setup MFA",
+        "operationId": "setupMfa",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "MFA setup initiated"}
+        }
+      }
+    },
+    "/mfa/enable": {
+      "post": {
+        "tags": ["mfa"],
+        "summary": "Enable MFA",
+        "operationId": "enableMfa",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "MFA enabled"}
+        }
+      }
+    },
+    "/mfa/disable": {
+      "post": {
+        "tags": ["mfa"],
+        "summary": "Disable MFA",
+        "operationId": "disableMfa",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "MFA disabled"}
+        }
+      }
+    },
+    "/mfa/status": {
+      "get": {
+        "tags": ["mfa"],
+        "summary": "Get MFA status",
+        "operationId": "mfaStatus",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "MFA status"}
+        }
+      }
+    },
+    "/mfa/verify": {
+      "post": {
+        "tags": ["mfa"],
+        "summary": "Verify MFA code (authenticated step-up)",
+        "operationId": "verifyMfa",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "MFA verified"}
+        }
+      }
+    },
+    "/mfa/recovery": {
+      "post": {
+        "tags": ["mfa"],
+        "summary": "Use recovery code (authenticated step-up)",
+        "operationId": "useRecoveryCode",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {"description": "Recovery code accepted"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT access token"
+      },
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key (prefix: ck_)"
+      }
+    },
+    "parameters": {
+      "orgId": {
+        "name": "org_id",
+        "in": "path",
+        "required": true,
+        "schema": {"type": "string", "format": "uuid"}
+      },
+      "userId": {
+        "name": "user_id",
+        "in": "path",
+        "required": true,
+        "schema": {"type": "string", "format": "uuid"}
+      }
+    },
+    "schemas": {
+      "AuthConfigResponse": {
+        "type": "object",
+        "properties": {
+          "version": {"type": "string"},
+          "basePath": {"type": "string"},
+          "authMethods": {"type": "array"},
+          "apiKeyUsage": {"type": "object"},
+          "links": {"type": "object"}
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string", "minLength": 8}
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string"}
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": {"type": "string"}
+        }
+      },
+      "InstantLinkRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {"type": "string", "format": "email"}
+        }
+      },
+      "VerifyInstantLinkRequest": {
+        "type": "object",
+        "required": ["token"],
+        "properties": {
+          "token": {"type": "string"}
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": {"type": "string"}
+        }
+      },
+      "MfaRequiredResponse": {
+        "type": "object",
+        "required": ["mfaRequired", "mfaToken", "userId"],
+        "properties": {
+          "mfaRequired": {"type": "boolean"},
+          "mfaToken": {"type": "string"},
+          "userId": {"type": "string", "format": "uuid"}
+        }
+      },
+      "SolanaChallengeRequest": {
+        "type": "object",
+        "required": ["publicKey"],
+        "properties": {
+          "publicKey": {
+            "type": "string",
+            "description": "Base58-encoded Solana public key"
+          }
+        }
+      },
+      "SolanaChallengeResponse": {
+        "type": "object",
+        "properties": {
+          "nonce": {
+            "type": "string",
+            "description": "Challenge nonce to sign"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SolanaAuthRequest": {
+        "type": "object",
+        "required": ["publicKey", "signature"],
+        "properties": {
+          "publicKey": {
+            "type": "string",
+            "description": "Base58-encoded Solana public key"
+          },
+          "signature": {
+            "type": "string",
+            "description": "Base58-encoded Ed25519 signature of the nonce"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "user": {"$ref": "#/components/schemas/AuthUser"},
+          "tokens": {"$ref": "#/components/schemas/TokenPair"},
+          "isNewUser": {"type": "boolean"},
+          "apiKey": {
+            "type": "string",
+            "description": "API key (only returned for new users)"
+          }
+        }
+      },
+      "AuthUser": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "email": {"type": "string"},
+          "emailVerified": {"type": "boolean"},
+          "solanaPublicKey": {"type": "string"}
+        }
+      },
+      "TokenPair": {
+        "type": "object",
+        "properties": {
+          "accessToken": {"type": "string"},
+          "refreshToken": {"type": "string"},
+          "expiresIn": {"type": "integer"}
+        }
+      },
+      "ValidateApiKeyRequest": {
+        "type": "object",
+        "required": ["apiKey"],
+        "properties": {
+          "apiKey": {"type": "string"}
+        }
+      },
+      "ValidateApiKeyResponse": {
+        "type": "object",
+        "properties": {
+          "valid": {"type": "boolean"},
+          "userId": {"type": "string", "format": "uuid"}
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "email": {"type": "string"},
+          "emailVerified": {"type": "boolean"},
+          "solanaPublicKey": {"type": "string"},
+          "createdAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "ApiKeyResponse": {
+        "type": "object",
+        "properties": {
+          "keyPrefix": {"type": "string", "description": "First 8 chars of key"},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "lastUsedAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "RegenerateApiKeyResponse": {
+        "type": "object",
+        "properties": {
+          "apiKey": {"type": "string", "description": "New API key (shown only once)"}
+        }
+      },
+      "CreateOrgRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string"}
+        }
+      }
+    }
+  }
+}

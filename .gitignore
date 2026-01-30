@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+target/
+
+# Build artifacts
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Rust
+Cargo.lock
+!server-rust/Cargo.lock

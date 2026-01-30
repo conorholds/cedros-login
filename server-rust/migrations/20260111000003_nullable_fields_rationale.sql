@@ -1,0 +1,25 @@
+-- DB-15/DB-16: Rationale for nullable IP/user_agent fields
+--
+-- The following fields are intentionally nullable:
+--
+-- sessions.ip_address, sessions.user_agent:
+--   - Proxies/load balancers may strip X-Forwarded-For
+--   - Privacy-conscious users may use browsers that omit User-Agent
+--   - API clients may not send User-Agent headers
+--   - We don't want to fail session creation for missing metadata
+--
+-- login_attempts.ip_address:
+--   - Same reasons as above
+--   - IP tracking is best-effort for security analysis
+--   - Missing IP shouldn't prevent attempt recording
+--
+-- Alternative considered: Use empty string instead of NULL
+--   - Rejected because empty string conflates "unknown" with "not provided"
+--   - NULL semantics are clearer for optional tracking data
+--   - Application code handles Option<String> appropriately
+--
+-- If strict tracking is needed, add application-level validation
+-- to reject requests without IP before calling repository methods.
+
+-- Placeholder for sqlx (no-op)
+SELECT 1;

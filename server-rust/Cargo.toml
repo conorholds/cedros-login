@@ -1,0 +1,107 @@
+[package]
+name = "cedros-login-server"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.75"
+description = "Authentication server for cedros-login with email/password, Google OAuth, and Solana wallet sign-in"
+license = "MIT"
+repository = "https://github.com/conorholds/cedros-login"
+homepage = "https://github.com/conorholds/cedros-login"
+readme = "README.md"
+keywords = ["authentication", "login", "oauth", "solana", "axum"]
+categories = ["authentication", "web-programming"]
+exclude = [
+    "AUDIT_TODO.md",
+    "PUBLISH_TODO.md",
+    "Dockerfile",
+    "Makefile",
+    "docker-compose.yml",
+    ".env",
+    ".env.example",
+]
+
+[lib]
+name = "cedros_login"
+path = "src/lib.rs"
+
+[[bin]]
+name = "cedros-login-server"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+axum = { version = "0.8", features = ["macros"] }
+tokio = { version = "1", features = ["full"] }
+tokio-util = "0.7"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "limit", "set-header"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Authentication
+jsonwebtoken = "9"
+rsa = "0.9"  # RS256 key generation for JWT
+argon2 = "0.5"
+totp-rs = { version = "5", features = ["gen_secret", "otpauth"] }
+subtle = "2"  # Constant-time comparison for recovery codes
+
+# Solana signature verification
+ed25519-dalek = "2"
+bs58 = "0.5"
+
+# WebAuthn (S-16: conditional-ui enables discoverable/username-less authentication)
+webauthn-rs = { version = "0.5", features = ["danger-allow-state-serialisation", "conditional-ui"] }
+webauthn-rs-proto = "0.5"
+
+# OpenID Connect (Enterprise SSO)
+openidconnect = "4"
+
+# Google OAuth
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Database
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid", "chrono"], optional = true }
+
+# Redis (optional, for distributed rate limiting)
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"], optional = true }
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+
+# Logging/tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Utilities
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1"
+anyhow = "1"
+async-trait = "0.1"
+rand = "0.8"
+base64 = "0.22"
+url = "2"
+aes-gcm = "0.10"
+dashmap = "5"
+# SEC-06: Zeroize sensitive data in memory
+zeroize = { version = "1", features = ["derive"] }
+
+# Webhook signing
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+
+# SEC-09: Unicode normalization for email addresses
+unicode-normalization = "0.1"
+
+[dev-dependencies]
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }
+
+[features]
+default = ["postgres"]
+postgres = ["sqlx"]
+redis-rate-limit = ["redis"]

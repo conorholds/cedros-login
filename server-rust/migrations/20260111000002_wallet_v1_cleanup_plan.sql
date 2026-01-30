@@ -1,0 +1,24 @@
+-- DB-08: Plan for dropping deprecated v1 wallet columns
+--
+-- The following columns are deprecated since v2 (server-side signing):
+--   - share_b_ciphertext: Was client-encrypted Share B (v2 stores plaintext share_b)
+--   - share_b_nonce: Was nonce for Share B encryption
+--
+-- MIGRATION TIMELINE:
+-- 1. [CURRENT] v2 migration deployed, new enrollments use v2 schema
+-- 2. [FUTURE] After all v1 wallets migrated to v2, run:
+--      ALTER TABLE solana_wallet_material DROP COLUMN share_b_ciphertext;
+--      ALTER TABLE solana_wallet_material DROP COLUMN share_b_nonce;
+-- 3. [FUTURE] Add NOT NULL to share_b column:
+--      ALTER TABLE solana_wallet_material ALTER COLUMN share_b SET NOT NULL;
+--
+-- To check migration progress:
+--   SELECT scheme_version, COUNT(*) FROM solana_wallet_material GROUP BY scheme_version;
+-- v1 wallets have scheme_version=1 and need user action to migrate.
+--
+-- This file is documentation only - no schema changes made here.
+-- The actual DROP statements are in 20260109000001_wallet_v2_server_signing.sql
+-- (commented out, pending migration completion).
+
+-- Placeholder for sqlx (no-op)
+SELECT 1;
