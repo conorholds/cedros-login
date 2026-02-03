@@ -1,0 +1,76 @@
+{
+  "name": "@cedros/login-react-native",
+  "version": "0.0.1",
+  "description": "React Native authentication library for Cedros with email/password, social login, and crypto wallet support",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./src/index.ts",
+        "default": "./src/index.ts"
+      },
+      "require": {
+        "types": "./src/index.ts",
+        "default": "./src/index.ts"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings 0",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.72.0",
+    "@react-native-async-storage/async-storage": "^1.19.0"
+  },
+  "peerDependenciesMeta": {
+    "@react-native-google-signin/google-signin": {
+      "optional": true
+    },
+    "@invertase/react-native-apple-authentication": {
+      "optional": true
+    },
+    "@solana-mobile/mobile-wallet-adapter-protocol": {
+      "optional": true
+    },
+    "react-native-biometrics": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@noble/curves": "^2.0.1",
+    "@noble/hashes": "^1.7.2",
+    "@scure/bip39": "^1.6.0",
+    "hash-wasm": "^4.12.0",
+    "secrets.js-grempe": "^2.0.0"
+  },
+  "keywords": [
+    "react-native",
+    "authentication",
+    "login",
+    "oauth",
+    "solana",
+    "wallet",
+    "biometrics",
+    "cedros"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conorholds/cedros-login.git",
+    "directory": "react-native"
+  }
+}
