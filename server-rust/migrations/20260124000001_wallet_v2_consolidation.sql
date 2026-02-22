@@ -45,29 +45,41 @@ ALTER TABLE solana_wallet_material
 ALTER TABLE solana_wallet_material
     DROP CONSTRAINT IF EXISTS solana_wallet_prf_salt_length;
 
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_prf_salt_length
-        CHECK (prf_salt IS NULL OR LENGTH(prf_salt) = 32);
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_prf_salt_length
+            CHECK (prf_salt IS NULL OR LENGTH(prf_salt) = 32);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Step 8: Drop the old KDF salt length constraint
 -- Re-add as a conditional constraint
 ALTER TABLE solana_wallet_material
     DROP CONSTRAINT IF EXISTS solana_wallet_kdf_salt_length;
 
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_kdf_salt_length
-        CHECK (share_a_kdf_salt IS NULL OR LENGTH(share_a_kdf_salt) >= 16);
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_kdf_salt_length
+            CHECK (share_a_kdf_salt IS NULL OR LENGTH(share_a_kdf_salt) >= 16);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Step 9: Add constraint ensuring proper fields for each auth method
 -- Password auth: requires KDF salt and params
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_password_auth_check
-        CHECK (share_a_auth_method != 'password' OR (share_a_kdf_salt IS NOT NULL AND share_a_kdf_params_json IS NOT NULL));
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_password_auth_check
+            CHECK (share_a_auth_method != 'password' OR (share_a_kdf_salt IS NOT NULL AND share_a_kdf_params_json IS NOT NULL));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- PIN auth: requires KDF salt, params, and PIN hash
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_pin_auth_check
-        CHECK (share_a_auth_method != 'pin' OR (share_a_kdf_salt IS NOT NULL AND share_a_kdf_params_json IS NOT NULL AND share_a_pin_hash IS NOT NULL));
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_pin_auth_check
+            CHECK (share_a_auth_method != 'pin' OR (share_a_kdf_salt IS NOT NULL AND share_a_kdf_params_json IS NOT NULL AND share_a_pin_hash IS NOT NULL));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Step 10: Drop old PIN hash check (replaced by pin_auth_check above)
 ALTER TABLE solana_wallet_material

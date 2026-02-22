@@ -25,11 +25,17 @@ use crate::errors::AppError;
 use crate::repositories::membership_repository::OrgRole;
 
 /// Invite entity for storage
+///
+/// An invite can be sent to either an email address or a Solana wallet address.
+/// At least one of `email` or `wallet_address` must be provided.
 #[derive(Debug, Clone)]
 pub struct InviteEntity {
     pub id: Uuid,
     pub org_id: Uuid,
-    pub email: String,
+    /// Email address (optional if wallet_address is provided)
+    pub email: Option<String>,
+    /// Solana wallet address (optional if email is provided)
+    pub wallet_address: Option<String>,
     pub role: OrgRole,
     pub token_hash: String,
     pub invited_by: Uuid,
@@ -39,6 +45,22 @@ pub struct InviteEntity {
 }
 
 impl InviteEntity {
+    /// Get a display identifier for the invite recipient
+    pub fn recipient_display(&self) -> String {
+        if let Some(ref email) = self.email {
+            email.clone()
+        } else if let Some(ref wallet) = self.wallet_address {
+            // Truncate wallet for display: first 4 + last 4 chars
+            if wallet.len() > 8 {
+                format!("{}...{}", &wallet[..4], &wallet[wallet.len() - 4..])
+            } else {
+                wallet.clone()
+            }
+        } else {
+            "unknown".to_string()
+        }
+    }
+
     /// Check if the invite is still valid (not expired, not accepted)
     pub fn is_valid(&self) -> bool {
         self.accepted_at.is_none() && self.expires_at > Utc::now()
@@ -120,6 +142,23 @@ pub trait InviteRepository: Send + Sync {
     /// In practice, a single email having >1000 pending invites is unlikely.
     async fn find_pending_by_email(&self, email: &str) -> Result<Vec<InviteEntity>, AppError>;
 
+    /// Find invite by org and wallet address
+    async fn find_by_org_and_wallet(
+        &self,
+        org_id: Uuid,
+        wallet_address: &str,
+    ) -> Result<Option<InviteEntity>, AppError>;
+
+    /// Find all pending invites for a wallet address
+    ///
+    /// # Implicit Limit (R-05)
+    ///
+    /// This method has an implicit limit of 1000 results to prevent memory issues.
+    async fn find_pending_by_wallet(
+        &self,
+        wallet_address: &str,
+    ) -> Result<Vec<InviteEntity>, AppError>;
+
     /// Create a new invite
     async fn create(&self, invite: InviteEntity) -> Result<InviteEntity, AppError>;
 
@@ -190,7 +229,13 @@ impl InviteRepository for InMemoryInviteRepository {
         let email_lower = email.to_lowercase();
         Ok(invites
             .values()
-            .find(|i| i.org_id == org_id && i.email.to_lowercase() == email_lower)
+            .find(|i| {
+                i.org_id == org_id
+                    && i.email
+                        .as_ref()
+                        .map(|e| e.to_lowercase() == email_lower)
+                        .unwrap_or(false)
+            })
             .cloned())
     }
 
@@ -222,7 +267,51 @@ impl InviteRepository for InMemoryInviteRepository {
         let email_lower = email.to_lowercase();
         Ok(invites
             .values()
-            .filter(|i| i.email.to_lowercase() == email_lower && i.is_valid())
+            .filter(|i| {
+                i.email
+                    .as_ref()
+                    .map(|e| e.to_lowercase() == email_lower)
+                    .unwrap_or(false)
+                    && i.is_valid()
+            })
+            .cloned()
+            .collect())
+    }
+
+    async fn find_by_org_and_wallet(
+        &self,
+        org_id: Uuid,
+        wallet_address: &str,
+    ) -> Result<Option<InviteEntity>, AppError> {
+        let invites = self.invites.read().await;
+        let wallet_lower = wallet_address.to_lowercase();
+        Ok(invites
+            .values()
+            .find(|i| {
+                i.org_id == org_id
+                    && i.wallet_address
+                        .as_ref()
+                        .map(|w| w.to_lowercase() == wallet_lower)
+                        .unwrap_or(false)
+            })
+            .cloned())
+    }
+
+    async fn find_pending_by_wallet(
+        &self,
+        wallet_address: &str,
+    ) -> Result<Vec<InviteEntity>, AppError> {
+        let invites = self.invites.read().await;
+        let wallet_lower = wallet_address.to_lowercase();
+        Ok(invites
+            .values()
+            .filter(|i| {
+                i.wallet_address
+                    .as_ref()
+                    .map(|w| w.to_lowercase() == wallet_lower)
+                    .unwrap_or(false)
+                    && i.is_valid()
+            })
             .cloned()
             .collect())
     }
@@ -233,13 +322,37 @@ impl InviteRepository for InMemoryInviteRepository {
         let mut invites = self.invites.write().await;
 
         // Check for existing pending invite for same org+email
-        let email_lower = invite.email.to_lowercase();
-        if invites.values().any(|i| {
-            i.org_id == invite.org_id && i.email.to_lowercase() == email_lower && i.is_valid()
-        }) {
-            return Err(AppError::Validation(
-                "An active invite already exists for this email".into(),
-            ));
+        if let Some(ref email) = invite.email {
+            let email_lower = email.to_lowercase();
+            if invites.values().any(|i| {
+                i.org_id == invite.org_id
+                    && i.email
+                        .as_ref()
+                        .map(|e| e.to_lowercase() == email_lower)
+                        .unwrap_or(false)
+                    && i.is_valid()
+            }) {
+                return Err(AppError::Validation(
+                    "An active invite already exists for this email".into(),
+                ));
+            }
+        }
+
+        // Check for existing pending invite for same org+wallet
+        if let Some(ref wallet) = invite.wallet_address {
+            let wallet_lower = wallet.to_lowercase();
+            if invites.values().any(|i| {
+                i.org_id == invite.org_id
+                    && i.wallet_address
+                        .as_ref()
+                        .map(|w| w.to_lowercase() == wallet_lower)
+                        .unwrap_or(false)
+                    && i.is_valid()
+            }) {
+                return Err(AppError::Validation(
+                    "An active invite already exists for this wallet address".into(),
+                ));
+            }
         }
 
         invites.insert(invite.id, invite.clone());
@@ -348,7 +461,8 @@ mod tests {
         InviteEntity {
             id: Uuid::new_v4(),
             org_id,
-            email: email.to_string(),
+            email: Some(email.to_string()),
+            wallet_address: None,
             role: OrgRole::Member,
             token_hash: hash_invite_token(&token),
             invited_by,
@@ -367,7 +481,7 @@ mod tests {
         let invite = create_test_invite(org_id, "test@example.com", invited_by);
         let created = repo.create(invite).await.unwrap();
 
-        assert_eq!(created.email, "test@example.com");
+        assert_eq!(created.email, Some("test@example.com".to_string()));
         assert!(created.is_valid());
     }
 
@@ -398,7 +512,8 @@ mod tests {
         let invite = InviteEntity {
             id: Uuid::new_v4(),
             org_id,
-            email: "test@example.com".to_string(),
+            email: Some("test@example.com".to_string()),
+            wallet_address: None,
             role: OrgRole::Member,
             token_hash: token_hash.clone(),
             invited_by,
@@ -467,7 +582,7 @@ mod tests {
 
         let pending = repo.find_pending_by_org(org_id).await.unwrap();
         assert_eq!(pending.len(), 1);
-        assert_eq!(pending[0].email, "test1@example.com");
+        assert_eq!(pending[0].email, Some("test1@example.com".to_string()));
     }
 
     #[tokio::test]
@@ -513,5 +628,95 @@ mod tests {
         assert_eq!(hash1, hash2);
         // Hash should be 64 hex characters (SHA256)
         assert_eq!(hash1.len(), 64);
+    }
+
+    fn create_wallet_invite(org_id: Uuid, wallet: &str, invited_by: Uuid) -> InviteEntity {
+        let token = generate_invite_token();
+        InviteEntity {
+            id: Uuid::new_v4(),
+            org_id,
+            email: None,
+            wallet_address: Some(wallet.to_string()),
+            role: OrgRole::Member,
+            token_hash: hash_invite_token(&token),
+            invited_by,
+            created_at: Utc::now(),
+            expires_at: default_invite_expiry(),
+            accepted_at: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn test_create_wallet_invite() {
+        let repo = InMemoryInviteRepository::new();
+        let org_id = Uuid::new_v4();
+        let invited_by = Uuid::new_v4();
+
+        let invite = create_wallet_invite(
+            org_id,
+            "6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL",
+            invited_by,
+        );
+        let created = repo.create(invite).await.unwrap();
+
+        assert!(created.email.is_none());
+        assert_eq!(
+            created.wallet_address,
+            Some("6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL".to_string())
+        );
+        assert!(created.is_valid());
+    }
+
+    #[tokio::test]
+    async fn test_duplicate_wallet_invite_rejected() {
+        let repo = InMemoryInviteRepository::new();
+        let org_id = Uuid::new_v4();
+        let invited_by = Uuid::new_v4();
+
+        let invite1 = create_wallet_invite(
+            org_id,
+            "6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL",
+            invited_by,
+        );
+        let invite2 = create_wallet_invite(
+            org_id,
+            "6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL",
+            invited_by,
+        );
+
+        repo.create(invite1).await.unwrap();
+        let result = repo.create(invite2).await;
+
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_find_pending_by_wallet() {
+        let repo = InMemoryInviteRepository::new();
+        let org_id = Uuid::new_v4();
+        let invited_by = Uuid::new_v4();
+        let wallet = "6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL";
+
+        let invite = create_wallet_invite(org_id, wallet, invited_by);
+        repo.create(invite).await.unwrap();
+
+        let pending = repo.find_pending_by_wallet(wallet).await.unwrap();
+        assert_eq!(pending.len(), 1);
+        assert_eq!(pending[0].wallet_address, Some(wallet.to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_find_by_org_and_wallet() {
+        let repo = InMemoryInviteRepository::new();
+        let org_id = Uuid::new_v4();
+        let invited_by = Uuid::new_v4();
+        let wallet = "6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL";
+
+        let invite = create_wallet_invite(org_id, wallet, invited_by);
+        repo.create(invite).await.unwrap();
+
+        let found = repo.find_by_org_and_wallet(org_id, wallet).await.unwrap();
+        assert!(found.is_some());
+        assert_eq!(found.unwrap().wallet_address, Some(wallet.to_string()));
     }
 }

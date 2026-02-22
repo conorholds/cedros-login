@@ -6,10 +6,12 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
 use crate::errors::AppError;
+use crate::repositories::{CreditRepository, CreditTransactionEntity};
 
 /// Hold status
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -154,13 +156,17 @@ pub trait CreditHoldRepository: Send + Sync {
 
     /// Capture a hold, converting it to a spend transaction
     ///
-    /// Returns the captured transaction ID.
-    /// Updates balance and held_balance atomically.
+    /// SRV-02: Also deducts the actual balance and inserts the credit
+    /// transaction record atomically in the same DB transaction, preventing
+    /// inconsistency if the process crashes between capture and deduction.
+    ///
+    /// Returns `(captured_hold, new_balance)`.
     async fn capture_hold(
         &self,
         hold_id: Uuid,
         transaction_id: Uuid,
-    ) -> Result<CreditHoldEntity, AppError>;
+        credit_tx: CreditTransactionEntity,
+    ) -> Result<(CreditHoldEntity, i64), AppError>;
 
     /// Release a hold, returning credits to available balance
     ///
@@ -186,6 +192,10 @@ pub struct InMemoryCreditHoldRepository {
     /// Reference to balances for updating held_balance
     /// In real impl, this is done atomically in DB
     balances_held: RwLock<HashMap<(Uuid, String), i64>>,
+    /// Optional credit repository for atomic capture+deduct in the in-memory path.
+    /// When set, `capture_hold` deducts the hold amount and returns the real new balance,
+    /// mirroring what the Postgres implementation does in a single DB transaction.
+    credit_repo: Option<Arc<dyn CreditRepository>>,
 }
 
 impl InMemoryCreditHoldRepository {
@@ -193,6 +203,19 @@ impl InMemoryCreditHoldRepository {
         Self {
             holds: RwLock::new(HashMap::new()),
             balances_held: RwLock::new(HashMap::new()),
+            credit_repo: None,
+        }
+    }
+
+    /// Create a hold repository that shares a credit repository for balance tracking.
+    ///
+    /// Use this in `Storage::in_memory()` so that `capture_hold` can deduct the balance
+    /// and return the correct new balance, matching the Postgres atomic behaviour.
+    pub fn with_credit_repo(credit_repo: Arc<dyn CreditRepository>) -> Self {
+        Self {
+            holds: RwLock::new(HashMap::new()),
+            balances_held: RwLock::new(HashMap::new()),
+            credit_repo: Some(credit_repo),
         }
     }
 
@@ -253,7 +276,8 @@ impl CreditHoldRepository for InMemoryCreditHoldRepository {
         &self,
         hold_id: Uuid,
         transaction_id: Uuid,
-    ) -> Result<CreditHoldEntity, AppError> {
+        credit_tx: CreditTransactionEntity,
+    ) -> Result<(CreditHoldEntity, i64), AppError> {
         let mut holds = self.holds.write().await;
         let mut balances_held = self.balances_held.write().await;
 
@@ -276,13 +300,31 @@ impl CreditHoldRepository for InMemoryCreditHoldRepository {
         hold.captured_transaction_id = Some(transaction_id);
         hold.updated_at = Utc::now();
 
-        // Release held balance (actual debit happens in credit_repository)
+        // Release held balance
         let key = (hold.user_id, hold.currency.clone());
         if let Some(held) = balances_held.get_mut(&key) {
             *held = (*held - hold.amount).max(0);
         }
 
-        Ok(hold.clone())
+        let captured = hold.clone();
+        let user_id = captured.user_id;
+        let amount = captured.amount;
+        let currency = captured.currency.clone();
+
+        // Drop write-locks before calling the credit repo to avoid deadlock.
+        drop(holds);
+        drop(balances_held);
+
+        // Mirror the Postgres atomic capture+deduct: deduct the hold amount from the
+        // credit balance and return the resulting new balance.
+        let new_balance = if let Some(repo) = &self.credit_repo {
+            repo.deduct_credit(user_id, amount, &currency, credit_tx)
+                .await?
+        } else {
+            0
+        };
+
+        Ok((captured, new_balance))
     }
 
     async fn release_hold(&self, hold_id: Uuid) -> Result<CreditHoldEntity, AppError> {
@@ -449,7 +491,10 @@ mod tests {
         let hold_id = result.hold().id;
         let tx_id = Uuid::new_v4();
 
-        let captured = repo.capture_hold(hold_id, tx_id).await.unwrap();
+        let credit_tx = CreditTransactionEntity::from_captured_hold(
+            user_id, 100_000, "SOL", hold_id, "order-123", None, None, None,
+        );
+        let (captured, _balance) = repo.capture_hold(hold_id, tx_id, credit_tx).await.unwrap();
         assert_eq!(captured.status, HoldStatus::Captured);
         assert_eq!(captured.captured_transaction_id, Some(tx_id));
     }
@@ -500,7 +545,10 @@ mod tests {
         repo.release_hold(hold_id).await.unwrap();
 
         // Try to capture - should fail
-        let capture_result = repo.capture_hold(hold_id, Uuid::new_v4()).await;
+        let credit_tx = CreditTransactionEntity::from_captured_hold(
+            user_id, 100_000, "SOL", hold_id, "order-123", None, None, None,
+        );
+        let capture_result = repo.capture_hold(hold_id, Uuid::new_v4(), credit_tx).await;
         assert!(capture_result.is_err());
     }
 }

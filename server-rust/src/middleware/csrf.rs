@@ -117,8 +117,9 @@ where
             let method = req.method().clone();
             let headers = req.headers();
 
-            let _has_auth_header = headers.get(header::AUTHORIZATION).is_some();
+            // S-22: Removed unused _has_auth_header binding (was dead code)
             let csrf_cookie = extract_cookie(headers, CSRF_COOKIE_NAME)
+                // S-23: Legacy cookie name fallback — plan removal after 2026-Q3
                 .or_else(|| extract_cookie(headers, "csrf-token"));
             let csrf_header = headers
                 .get(CSRF_HEADER_NAME)
@@ -299,7 +300,10 @@ mod tests {
                 Request::builder()
                     .uri("/")
                     .method(Method::POST)
-                    .header(header::COOKIE, "cedros_access=session123; XSRF-TOKEN=abc123")
+                    .header(
+                        header::COOKIE,
+                        "cedros_access=session123; XSRF-TOKEN=abc123",
+                    )
                     .body(Body::empty())
                     .unwrap(),
             )
@@ -369,7 +373,10 @@ mod tests {
                 Request::builder()
                     .uri("/")
                     .method(Method::POST)
-                    .header(header::COOKIE, "cedros_access=session123; XSRF-TOKEN=abc123")
+                    .header(
+                        header::COOKIE,
+                        "cedros_access=session123; XSRF-TOKEN=abc123",
+                    )
                     .header(CSRF_HEADER_NAME, "abc123")
                     .body(Body::empty())
                     .unwrap(),

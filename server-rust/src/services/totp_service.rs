@@ -187,6 +187,8 @@ impl TotpService {
             }
         }
 
+        // S-31: Returns server's current_time_step rather than the matched step.
+        // See SEC-03 note above: this is intentional to prevent clock-manipulation attacks.
         Ok(Some(current_time_step))
     }
 

@@ -153,10 +153,6 @@ pub async fn list_deposits<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<AdminDepositListResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
 
-    if !state.config.privacy.enabled {
-        return Err(AppError::NotFound("Privacy deposits not enabled".into()));
-    }
-
     let limit = cap_limit(query.limit).min(100);
     let offset = cap_offset(query.offset);
 
@@ -213,10 +209,6 @@ pub async fn list_in_privacy_period<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<AdminDepositListResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
 
-    if !state.config.privacy.enabled {
-        return Err(AppError::NotFound("Privacy deposits not enabled".into()));
-    }
-
     let limit = cap_limit(query.limit).min(100);
     let offset = cap_offset(query.offset);
 
@@ -264,10 +256,6 @@ pub async fn get_stats<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<AdminDepositStatsResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
 
-    if !state.config.privacy.enabled {
-        return Err(AppError::NotFound("Privacy deposits not enabled".into()));
-    }
-
     let stats = state.deposit_repo.get_stats().await?;
     Ok(Json(AdminDepositStatsResponse::from(stats)))
 }
@@ -282,10 +270,6 @@ pub async fn list_pending_withdrawals<C: AuthCallback, E: EmailService>(
     Query(query): Query<ListDepositsQuery>,
 ) -> Result<Json<AdminDepositListResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
-
-    if !state.config.privacy.enabled {
-        return Err(AppError::NotFound("Privacy deposits not enabled".into()));
-    }
 
     let limit = cap_limit(query.limit).min(100);
     let offset = cap_offset(query.offset);
@@ -386,10 +370,6 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<ProcessWithdrawalResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
 
-    if !state.config.privacy.enabled {
-        return Err(AppError::NotFound("Privacy deposits not enabled".into()));
-    }
-
     // Get the deposit session
     let session = state
         .deposit_repo
@@ -403,7 +383,7 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
     }
 
     // Check if deposit is completed (has funds to withdraw)
-    if session.status != DepositStatus::Completed {
+    if session.status != DepositStatus::Completed && session.status != DepositStatus::PendingRetry {
         return Err(AppError::Validation(format!(
             "Cannot withdraw: deposit status is '{}'",
             session.status.as_str()
@@ -483,10 +463,6 @@ pub async fn process_all_withdrawals<C: AuthCallback, E: EmailService>(
     Query(query): Query<ProcessAllWithdrawalsQuery>,
 ) -> Result<Json<ProcessAllWithdrawalsResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
-
-    if !state.config.privacy.enabled {
-        return Err(AppError::NotFound("Privacy deposits not enabled".into()));
-    }
 
     let limit = cap_process_all_limit(query.limit);
 

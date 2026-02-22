@@ -20,8 +20,9 @@ use crate::errors::AppError;
 pub use super::sidecar_types::{
     BalanceRequest, BalanceResponse, BatchSwapRequest, BatchSwapResponse, DepositRequest,
     DepositResponse, HealthResponse, SidecarClientConfig, SwapAndDepositRequest,
-    SwapAndDepositResponse, VerifySolTransferRequest, VerifySolTransferResponse, WithdrawRequest,
-    WithdrawResponse,
+    SwapAndDepositResponse, TransferResponse, TransferSolRequest, TransferSplRequest,
+    VerifySolTransferRequest, VerifySolTransferResponse, WalletBalancesRequest,
+    WalletBalancesResponse, WithdrawRequest, WithdrawResponse,
 };
 
 use super::sidecar_types::{ensure_sidecar_success, ErrorResponse, SidecarSuccess};
@@ -235,6 +236,72 @@ impl PrivacySidecarClient {
 
         let response = self.post_with_retry(&url, &body).await?;
         self.handle_success_response(response).await
+    }
+
+    /// Transfer SOL from user's embedded wallet to an external address.
+    ///
+    /// Used for user-initiated withdrawals. Requires the user's private key
+    /// (reconstructed from SSS shares).
+    pub async fn transfer_sol(
+        &self,
+        user_private_key: &str,
+        destination: &str,
+        amount_lamports: u64,
+    ) -> Result<TransferResponse, AppError> {
+        let url = format!("{}/transfer/sol", self.base_url);
+        let body = TransferSolRequest {
+            user_private_key: user_private_key.to_string(),
+            destination: destination.to_string(),
+            amount_lamports,
+        };
+
+        let response = self.post_with_retry(&url, &body).await?;
+        self.handle_success_response(response).await
+    }
+
+    /// Transfer SPL tokens from user's embedded wallet to an external address.
+    ///
+    /// Used for user-initiated withdrawals (USDC/USDT). Token must be whitelisted.
+    pub async fn transfer_spl(
+        &self,
+        user_private_key: &str,
+        destination: &str,
+        token_mint: &str,
+        amount: &str,
+    ) -> Result<TransferResponse, AppError> {
+        let url = format!("{}/transfer/spl", self.base_url);
+        let body = TransferSplRequest {
+            user_private_key: user_private_key.to_string(),
+            destination: destination.to_string(),
+            token_mint: token_mint.to_string(),
+            amount: amount.to_string(),
+        };
+
+        let response = self.post_with_retry(&url, &body).await?;
+        self.handle_success_response(response).await
+    }
+
+    /// Get all token balances for a wallet address.
+    ///
+    /// Returns SOL balance + all SPL token accounts with non-zero balance.
+    /// Does not require a private key — only the public address.
+    pub async fn get_wallet_balances(
+        &self,
+        wallet_address: &str,
+    ) -> Result<WalletBalancesResponse, AppError> {
+        let url = format!("{}/transfer/balances", self.base_url);
+        let response = self
+            .client
+            .post(&url)
+            .header("Authorization", format!("Bearer {}", self.api_key))
+            .json(&WalletBalancesRequest {
+                wallet_address: wallet_address.to_string(),
+            })
+            .send()
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
+
+        self.handle_response(response).await
     }
 
     /// Verify a finalized SOL transfer (SystemProgram transfer) on-chain.

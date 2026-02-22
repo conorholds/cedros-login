@@ -20,6 +20,7 @@ exports.JupiterService = exports.USDT_MINT = exports.USDC_MINT = void 0;
 const web3_js_1 = require("@solana/web3.js");
 const bs58_1 = __importDefault(require("bs58"));
 const fetchWithTimeout_js_1 = require("../utils/fetchWithTimeout.js");
+const circuitBreaker_js_1 = require("../utils/circuitBreaker.js");
 /** SOL token mint address (native SOL wrapped) */
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
 /** Default Jupiter HTTP timeout (ms) */
@@ -33,11 +34,20 @@ class JupiterService {
     apiKey;
     minSwapUsd;
     rateLimit;
+    requestTimestampsMs = [];
+    throttleLock = Promise.resolve();
+    /** F-06: Circuit breaker to avoid wasting resources during Jupiter outages */
+    circuitBreaker;
     constructor(config) {
         this.apiUrl = config.jupiter.apiUrl;
         this.apiKey = config.jupiter.apiKey;
         this.minSwapUsd = config.jupiter.minSwapUsd;
         this.rateLimit = config.jupiter.rateLimit;
+        this.circuitBreaker = new circuitBreaker_js_1.CircuitBreaker({
+            failureThreshold: 5,
+            cooldownMs: 30_000,
+            name: 'Jupiter',
+        });
         if (!this.apiKey) {
             console.warn('[Jupiter] WARNING: No API key configured. Jupiter Ultra API requires an API key. Get one free at https://portal.jup.ag');
         }
@@ -54,6 +64,36 @@ class JupiterService {
      */
     getRateLimit() {
         return this.rateLimit;
+    }
+    /**
+     * Enforce max N requests per 10-second rolling window.
+     * P-04: Uses mutex pattern instead of promise chain to prevent memory leak
+     * under sustained load. Each call awaits the previous lock then releases its own.
+     */
+    async throttle() {
+        const prevLock = this.throttleLock;
+        let releaseLock;
+        this.throttleLock = new Promise((r) => { releaseLock = r; });
+        await prevLock;
+        try {
+            const windowMs = 10_000;
+            while (true) {
+                const now = Date.now();
+                while (this.requestTimestampsMs.length > 0 &&
+                    now - this.requestTimestampsMs[0] >= windowMs) {
+                    this.requestTimestampsMs.shift();
+                }
+                if (this.requestTimestampsMs.length < this.rateLimit) {
+                    this.requestTimestampsMs.push(now);
+                    return;
+                }
+                const waitMs = Math.max(1, windowMs - (now - this.requestTimestampsMs[0]));
+                await new Promise((resolve) => setTimeout(resolve, waitMs));
+            }
+        }
+        finally {
+            releaseLock();
+        }
     }
     /**
      * Get a swap order (unsigned transaction) from Jupiter Ultra API
@@ -80,6 +120,7 @@ class JupiterService {
             headers['x-api-key'] = this.apiKey;
         }
         console.log(`[Jupiter] Getting swap order: ${inputMint} -> SOL, amount: ${amount}`);
+        await this.throttle();
         const response = await (0, fetchWithTimeout_js_1.fetchWithTimeout)(fetch, url, { headers }, JUPITER_TIMEOUT_MS);
         if (!response.ok) {
             const errorBody = await response.text();
@@ -146,6 +187,7 @@ class JupiterService {
         if (this.apiKey) {
             headers['x-api-key'] = this.apiKey;
         }
+        await this.throttle();
         const response = await (0, fetchWithTimeout_js_1.fetchWithTimeout)(fetch, `${this.apiUrl}/execute`, {
             method: 'POST',
             headers,
@@ -199,15 +241,18 @@ class JupiterService {
      * @returns SwapResult with transaction signature and output amount
      */
     async swapToSol(inputMint, amount, userKeypair) {
-        const takerAddress = userKeypair.publicKey.toBase58();
-        // Get the swap order (unsigned transaction)
-        const order = await this.getSwapOrder({
-            inputMint,
-            amount,
-            takerAddress,
+        // F-06: Wrap in circuit breaker to fail fast during Jupiter outages
+        return this.circuitBreaker.call(async () => {
+            const takerAddress = userKeypair.publicKey.toBase58();
+            // Get the swap order (unsigned transaction)
+            const order = await this.getSwapOrder({
+                inputMint,
+                amount,
+                takerAddress,
+            });
+            // Sign and execute the swap
+            return this.executeSwap(order, userKeypair);
         });
-        // Sign and execute the swap
-        return this.executeSwap(order, userKeypair);
     }
     /**
      * Perform a complete swap from SOL to SPL token (for withdrawals)
@@ -221,60 +266,64 @@ class JupiterService {
      * @returns SwapResult with transaction signature and output amount
      */
     async swapFromSol(outputMint, amountLamports, userKeypair) {
-        const takerAddress = userKeypair.publicKey.toBase58();
-        // Build query parameters for SOL -> outputMint
-        const queryParams = new URLSearchParams({
-            inputMint: SOL_MINT,
-            outputMint,
-            amount: amountLamports,
-            taker: takerAddress,
-        });
-        const url = `${this.apiUrl}/order?${queryParams.toString()}`;
-        const headers = {
-            'Accept': 'application/json',
-        };
-        if (this.apiKey) {
-            headers['x-api-key'] = this.apiKey;
-        }
-        console.log(`[Jupiter] Getting swap order: SOL -> ${outputMint}, amount: ${amountLamports} lamports`);
-        const response = await fetch(url, { headers });
-        if (!response.ok) {
-            const errorBody = await response.text();
-            let errorMessage = `Jupiter API error: ${response.status}`;
-            try {
-                const errorJson = JSON.parse(errorBody);
-                errorMessage = errorJson.error || errorMessage;
-            }
-            catch {
-                errorMessage = errorBody || errorMessage;
-            }
-            throw new Error(errorMessage);
-        }
-        const order = await response.json();
-        // Check for order-level errors (codes 1, 2, 3)
-        if (order.error || order.code) {
-            const errorMessages = {
-                1: 'Insufficient token balance for swap',
-                2: 'Insufficient SOL for gas fees',
-                3: 'Trade size below minimum for gasless swap',
+        // F-06: Wrap in circuit breaker to fail fast during Jupiter outages
+        return this.circuitBreaker.call(async () => {
+            const takerAddress = userKeypair.publicKey.toBase58();
+            // Build query parameters for SOL -> outputMint
+            const queryParams = new URLSearchParams({
+                inputMint: SOL_MINT,
+                outputMint,
+                amount: amountLamports,
+                taker: takerAddress,
+            });
+            const url = `${this.apiUrl}/order?${queryParams.toString()}`;
+            const headers = {
+                'Accept': 'application/json',
             };
-            const errorMsg = order.error || errorMessages[order.code] || `Order failed with code ${order.code}`;
-            throw new Error(errorMsg);
-        }
-        // Validate required fields are present
-        if (!order.transaction || !order.requestId || !order.outAmount) {
-            throw new Error('Invalid order response: missing required fields');
-        }
-        console.log(`[Jupiter] Order received: requestId=${order.requestId}, outAmount=${order.outAmount}, gasless=${order.gasless}, router=${order.router}`);
-        // Execute the swap
-        return this.executeSwap({
-            transaction: order.transaction,
-            requestId: order.requestId,
-            expectedOutAmount: order.outAmount,
-            priceImpactPct: order.priceImpactPct || '0',
-            gasless: order.gasless ?? false,
-            slippageBps: order.slippageBps ?? 0,
-        }, userKeypair);
+            if (this.apiKey) {
+                headers['x-api-key'] = this.apiKey;
+            }
+            console.log(`[Jupiter] Getting swap order: SOL -> ${outputMint}, amount: ${amountLamports} lamports`);
+            await this.throttle();
+            const response = await (0, fetchWithTimeout_js_1.fetchWithTimeout)(fetch, url, { headers }, JUPITER_TIMEOUT_MS);
+            if (!response.ok) {
+                const errorBody = await response.text();
+                let errorMessage = `Jupiter API error: ${response.status}`;
+                try {
+                    const errorJson = JSON.parse(errorBody);
+                    errorMessage = errorJson.error || errorMessage;
+                }
+                catch {
+                    errorMessage = errorBody || errorMessage;
+                }
+                throw new Error(errorMessage);
+            }
+            const order = await response.json();
+            // Check for order-level errors (codes 1, 2, 3)
+            if (order.error || order.code) {
+                const errorMessages = {
+                    1: 'Insufficient token balance for swap',
+                    2: 'Insufficient SOL for gas fees',
+                    3: 'Trade size below minimum for gasless swap',
+                };
+                const errorMsg = order.error || errorMessages[order.code] || `Order failed with code ${order.code}`;
+                throw new Error(errorMsg);
+            }
+            // Validate required fields are present
+            if (!order.transaction || !order.requestId || !order.outAmount) {
+                throw new Error('Invalid order response: missing required fields');
+            }
+            console.log(`[Jupiter] Order received: requestId=${order.requestId}, outAmount=${order.outAmount}, gasless=${order.gasless}, router=${order.router}`);
+            // Execute the swap
+            return this.executeSwap({
+                transaction: order.transaction,
+                requestId: order.requestId,
+                expectedOutAmount: order.outAmount,
+                priceImpactPct: order.priceImpactPct || '0',
+                gasless: order.gasless ?? false,
+                slippageBps: order.slippageBps ?? 0,
+            }, userKeypair);
+        }); // end circuitBreaker.call
     }
     /**
      * Get the mint address for a currency code

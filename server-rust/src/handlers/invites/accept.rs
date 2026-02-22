@@ -6,7 +6,7 @@ use std::sync::Arc;
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
 use crate::models::{AcceptInviteRequest, AcceptInviteResponse};
-use crate::repositories::{hash_invite_token, AuditEventType, MembershipEntity};
+use crate::repositories::{hash_invite_token, TransactionalOps};
 use crate::services::EmailService;
 use crate::utils::authenticate;
 use crate::AppState;
@@ -14,6 +14,7 @@ use crate::AppState;
 /// POST /invites/accept - Accept an invite
 ///
 /// Requires authentication. The authenticated user will be added to the organization.
+/// For email invites, the user's email must match. For wallet invites, the user's wallet must match.
 pub async fn accept_invite<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     headers: HeaderMap,
@@ -37,15 +38,35 @@ pub async fn accept_invite<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::NotFound("Invalid or expired invite".into()))?;
 
-    // Verify email matches (case-insensitive) before attempting acceptance
-    let user_email = user.email.as_ref().ok_or(AppError::Validation(
-        "You must have an email to accept invites".into(),
-    ))?;
+    // Verify the invite recipient matches the authenticated user
+    if let Some(ref invite_email) = invite.email {
+        // Email-based invite: user must have matching email
+        let user_email = user.email.as_ref().ok_or(AppError::Validation(
+            "You must have an email to accept this invite".into(),
+        ))?;
 
-    if user_email.to_lowercase() != invite.email.to_lowercase() {
-        return Err(AppError::Forbidden(
-            "This invite was sent to a different email address".into(),
-        ));
+        if user_email.to_lowercase() != invite_email.to_lowercase() {
+            return Err(AppError::Forbidden(
+                "This invite was sent to a different email address".into(),
+            ));
+        }
+    } else if let Some(ref invite_wallet) = invite.wallet_address {
+        // Wallet-based invite: user must have matching wallet
+        let user_wallet = user.wallet_address.as_ref().ok_or(AppError::Validation(
+            "You must have a wallet to accept this invite".into(),
+        ))?;
+
+        // Wallet addresses are case-sensitive (base58)
+        if user_wallet != invite_wallet {
+            return Err(AppError::Forbidden(
+                "This invite was sent to a different wallet address".into(),
+            ));
+        }
+    } else {
+        // Invite has neither email nor wallet - data integrity issue
+        return Err(AppError::Internal(anyhow::anyhow!(
+            "Invalid invite: missing recipient identifier"
+        )));
     }
 
     // Check if user is already a member
@@ -60,56 +81,33 @@ pub async fn accept_invite<C: AuthCallback, E: EmailService>(
         ));
     }
 
-    // Atomically mark invite as accepted BEFORE creating membership.
-    // This prevents race conditions where concurrent requests could both create memberships.
-    let accepted_invite = state
-        .invite_repo
-        .mark_accepted_if_valid(invite.id)
-        .await?
-        .ok_or(AppError::Validation(
-            "Invite has already been accepted or has expired".into(),
-        ))?;
+    // Get PostgreSQL pool for atomic transaction
+    let pool = state
+        .postgres_pool
+        .as_ref()
+        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("PostgreSQL pool not available")))?;
 
-    // Get the organization
+    // Atomically accept invite and create membership
+    // This replaces the previous compensation pattern with a true ACID transaction
+    let membership = TransactionalOps::accept_invite_atomic(
+        pool,
+        invite.id,
+        auth.user_id,
+        invite.org_id,
+        invite.role,
+    )
+    .await?;
+
+    // Get organization details for response
     let org = state
         .org_repo
-        .find_by_id(accepted_invite.org_id)
+        .find_by_id(invite.org_id)
         .await?
         .ok_or(AppError::NotFound("Organization not found".into()))?;
-
-    // Create membership (only reached if atomic acceptance succeeded)
-    let membership =
-        MembershipEntity::new(auth.user_id, accepted_invite.org_id, accepted_invite.role);
-    if let Err(err) = state.membership_repo.create(membership).await {
-        // Roll back invite acceptance to avoid accepted invites without memberships.
-        // H-03: Log rollback failures - they indicate data inconsistency requiring manual intervention.
-        if let Err(rollback_err) = state.invite_repo.unmark_accepted(accepted_invite.id).await {
-            tracing::error!(
-                invite_id = %accepted_invite.id,
-                user_id = %auth.user_id,
-                org_id = %accepted_invite.org_id,
-                original_error = %err,
-                rollback_error = %rollback_err,
-                "CRITICAL: Invite rollback failed - invite marked accepted but no membership created. Manual intervention required."
-            );
-
-            // H-03: Log audit event for data inconsistency (fire-and-forget)
-            let _ = state
-                .audit_service
-                .log_org_event(
-                    AuditEventType::InviteRollbackFailed,
-                    auth.user_id,
-                    accepted_invite.org_id,
-                    Some(&headers),
-                )
-                .await;
-        }
-        return Err(err);
-    }
 
     Ok(Json(AcceptInviteResponse {
         org_id: org.id,
         org_name: org.name,
-        role: accepted_invite.role.as_str().to_string(),
+        role: membership.role.as_str().to_string(),
     }))
 }

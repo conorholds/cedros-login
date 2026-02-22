@@ -26,6 +26,9 @@
 //!
 //! Enable via `PASSWORD_CHECK_COMMON=true` (default: true).
 
+use std::collections::HashSet;
+use std::sync::OnceLock;
+
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
@@ -146,14 +149,21 @@ const COMMON_PASSWORDS: &[&str] = &[
     "loser",
 ];
 
+/// O(1) lookup set built from the common password list.
+static COMMON_PASSWORD_SET: OnceLock<HashSet<&'static str>> = OnceLock::new();
+
+fn common_password_set() -> &'static HashSet<&'static str> {
+    COMMON_PASSWORD_SET.get_or_init(|| COMMON_PASSWORDS.iter().copied().collect())
+}
+
 /// Check if a password is in the common password list.
 /// Performs case-insensitive comparison and also checks if the password
 /// (without trailing digits/special chars) matches a common base word.
 fn is_common_password(password: &str) -> bool {
     let lower = password.to_lowercase();
 
-    // Direct match
-    if COMMON_PASSWORDS.contains(&lower.as_str()) {
+    // Direct match — O(1) via HashSet
+    if common_password_set().contains(lower.as_str()) {
         return true;
     }
 
@@ -164,7 +174,7 @@ fn is_common_password(password: &str) -> bool {
         .take_while(|c| c.is_ascii_alphabetic())
         .collect();
 
-    if !base.is_empty() && COMMON_PASSWORDS.contains(&base.as_str()) {
+    if !base.is_empty() && common_password_set().contains(base.as_str()) {
         return true;
     }
 
@@ -196,10 +206,19 @@ impl Default for PasswordRules {
     }
 }
 
-/// Pre-computed dummy hash for timing attack mitigation.
-/// This hash is used to normalize response time for unknown emails.
-/// Generated with: argon2id, default params, random salt
-const DUMMY_HASH: &str = "$argon2id$v=19$m=19456,t=2,p=1$dGltaW5nYXR0YWNr$6gJxCqjwI8jqVDtyNXXJcQ";
+/// SRV-12: Generate dummy hash at runtime with current Argon2 params.
+/// This ensures timing consistency even if params change in the future.
+fn dummy_hash() -> &'static str {
+    use std::sync::OnceLock;
+    static HASH: OnceLock<String> = OnceLock::new();
+    HASH.get_or_init(|| {
+        let salt = SaltString::generate(&mut OsRng);
+        Argon2::default()
+            .hash_password(b"timing-attack-mitigation-dummy", &salt)
+            .expect("dummy hash generation must succeed")
+            .to_string()
+    })
+}
 
 /// Password service for hashing and validation
 #[derive(Clone)]
@@ -316,25 +335,15 @@ impl PasswordService {
     pub async fn verify_dummy(&self, password: String) {
         let _ = task::spawn_blocking(move || {
             // Parse the pre-computed dummy hash
-            match PasswordHash::new(DUMMY_HASH) {
+            let hash_str = dummy_hash();
+            match PasswordHash::new(hash_str) {
                 Ok(parsed_hash) => {
                     // Run verification (will always fail, but takes same time)
                     let _ = Argon2::default().verify_password(password.as_bytes(), &parsed_hash);
                 }
                 Err(e) => {
-                    // S-12: Log error prominently and provide fallback timing mitigation
-                    tracing::error!(
-                        error = %e,
-                        dummy_hash = %DUMMY_HASH,
-                        "SECURITY: Failed to parse dummy hash - falling back to sleep"
-                    );
-                    // SVC-2/SEC-05: Fallback sleep provides approximate timing match to argon2.
-                    // DUMMY_HASH params: m=19456 (~19MB), t=2, p=1 -> ~50-150ms depending on hardware.
-                    // M-07: Wide jitter range (100-300ms) prevents statistical timing analysis.
-                    // The original range (40-150ms) was too narrow; with ~1000+ samples an attacker
-                    // could distinguish the fallback timing from real Argon2 verification.
-                    // 100-300ms range fully covers Argon2 timing variance plus adds noise.
-                    // SEC-010: Use OsRng for cryptographic consistency.
+                    tracing::error!(error = %e, "SECURITY: Failed to parse dummy hash - falling back to sleep");
+                    metrics::counter!("security.password.dummy_hash_fallback").increment(1);
                     use rand::Rng;
                     let sleep_ms: u64 = OsRng.gen_range(100..300);
                     std::thread::sleep(std::time::Duration::from_millis(sleep_ms));

@@ -248,7 +248,7 @@ pub async fn execute_micro_deposit<C: AuthCallback, E: EmailService>(
     }
     if let Some(material) = state
         .wallet_material_repo
-        .find_by_user(auth_user.user_id)
+        .find_default_by_user(auth_user.user_id)
         .await?
     {
         allowed_senders.push(material.solana_pubkey);

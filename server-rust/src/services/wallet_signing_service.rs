@@ -21,17 +21,21 @@ use argon2::{Algorithm, Argon2, Params, Version};
 use ed25519_dalek::{Signer, SigningKey};
 use sha2::Sha256;
 use tokio::task;
-use zeroize::Zeroize;
+use zeroize::{Zeroize, Zeroizing};
 
+use rand::rngs::OsRng;
 use rand::RngCore;
 
 use crate::errors::AppError;
 use crate::repositories::{KdfParams, ShareAAuthMethod, WalletMaterialEntity};
 
 /// Generate a random salt for Argon2id KDF (16 bytes)
+///
+/// SRV-04: Uses OsRng (kernel entropy) rather than thread_rng (ChaCha PRNG)
+/// for cryptographic salt generation, per best-practice for Argon2 salts.
 fn generate_salt() -> [u8; 16] {
     let mut salt = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut salt);
+    OsRng.fill_bytes(&mut salt);
     salt
 }
 
@@ -47,6 +51,8 @@ pub enum UnlockCredential {
     Pin(String),
     /// PRF output from passkey - derives key with HKDF
     PrfOutput(Vec<u8>),
+    /// Raw API key - derives key with Argon2id
+    ApiKey(String),
 }
 
 /// Result of re-encrypting Share A with a new password
@@ -126,11 +132,13 @@ impl WalletSigningService {
     /// # Thread Safety (C-02)
     ///
     /// See [`sign_transaction`] for thread safety requirements.
+    /// SRV-05: Returns `Zeroizing<String>` so the base58-encoded private key
+    /// is zeroed from heap memory on drop.
     pub fn reconstruct_private_key(
         &self,
         material: &WalletMaterialEntity,
         cached_key: &[u8; 32],
-    ) -> Result<String, AppError> {
+    ) -> Result<Zeroizing<String>, AppError> {
         // Decrypt Share A using cached key
         let mut share_a = self.decrypt_aes_gcm(
             cached_key,
@@ -169,8 +177,8 @@ impl WalletSigningService {
         // Wipe seed
         seed.zeroize();
 
-        // Encode as base58
-        let result = bs58::encode(&keypair_bytes).into_string();
+        // Encode as base58, wrapped in Zeroizing so it's wiped on drop
+        let result = Zeroizing::new(bs58::encode(&keypair_bytes).into_string());
 
         // Zeroize keypair bytes
         keypair_bytes.zeroize();
@@ -283,6 +291,30 @@ impl WalletSigningService {
                         AppError::Internal(anyhow::anyhow!("Missing PRF salt for passkey method"))
                     })?,
                 ),
+            (ShareAAuthMethod::ApiKey, UnlockCredential::ApiKey(raw_key)) => {
+                self.derive_key_argon2(
+                    raw_key.as_bytes().to_vec(),
+                    material
+                        .share_a_kdf_salt
+                        .as_ref()
+                        .ok_or_else(|| {
+                            AppError::Internal(anyhow::anyhow!(
+                                "Missing KDF salt for api_key method"
+                            ))
+                        })?
+                        .clone(),
+                    material
+                        .share_a_kdf_params
+                        .as_ref()
+                        .ok_or_else(|| {
+                            AppError::Internal(anyhow::anyhow!(
+                                "Missing KDF params for api_key method"
+                            ))
+                        })?
+                        .clone(),
+                )
+                .await
+            }
             _ => Err(AppError::Validation(
                 "Credential type doesn't match wallet auth method".into(),
             )),
@@ -364,6 +396,30 @@ impl WalletSigningService {
                         AppError::Internal(anyhow::anyhow!("Missing PRF salt for passkey method"))
                     })?,
                 )?,
+            (ShareAAuthMethod::ApiKey, UnlockCredential::ApiKey(raw_key)) => {
+                self.derive_key_argon2(
+                    raw_key.as_bytes().to_vec(),
+                    material
+                        .share_a_kdf_salt
+                        .as_ref()
+                        .ok_or_else(|| {
+                            AppError::Internal(anyhow::anyhow!(
+                                "Missing KDF salt for api_key method"
+                            ))
+                        })?
+                        .clone(),
+                    material
+                        .share_a_kdf_params
+                        .as_ref()
+                        .ok_or_else(|| {
+                            AppError::Internal(anyhow::anyhow!(
+                                "Missing KDF params for api_key method"
+                            ))
+                        })?
+                        .clone(),
+                )
+                .await?
+            }
             _ => {
                 return Err(AppError::Validation(
                     "Credential type doesn't match wallet auth method".into(),
@@ -459,6 +515,15 @@ impl WalletSigningService {
     ///
     /// Compatible with secrets.js-grempe format (GF(2^8) arithmetic)
     fn combine_shares(&self, share_a: &[u8], share_b: &[u8]) -> Result<Vec<u8>, AppError> {
+        // SRV-04: Reject oversized shares to prevent unbounded allocation
+        const MAX_SHARE_LEN: usize = 128;
+        if share_a.len() > MAX_SHARE_LEN || share_b.len() > MAX_SHARE_LEN {
+            return Err(AppError::Validation(format!(
+                "Share exceeds maximum length of {} bytes",
+                MAX_SHARE_LEN
+            )));
+        }
+
         // Parse shares in secrets.js format
         let (id_a, data_a) = parse_share(share_a)?;
         let (id_b, data_b) = parse_share(share_b)?;
@@ -1016,6 +1081,7 @@ mod tests {
             prf_salt: None,
             share_a_pin_hash: None,
             share_b: vec![],
+            api_key_id: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
@@ -1078,6 +1144,7 @@ mod tests {
             prf_salt: Some(vec![0u8; 32]),
             share_a_pin_hash: None,
             share_b: vec![],
+            api_key_id: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };

@@ -266,6 +266,54 @@ impl SsoRepository for PostgresSsoRepository {
         Ok(count.max(0) as u64)
     }
 
+    async fn list_providers_for_orgs_paged(
+        &self,
+        org_ids: &[Uuid],
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<SsoProvider>, AppError> {
+        if org_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let capped_limit = cap_limit(limit);
+        let capped_offset = cap_offset(offset);
+
+        let rows: Vec<SsoProviderRow> = sqlx::query_as(
+            r#"
+            SELECT id, org_id, name, issuer_url, client_id, client_secret_encrypted,
+                   scopes, enabled, allow_registration, email_domain, created_at, updated_at
+            FROM sso_providers
+            WHERE org_id = ANY($1)
+            ORDER BY org_id, name
+            LIMIT $2 OFFSET $3
+            "#,
+        )
+        .bind(org_ids)
+        .bind(capped_limit as i64)
+        .bind(capped_offset as i64)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(rows.into_iter().map(Into::into).collect())
+    }
+
+    async fn count_providers_for_orgs(&self, org_ids: &[Uuid]) -> Result<u64, AppError> {
+        if org_ids.is_empty() {
+            return Ok(0);
+        }
+
+        let count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM sso_providers WHERE org_id = ANY($1)")
+                .bind(org_ids)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(count.max(0) as u64)
+    }
+
     async fn update_provider(&self, provider: SsoProvider) -> Result<SsoProvider, AppError> {
         let row: Option<SsoProviderRow> = sqlx::query_as(
             r#"

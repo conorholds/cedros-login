@@ -178,13 +178,8 @@ pub async fn refresh<C: AuthCallback, E: EmailService>(
     // Preserve org context: look up user's memberships and select default org
     let memberships = state.membership_repo.find_by_user(session.user_id).await?;
 
-    // Batch fetch all orgs in one query (avoids N+1)
-    let org_ids: Vec<_> = memberships.iter().map(|m| m.org_id).collect();
-    let orgs = state.org_repo.find_by_ids(&org_ids).await?;
-    let orgs_by_id: std::collections::HashMap<_, _> = orgs.into_iter().map(|o| (o.id, o)).collect();
-
     // Select default org using shared helper
-    let token_context = get_default_org_context(&memberships, &orgs_by_id, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin);
 
     // Generate new tokens with preserved org context
     let new_session_id = uuid::Uuid::new_v4();

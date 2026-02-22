@@ -20,6 +20,10 @@ fn map_invite_error(e: sqlx::Error) -> AppError {
                         return AppError::Validation(
                             "An invite already exists for this email in this organization".into(),
                         );
+                    } else if constraint.contains("org_wallet") {
+                        return AppError::Validation(
+                            "An invite already exists for this wallet in this organization".into(),
+                        );
                     } else if constraint.contains("token") {
                         return AppError::Validation(
                             "Invite token collision - please retry".into(),
@@ -52,7 +56,8 @@ impl PostgresInviteRepository {
 struct InviteRow {
     id: Uuid,
     org_id: Uuid,
-    email: String,
+    email: Option<String>,
+    wallet_address: Option<String>,
     role: String,
     token_hash: String,
     invited_by: Uuid,
@@ -72,6 +77,7 @@ impl TryFrom<InviteRow> for InviteEntity {
             id: row.id,
             org_id: row.org_id,
             email: row.email,
+            wallet_address: row.wallet_address,
             role,
             token_hash: row.token_hash,
             invited_by: row.invited_by,
@@ -87,7 +93,7 @@ impl InviteRepository for PostgresInviteRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<InviteEntity>, AppError> {
         let row: Option<InviteRow> = sqlx::query_as(
             r#"
-            SELECT id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             FROM invites WHERE id = $1
             "#,
         )
@@ -105,7 +111,7 @@ impl InviteRepository for PostgresInviteRepository {
     async fn find_by_token_hash(&self, token_hash: &str) -> Result<Option<InviteEntity>, AppError> {
         let row: Option<InviteRow> = sqlx::query_as(
             r#"
-            SELECT id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             FROM invites WHERE token_hash = $1
             "#,
         )
@@ -131,12 +137,36 @@ impl InviteRepository for PostgresInviteRepository {
 
         let row: Option<InviteRow> = sqlx::query_as(
             r#"
-            SELECT id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             FROM invites WHERE org_id = $1 AND email = $2
             "#,
         )
         .bind(org_id)
         .bind(&email_normalized)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppError::Database(e.to_string()))?;
+
+        match row {
+            Some(r) => Ok(Some(r.try_into()?)),
+            None => Ok(None),
+        }
+    }
+
+    async fn find_by_org_and_wallet(
+        &self,
+        org_id: Uuid,
+        wallet_address: &str,
+    ) -> Result<Option<InviteEntity>, AppError> {
+        // Wallet addresses are case-sensitive (base58)
+        let row: Option<InviteRow> = sqlx::query_as(
+            r#"
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            FROM invites WHERE org_id = $1 AND wallet_address = $2
+            "#,
+        )
+        .bind(org_id)
+        .bind(wallet_address)
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppError::Database(e.to_string()))?;
@@ -153,7 +183,7 @@ impl InviteRepository for PostgresInviteRepository {
 
         let rows: Vec<InviteRow> = sqlx::query_as(
             r#"
-            SELECT id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             FROM invites
             WHERE org_id = $1 AND accepted_at IS NULL AND expires_at > NOW()
             ORDER BY created_at DESC
@@ -194,7 +224,7 @@ impl InviteRepository for PostgresInviteRepository {
 
         let rows: Vec<InviteRow> = sqlx::query_as(
             r#"
-            SELECT id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             FROM invites
             WHERE org_id = $1 AND accepted_at IS NULL AND expires_at > NOW()
             ORDER BY created_at DESC
@@ -221,7 +251,7 @@ impl InviteRepository for PostgresInviteRepository {
 
         let rows: Vec<InviteRow> = sqlx::query_as(
             r#"
-            SELECT id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             FROM invites
             WHERE email = $1 AND accepted_at IS NULL AND expires_at > NOW()
             ORDER BY created_at DESC
@@ -246,17 +276,53 @@ impl InviteRepository for PostgresInviteRepository {
         rows.into_iter().map(TryInto::try_into).collect()
     }
 
+    async fn find_pending_by_wallet(
+        &self,
+        wallet_address: &str,
+    ) -> Result<Vec<InviteEntity>, AppError> {
+        // P-11: Add safety limit to prevent memory bloat from edge cases
+        const PENDING_LIMIT: usize = 1000;
+
+        // Wallet addresses are case-sensitive (base58)
+        let rows: Vec<InviteRow> = sqlx::query_as(
+            r#"
+            SELECT id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            FROM invites
+            WHERE wallet_address = $1 AND accepted_at IS NULL AND expires_at > NOW()
+            ORDER BY created_at DESC
+            LIMIT 1000
+            "#,
+        )
+        .bind(wallet_address)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| AppError::Database(e.to_string()))?;
+
+        // R-05: Warn when limit is reached (results may be truncated)
+        if rows.len() >= PENDING_LIMIT {
+            tracing::warn!(
+                wallet_address = %wallet_address,
+                count = rows.len(),
+                limit = PENDING_LIMIT,
+                "find_pending_by_wallet hit limit - results may be truncated"
+            );
+        }
+
+        rows.into_iter().map(TryInto::try_into).collect()
+    }
+
     async fn create(&self, invite: InviteEntity) -> Result<InviteEntity, AppError> {
         let row: InviteRow = sqlx::query_as(
             r#"
-            INSERT INTO invites (id, org_id, email, role, token_hash, invited_by, expires_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            INSERT INTO invites (id, org_id, email, wallet_address, role, token_hash, invited_by, expires_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             "#,
         )
         .bind(invite.id)
         .bind(invite.org_id)
         .bind(&invite.email)
+        .bind(&invite.wallet_address)
         .bind(invite.role.as_str())
         .bind(&invite.token_hash)
         .bind(invite.invited_by)
@@ -295,7 +361,7 @@ impl InviteRepository for PostgresInviteRepository {
             UPDATE invites
             SET accepted_at = NOW()
             WHERE id = $1 AND accepted_at IS NULL AND expires_at > NOW()
-            RETURNING id, org_id, email, role, token_hash, invited_by, created_at, expires_at, accepted_at
+            RETURNING id, org_id, email, wallet_address, role, token_hash, invited_by, created_at, expires_at, accepted_at
             "#,
         )
         .bind(id)

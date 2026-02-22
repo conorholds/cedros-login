@@ -1,19 +1,7 @@
 /// <reference lib="webworker" />
 import { argon2Derive } from './argon2';
-import { toArgon2Salt, type KdfParams } from './types';
-
-type WorkerRequest = {
-  id: number;
-  password: string;
-  salt: Uint8Array;
-  params: KdfParams;
-};
-
-type WorkerResponse = {
-  id: number;
-  key?: Uint8Array;
-  error?: string;
-};
+import { toArgon2Salt } from './types';
+import type { WorkerRequest, WorkerResponse } from './argon2WorkerTypes';
 
 const ctx = self as DedicatedWorkerGlobalScope;
 

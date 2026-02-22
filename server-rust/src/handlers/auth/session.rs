@@ -1,4 +1,4 @@
-//! Session management handlers (logout, get user)
+//! Session management handlers (logout, get user, update profile)
 //!
 //! # M-02: Granular Logout Design
 //!
@@ -15,6 +15,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use serde::Deserialize;
 use std::sync::Arc;
 
 use super::call_logout_callback_with_timeout;
@@ -63,10 +64,13 @@ pub async fn logout<C: AuthCallback, E: EmailService>(
                 call_logout_callback_with_timeout(&state.callback, &claims.sub.to_string()).await;
 
                 // Log audit event (fire-and-forget, don't fail logout on audit error)
-                let _ = state
+                if let Err(e) = state
                     .audit_service
                     .log_user_event(AuditEventType::UserLogout, claims.sub, Some(&headers))
-                    .await;
+                    .await
+                {
+                    tracing::warn!(error = %e, user_id = %claims.sub, "Failed to log user logout audit event");
+                }
             }
         }
     } else if state.config.cookie.enabled {
@@ -136,7 +140,9 @@ pub async fn logout_all<C: AuthCallback, E: EmailService>(
     if let Some(claims) = claims {
         if let Some(session) = state.session_repo.find_by_id(claims.sid).await? {
             if session.user_id == claims.sub {
-                // Revoke ALL sessions for user
+                // 4.1: Ownership is implicit via the DB: `claims.sub` comes from the
+                // validated JWT, and we verify the session's `user_id` matches `sub`
+                // above. A user can only revoke their own sessions.
                 state
                     .session_repo
                     .revoke_all_for_user_with_reason(claims.sub, "logout_all")
@@ -146,10 +152,13 @@ pub async fn logout_all<C: AuthCallback, E: EmailService>(
                 call_logout_callback_with_timeout(&state.callback, &claims.sub.to_string()).await;
 
                 // Log audit event
-                let _ = state
+                if let Err(e) = state
                     .audit_service
                     .log_user_event(AuditEventType::UserLogoutAll, claims.sub, Some(&headers))
-                    .await;
+                    .await
+                {
+                    tracing::warn!(error = %e, user_id = %claims.sub, "Failed to log user logout-all audit event");
+                }
             }
         }
     } else if state.config.cookie.enabled {
@@ -210,5 +219,85 @@ pub async fn get_user<C: AuthCallback, E: EmailService>(
 
     Ok(Json(UserResponse {
         user: user_entity_to_auth_user(&user),
+    }))
+}
+
+/// Request to update user profile
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateProfileRequest {
+    /// User's display name
+    pub name: Option<String>,
+    /// User's profile picture URL
+    pub picture: Option<String>,
+}
+
+/// PATCH /auth/me - Update current user's profile
+///
+/// Allows users to update their name and profile picture.
+pub async fn update_profile<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+    Json(req): Json<UpdateProfileRequest>,
+) -> Result<impl IntoResponse, AppError> {
+    // Authenticate via JWT or API key
+    let auth = authenticate(&state, &headers).await?;
+
+    // Get current user
+    let mut user = state
+        .user_repo
+        .find_by_id(auth.user_id)
+        .await?
+        .ok_or(AppError::InvalidToken)?;
+
+    // Update fields if provided
+    if let Some(name) = req.name {
+        // Validate name length
+        let trimmed = name.trim();
+        if trimmed.is_empty() {
+            return Err(AppError::Validation("Name cannot be empty".into()));
+        }
+        if trimmed.len() > 100 {
+            return Err(AppError::Validation(
+                "Name must be 100 characters or less".into(),
+            ));
+        }
+        user.name = Some(trimmed.to_string());
+    }
+
+    if let Some(picture) = req.picture {
+        // Validate picture URL (basic check)
+        let trimmed = picture.trim();
+        if !trimmed.is_empty() {
+            if !trimmed.starts_with("https://") && !trimmed.starts_with("http://") {
+                return Err(AppError::Validation("Picture must be a valid URL".into()));
+            }
+            if trimmed.len() > 2048 {
+                return Err(AppError::Validation(
+                    "Picture URL must be 2048 characters or less".into(),
+                ));
+            }
+            user.picture = Some(trimmed.to_string());
+        } else {
+            // Empty string clears the picture
+            user.picture = None;
+        }
+    }
+
+    // Save updated user
+    let updated_user = state.user_repo.update(user).await?;
+
+    // Log audit event
+    let _ = state
+        .audit_service
+        .log_user_event(
+            AuditEventType::UserProfileUpdated,
+            auth.user_id,
+            Some(&headers),
+        )
+        .await;
+
+    Ok(Json(UserResponse {
+        user: user_entity_to_auth_user(&updated_user),
     }))
 }

@@ -15,9 +15,9 @@ import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
-import type { AuthError } from "../../types";
+
 import { useEmailAuth } from "../../hooks/useEmailAuth";
-import { validateEmail } from "../../utils/validation";
+import { validateEmail, validatePassword } from "../../utils/validation";
 
 export interface EmailLoginFormProps {
   onSuccess?: () => void;
@@ -57,11 +57,15 @@ export function EmailLoginForm({
     if (!password) {
       setPasswordError("Password is required");
       isValid = false;
-    } else if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
-      isValid = false;
     } else {
-      setPasswordError(undefined);
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        const firstError = Object.values(passwordValidation.errors)[0];
+        setPasswordError(firstError ?? "Invalid password");
+        isValid = false;
+      } else {
+        setPasswordError(undefined);
+      }
     }
 
     return isValid;

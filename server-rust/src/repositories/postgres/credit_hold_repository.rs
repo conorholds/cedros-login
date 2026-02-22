@@ -6,7 +6,9 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::errors::AppError;
-use crate::repositories::{CreateHoldResult, CreditHoldEntity, CreditHoldRepository, HoldStatus};
+use crate::repositories::{
+    CreateHoldResult, CreditHoldEntity, CreditHoldRepository, CreditTransactionEntity, HoldStatus,
+};
 
 /// PostgreSQL credit hold repository
 pub struct PostgresCreditHoldRepository {
@@ -102,14 +104,16 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
         let is_new = row.id == hold.id;
 
         if is_new {
-            // Update held_balance atomically
-            sqlx::query(
+            // SRV-01: Atomic balance check + held_balance update.
+            // Uses conditional UPDATE to prevent TOCTOU race where two
+            // concurrent holds both pass the service-level balance check.
+            let result = sqlx::query(
                 r#"
-                INSERT INTO credit_balances (user_id, balance, held_balance, currency, updated_at)
-                VALUES ($1, 0, $2, $3, NOW())
-                ON CONFLICT (user_id, currency) DO UPDATE
-                SET held_balance = credit_balances.held_balance + $2,
+                UPDATE credit_balances
+                SET held_balance = held_balance + $2,
                     updated_at = NOW()
+                WHERE user_id = $1 AND currency = $3
+                  AND (balance - held_balance) >= $2
                 "#,
             )
             .bind(hold.user_id)
@@ -118,6 +122,13 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
             .execute(&mut *tx)
             .await
             .map_err(|e| AppError::Internal(e.into()))?;
+
+            if result.rows_affected() == 0 {
+                // Transaction rolls back on drop — no explicit rollback needed.
+                return Err(AppError::Validation(
+                    "Insufficient available balance".into(),
+                ));
+            }
         }
 
         tx.commit()
@@ -177,7 +188,8 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
         &self,
         hold_id: Uuid,
         transaction_id: Uuid,
-    ) -> Result<CreditHoldEntity, AppError> {
+        credit_tx: CreditTransactionEntity,
+    ) -> Result<(CreditHoldEntity, i64), AppError> {
         let mut tx = self
             .pool
             .begin()
@@ -233,11 +245,13 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
             }
         };
 
-        // Reduce held_balance (debit happens separately via deduct_credit)
+        // SRV-02: Reduce held_balance AND deduct actual balance in one transaction.
+        // Previously these were separate transactions, risking inconsistency on crash.
         sqlx::query(
             r#"
             UPDATE credit_balances
             SET held_balance = GREATEST(0, held_balance - $1),
+                balance = balance - $1,
                 updated_at = NOW()
             WHERE user_id = $2 AND currency = $3
             "#,
@@ -249,11 +263,47 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
+        // Insert credit transaction record (was previously in deduct_credit)
+        sqlx::query(
+            r#"
+            INSERT INTO credit_transactions (id, user_id, amount, currency, tx_type,
+                deposit_session_id, privacy_note_id, idempotency_key, reference_type,
+                reference_id, hold_id, metadata, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            "#,
+        )
+        .bind(credit_tx.id)
+        .bind(credit_tx.user_id)
+        .bind(credit_tx.amount)
+        .bind(&credit_tx.currency)
+        .bind(credit_tx.tx_type.as_str())
+        .bind(credit_tx.deposit_session_id)
+        .bind(credit_tx.privacy_note_id)
+        .bind(&credit_tx.idempotency_key)
+        .bind(&credit_tx.reference_type)
+        .bind(credit_tx.reference_id)
+        .bind(credit_tx.hold_id)
+        .bind(&credit_tx.metadata)
+        .bind(credit_tx.created_at)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        // Read back the new balance
+        let new_balance: i64 = sqlx::query_scalar(
+            "SELECT balance FROM credit_balances WHERE user_id = $1 AND currency = $2",
+        )
+        .bind(row.user_id)
+        .bind(&row.currency)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
         tx.commit()
             .await
             .map_err(|e| AppError::Internal(e.into()))?;
 
-        Ok(row.into())
+        Ok((row.into(), new_balance))
     }
 
     async fn release_hold(&self, hold_id: Uuid) -> Result<CreditHoldEntity, AppError> {
@@ -413,19 +463,29 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
             );
         }
 
-        // Update held_balances for each expired hold
-        for hold in &expired {
+        // R-07: Batch update held_balances in a single query using aggregated amounts
+        if !expired.is_empty() {
             sqlx::query(
                 r#"
-                UPDATE credit_balances
-                SET held_balance = GREATEST(0, held_balance - $1),
+                WITH expired_totals AS (
+                    SELECT user_id, currency, SUM(amount) AS total_amount
+                    FROM credit_holds
+                    WHERE status = 'expired' AND id = ANY($1)
+                    GROUP BY user_id, currency
+                )
+                UPDATE credit_balances cb
+                SET held_balance = GREATEST(0, cb.held_balance - et.total_amount),
                     updated_at = NOW()
-                WHERE user_id = $2 AND currency = $3
+                FROM expired_totals et
+                WHERE cb.user_id = et.user_id AND cb.currency = et.currency
                 "#,
             )
-            .bind(hold.amount)
-            .bind(hold.user_id)
-            .bind(&hold.currency)
+            .bind(
+                expired
+                    .iter()
+                    .map(|h| h.id)
+                    .collect::<Vec<uuid::Uuid>>(),
+            )
             .execute(&mut *tx)
             .await
             .map_err(|e| AppError::Internal(e.into()))?;

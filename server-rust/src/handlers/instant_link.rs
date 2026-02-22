@@ -12,10 +12,11 @@ use std::sync::Arc;
 
 use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
+use crate::handlers::auth::call_authenticated_callback_with_timeout;
 use crate::models::{AuthMethod, AuthResponse, MessageResponse};
 use crate::repositories::{
-    default_expiry, generate_verification_token, hash_verification_token, AuditEventType,
-    SessionEntity, TokenType,
+    default_expiry, generate_verification_token, hash_verification_token, normalize_email,
+    AuditEventType, SessionEntity, TokenType,
 };
 use crate::services::EmailService;
 use crate::utils::{
@@ -64,11 +65,14 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
         }),
     );
 
+    // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
+    let email = normalize_email(&req.email);
+
     // HANDLER-02: Rate limit instant link requests per email
     // Uses login_attempt_repo for rate limiting despite "failed_attempt" naming.
     // Rationale: instant link requests are security-sensitive and should be rate
     // limited regardless of success/failure to prevent email enumeration via timing.
-    let throttle_key = format!("instant_link:{}", req.email.trim().to_lowercase());
+    let throttle_key = format!("instant_link:{}", email);
     let throttle_status = state
         .login_attempt_repo
         .record_failed_attempt_atomic(None, &throttle_key, None, &state.login_attempt_config)
@@ -84,7 +88,7 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
     }
 
     // Find user by email
-    let user = match state.user_repo.find_by_email(&req.email).await? {
+    let user = match state.user_repo.find_by_email(&email).await? {
         Some(u) => u,
         None => {
             let elapsed = started_at.elapsed();
@@ -119,7 +123,7 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
     // Queue instant link email via outbox for async delivery
     state
         .comms_service
-        .queue_instant_link_email(&req.email, user.name.as_deref(), &token, Some(user.id))
+        .queue_instant_link_email(&email, user.name.as_deref(), &token, Some(user.id))
         .await?;
 
     // Log audit event (fire-and-forget)
@@ -229,13 +233,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-
-    let org_ids: Vec<_> = memberships.iter().map(|m| m.org_id).collect();
-    let orgs = state.org_repo.find_by_ids(&org_ids).await?;
-    let orgs_by_id: std::collections::HashMap<_, _> = orgs.into_iter().map(|o| (o.id, o)).collect();
-
-    // Select default org using shared helper
-    let token_context = get_default_org_context(&memberships, &orgs_by_id, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin);
 
     // Create session
     let session_id = uuid::Uuid::new_v4();
@@ -310,7 +308,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         ip_address,
         user_agent,
     };
-    let callback_data = state.callback.on_authenticated(&payload).await.ok();
+    let callback_data = call_authenticated_callback_with_timeout(&state.callback, &payload).await;
 
     // Log audit event (fire-and-forget)
     let _ = state
@@ -330,6 +328,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         is_new_user: false,
         callback_data,
         api_key: None,
+        email_queued: None,
     };
 
     Ok(build_json_response_with_cookies(

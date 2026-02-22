@@ -156,18 +156,20 @@ impl SolPriceService {
             )));
         }
 
-        let price_response: JupiterPriceResponse = tokio::time::timeout(
-            Duration::from_secs(JUPITER_HTTP_TIMEOUT_SECS),
-            async move { response.json::<JupiterPriceResponse>().await },
-        )
-        .await
-        .map_err(|_| {
-            AppError::Internal(anyhow::anyhow!(
-                "Failed to parse Jupiter response: timed out after {}s",
-                JUPITER_HTTP_TIMEOUT_SECS
-            ))
-        })?
-        .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to parse Jupiter response: {}", e)))?;
+        let price_response: JupiterPriceResponse =
+            tokio::time::timeout(Duration::from_secs(JUPITER_HTTP_TIMEOUT_SECS), async move {
+                response.json::<JupiterPriceResponse>().await
+            })
+            .await
+            .map_err(|_| {
+                AppError::Internal(anyhow::anyhow!(
+                    "Failed to parse Jupiter response: timed out after {}s",
+                    JUPITER_HTTP_TIMEOUT_SECS
+                ))
+            })?
+            .map_err(|e| {
+                AppError::Internal(anyhow::anyhow!("Failed to parse Jupiter response: {}", e))
+            })?;
 
         let price_data = price_response.data.get(SOL_MINT).ok_or_else(|| {
             AppError::Internal(anyhow::anyhow!("SOL price not found in response"))
@@ -230,18 +232,20 @@ impl SolPriceService {
             return Ok(std::collections::HashMap::new());
         }
 
-        let price_response: JupiterPriceResponse = tokio::time::timeout(
-            Duration::from_secs(JUPITER_HTTP_TIMEOUT_SECS),
-            async move { response.json::<JupiterPriceResponse>().await },
-        )
-        .await
-        .map_err(|_| {
-            AppError::Internal(anyhow::anyhow!(
-                "Failed to parse Jupiter response: timed out after {}s",
-                JUPITER_HTTP_TIMEOUT_SECS
-            ))
-        })?
-        .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to parse Jupiter response: {}", e)))?;
+        let price_response: JupiterPriceResponse =
+            tokio::time::timeout(Duration::from_secs(JUPITER_HTTP_TIMEOUT_SECS), async move {
+                response.json::<JupiterPriceResponse>().await
+            })
+            .await
+            .map_err(|_| {
+                AppError::Internal(anyhow::anyhow!(
+                    "Failed to parse Jupiter response: timed out after {}s",
+                    JUPITER_HTTP_TIMEOUT_SECS
+                ))
+            })?
+            .map_err(|e| {
+                AppError::Internal(anyhow::anyhow!("Failed to parse Jupiter response: {}", e))
+            })?;
 
         let mut prices = std::collections::HashMap::new();
         for (mint, data) in price_response.data {

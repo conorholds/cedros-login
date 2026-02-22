@@ -79,6 +79,8 @@ pub struct SpendResult {
     pub new_balance_lamports: i64,
     /// Amount spent
     pub amount_lamports: i64,
+    /// S-14: Currency from the captured hold (avoids double-fetch in handler)
+    pub currency: String,
 }
 
 /// Result of a hold operation

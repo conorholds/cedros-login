@@ -302,7 +302,6 @@ pub async fn execute_admin_withdrawal<
     state: &crate::AppState<C, E>,
     session: &DepositSessionEntity,
 ) -> Result<String, AppError> {
-    use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
     use zeroize::Zeroize;
 
     let session_id = session.id;
@@ -326,27 +325,12 @@ pub async fn execute_admin_withdrawal<
         ))
     })?;
 
-    // Decode and decrypt the private key
-    let combined = BASE64.decode(encrypted_data).map_err(|e| {
-        AppError::Internal(anyhow::anyhow!(
-            "Failed to decode encrypted private key: {}",
-            e
-        ))
-    })?;
-
-    // Split into nonce (12 bytes) and ciphertext
-    const NONCE_SIZE: usize = 12;
-    if combined.len() <= NONCE_SIZE {
-        return Err(AppError::Internal(anyhow::anyhow!(
-            "Invalid encrypted private key format"
-        )));
-    }
-
-    let nonce = &combined[..NONCE_SIZE];
-    let ciphertext = &combined[NONCE_SIZE..];
-
-    // Decrypt the private key
-    let mut private_key_bytes = note_encryption.decrypt(ciphertext, nonce)?;
+    let mut private_key_bytes = crate::services::decrypt_base64_payload(
+        note_encryption.as_ref(),
+        encrypted_data,
+        "Failed to decode encrypted private key",
+        "Invalid encrypted private key format",
+    )?;
     let mut private_key = String::from_utf8(private_key_bytes.clone()).map_err(|e| {
         private_key_bytes.zeroize();
         AppError::Internal(anyhow::anyhow!("Invalid private key encoding: {}", e))

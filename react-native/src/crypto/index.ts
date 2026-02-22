@@ -80,13 +80,9 @@ export {
   type SolanaKeypair,
 } from "./solanaKeypair";
 
-// WebAuthn PRF (limited support on mobile)
-export {
-  isWebAuthnAvailable,
-  isPrfSupported,
-  registerPasskeyWithPrf,
-  authenticateWithPrf,
-  getEncryptionKeyFromPasskey,
-  type PasskeyRegistrationResult,
-  type PasskeyAuthResult,
-} from "./webauthnPrf";
+// Crypto capability detection
+export { checkCryptoCapabilities, getCryptoCapabilities, clearCapabilityCache, getMissingCapabilitiesMessage, getBrowserSupportInfo } from './capabilities';
+
+// WebAuthn PRF - browser-only, not available in React Native
+// Re-exported from webauthnPrf.ts when building for web.
+// For React Native, consumers should provide platform-specific passkey implementations.

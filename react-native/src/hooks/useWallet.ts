@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
-import { walletAPI } from "../services/api";
+import { getWalletApi } from "../services/api";
 import type {
   WalletMaterialResponse,
   WalletStatusApiResponse,
@@ -30,8 +30,8 @@ export function useWallet(): UseWalletReturn {
     setError(null);
     try {
       const [walletData, statusData] = await Promise.all([
-        walletAPI!.getWalletMaterial(),
-        walletAPI!.getWalletStatus(),
+        getWalletApi().getWalletMaterial(),
+        getWalletApi().getWalletStatus(),
       ]);
       if (isMountedRef.current) {
         setWallet(walletData);
@@ -65,7 +65,7 @@ export function useWallet(): UseWalletReturn {
       setIsLoading(true);
       setError(null);
       try {
-        await walletAPI!.enroll(request);
+        await getWalletApi().enroll(request);
         await refreshWallet();
       } catch (err) {
         const authError: AuthError =
@@ -85,7 +85,7 @@ export function useWallet(): UseWalletReturn {
     setError(null);
   }, []);
 
-  const publicKey = wallet?.publicKey || null;
+  const publicKey = wallet?.solanaPubkey || null;
 
   return {
     wallet,

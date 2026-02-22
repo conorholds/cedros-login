@@ -41,7 +41,7 @@ function createDepositRoutes(privacyCash, jupiter) {
                 res.status(400).json({ error: 'user_private_key is required and must be a base58 string' });
                 return;
             }
-            if (!body.amount_lamports || typeof body.amount_lamports !== 'number') {
+            if (body.amount_lamports === undefined || typeof body.amount_lamports !== 'number') {
                 res.status(400).json({ error: 'amount_lamports is required and must be a number' });
                 return;
             }
@@ -59,19 +59,24 @@ function createDepositRoutes(privacyCash, jupiter) {
                 res.status(400).json({ error: 'Invalid private key format' });
                 return;
             }
-            // Execute the deposit to user's Privacy Cash account
-            const result = await privacyCash.executeDeposit(userKeypair, body.amount_lamports);
-            res.json({
-                success: result.success,
-                tx_signature: result.txSignature,
-                user_pubkey: userKeypair.publicKey.toBase58(),
-            });
+            try {
+                // Execute the deposit to user's Privacy Cash account
+                const result = await privacyCash.executeDeposit(userKeypair, body.amount_lamports);
+                res.json({
+                    success: result.success,
+                    tx_signature: result.txSignature,
+                    user_pubkey: userKeypair.publicKey.toBase58(),
+                });
+            }
+            finally {
+                userKeypair.secretKey.fill(0);
+                userKeypair = null;
+            }
         }
         catch (error) {
             console.error('[Deposit] Error:', error);
             res.status(500).json({
                 error: 'Failed to execute deposit',
-                details: error instanceof Error ? error.message : 'Unknown error',
             });
         }
     });
@@ -115,47 +120,74 @@ function createDepositRoutes(privacyCash, jupiter) {
                 res.status(400).json({ error: 'Invalid private key format' });
                 return;
             }
-            const userPubkey = userKeypair.publicKey.toBase58();
-            console.log(`[SwapAndDeposit] Starting for user: ${userPubkey}`);
-            // Step 1: Execute gasless swap (SPL token → SOL)
-            console.log(`[SwapAndDeposit] Swapping ${body.amount} of ${body.input_mint} to SOL`);
-            const swapResult = await jupiter.swapToSol(body.input_mint, body.amount, userKeypair);
-            if (!swapResult.success) {
-                console.error(`[SwapAndDeposit] Swap failed: ${swapResult.error} (code: ${swapResult.errorCode})`);
-                res.status(500).json({
-                    error: 'Swap failed',
-                    details: swapResult.error,
-                    error_code: swapResult.errorCode,
-                    swap_tx_signature: swapResult.txSignature || null,
+            try {
+                const userPubkey = userKeypair.publicKey.toBase58();
+                console.log(`[SwapAndDeposit] Starting for user: ${userPubkey}`);
+                // Step 1: Execute gasless swap (SPL token → SOL)
+                console.log(`[SwapAndDeposit] Swapping ${body.amount} of ${body.input_mint} to SOL`);
+                const swapResult = await jupiter.swapToSol(body.input_mint, body.amount, userKeypair);
+                if (!swapResult.success) {
+                    console.error(`[SwapAndDeposit] Swap failed: ${swapResult.error} (code: ${swapResult.errorCode})`);
+                    res.status(500).json({
+                        error: 'Swap failed',
+                        error_code: swapResult.errorCode,
+                        swap_tx_signature: swapResult.txSignature || null,
+                        gasless: swapResult.gasless,
+                    });
+                    return;
+                }
+                // Use actual output if available, otherwise expected
+                const solAmount = swapResult.actualOutAmount || swapResult.expectedOutAmount;
+                console.log(`[SwapAndDeposit] Swap succeeded: ${swapResult.txSignature}, got ${solAmount} lamports (gasless: ${swapResult.gasless})`);
+                // SC-04: Step 2: Execute Privacy Cash deposit with the swapped SOL
+                const solAmountLamports = parseInt(solAmount, 10);
+                if (!Number.isFinite(solAmountLamports) || solAmountLamports <= 0) {
+                    console.error(`[SwapAndDeposit] Invalid swap output amount: '${solAmount}'`);
+                    res.status(500).json({
+                        error: 'Invalid swap output amount',
+                        swap_tx_signature: swapResult.txSignature || null,
+                    });
+                    return;
+                }
+                console.log(`[SwapAndDeposit] Depositing ${solAmountLamports} lamports to Privacy Cash`);
+                // F-02: Catch deposit failures separately so we can return the swap tx signature
+                // for recovery. The swap is already confirmed on-chain and cannot be reversed.
+                let depositResult;
+                try {
+                    depositResult = await privacyCash.executeDeposit(userKeypair, solAmountLamports);
+                }
+                catch (depositError) {
+                    console.error(`[SwapAndDeposit] Deposit failed after successful swap: ${swapResult.txSignature}`, depositError);
+                    res.status(500).json({
+                        error: 'Deposit failed after successful swap',
+                        swap_tx_signature: swapResult.txSignature,
+                        sol_amount_lamports: solAmountLamports,
+                        recovery_needed: true,
+                    });
+                    return;
+                }
+                console.log(`[SwapAndDeposit] Deposit succeeded: ${depositResult.txSignature}`);
+                res.json({
+                    success: true,
+                    swap_tx_signature: swapResult.txSignature,
+                    deposit_tx_signature: depositResult.txSignature,
+                    sol_amount_lamports: solAmountLamports,
                     gasless: swapResult.gasless,
+                    // Return input (pre-swap) amount for crediting
+                    input_mint: body.input_mint,
+                    input_amount: body.amount,
+                    user_pubkey: userPubkey,
                 });
-                return;
             }
-            // Use actual output if available, otherwise expected
-            const solAmount = swapResult.actualOutAmount || swapResult.expectedOutAmount;
-            console.log(`[SwapAndDeposit] Swap succeeded: ${swapResult.txSignature}, got ${solAmount} lamports (gasless: ${swapResult.gasless})`);
-            // Step 2: Execute Privacy Cash deposit with the swapped SOL
-            const solAmountLamports = parseInt(solAmount, 10);
-            console.log(`[SwapAndDeposit] Depositing ${solAmountLamports} lamports to Privacy Cash`);
-            const depositResult = await privacyCash.executeDeposit(userKeypair, solAmountLamports);
-            console.log(`[SwapAndDeposit] Deposit succeeded: ${depositResult.txSignature}`);
-            res.json({
-                success: true,
-                swap_tx_signature: swapResult.txSignature,
-                deposit_tx_signature: depositResult.txSignature,
-                sol_amount_lamports: solAmountLamports,
-                gasless: swapResult.gasless,
-                // Return input (pre-swap) amount for crediting
-                input_mint: body.input_mint,
-                input_amount: body.amount,
-                user_pubkey: userPubkey,
-            });
+            finally {
+                userKeypair.secretKey.fill(0);
+                userKeypair = null;
+            }
         }
         catch (error) {
             console.error('[SwapAndDeposit] Error:', error);
             res.status(500).json({
                 error: 'Failed to execute swap and deposit',
-                details: error instanceof Error ? error.message : 'Unknown error',
             });
         }
     });

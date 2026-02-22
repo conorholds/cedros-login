@@ -25,22 +25,13 @@ const hasher_rs_1 = require("@lightprotocol/hasher.rs");
 const node_localstorage_1 = require("node-localstorage");
 const bs58_1 = __importDefault(require("bs58"));
 const node_path_1 = __importDefault(require("node:path"));
-// SDK module cache
-let sdkModule = null;
+/** Cached SDK module reference */
+let sdk = null;
 async function loadSdk() {
-    if (!sdkModule) {
-        // Dynamic import of SDK (using any to bypass type checking for untyped package)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const exportUtils = await import('privacycash');
-        sdkModule = {
-            deposit: exportUtils.deposit,
-            withdraw: exportUtils.withdraw,
-            EncryptionService: exportUtils.EncryptionService,
-            getUtxos: exportUtils.getUtxos,
-            getBalanceFromUtxos: exportUtils.getBalanceFromUtxos,
-        };
+    if (!sdk) {
+        sdk = await import('privacycash');
     }
-    return sdkModule;
+    return sdk;
 }
 class PrivacyCashService {
     solana;
@@ -50,6 +41,8 @@ class PrivacyCashService {
     lightWasm = null;
     keyBasePath;
     sdkInitialized = false;
+    /** SC-05: Cached init promise to prevent concurrent double-init */
+    initPromise = null;
     constructor(config, solanaService) {
         this.solana = solanaService;
         this.connection = solanaService.getConnection();
@@ -62,9 +55,16 @@ class PrivacyCashService {
         console.log(`[PrivacyCash] Initialized with company wallet: ${this.companyWalletAddress.toBase58()}`);
     }
     /**
-     * Initialize SDK components (lazy loading)
+     * Initialize SDK components (lazy loading).
+     * SC-05: Uses cached promise to prevent concurrent callers from double-initializing.
      */
-    async ensureInitialized() {
+    ensureInitialized() {
+        if (this.initPromise)
+            return this.initPromise;
+        this.initPromise = this.doInit();
+        return this.initPromise;
+    }
+    async doInit() {
         const sdk = await loadSdk();
         if (!this.lightWasm) {
             this.lightWasm = await hasher_rs_1.WasmFactory.getInstance();

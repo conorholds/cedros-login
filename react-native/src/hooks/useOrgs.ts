@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
-import { orgsAPI } from "../services/api";
+import { getOrgsApi } from "../services/api";
 import type { Organization, OrgWithMembership, AuthError } from "../types";
 
 export interface UseOrgsReturn {
@@ -24,11 +24,14 @@ export function useOrgs(): UseOrgsReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await orgsAPI!.listOrgs();
-      const current = await orgsAPI!.getCurrentOrg();
+      const response = await getOrgsApi().listOrgs();
       if (isMountedRef.current) {
-        setOrgs(response.orgs);
-        setActiveOrg(current);
+        const mapped: OrgWithMembership[] = response.orgs.map((o) => ({
+          ...o,
+          membership: { role: o.role },
+        }));
+        setOrgs(mapped);
+        setActiveOrg(mapped[0] ?? null);
       }
     } catch (err) {
       const authError: AuthError =
@@ -57,7 +60,7 @@ export function useOrgs(): UseOrgsReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await orgsAPI!.switchOrg({ orgId });
+      const response = await getOrgsApi().switchOrg({ orgId });
       setActiveOrg(response.org);
     } catch (err) {
       const authError: AuthError =
@@ -76,7 +79,7 @@ export function useOrgs(): UseOrgsReturn {
       setIsLoading(true);
       setError(null);
       try {
-        const org = await orgsAPI!.createOrg({ name });
+        const org = await getOrgsApi().createOrg({ name });
         await refreshOrgs();
         return org;
       } catch (err) {

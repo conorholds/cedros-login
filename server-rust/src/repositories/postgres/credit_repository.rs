@@ -3,6 +3,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::errors::AppError;
@@ -11,6 +12,23 @@ use crate::repositories::{
     CreditBalanceEntity, CreditRepository, CreditStats, CreditTransactionEntity, CreditTxType,
     CurrencyCreditStats, UserCreditStats,
 };
+
+/// SRV-16: Maximum metadata JSON size in bytes
+const MAX_METADATA_BYTES: usize = 10_000;
+
+/// SRV-16: Validate metadata size to prevent storage DoS
+fn validate_metadata(metadata: &Option<serde_json::Value>) -> Result<(), AppError> {
+    if let Some(m) = metadata {
+        let size = serde_json::to_string(m).map(|s| s.len()).unwrap_or(0);
+        if size > MAX_METADATA_BYTES {
+            return Err(AppError::Validation(format!(
+                "Metadata exceeds maximum size of {} bytes",
+                MAX_METADATA_BYTES
+            )));
+        }
+    }
+    Ok(())
+}
 
 /// PostgreSQL credit repository
 pub struct PostgresCreditRepository {
@@ -100,11 +118,38 @@ impl CreditRepository for PostgresCreditRepository {
         Ok(balance.unwrap_or(0))
     }
 
+    async fn get_balances(
+        &self,
+        user_ids: &[Uuid],
+        currency: &str,
+    ) -> Result<HashMap<Uuid, i64>, AppError> {
+        if user_ids.is_empty() {
+            return Ok(HashMap::new());
+        }
+
+        let rows: Vec<(Uuid, i64)> = sqlx::query_as(
+            r#"
+            SELECT user_id, balance
+            FROM credit_balances
+            WHERE currency = $1
+              AND user_id = ANY($2)
+            "#,
+        )
+        .bind(currency)
+        .bind(user_ids)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(rows.into_iter().collect())
+    }
+
     async fn get_or_create_balance(
         &self,
         user_id: Uuid,
         currency: &str,
     ) -> Result<CreditBalanceEntity, AppError> {
+        let currency = currency.to_uppercase();
         // Use upsert to atomically get or create
         let row: CreditBalanceRow = sqlx::query_as(
             r#"
@@ -130,6 +175,11 @@ impl CreditRepository for PostgresCreditRepository {
         currency: &str,
         tx: CreditTransactionEntity,
     ) -> Result<i64, AppError> {
+        validate_metadata(&tx.metadata)?;
+        // P-02: Normalize currency to uppercase at write time so read queries
+        // can use direct equality instead of UPPER(), enabling index use.
+        let currency = currency.to_uppercase();
+
         // Use a transaction to ensure atomicity
         let mut db_tx = self
             .pool
@@ -196,6 +246,14 @@ impl CreditRepository for PostgresCreditRepository {
         currency: &str,
         tx: CreditTransactionEntity,
     ) -> Result<i64, AppError> {
+        if amount <= 0 {
+            return Err(AppError::Validation(
+                "Deduction amount must be positive".into(),
+            ));
+        }
+        validate_metadata(&tx.metadata)?;
+        let currency = currency.to_uppercase();
+
         let mut db_tx = self
             .pool
             .begin()
@@ -214,7 +272,7 @@ impl CreditRepository for PostgresCreditRepository {
         )
         .bind(amount)
         .bind(user_id)
-        .bind(currency)
+        .bind(&currency)
         .fetch_optional(&mut *db_tx)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
@@ -227,7 +285,7 @@ impl CreditRepository for PostgresCreditRepository {
                     "SELECT balance, held_balance FROM credit_balances WHERE user_id = $1 AND currency = $2",
                 )
                 .bind(user_id)
-                .bind(currency)
+                .bind(&currency)
                 .fetch_optional(&mut *db_tx)
                 .await
                 .map_err(|e| AppError::Internal(e.into()))?;
@@ -362,50 +420,38 @@ impl CreditRepository for PostgresCreditRepository {
     }
 
     async fn get_stats(&self) -> Result<CreditStats, AppError> {
-        // Query SOL stats
-        let sol_row: (i64, i64, i64, i64, i64, i64, i64) = sqlx::query_as(
+        // P-03: Merge SOL+USD transaction queries into single GROUP BY currency (3 → 2 queries)
+        let tx_rows: Vec<(String, i64, i64, i64, i64, i64, i64, i64)> = sqlx::query_as(
             r#"
             SELECT
-                COALESCE(SUM(CASE WHEN tx_type = 'deposit' THEN amount ELSE 0 END), 0) as total_credited,
-                COALESCE(SUM(CASE WHEN tx_type = 'spend' THEN ABS(amount) ELSE 0 END), 0) as total_spent,
-                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount > 0 THEN amount ELSE 0 END), 0) as pos_adj,
-                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount < 0 THEN ABS(amount) ELSE 0 END), 0) as neg_adj,
-                COUNT(*) FILTER (WHERE tx_type = 'deposit') as deposit_count,
-                COUNT(*) FILTER (WHERE tx_type = 'spend') as spend_count,
-                COUNT(*) FILTER (WHERE tx_type = 'adjustment') as adj_count
-            FROM credit_transactions WHERE UPPER(currency) = 'SOL'
+                currency,
+                COALESCE(SUM(CASE WHEN tx_type = 'deposit' THEN amount ELSE 0 END)::BIGINT, 0),
+                COALESCE(SUM(CASE WHEN tx_type = 'spend' THEN ABS(amount) ELSE 0 END)::BIGINT, 0),
+                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount > 0 THEN amount ELSE 0 END)::BIGINT, 0),
+                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount < 0 THEN ABS(amount) ELSE 0 END)::BIGINT, 0),
+                COUNT(*) FILTER (WHERE tx_type = 'deposit'),
+                COUNT(*) FILTER (WHERE tx_type = 'spend'),
+                COUNT(*) FILTER (WHERE tx_type = 'adjustment')
+            FROM credit_transactions
+            GROUP BY currency
             "#,
         )
-        .fetch_one(&self.pool)
+        .fetch_all(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-        // Query USD stats
-        let usd_row: (i64, i64, i64, i64, i64, i64, i64) = sqlx::query_as(
-            r#"
-            SELECT
-                COALESCE(SUM(CASE WHEN tx_type = 'deposit' THEN amount ELSE 0 END), 0) as total_credited,
-                COALESCE(SUM(CASE WHEN tx_type = 'spend' THEN ABS(amount) ELSE 0 END), 0) as total_spent,
-                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount > 0 THEN amount ELSE 0 END), 0) as pos_adj,
-                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount < 0 THEN ABS(amount) ELSE 0 END), 0) as neg_adj,
-                COUNT(*) FILTER (WHERE tx_type = 'deposit') as deposit_count,
-                COUNT(*) FILTER (WHERE tx_type = 'spend') as spend_count,
-                COUNT(*) FILTER (WHERE tx_type = 'adjustment') as adj_count
-            FROM credit_transactions WHERE UPPER(currency) = 'USD'
-            "#,
-        )
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        let default_tx = (String::new(), 0i64, 0, 0, 0, 0, 0, 0);
+        let sol_row = tx_rows.iter().find(|r| r.0 == "SOL").unwrap_or(&default_tx);
+        let usd_row = tx_rows.iter().find(|r| r.0 == "USD").unwrap_or(&default_tx);
 
-        // Query balance stats
+        // Query balance stats (separate table)
         let balance_row: (i64, i64, i64, i64) = sqlx::query_as(
             r#"
             SELECT
                 COUNT(DISTINCT user_id) as total_users,
-                COALESCE(SUM(balance), 0) as total_outstanding,
-                COALESCE(SUM(CASE WHEN UPPER(currency) = 'SOL' THEN balance ELSE 0 END), 0) as sol_outstanding,
-                COALESCE(SUM(CASE WHEN UPPER(currency) = 'USD' THEN balance ELSE 0 END), 0) as usd_outstanding
+                COALESCE(SUM(balance)::BIGINT, 0) as total_outstanding,
+                COALESCE(SUM(CASE WHEN currency = 'SOL' THEN balance ELSE 0 END)::BIGINT, 0) as sol_outstanding,
+                COALESCE(SUM(CASE WHEN currency = 'USD' THEN balance ELSE 0 END)::BIGINT, 0) as usd_outstanding
             FROM credit_balances WHERE balance > 0
             "#,
         )
@@ -417,24 +463,24 @@ impl CreditRepository for PostgresCreditRepository {
             total_users_with_balance: balance_row.0 as u64,
             total_outstanding_lamports: balance_row.1,
             sol: CurrencyCreditStats {
-                total_credited: sol_row.0,
-                total_spent: sol_row.1,
-                total_positive_adjustments: sol_row.2,
-                total_negative_adjustments: sol_row.3,
+                total_credited: sol_row.1,
+                total_spent: sol_row.2,
+                total_positive_adjustments: sol_row.3,
+                total_negative_adjustments: sol_row.4,
                 current_outstanding: balance_row.2,
-                deposit_count: sol_row.4 as u64,
-                spend_count: sol_row.5 as u64,
-                adjustment_count: sol_row.6 as u64,
+                deposit_count: sol_row.5 as u64,
+                spend_count: sol_row.6 as u64,
+                adjustment_count: sol_row.7 as u64,
             },
             usd: CurrencyCreditStats {
-                total_credited: usd_row.0,
-                total_spent: usd_row.1,
-                total_positive_adjustments: usd_row.2,
-                total_negative_adjustments: usd_row.3,
+                total_credited: usd_row.1,
+                total_spent: usd_row.2,
+                total_positive_adjustments: usd_row.3,
+                total_negative_adjustments: usd_row.4,
                 current_outstanding: balance_row.3,
-                deposit_count: usd_row.4 as u64,
-                spend_count: usd_row.5 as u64,
-                adjustment_count: usd_row.6 as u64,
+                deposit_count: usd_row.5 as u64,
+                spend_count: usd_row.6 as u64,
+                adjustment_count: usd_row.7 as u64,
             },
         })
     }
@@ -444,12 +490,13 @@ impl CreditRepository for PostgresCreditRepository {
         user_id: Uuid,
         currency: &str,
     ) -> Result<UserCreditStats, AppError> {
+        let currency = currency.to_uppercase();
         // Get current balance
         let balance: i64 = sqlx::query_scalar(
-            "SELECT COALESCE(balance, 0) FROM credit_balances WHERE user_id = $1 AND UPPER(currency) = UPPER($2)",
+            "SELECT COALESCE(balance, 0) FROM credit_balances WHERE user_id = $1 AND currency = $2",
         )
         .bind(user_id)
-        .bind(currency)
+        .bind(&currency)
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?
@@ -459,17 +506,17 @@ impl CreditRepository for PostgresCreditRepository {
         let stats_row: (i64, i64, i64, i64, i64) = sqlx::query_as(
             r#"
             SELECT
-                COALESCE(SUM(CASE WHEN tx_type = 'deposit' THEN amount ELSE 0 END), 0) as total_deposited,
-                COALESCE(SUM(CASE WHEN tx_type = 'spend' THEN ABS(amount) ELSE 0 END), 0) as total_spent,
-                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount > 0 THEN amount ELSE 0 END), 0) as total_refunds,
+                COALESCE(SUM(CASE WHEN tx_type = 'deposit' THEN amount ELSE 0 END)::BIGINT, 0) as total_deposited,
+                COALESCE(SUM(CASE WHEN tx_type = 'spend' THEN ABS(amount) ELSE 0 END)::BIGINT, 0) as total_spent,
+                COALESCE(SUM(CASE WHEN tx_type = 'adjustment' AND amount > 0 THEN amount ELSE 0 END)::BIGINT, 0) as total_refunds,
                 COUNT(*) FILTER (WHERE tx_type = 'deposit') as deposit_count,
                 COUNT(*) FILTER (WHERE tx_type = 'spend') as spend_count
             FROM credit_transactions
-            WHERE user_id = $1 AND UPPER(currency) = UPPER($2)
+            WHERE user_id = $1 AND currency = $2
             "#,
         )
         .bind(user_id)
-        .bind(currency)
+        .bind(&currency)
         .fetch_one(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
@@ -481,7 +528,7 @@ impl CreditRepository for PostgresCreditRepository {
             current_balance: balance,
             deposit_count: stats_row.3 as u64,
             spend_count: stats_row.4 as u64,
-            currency: currency.to_string(),
+            currency,
         })
     }
 
@@ -552,12 +599,13 @@ impl CreditRepository for PostgresCreditRepository {
         reference_type: &str,
         reference_id: Uuid,
     ) -> Result<i64, AppError> {
+        let currency = currency.to_uppercase();
         let sum: i64 = sqlx::query_scalar(
             r#"
-            SELECT COALESCE(SUM(amount), 0)
+            SELECT COALESCE(SUM(amount)::BIGINT, 0)
             FROM credit_transactions
             WHERE user_id = $1
-              AND UPPER(currency) = UPPER($2)
+              AND currency = $2
               AND tx_type = 'adjustment'
               AND amount > 0
               AND reference_type = $3

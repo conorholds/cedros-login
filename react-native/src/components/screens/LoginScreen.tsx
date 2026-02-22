@@ -24,6 +24,16 @@ export interface LoginScreenProps {
   enableGoogle?: boolean;
   enableApple?: boolean;
   enableSolana?: boolean;
+  /** Callback to trigger native Google Sign-In and return the ID token. */
+  onRequestGoogleToken?: () => Promise<{ idToken: string }>;
+  /** Callback to trigger native Apple Sign-In and return the ID token. */
+  onRequestAppleToken?: () => Promise<{ idToken: string }>;
+  /** Callback to trigger Solana wallet adapter and return credentials. */
+  onRequestSolanaToken?: () => Promise<{
+    walletAddress: string;
+    signature: string;
+    nonce: string;
+  }>;
   onLoginSuccess?: () => void;
   onRegisterSuccess?: () => void;
   onForgotPasswordSubmit?: (email: string) => Promise<void>;
@@ -38,6 +48,9 @@ export function LoginScreen({
   enableGoogle = true,
   enableApple = true,
   enableSolana = true,
+  onRequestGoogleToken,
+  onRequestAppleToken,
+  onRequestSolanaToken,
   onLoginSuccess,
   onRegisterSuccess,
   onForgotPasswordSubmit,
@@ -47,6 +60,11 @@ export function LoginScreen({
   testID = "login-screen",
 }: LoginScreenProps): React.ReactElement {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
+
+  const showGoogle = enableGoogle && !!onRequestGoogleToken;
+  const showApple = enableApple && !!onRequestAppleToken;
+  const showSolana = enableSolana && !!onRequestSolanaToken;
+  const showSocialDivider = (showGoogle || showApple || showSolana) && enableEmail;
 
   const renderContent = () => {
     switch (authMode) {
@@ -61,7 +79,7 @@ export function LoginScreen({
               />
             )}
 
-            {(enableGoogle || enableApple || enableSolana) && enableEmail && (
+            {showSocialDivider && (
               <View
                 style={{
                   flexDirection: "row",
@@ -96,9 +114,24 @@ export function LoginScreen({
             )}
 
             <View style={{ gap: spacing.md }}>
-              {enableGoogle && <GoogleLoginButton onSuccess={onLoginSuccess} />}
-              {enableApple && <AppleLoginButton onSuccess={onLoginSuccess} />}
-              {enableSolana && <SolanaLoginButton onSuccess={onLoginSuccess} />}
+              {showGoogle && (
+                <GoogleLoginButton
+                  onRequestToken={onRequestGoogleToken}
+                  onSuccess={onLoginSuccess}
+                />
+              )}
+              {showApple && (
+                <AppleLoginButton
+                  onRequestToken={onRequestAppleToken}
+                  onSuccess={onLoginSuccess}
+                />
+              )}
+              {showSolana && (
+                <SolanaLoginButton
+                  onRequestToken={onRequestSolanaToken}
+                  onSuccess={onLoginSuccess}
+                />
+              )}
             </View>
           </View>
         );

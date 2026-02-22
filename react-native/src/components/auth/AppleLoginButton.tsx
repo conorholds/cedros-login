@@ -12,9 +12,13 @@ import { typography } from "../../theme/typography";
 import { useAppleAuth } from "../../hooks/useAppleAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
+import type { AuthError } from "../../types";
 
 export interface AppleLoginButtonProps {
+  /** Callback invoked on press; should trigger native Apple Sign-In and return the ID token. */
+  onRequestToken: () => Promise<{ idToken: string }>;
   onSuccess?: () => void;
+  onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -23,21 +27,15 @@ export interface AppleLoginButtonProps {
  * Apple Sign-In button component.
  *
  * @remarks
- * This component uses the Apple logo Unicode character (&#63743;) as a placeholder icon.
+ * This component uses the Apple logo Unicode character as a placeholder icon.
  * Consumers should provide their own custom Apple icon for production use to ensure
  * consistent rendering across all platforms and devices.
  * Consider using react-native-vector-icons or the official Apple Sign In button assets.
- *
- * @example
- * ```tsx
- * // With custom icon (recommended for production)
- * <AppleLoginButton
- *   onSuccess={() => console.log('Signed in!')}
- * />
- * ```
  */
 export function AppleLoginButton({
+  onRequestToken,
   onSuccess,
+  onError,
   style,
   testID = "apple-login-button",
 }: AppleLoginButtonProps): React.ReactElement {
@@ -45,12 +43,17 @@ export function AppleLoginButton({
 
   const handlePress = useCallback(async () => {
     try {
-      await signIn();
+      const { idToken } = await onRequestToken();
+      await signIn(idToken);
       onSuccess?.();
-    } catch {
-      // Error handled by hook
+    } catch (e) {
+      const authError: AuthError =
+        e && typeof e === "object" && "code" in e
+          ? (e as AuthError)
+          : { code: "UNKNOWN_ERROR", message: String(e) };
+      onError?.(authError);
     }
-  }, [signIn, onSuccess]);
+  }, [onRequestToken, signIn, onSuccess, onError]);
 
   return (
     <View style={style}>

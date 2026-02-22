@@ -14,13 +14,13 @@
 
 -- 2. Update index to include partially_withdrawn status for withdrawal pickup
 DROP INDEX IF EXISTS idx_deposit_sessions_withdrawal_ready;
-CREATE INDEX idx_deposit_sessions_withdrawal_ready
+CREATE INDEX IF NOT EXISTS idx_deposit_sessions_withdrawal_ready
     ON deposit_sessions(status, withdrawal_available_at)
     WHERE status IN ('completed', 'partially_withdrawn')
       AND stored_share_b IS NOT NULL;
 
 -- 3. Create withdrawal history table for full audit trail
-CREATE TABLE withdrawal_history (
+CREATE TABLE IF NOT EXISTS withdrawal_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     deposit_session_id UUID NOT NULL REFERENCES deposit_sessions(id),
     user_id UUID NOT NULL REFERENCES users(id),
@@ -43,10 +43,10 @@ CREATE TABLE withdrawal_history (
 );
 
 -- Indexes for common queries
-CREATE INDEX idx_withdrawal_history_deposit ON withdrawal_history(deposit_session_id);
-CREATE INDEX idx_withdrawal_history_user ON withdrawal_history(user_id);
-CREATE INDEX idx_withdrawal_history_created ON withdrawal_history(created_at);
-CREATE INDEX idx_withdrawal_history_tx ON withdrawal_history(tx_signature);
+CREATE INDEX IF NOT EXISTS idx_withdrawal_history_deposit ON withdrawal_history(deposit_session_id);
+CREATE INDEX IF NOT EXISTS idx_withdrawal_history_user ON withdrawal_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_withdrawal_history_created ON withdrawal_history(created_at);
+CREATE INDEX IF NOT EXISTS idx_withdrawal_history_tx ON withdrawal_history(tx_signature);
 
 COMMENT ON TABLE withdrawal_history IS
     'Audit trail for all withdrawal transactions, including partial withdrawals';

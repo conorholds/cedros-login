@@ -1,6 +1,10 @@
 //! Admin handlers for credit refund requests
 
-use axum::{extract::{Path, Query, State}, http::HeaderMap, Json};
+use axum::{
+    extract::{Path, Query, State},
+    http::HeaderMap,
+    Json,
+};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -10,8 +14,8 @@ use crate::handlers::admin::users::validate_system_admin;
 use crate::models::{
     AdminCreditRefundRequestResponse, ListCreditRefundRequestsQueryParams,
     ListCreditRefundRequestsResponse, ProcessCreditRefundRequestInput,
-    ProcessCreditRefundRequestResponse,
-    RejectCreditRefundRequestInput, RejectCreditRefundRequestResponse,
+    ProcessCreditRefundRequestResponse, RejectCreditRefundRequestInput,
+    RejectCreditRefundRequestResponse,
 };
 use crate::repositories::{CreditRefundRequestStatus, CreditTransactionEntity};
 use crate::services::EmailService;
@@ -29,11 +33,7 @@ pub async fn list_credit_refund_requests<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<ListCreditRefundRequestsResponse>, AppError> {
     let _admin_id = validate_system_admin(&state, &headers).await?;
 
-    let status = params
-        .status
-        .as_deref()
-        .map(parse_status)
-        .transpose()?;
+    let status = params.status.as_deref().map(parse_status).transpose()?;
 
     let items = state
         .credit_refund_request_repo
@@ -154,16 +154,18 @@ pub async fn process_credit_refund_request<C: AuthCallback, E: EmailService>(
         return Ok(Json(ProcessCreditRefundRequestResponse {
             processed: true,
             refund_request_id: refund_request.id,
-            processed_transaction_id: refund_request
-                .processed_transaction_id
-                .ok_or_else(|| AppError::Internal(anyhow::anyhow!(
+            processed_transaction_id: refund_request.processed_transaction_id.ok_or_else(|| {
+                AppError::Internal(anyhow::anyhow!(
                     "Processed refund request missing processed_transaction_id"
-                )))?,
-            processed_amount_lamports: refund_request
-                .processed_amount_lamports
-                .ok_or_else(|| AppError::Internal(anyhow::anyhow!(
-                    "Processed refund request missing processed_amount_lamports"
-                )))?,
+                ))
+            })?,
+            processed_amount_lamports: refund_request.processed_amount_lamports.ok_or_else(
+                || {
+                    AppError::Internal(anyhow::anyhow!(
+                        "Processed refund request missing processed_amount_lamports"
+                    ))
+                },
+            )?,
             currency,
             new_balance_lamports: new_balance,
         }));
@@ -189,7 +191,10 @@ pub async fn process_credit_refund_request<C: AuthCallback, E: EmailService>(
         ));
     }
 
-    if !original_tx.currency.eq_ignore_ascii_case(&refund_request.currency) {
+    if !original_tx
+        .currency
+        .eq_ignore_ascii_case(&refund_request.currency)
+    {
         return Err(AppError::Validation(
             "Refund request currency does not match original transaction".into(),
         ));
@@ -235,7 +240,12 @@ pub async fn process_credit_refund_request<C: AuthCallback, E: EmailService>(
 
     let new_balance = match state
         .credit_repo
-        .add_credit(refund_request.user_id, input.amount_lamports, &refund_request.currency, tx)
+        .add_credit(
+            refund_request.user_id,
+            input.amount_lamports,
+            &refund_request.currency,
+            tx,
+        )
         .await
     {
         Ok(b) => b,
@@ -298,9 +308,9 @@ pub async fn process_credit_refund_request<C: AuthCallback, E: EmailService>(
                 .credit_repo
                 .find_transaction_by_idempotency_key(refund_request.user_id, &idempotency_key)
                 .await?
-                .ok_or_else(|| AppError::Internal(anyhow::anyhow!(
-                    "Refund transaction created but not found"
-                )))?
+                .ok_or_else(|| {
+                    AppError::Internal(anyhow::anyhow!("Refund transaction created but not found"))
+                })?
                 .id,
             input.reason.clone(),
         )
@@ -320,16 +330,16 @@ pub async fn process_credit_refund_request<C: AuthCallback, E: EmailService>(
     Ok(Json(ProcessCreditRefundRequestResponse {
         processed: true,
         refund_request_id: marked.id,
-        processed_transaction_id: marked
-            .processed_transaction_id
-            .ok_or_else(|| AppError::Internal(anyhow::anyhow!(
+        processed_transaction_id: marked.processed_transaction_id.ok_or_else(|| {
+            AppError::Internal(anyhow::anyhow!(
                 "Processed refund request missing processed_transaction_id"
-            )))?,
-        processed_amount_lamports: marked
-            .processed_amount_lamports
-            .ok_or_else(|| AppError::Internal(anyhow::anyhow!(
+            ))
+        })?,
+        processed_amount_lamports: marked.processed_amount_lamports.ok_or_else(|| {
+            AppError::Internal(anyhow::anyhow!(
                 "Processed refund request missing processed_amount_lamports"
-            )))?,
+            ))
+        })?,
         currency: marked.currency,
         new_balance_lamports: new_balance,
     }))

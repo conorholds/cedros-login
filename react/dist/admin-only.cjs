@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./plugin-BtYBW6JY.cjs");exports.AdminShell=e.AdminShell;exports.Icons=e.Icons;exports.cedrosLoginPlugin=e.cedrosLoginPlugin;exports.loginPlugin=e.cedrosLoginPlugin;exports.useAdminShell=e.useAdminShell;

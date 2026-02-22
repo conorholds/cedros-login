@@ -18,11 +18,16 @@ pub struct SystemSetting {
     /// Unique setting key (e.g., "privacy_period_secs")
     pub key: String,
     /// Setting value as string (parsed by consumers)
+    /// For secrets, this is the encrypted value
     pub value: String,
     /// Category for grouping (e.g., "privacy", "withdrawal", "rate_limit")
     pub category: String,
     /// Human-readable description
     pub description: Option<String>,
+    /// Whether this setting contains a secret (encrypted value)
+    pub is_secret: bool,
+    /// Encryption key version (for key rotation support)
+    pub encryption_version: Option<String>,
     /// Last update timestamp
     pub updated_at: DateTime<Utc>,
     /// User who last updated this setting
@@ -37,6 +42,27 @@ impl SystemSetting {
             value,
             category,
             description: None,
+            is_secret: false,
+            encryption_version: None,
+            updated_at: Utc::now(),
+            updated_by: None,
+        }
+    }
+
+    /// Create a new secret setting (value should already be encrypted)
+    pub fn new_secret(
+        key: String,
+        encrypted_value: String,
+        category: String,
+        version: &str,
+    ) -> Self {
+        Self {
+            key,
+            value: encrypted_value,
+            category,
+            description: None,
+            is_secret: true,
+            encryption_version: Some(version.to_string()),
             updated_at: Utc::now(),
             updated_by: None,
         }
@@ -45,6 +71,13 @@ impl SystemSetting {
     /// Create with description
     pub fn with_description(mut self, description: &str) -> Self {
         self.description = Some(description.to_string());
+        self
+    }
+
+    /// Mark as secret
+    pub fn as_secret(mut self, encryption_version: &str) -> Self {
+        self.is_secret = true;
+        self.encryption_version = Some(encryption_version.to_string());
         self
     }
 
@@ -212,6 +245,37 @@ impl InMemorySystemSettingsRepository {
                 "deposit".to_string(),
             )
             .with_description("Comma-separated token symbols shown in the custom token list"),
+            // Server/Logging settings
+            SystemSetting::new(
+                "server_log_level".to_string(),
+                "info".to_string(),
+                "server".to_string(),
+            )
+            .with_description("Log level: trace, debug, info, warn, error"),
+            SystemSetting::new(
+                "server_log_format".to_string(),
+                "json".to_string(),
+                "server".to_string(),
+            )
+            .with_description("Log format: json (structured) or pretty (human-readable)"),
+            SystemSetting::new(
+                "server_environment".to_string(),
+                "development".to_string(),
+                "server".to_string(),
+            )
+            .with_description("Deployment environment: development, staging, production"),
+            SystemSetting::new(
+                "server_cedros_pay_api_key".to_string(),
+                "".to_string(),
+                "server".to_string(),
+            )
+            .with_description("API key for Cedros Pay integration"),
+            SystemSetting::new(
+                "server_metrics_api_key".to_string(),
+                "".to_string(),
+                "server".to_string(),
+            )
+            .with_description("API key for Prometheus metrics endpoint"),
         ]
     }
 }
@@ -284,7 +348,7 @@ mod tests {
     async fn test_with_defaults() {
         let repo = InMemorySystemSettingsRepository::with_defaults();
         let settings = repo.get_all().await.unwrap();
-        assert_eq!(settings.len(), 14); // All default settings
+        assert_eq!(settings.len(), 19); // All default settings (14 original + 5 server/logging/metrics)
     }
 
     #[tokio::test]

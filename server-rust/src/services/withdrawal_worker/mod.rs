@@ -39,8 +39,8 @@ use crate::repositories::{
     WithdrawalHistoryRepository,
 };
 use crate::services::{
-    AdminNotification, NoteEncryptionService, NotificationService, NotificationSeverity,
-    PrivacySidecarClient, SettingsService, NOTE_NONCE_SIZE,
+    decrypt_base64_payload, AdminNotification, NoteEncryptionService, NotificationService,
+    NotificationSeverity, PrivacySidecarClient, SettingsService,
 };
 
 /// Default values used when settings are missing from the database
@@ -55,6 +55,10 @@ mod defaults {
     /// Minimum withdrawal amount (1 SOL) - skip smaller withdrawals to avoid wasting fees
     /// Fees are ~0.006 SOL + 0.35% + Jupiter, so at 1 SOL fees are ~1%
     pub const MIN_LAMPORTS: u64 = 1_000_000_000;
+}
+
+fn clamp_partial_withdrawal_count(value: u32) -> u8 {
+    value.min(u8::MAX as u32) as u8
 }
 
 /// Withdrawal worker that processes Privacy Cash withdrawals
@@ -168,7 +172,7 @@ impl WithdrawalWorker {
             .await
             .ok()
             .flatten()
-            .map(|v| v as u8)
+            .map(clamp_partial_withdrawal_count)
             .unwrap_or(defaults::PARTIAL_COUNT)
     }
 
@@ -303,7 +307,9 @@ impl WithdrawalWorker {
         // Take only the target count
         sessions.truncate(target_count);
 
-        // Determine partial vs full for each session
+        // S-29: Determine partial vs full for each session.
+        // Invariant: partial_assigned indexes into partial_percentages (len = partial_count).
+        // The guard `partial_assigned < partial_count` ensures index stays in bounds.
         let mut partial_assigned = 0usize;
         let withdrawal_plans: Vec<_> = sessions
             .iter()
@@ -387,32 +393,19 @@ impl WithdrawalWorker {
             ))
         })?;
 
-        // Decode and decrypt the private key
-        use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
-        let combined = BASE64.decode(encrypted_data).map_err(|e| {
-            AppError::Internal(anyhow::anyhow!(
-                "Failed to decode encrypted private key: {}",
-                e
-            ))
+        let private_key_bytes = decrypt_base64_payload(
+            self.note_encryption.as_ref(),
+            encrypted_data,
+            "Failed to decode encrypted private key",
+            "Invalid encrypted private key format",
+        )?;
+        // S-07: Use consuming from_utf8 to avoid cloning sensitive key bytes.
+        // On error, zeroize the bytes returned inside FromUtf8Error.
+        let mut private_key = String::from_utf8(private_key_bytes).map_err(|e| {
+            let mut bytes = e.into_bytes();
+            bytes.zeroize();
+            AppError::Internal(anyhow::anyhow!("Invalid private key encoding"))
         })?;
-
-        // Split into nonce (12 bytes) and ciphertext
-        if combined.len() <= NOTE_NONCE_SIZE {
-            return Err(AppError::Internal(anyhow::anyhow!(
-                "Invalid encrypted private key format"
-            )));
-        }
-
-        let nonce = &combined[..NOTE_NONCE_SIZE];
-        let ciphertext = &combined[NOTE_NONCE_SIZE..];
-
-        // Decrypt the private key (ciphertext first, then nonce)
-        let mut private_key_bytes = self.note_encryption.decrypt(ciphertext, nonce)?;
-        let mut private_key = String::from_utf8(private_key_bytes.clone()).map_err(|e| {
-            private_key_bytes.zeroize();
-            AppError::Internal(anyhow::anyhow!("Invalid private key encoding: {}", e))
-        })?;
-        private_key_bytes.zeroize();
 
         // Swap-on-withdraw is not supported by the sidecar.
         // Withdrawals always return SOL to the company wallet; conversion can be handled separately.
@@ -460,10 +453,11 @@ impl WithdrawalWorker {
                     );
                 }
 
+                // S-03: Use PendingRetry (not Completed) for retry-eligible failures
                 let status = if attempts >= max_retries as i32 {
                     DepositStatus::Failed
                 } else {
-                    DepositStatus::Completed
+                    DepositStatus::PendingRetry
                 };
 
                 if let Err(update_err) = self
@@ -568,6 +562,7 @@ impl WithdrawalWorker {
 
 #[cfg(test)]
 mod tests {
+    use super::clamp_partial_withdrawal_count;
     use super::*;
     use crate::repositories::{
         InMemoryDepositRepository, InMemorySystemSettingsRepository,
@@ -676,7 +671,7 @@ mod tests {
         assert!(result.is_err());
 
         let updated = repo.find_by_id(session_id).await.unwrap().unwrap();
-        assert_eq!(updated.status, DepositStatus::Completed);
+        assert_eq!(updated.status, DepositStatus::PendingRetry);
         assert_eq!(updated.processing_attempts, 1);
         assert!(updated.last_processing_error.is_some());
     }
@@ -696,6 +691,8 @@ mod tests {
                 value: "1".to_string(),
                 category: "withdrawal".to_string(),
                 description: None,
+                is_secret: false,
+                encryption_version: None,
                 updated_at: chrono::Utc::now(),
                 updated_by: None,
             })
@@ -718,5 +715,19 @@ mod tests {
         assert_eq!(updated.status, DepositStatus::Failed);
         assert_eq!(updated.processing_attempts, 1);
         assert!(updated.last_processing_error.is_some());
+    }
+
+    #[test]
+    fn test_clamp_partial_withdrawal_count_bounds() {
+        assert_eq!(clamp_partial_withdrawal_count(0), 0);
+        assert_eq!(clamp_partial_withdrawal_count(12), 12);
+        assert_eq!(clamp_partial_withdrawal_count(255), 255);
+    }
+
+    #[test]
+    fn test_clamp_partial_withdrawal_count_caps_overflow_values() {
+        assert_eq!(clamp_partial_withdrawal_count(256), 255);
+        assert_eq!(clamp_partial_withdrawal_count(10_000), 255);
+        assert_eq!(clamp_partial_withdrawal_count(u32::MAX), 255);
     }
 }

@@ -34,7 +34,7 @@ export function OtpInput({
     if (inputRefs.current[0] && value.length === 0) {
       inputRefs.current[0]?.focus();
     }
-  }, []);
+  }, [value.length]);
 
   const handleChange = (text: string, index: number) => {
     if (disabled) return;

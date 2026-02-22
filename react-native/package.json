@@ -1,6 +1,6 @@
 {
   "name": "@cedros/login-react-native",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "React Native authentication library for Cedros with email/password, social login, and crypto wallet support",
   "type": "module",
   "main": "./src/index.ts",
@@ -31,9 +31,13 @@
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-native": ">=0.72.0",
-    "@react-native-async-storage/async-storage": "^1.19.0"
+    "@react-native-async-storage/async-storage": "^1.19.0",
+    "@react-native-clipboard/clipboard": "^1.0.0"
   },
   "peerDependenciesMeta": {
+    "@react-native-clipboard/clipboard": {
+      "optional": true
+    },
     "@react-native-google-signin/google-signin": {
       "optional": true
     },
@@ -70,7 +74,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/conorholds/cedros-login.git",
+    "url": "https://github.com/conorholds/cedros-login.git",
     "directory": "react-native"
   }
 }

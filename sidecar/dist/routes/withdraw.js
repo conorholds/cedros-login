@@ -14,11 +14,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.normalizeWithdrawTargetCurrency = normalizeWithdrawTargetCurrency;
 exports.createWithdrawRoutes = createWithdrawRoutes;
 const express_1 = require("express");
 const web3_js_1 = require("@solana/web3.js");
 const bs58_1 = __importDefault(require("bs58"));
-function createWithdrawRoutes(privacyCash, _jupiter) {
+function normalizeWithdrawTargetCurrency(targetCurrency) {
+    const normalized = targetCurrency?.toUpperCase() || 'SOL';
+    if (normalized !== 'SOL') {
+        throw new Error('Swap-on-withdraw is not supported. Only SOL withdrawals are available.');
+    }
+    return 'SOL';
+}
+function createWithdrawRoutes(privacyCash) {
     const router = (0, express_1.Router)();
     /**
      * POST /withdraw
@@ -37,7 +45,7 @@ function createWithdrawRoutes(privacyCash, _jupiter) {
                 res.status(400).json({ error: 'user_private_key is required and must be a base58 string' });
                 return;
             }
-            if (!body.amount_lamports || typeof body.amount_lamports !== 'number') {
+            if (body.amount_lamports === undefined || typeof body.amount_lamports !== 'number') {
                 res.status(400).json({ error: 'amount_lamports is required and must be a number' });
                 return;
             }
@@ -55,40 +63,39 @@ function createWithdrawRoutes(privacyCash, _jupiter) {
                 res.status(400).json({ error: 'Invalid private key format' });
                 return;
             }
-            // Execute the withdrawal from user's account to company wallet
-            const result = await privacyCash.withdrawFromUser(userKeypair, body.amount_lamports);
-            // NOTE: Swap-on-withdraw is not supported.
-            // The Privacy Cash withdrawal sends funds to the company wallet.
-            // Swapping would require signing with the company/treasury key.
-            const targetCurrency = body.target_currency?.toUpperCase() || 'SOL';
-            if (targetCurrency !== 'SOL') {
+            // SC-06: Reject non-SOL target_currency before any side effects
+            try {
+                normalizeWithdrawTargetCurrency(body.target_currency);
+            }
+            catch (error) {
+                userKeypair.secretKey.fill(0);
+                userKeypair = null;
+                res.status(400).json({
+                    error: error instanceof Error ? error.message : 'Unsupported target_currency',
+                });
+                return;
+            }
+            try {
+                // Execute the withdrawal from user's account to company wallet
+                const result = await privacyCash.withdrawFromUser(userKeypair, body.amount_lamports);
                 res.json({
                     success: result.success,
                     tx_signature: result.txSignature,
                     fee_lamports: result.feeLamports,
                     amount_lamports: result.amountLamports,
                     is_partial: result.isPartial,
-                    swap_failed: true,
-                    swap_error: 'Swap-on-withdraw is not supported; funds remain in SOL',
                     currency: 'SOL',
                 });
-                return;
             }
-            // No swap needed - return SOL
-            res.json({
-                success: result.success,
-                tx_signature: result.txSignature,
-                fee_lamports: result.feeLamports,
-                amount_lamports: result.amountLamports,
-                is_partial: result.isPartial,
-                currency: 'SOL',
-            });
+            finally {
+                userKeypair.secretKey.fill(0);
+                userKeypair = null;
+            }
         }
         catch (error) {
             console.error('[Withdraw] Error:', error);
             res.status(500).json({
                 error: 'Failed to withdraw funds',
-                details: error instanceof Error ? error.message : 'Unknown error',
             });
         }
     });
@@ -118,18 +125,23 @@ function createWithdrawRoutes(privacyCash, _jupiter) {
                 res.status(400).json({ error: 'Invalid private key format' });
                 return;
             }
-            const balanceLamports = await privacyCash.getUserPrivateBalance(userKeypair);
-            res.json({
-                balance_lamports: balanceLamports,
-                balance_sol: balanceLamports / 1_000_000_000,
-                user_pubkey: userKeypair.publicKey.toBase58(),
-            });
+            try {
+                const balanceLamports = await privacyCash.getUserPrivateBalance(userKeypair);
+                res.json({
+                    balance_lamports: balanceLamports,
+                    balance_sol: balanceLamports / 1_000_000_000,
+                    user_pubkey: userKeypair.publicKey.toBase58(),
+                });
+            }
+            finally {
+                userKeypair.secretKey.fill(0);
+                userKeypair = null;
+            }
         }
         catch (error) {
             console.error('[Withdraw/Balance] Error:', error);
             res.status(500).json({
                 error: 'Failed to get private balance',
-                details: error instanceof Error ? error.message : 'Unknown error',
             });
         }
     });

@@ -38,11 +38,15 @@ export declare class PrivacyCashService {
     private lightWasm;
     private keyBasePath;
     private sdkInitialized;
+    /** SC-05: Cached init promise to prevent concurrent double-init */
+    private initPromise;
     constructor(config: Config, solanaService: SolanaService);
     /**
-     * Initialize SDK components (lazy loading)
+     * Initialize SDK components (lazy loading).
+     * SC-05: Uses cached promise to prevent concurrent callers from double-initializing.
      */
     private ensureInitialized;
+    private doInit;
     /**
      * Create an encryption service for a specific user keypair
      */

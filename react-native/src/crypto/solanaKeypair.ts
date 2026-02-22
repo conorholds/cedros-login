@@ -71,7 +71,10 @@ export function deriveKeypairFromSeed(seed: Seed): SolanaKeypair {
   secretKey.set(expandedSeed, 0);
   secretKey.set(publicKey, 32);
 
-  // Wipe the expanded seed
+  // Wipe the expandedSeed intermediate buffer.
+  // Note: secretKey[0..31] still holds a copy of the expanded seed bytes
+  // (required by the nacl 64-byte format). The caller is responsible for
+  // wiping secretKey after use (see @security note on this function).
   wipeBytes(expandedSeed);
 
   return { publicKey, secretKey };

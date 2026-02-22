@@ -3,7 +3,7 @@
 
 -- Amount already withdrawn from this deposit (cumulative)
 -- When withdrawn_amount_lamports >= deposit_amount_lamports, the session is fully withdrawn
-ALTER TABLE deposit_sessions ADD COLUMN withdrawn_amount_lamports BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE deposit_sessions ADD COLUMN IF NOT EXISTS withdrawn_amount_lamports BIGINT NOT NULL DEFAULT 0;
 
 -- Update the withdrawal ready index to include partially withdrawn sessions
 -- A session is ready for withdrawal if:
@@ -12,7 +12,7 @@ ALTER TABLE deposit_sessions ADD COLUMN withdrawn_amount_lamports BIGINT NOT NUL
 -- 3. withdrawal_available_at <= NOW() (privacy period elapsed)
 -- 4. withdrawn_amount_lamports < deposit_amount_lamports (not fully withdrawn)
 DROP INDEX IF EXISTS idx_deposit_sessions_withdrawal_ready;
-CREATE INDEX idx_deposit_sessions_withdrawal_ready
+CREATE INDEX IF NOT EXISTS idx_deposit_sessions_withdrawal_ready
     ON deposit_sessions(status, withdrawal_available_at)
     WHERE status = 'completed'
       AND stored_share_b IS NOT NULL;

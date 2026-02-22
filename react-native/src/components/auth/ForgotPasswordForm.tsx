@@ -15,6 +15,7 @@ import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { validateEmail } from "../../utils/validation";
 
 export interface ForgotPasswordFormProps {
   onSubmit?: (email: string) => Promise<void>;
@@ -42,7 +43,7 @@ export function ForgotPasswordForm({
       setEmailError("Email is required");
       return false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!validateEmail(email)) {
       setEmailError("Please enter a valid email address");
       return false;
     }

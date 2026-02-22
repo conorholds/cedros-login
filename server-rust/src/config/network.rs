@@ -11,6 +11,10 @@ fn default_true() -> bool {
 pub struct CorsConfig {
     #[serde(default)]
     pub allowed_origins: Vec<String>,
+    /// Skip the internal CORS layer. Set to `true` when embedding
+    /// cedros-login in a host application that manages its own CORS.
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 /// Cookie configuration
@@ -76,6 +80,7 @@ mod tests {
     fn test_cors_config_defaults() {
         let config = CorsConfig::default();
         assert!(config.allowed_origins.is_empty());
+        assert!(!config.disabled);
     }
 
     #[test]

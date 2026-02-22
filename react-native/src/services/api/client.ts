@@ -1,11 +1,42 @@
 import { Platform } from "react-native";
 import type {
   CedrosLoginConfig,
-  TokenPair,
-  AuthError,
   AuthErrorCode,
 } from "../../types";
 import { TokenManager } from "../../utils/tokenManager";
+
+/**
+ * The set of error codes the server is permitted to communicate to the client.
+ * Any code not in this set is replaced with SERVER_ERROR to avoid leaking
+ * internal implementation details (RN-05).
+ */
+const ALLOWED_ERROR_CODES = new Set<AuthErrorCode>([
+  "INVALID_CREDENTIALS",
+  "ACCOUNT_LOCKED",
+  "EMAIL_EXISTS",
+  "WALLET_EXISTS",
+  "INVALID_TOKEN",
+  "TOKEN_EXPIRED",
+  "INVALID_SIGNATURE",
+  "INVALID_PUBLIC_KEY",
+  "CHALLENGE_EXPIRED",
+  "VALIDATION_ERROR",
+  "RATE_LIMITED",
+  "NOT_FOUND",
+  "FORBIDDEN",
+  "UNAUTHORIZED",
+  "STEP_UP_REQUIRED",
+  "TOTP_REQUIRED",
+  "INVALID_TOTP_CODE",
+  "LOGIN_FAILED",
+  "REGISTER_FAILED",
+  "LOGOUT_FAILED",
+  "REFRESH_FAILED",
+  "SERVICE_UNAVAILABLE",
+  "SERVER_ERROR",
+  "NETWORK_ERROR",
+  "UNKNOWN_ERROR",
+]);
 
 export interface ApiClientOptions {
   config: CedrosLoginConfig;
@@ -65,10 +96,21 @@ export class ApiClient {
         details?: Record<string, unknown>;
       };
     };
-    const code = (errorData.error?.code as AuthErrorCode) || "SERVER_ERROR";
-    const message =
-      errorData.error?.message || `HTTP Error: ${response.status}`;
-    const details = errorData.error?.details;
+
+    // RN-05: Only forward codes that are part of the known contract.
+    const rawCode = errorData.error?.code as AuthErrorCode | undefined;
+    const code: AuthErrorCode =
+      rawCode && ALLOWED_ERROR_CODES.has(rawCode) ? rawCode : "SERVER_ERROR";
+
+    // RN-05: Suppress server-originated message for 5xx — avoids leaking
+    // internal stack traces or DB errors to the client.
+    const is5xx = response.status >= 500;
+    const message = is5xx
+      ? "An unexpected server error occurred. Please try again later."
+      : errorData.error?.message || `Request failed (${response.status})`;
+
+    // RN-05: Never forward server details on 5xx responses.
+    const details = is5xx ? undefined : errorData.error?.details;
 
     const error = new Error(message) as ApiError;
     error.code = code;
@@ -93,7 +135,7 @@ export class ApiClient {
 
     const data = isJson ? await response.json() : (null as T);
     const headers: Record<string, string> = {};
-    response.headers.forEach((value, key) => {
+    response.headers.forEach((value: string, key: string) => {
       headers[key] = value;
     });
 

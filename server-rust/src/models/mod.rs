@@ -23,7 +23,8 @@ pub use admin::{
     RejectCreditRefundRequestResponse, SetSystemAdminRequest,
 };
 pub use api_key::{
-    ApiKeyResponse, RegenerateApiKeyResponse, ValidateApiKeyRequest, ValidateApiKeyResponse,
+    ApiKeyListResponse, ApiKeyResponse, CreateApiKeyRequest, CreateApiKeyResponse,
+    RegenerateApiKeyResponse, ValidateApiKeyRequest, ValidateApiKeyResponse,
 };
 pub use audit::{AuditLogQueryParams, AuditLogResponse, ListAuditLogsResponse};
 pub use credit::{
@@ -33,9 +34,9 @@ pub use credit::{
     ReleaseHoldResponse, SpendCreditsRequest, SpendCreditsResponse,
 };
 pub use deposit::{
-    ConfirmSplDepositRequest, ConfirmSplDepositResponse, DepositConfigResponse,
-    DepositItemResponse, DepositListResponse, DepositQuoteResponse, DepositStatusResponse,
-    PendingSplDepositItemResponse, PendingSplDepositListResponse,
+    ConfirmSplDepositRequest, ConfirmSplDepositResponse, CustomTokenDefinition,
+    DepositConfigResponse, DepositItemResponse, DepositListResponse, DepositQuoteResponse,
+    DepositStatusResponse, PendingSplDepositItemResponse, PendingSplDepositListResponse,
 };
 pub use invite::{
     AcceptInviteRequest, AcceptInviteResponse, CreateInviteRequest, InviteResponse,
@@ -50,8 +51,8 @@ pub use wallet::{
     AcknowledgeRecoveryRequest, KdfParamsDto, PendingWalletRecoveryResponse,
     RotateUserSecretRequest, ShareAAuthMethod, ShareCRecoveryRequest, ShareCRecoveryResponse,
     SignTransactionRequest, SignTransactionResponse, UnlockCredential, WalletEnrollRequest,
-    WalletMaterialResponse, WalletRecoverRequest, WalletStatusResponse, WalletUnlockRequest,
-    WalletUnlockResponse,
+    WalletListResponse, WalletMaterialResponse, WalletRecoverRequest, WalletRotateRequest,
+    WalletStatusResponse, WalletSummary, WalletUnlockRequest, WalletUnlockResponse,
 };
 
 use chrono::{DateTime, Utc};
@@ -131,6 +132,9 @@ pub struct AuthResponse {
     /// API key for programmatic access (only returned for new users)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
+    /// S-05: Whether verification email was successfully queued (only set when require_verification is on)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email_queued: Option<bool>,
 }
 
 /// Response when MFA is required to complete login

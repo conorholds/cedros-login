@@ -27,6 +27,8 @@ struct SystemSettingRow {
     value: String,
     category: String,
     description: Option<String>,
+    is_secret: bool,
+    encryption_version: Option<String>,
     updated_at: DateTime<Utc>,
     updated_by: Option<Uuid>,
 }
@@ -38,6 +40,8 @@ impl From<SystemSettingRow> for SystemSetting {
             value: row.value,
             category: row.category,
             description: row.description,
+            is_secret: row.is_secret,
+            encryption_version: row.encryption_version,
             updated_at: row.updated_at,
             updated_by: row.updated_by,
         }
@@ -49,7 +53,7 @@ impl SystemSettingsRepository for PostgresSystemSettingsRepository {
     async fn get_all(&self) -> Result<Vec<SystemSetting>, AppError> {
         let rows: Vec<SystemSettingRow> = sqlx::query_as(
             r#"
-            SELECT key, value, category, description, updated_at, updated_by
+            SELECT key, value, category, description, is_secret, encryption_version, updated_at, updated_by
             FROM system_settings
             ORDER BY category, key
             "#,
@@ -64,7 +68,7 @@ impl SystemSettingsRepository for PostgresSystemSettingsRepository {
     async fn get_by_key(&self, key: &str) -> Result<Option<SystemSetting>, AppError> {
         let row: Option<SystemSettingRow> = sqlx::query_as(
             r#"
-            SELECT key, value, category, description, updated_at, updated_by
+            SELECT key, value, category, description, is_secret, encryption_version, updated_at, updated_by
             FROM system_settings
             WHERE key = $1
             "#,
@@ -80,7 +84,7 @@ impl SystemSettingsRepository for PostgresSystemSettingsRepository {
     async fn get_by_category(&self, category: &str) -> Result<Vec<SystemSetting>, AppError> {
         let rows: Vec<SystemSettingRow> = sqlx::query_as(
             r#"
-            SELECT key, value, category, description, updated_at, updated_by
+            SELECT key, value, category, description, is_secret, encryption_version, updated_at, updated_by
             FROM system_settings
             WHERE category = $1
             ORDER BY key
@@ -97,21 +101,25 @@ impl SystemSettingsRepository for PostgresSystemSettingsRepository {
     async fn upsert(&self, setting: SystemSetting) -> Result<SystemSetting, AppError> {
         let row: SystemSettingRow = sqlx::query_as(
             r#"
-            INSERT INTO system_settings (key, value, category, description, updated_at, updated_by)
-            VALUES ($1, $2, $3, $4, NOW(), $5)
+            INSERT INTO system_settings (key, value, category, description, is_secret, encryption_version, updated_at, updated_by)
+            VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)
             ON CONFLICT (key) DO UPDATE SET
                 value = EXCLUDED.value,
                 category = EXCLUDED.category,
                 description = COALESCE(EXCLUDED.description, system_settings.description),
+                is_secret = EXCLUDED.is_secret,
+                encryption_version = EXCLUDED.encryption_version,
                 updated_at = NOW(),
                 updated_by = EXCLUDED.updated_by
-            RETURNING key, value, category, description, updated_at, updated_by
+            RETURNING key, value, category, description, is_secret, encryption_version, updated_at, updated_by
             "#,
         )
         .bind(&setting.key)
         .bind(&setting.value)
         .bind(&setting.category)
         .bind(&setting.description)
+        .bind(setting.is_secret)
+        .bind(&setting.encryption_version)
         .bind(setting.updated_by)
         .fetch_one(&self.pool)
         .await
@@ -136,21 +144,25 @@ impl SystemSettingsRepository for PostgresSystemSettingsRepository {
         for setting in settings {
             let row: SystemSettingRow = sqlx::query_as(
                 r#"
-                INSERT INTO system_settings (key, value, category, description, updated_at, updated_by)
-                VALUES ($1, $2, $3, $4, NOW(), $5)
+                INSERT INTO system_settings (key, value, category, description, is_secret, encryption_version, updated_at, updated_by)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)
                 ON CONFLICT (key) DO UPDATE SET
                     value = EXCLUDED.value,
                     category = EXCLUDED.category,
                     description = COALESCE(EXCLUDED.description, system_settings.description),
+                    is_secret = EXCLUDED.is_secret,
+                    encryption_version = EXCLUDED.encryption_version,
                     updated_at = NOW(),
                     updated_by = EXCLUDED.updated_by
-                RETURNING key, value, category, description, updated_at, updated_by
+                RETURNING key, value, category, description, is_secret, encryption_version, updated_at, updated_by
                 "#,
             )
             .bind(&setting.key)
             .bind(&setting.value)
             .bind(&setting.category)
             .bind(&setting.description)
+            .bind(setting.is_secret)
+            .bind(&setting.encryption_version)
             .bind(setting.updated_by)
             .fetch_one(&mut *tx)
             .await

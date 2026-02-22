@@ -39,7 +39,7 @@ impl Default for KdfParams {
 
 /// Auth method for Share A encryption
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum ShareAAuthMethod {
     /// Email users reuse login password (Argon2id KDF)
     Password,
@@ -47,6 +47,8 @@ pub enum ShareAAuthMethod {
     Pin,
     /// Users with passkey login use PRF extension (HKDF)
     Passkey,
+    /// API key derives encryption key via Argon2id
+    ApiKey,
 }
 
 impl std::fmt::Display for ShareAAuthMethod {
@@ -55,6 +57,7 @@ impl std::fmt::Display for ShareAAuthMethod {
             ShareAAuthMethod::Password => write!(f, "password"),
             ShareAAuthMethod::Pin => write!(f, "pin"),
             ShareAAuthMethod::Passkey => write!(f, "passkey"),
+            ShareAAuthMethod::ApiKey => write!(f, "api_key"),
         }
     }
 }
@@ -67,6 +70,7 @@ impl std::str::FromStr for ShareAAuthMethod {
             "password" => Ok(ShareAAuthMethod::Password),
             "pin" => Ok(ShareAAuthMethod::Pin),
             "passkey" => Ok(ShareAAuthMethod::Passkey),
+            "api_key" => Ok(ShareAAuthMethod::ApiKey),
             _ => Err(format!("Invalid auth method: {}", s)),
         }
     }
@@ -84,23 +88,26 @@ pub struct WalletMaterialEntity {
     /// Schema version (2 for server-side signing)
     pub scheme_version: i16,
 
-    /// Auth method for Share A: password, pin, or passkey
+    /// Auth method for Share A: password, pin, passkey, or api_key
     pub share_a_auth_method: ShareAAuthMethod,
 
     // Share A (encrypted with user credential)
     pub share_a_ciphertext: Vec<u8>,
     pub share_a_nonce: Vec<u8>,
-    /// KDF salt for password/PIN methods (None for passkey)
+    /// KDF salt for password/PIN/api_key methods (None for passkey)
     pub share_a_kdf_salt: Option<Vec<u8>>,
-    /// KDF params for password/PIN methods (None for passkey)
+    /// KDF params for password/PIN/api_key methods (None for passkey)
     pub share_a_kdf_params: Option<KdfParams>,
-    /// PRF salt for passkey method (None for password/PIN)
+    /// PRF salt for passkey method (None for password/PIN/api_key)
     pub prf_salt: Option<Vec<u8>>,
-    /// PIN hash for PIN method (None for password/passkey)
+    /// PIN hash for PIN method (None for password/passkey/api_key)
     pub share_a_pin_hash: Option<String>,
 
     // Share B (plaintext - SSS math protects it)
     pub share_b: Vec<u8>,
+
+    /// Optional API key FK (None = default/account-level wallet, Some = key-specific wallet)
+    pub api_key_id: Option<Uuid>,
 
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -118,9 +125,9 @@ pub struct CreateWalletMaterial {
     // Share A (encrypted)
     pub share_a_ciphertext: Vec<u8>,
     pub share_a_nonce: Vec<u8>,
-    /// KDF salt for password/PIN methods
+    /// KDF salt for password/PIN/api_key methods
     pub share_a_kdf_salt: Option<Vec<u8>>,
-    /// KDF params for password/PIN methods
+    /// KDF params for password/PIN/api_key methods
     pub share_a_kdf_params: Option<KdfParams>,
     /// PRF salt for passkey method
     pub prf_salt: Option<Vec<u8>>,
@@ -129,6 +136,9 @@ pub struct CreateWalletMaterial {
 
     // Share B (plaintext)
     pub share_b: Vec<u8>,
+
+    /// Optional API key ID (None = default wallet, Some = key-specific wallet)
+    pub api_key_id: Option<Uuid>,
 }
 
 // Note: RotateDeviceShare removed in v2 - Share B is plaintext, no rotation needed
@@ -155,14 +165,25 @@ pub struct RotateUserSecret {
 #[async_trait]
 pub trait WalletMaterialRepository: Send + Sync {
     /// Create wallet material for a user (enrollment)
-    /// Fails if user already has wallet material
     async fn create(
         &self,
         material: CreateWalletMaterial,
     ) -> Result<WalletMaterialEntity, AppError>;
 
-    /// Find wallet material by user ID
-    async fn find_by_user(&self, user_id: Uuid) -> Result<Option<WalletMaterialEntity>, AppError>;
+    /// Find default wallet for user (api_key_id IS NULL)
+    async fn find_default_by_user(
+        &self,
+        user_id: Uuid,
+    ) -> Result<Option<WalletMaterialEntity>, AppError>;
+
+    /// Find wallet material linked to a specific API key
+    async fn find_by_api_key_id(
+        &self,
+        api_key_id: Uuid,
+    ) -> Result<Option<WalletMaterialEntity>, AppError>;
+
+    /// Find all wallets for a user (default + per-API-key)
+    async fn find_all_by_user(&self, user_id: Uuid) -> Result<Vec<WalletMaterialEntity>, AppError>;
 
     /// Find wallet material by Solana public key
     async fn find_by_pubkey(&self, pubkey: &str) -> Result<Option<WalletMaterialEntity>, AppError>;
@@ -175,12 +196,10 @@ pub trait WalletMaterialRepository: Send + Sync {
         pubkeys: &[String],
     ) -> Result<Vec<WalletMaterialEntity>, AppError>;
 
-    /// Check if user has wallet material
+    /// Check if user has a default wallet (backwards compat)
     async fn exists_for_user(&self, user_id: Uuid) -> Result<bool, AppError>;
 
-    // Note: rotate_device_share removed in v2 - Share B is plaintext
-
-    /// Atomically rotate user secret (re-encrypt Share A)
+    /// Atomically rotate user secret (re-encrypt Share A) on default wallet
     /// Used when user changes password/PIN or switches auth method
     async fn rotate_user_secret(
         &self,
@@ -188,7 +207,10 @@ pub trait WalletMaterialRepository: Send + Sync {
         params: RotateUserSecret,
     ) -> Result<WalletMaterialEntity, AppError>;
 
-    /// Delete wallet material for a user
+    /// Delete a specific wallet by ID (ownership verified by user_id)
+    async fn delete_by_id(&self, wallet_id: Uuid, user_id: Uuid) -> Result<bool, AppError>;
+
+    /// Delete all wallet material for a user (account deletion cascade)
     async fn delete_by_user(&self, user_id: Uuid) -> Result<(), AppError>;
 }
 
@@ -220,17 +242,31 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
         &self,
         material: CreateWalletMaterial,
     ) -> Result<WalletMaterialEntity, AppError> {
-        // Acquire locks in canonical order: materials -> pubkey_index (R-12)
         let mut materials = self.materials.write().await;
 
-        // Check for existing wallet
-        if materials.contains_key(&material.user_id) {
-            return Err(AppError::Validation(
-                "User already has wallet material".into(),
-            ));
+        // Check uniqueness constraints
+        if material.api_key_id.is_none() {
+            // Default wallet: one per user
+            let exists = materials
+                .values()
+                .any(|m| m.user_id == material.user_id && m.api_key_id.is_none());
+            if exists {
+                return Err(AppError::Validation(
+                    "User already has a default wallet".into(),
+                ));
+            }
+        } else {
+            // API key wallet: one per api_key_id
+            let exists = materials
+                .values()
+                .any(|m| m.api_key_id == material.api_key_id);
+            if exists {
+                return Err(AppError::Validation(
+                    "Wallet already exists for this API key".into(),
+                ));
+            }
         }
 
-        // Check pubkey uniqueness
         let mut pubkey_index = self.pubkey_index.write().await;
         if pubkey_index.contains_key(&material.solana_pubkey) {
             return Err(AppError::Validation(
@@ -239,11 +275,12 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
         }
 
         let now = Utc::now();
+        let id = Uuid::new_v4();
         let entity = WalletMaterialEntity {
-            id: Uuid::new_v4(),
+            id,
             user_id: material.user_id,
             solana_pubkey: material.solana_pubkey.clone(),
-            scheme_version: 2, // v2 for server-side signing
+            scheme_version: 2,
             share_a_auth_method: material.share_a_auth_method,
             share_a_ciphertext: material.share_a_ciphertext,
             share_a_nonce: material.share_a_nonce,
@@ -252,31 +289,60 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
             prf_salt: material.prf_salt,
             share_a_pin_hash: material.share_a_pin_hash,
             share_b: material.share_b,
+            api_key_id: material.api_key_id,
             created_at: now,
             updated_at: now,
         };
 
-        pubkey_index.insert(entity.solana_pubkey.clone(), entity.user_id);
-        materials.insert(entity.user_id, entity.clone());
+        pubkey_index.insert(entity.solana_pubkey.clone(), id);
+        materials.insert(id, entity.clone());
 
         Ok(entity)
     }
 
-    async fn find_by_user(&self, user_id: Uuid) -> Result<Option<WalletMaterialEntity>, AppError> {
+    async fn find_default_by_user(
+        &self,
+        user_id: Uuid,
+    ) -> Result<Option<WalletMaterialEntity>, AppError> {
         let materials = self.materials.read().await;
-        Ok(materials.get(&user_id).cloned())
+        Ok(materials
+            .values()
+            .find(|m| m.user_id == user_id && m.api_key_id.is_none())
+            .cloned())
+    }
+
+    async fn find_by_api_key_id(
+        &self,
+        api_key_id: Uuid,
+    ) -> Result<Option<WalletMaterialEntity>, AppError> {
+        let materials = self.materials.read().await;
+        Ok(materials
+            .values()
+            .find(|m| m.api_key_id == Some(api_key_id))
+            .cloned())
+    }
+
+    async fn find_all_by_user(&self, user_id: Uuid) -> Result<Vec<WalletMaterialEntity>, AppError> {
+        let materials = self.materials.read().await;
+        let mut result: Vec<_> = materials
+            .values()
+            .filter(|m| m.user_id == user_id)
+            .cloned()
+            .collect();
+        result.sort_by_key(|m| m.created_at);
+        Ok(result)
     }
 
     async fn find_by_pubkey(&self, pubkey: &str) -> Result<Option<WalletMaterialEntity>, AppError> {
         let pubkey_index = self.pubkey_index.read().await;
-        let user_id = match pubkey_index.get(pubkey) {
+        let wallet_id = match pubkey_index.get(pubkey) {
             Some(id) => *id,
             None => return Ok(None),
         };
         drop(pubkey_index);
 
         let materials = self.materials.read().await;
-        Ok(materials.get(&user_id).cloned())
+        Ok(materials.get(&wallet_id).cloned())
     }
 
     async fn find_by_pubkeys(
@@ -287,14 +353,13 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
             return Ok(Vec::new());
         }
 
-        // Acquire locks in canonical order: materials -> pubkey_index (R-12)
         let materials = self.materials.read().await;
         let pubkey_index = self.pubkey_index.read().await;
 
         let mut out = Vec::new();
         for pubkey in pubkeys {
-            if let Some(user_id) = pubkey_index.get(pubkey) {
-                if let Some(material) = materials.get(user_id) {
+            if let Some(wallet_id) = pubkey_index.get(pubkey) {
+                if let Some(material) = materials.get(wallet_id) {
                     out.push(material.clone());
                 }
             }
@@ -304,10 +369,10 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
 
     async fn exists_for_user(&self, user_id: Uuid) -> Result<bool, AppError> {
         let materials = self.materials.read().await;
-        Ok(materials.contains_key(&user_id))
+        Ok(materials
+            .values()
+            .any(|m| m.user_id == user_id && m.api_key_id.is_none()))
     }
-
-    // Note: rotate_device_share removed in v2
 
     async fn rotate_user_secret(
         &self,
@@ -317,7 +382,8 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
         let mut materials = self.materials.write().await;
 
         let material = materials
-            .get_mut(&user_id)
+            .values_mut()
+            .find(|m| m.user_id == user_id && m.api_key_id.is_none())
             .ok_or_else(|| AppError::NotFound("Wallet material not found".into()))?;
 
         material.share_a_auth_method = params.new_auth_method;
@@ -332,13 +398,37 @@ impl WalletMaterialRepository for InMemoryWalletMaterialRepository {
         Ok(material.clone())
     }
 
-    async fn delete_by_user(&self, user_id: Uuid) -> Result<(), AppError> {
-        // Acquire locks in canonical order: materials -> pubkey_index (R-12)
+    async fn delete_by_id(&self, wallet_id: Uuid, user_id: Uuid) -> Result<bool, AppError> {
         let mut materials = self.materials.write().await;
 
-        if let Some(material) = materials.remove(&user_id) {
+        if let Some(material) = materials.get(&wallet_id) {
+            if material.user_id != user_id {
+                return Ok(false);
+            }
+            let pubkey = material.solana_pubkey.clone();
+            materials.remove(&wallet_id);
             let mut pubkey_index = self.pubkey_index.write().await;
-            pubkey_index.remove(&material.solana_pubkey);
+            pubkey_index.remove(&pubkey);
+            return Ok(true);
+        }
+
+        Ok(false)
+    }
+
+    async fn delete_by_user(&self, user_id: Uuid) -> Result<(), AppError> {
+        let mut materials = self.materials.write().await;
+        let mut pubkey_index = self.pubkey_index.write().await;
+
+        let to_remove: Vec<Uuid> = materials
+            .values()
+            .filter(|m| m.user_id == user_id)
+            .map(|m| m.id)
+            .collect();
+
+        for id in to_remove {
+            if let Some(material) = materials.remove(&id) {
+                pubkey_index.remove(&material.solana_pubkey);
+            }
         }
 
         Ok(())
@@ -368,6 +458,7 @@ mod tests {
             prf_salt: None,
             share_a_pin_hash: None,
             share_b: sample_share_b(),
+            api_key_id: None,
         }
     }
 
@@ -383,6 +474,7 @@ mod tests {
             prf_salt: Some(vec![0xbb; 32]),
             share_a_pin_hash: None,
             share_b: sample_share_b(),
+            api_key_id: None,
         }
     }
 
@@ -399,7 +491,7 @@ mod tests {
         assert_eq!(material.scheme_version, 2);
         assert_eq!(material.share_a_auth_method, ShareAAuthMethod::Password);
 
-        let found = repo.find_by_user(user_id).await.unwrap();
+        let found = repo.find_default_by_user(user_id).await.unwrap();
         assert!(found.is_some());
         assert_eq!(found.unwrap().user_id, user_id);
     }

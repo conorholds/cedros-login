@@ -9,7 +9,7 @@ import ApiClient from "./api/client";
 import AuthApi from "./api/auth";
 import OrgsApi from "./api/orgs";
 import WalletApi from "./api/wallet";
-import TokenManager from "./api/tokenManager";
+import { TokenManager } from "../utils/tokenManager";
 
 export {
   createApiServices,
@@ -25,5 +25,5 @@ export * from "./api/client";
 export * from "./api/auth";
 export * from "./api/orgs";
 export * from "./api/wallet";
-export * from "./api/tokenManager";
+export * from "../utils/tokenManager";
 export * from "./api/index";

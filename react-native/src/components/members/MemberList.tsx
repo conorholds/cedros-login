@@ -30,7 +30,7 @@ export function MemberList({
   onRoleChange,
   onRemove,
   onInvitePress,
-  isLoading = false,
+  isLoading: _isLoading = false,
   containerStyle,
   testID = "member-list",
 }: MemberListProps): React.ReactElement {

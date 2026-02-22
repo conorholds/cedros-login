@@ -116,7 +116,6 @@ impl Permission {
                 Permission::MemberRead,
                 Permission::InviteRead,
             ],
-            OrgRole::Viewer => vec![Permission::OrgRead, Permission::MemberRead],
         }
     }
 
@@ -129,7 +128,6 @@ impl Permission {
                 self,
                 Permission::OrgRead | Permission::MemberRead | Permission::InviteRead
             ),
-            OrgRole::Viewer => matches!(self, Permission::OrgRead | Permission::MemberRead),
         }
     }
 }
@@ -407,11 +405,6 @@ mod tests {
         let member_perms = Permission::for_role(OrgRole::Member);
         assert!(!member_perms.contains(&Permission::MemberInvite));
         assert!(member_perms.contains(&Permission::OrgRead));
-
-        // Viewer has minimal permissions
-        let viewer_perms = Permission::for_role(OrgRole::Viewer);
-        assert!(!viewer_perms.contains(&Permission::InviteRead));
-        assert!(viewer_perms.contains(&Permission::MemberRead));
     }
 
     #[test]
@@ -419,12 +412,10 @@ mod tests {
         assert!(Permission::OrgDelete.is_allowed_for(OrgRole::Owner));
         assert!(!Permission::OrgDelete.is_allowed_for(OrgRole::Admin));
         assert!(!Permission::OrgDelete.is_allowed_for(OrgRole::Member));
-        assert!(!Permission::OrgDelete.is_allowed_for(OrgRole::Viewer));
 
         assert!(Permission::MemberInvite.is_allowed_for(OrgRole::Owner));
         assert!(Permission::MemberInvite.is_allowed_for(OrgRole::Admin));
         assert!(!Permission::MemberInvite.is_allowed_for(OrgRole::Member));
-        assert!(!Permission::MemberInvite.is_allowed_for(OrgRole::Viewer));
     }
 
     #[test]

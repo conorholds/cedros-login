@@ -98,8 +98,7 @@ impl WebhookCallback {
     async fn send_webhook(&self, payload: &WebhookPayload) -> Result<Value, AppError> {
         if !self.secret_valid {
             return Err(AppError::Config(
-                "Webhook secret validation failed. Generate with: openssl rand -base64 32"
-                    .into(),
+                "Webhook secret validation failed. Generate with: openssl rand -base64 32".into(),
             ));
         }
         let body = serde_json::to_string(payload).map_err(|e| AppError::Internal(e.into()))?;
@@ -414,7 +413,11 @@ mod tests {
         let mut config = config_with_url("https://example.com/webhook");
         config.secret = "short".to_string();
         let callback = WebhookCallback::new(config);
-        let err = callback.on_logout("user-123").await.unwrap_err().to_string();
+        let err = callback
+            .on_logout("user-123")
+            .await
+            .unwrap_err()
+            .to_string();
         assert!(err.contains("Webhook secret validation failed"));
     }
 }

@@ -16,7 +16,6 @@ pub enum OrgRole {
     Owner,
     Admin,
     Member,
-    Viewer,
 }
 
 impl OrgRole {
@@ -25,7 +24,6 @@ impl OrgRole {
             OrgRole::Owner => "owner",
             OrgRole::Admin => "admin",
             OrgRole::Member => "member",
-            OrgRole::Viewer => "viewer",
         }
     }
 
@@ -40,8 +38,6 @@ impl OrgRole {
             Some(OrgRole::Admin)
         } else if s.eq_ignore_ascii_case("member") {
             Some(OrgRole::Member)
-        } else if s.eq_ignore_ascii_case("viewer") {
-            Some(OrgRole::Viewer)
         } else {
             None
         }
@@ -55,10 +51,9 @@ impl OrgRole {
     /// Get the hierarchy level (higher = more permissions)
     fn level(&self) -> u8 {
         match self {
-            OrgRole::Owner => 4,
-            OrgRole::Admin => 3,
-            OrgRole::Member => 2,
-            OrgRole::Viewer => 1,
+            OrgRole::Owner => 3,
+            OrgRole::Admin => 2,
+            OrgRole::Member => 1,
         }
     }
 }
@@ -600,7 +595,6 @@ mod tests {
         assert!(OrgRole::Owner.has_at_least(OrgRole::Member));
         assert!(OrgRole::Admin.has_at_least(OrgRole::Member));
         assert!(!OrgRole::Member.has_at_least(OrgRole::Admin));
-        assert!(!OrgRole::Viewer.has_at_least(OrgRole::Member));
     }
 
     #[tokio::test]

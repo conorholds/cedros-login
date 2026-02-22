@@ -45,6 +45,13 @@ impl EncryptionService {
     /// - Keep old service for decryption during migration
     /// - All new encryptions use the new key
     pub fn with_version(secret: &[u8], key_version: u8) -> Self {
+        // S-06: Warn when key is shorter than 32 bytes (zero-padded, weakens security)
+        if secret.len() < 32 {
+            tracing::warn!(
+                key_len = secret.len(),
+                "Encryption key is shorter than 32 bytes; zero-padded (weakened security)"
+            );
+        }
         // Use the first 32 bytes of the secret as the key
         let mut key = [0u8; 32];
         let len = secret.len().min(32);
@@ -104,6 +111,41 @@ impl EncryptionService {
         hasher.update(secret.as_bytes());
         let key = hasher.finalize();
         Self::with_version(&key, key_version)
+    }
+
+    /// SRV-09: Create from string secret using HKDF-SHA256 (preferred for new key versions).
+    ///
+    /// Uses HKDF with a domain-specific info string to derive a proper 256-bit key.
+    /// Recommended over `from_secret` for new deployments/key versions.
+    pub fn from_secret_hkdf(secret: &str, key_version: u8) -> Self {
+        use hmac::{Hmac, Mac};
+        use sha2::Sha256;
+        type HmacSha256 = Hmac<Sha256>;
+
+        // HKDF Extract (salt = empty for simplicity; secret is expected to be high-entropy)
+        let extract: HmacSha256 = Mac::new_from_slice(b"cedros-encryption-service")
+            .expect("HMAC key length is valid");
+        let mut extract = extract;
+        extract.update(secret.as_bytes());
+        let prk = extract.finalize().into_bytes();
+
+        // HKDF Expand
+        let mut expand: HmacSha256 =
+            Mac::new_from_slice(&prk).expect("HMAC key length is valid");
+        expand.update(b"cedros-encryption-aes256gcm");
+        expand.update(&[1u8]);
+        let okm = expand.finalize().into_bytes();
+
+        let mut key = [0u8; 32];
+        key.copy_from_slice(&okm);
+
+        let cipher = Aes256Gcm::new_from_slice(&key).expect("Key length should be 32 bytes");
+        key.zeroize();
+
+        Self {
+            cipher,
+            key_version,
+        }
     }
 
     /// Get the key version used by this service
@@ -315,5 +357,28 @@ mod tests {
         // New encryptions use version 2
         let encrypted_v2 = new_service.encrypt("new-data").unwrap();
         assert!(encrypted_v2.starts_with("v2:"));
+    }
+
+    #[test]
+    fn test_hkdf_roundtrip() {
+        let service = EncryptionService::from_secret_hkdf("test-hkdf-secret", 2);
+        let plaintext = "hkdf-protected-data";
+
+        let encrypted = service.encrypt(plaintext).unwrap();
+        assert!(encrypted.starts_with("v2:"));
+
+        let decrypted = service.decrypt(&encrypted).unwrap();
+        assert_eq!(decrypted, plaintext);
+    }
+
+    #[test]
+    fn test_hkdf_differs_from_sha256() {
+        // HKDF and SHA-256 derivation produce different keys from same secret
+        let sha_service = EncryptionService::from_secret_with_version("same-secret", 1);
+        let hkdf_service = EncryptionService::from_secret_hkdf("same-secret", 2);
+
+        let encrypted_sha = sha_service.encrypt("test").unwrap();
+        // HKDF service should NOT be able to decrypt SHA-derived ciphertext
+        assert!(hkdf_service.decrypt(&encrypted_sha).is_err());
     }
 }

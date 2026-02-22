@@ -2,21 +2,118 @@
 
 use axum::{extract::State, http::HeaderMap, response::IntoResponse, Json};
 use chrono::{Duration, Utc};
+#[cfg(feature = "postgres")]
+use sqlx::PgPool;
 use std::sync::Arc;
 
 use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
+use crate::handlers::auth::{
+    call_authenticated_callback_with_timeout, call_registered_callback_with_timeout,
+};
 use crate::models::{AuthMethod, AuthResponse, SolanaAuthRequest, SolanaChallengeRequest};
 use crate::repositories::{
-    generate_api_key, ApiKeyEntity, AuditEventType, MembershipEntity, NonceEntity, OrgEntity,
-    OrgRole, SessionEntity, UserEntity,
+    generate_api_key, ApiKeyEntity, AuditEventType, MembershipEntity, NonceEntity, SessionEntity,
+    UserEntity,
 };
 use crate::services::{EmailService, SolanaService};
 use crate::utils::{
     build_json_response_with_cookies, extract_client_ip_with_fallback, get_default_org_context,
-    hash_refresh_token, user_entity_to_auth_user, PeerIp,
+    hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user, PeerIp,
 };
 use crate::AppState;
+
+#[cfg(feature = "postgres")]
+fn auth_methods_to_strings(methods: &[AuthMethod]) -> Vec<String> {
+    methods
+        .iter()
+        .map(|m| match m {
+            AuthMethod::Email => "email".to_string(),
+            AuthMethod::Google => "google".to_string(),
+            AuthMethod::Apple => "apple".to_string(),
+            AuthMethod::Solana => "solana".to_string(),
+            AuthMethod::WebAuthn => "webauthn".to_string(),
+            AuthMethod::Sso => "sso".to_string(),
+        })
+        .collect()
+}
+
+#[cfg(feature = "postgres")]
+async fn create_user_with_membership_and_api_key_tx(
+    pool: &PgPool,
+    user: &UserEntity,
+    membership: &MembershipEntity,
+    api_key: &ApiKeyEntity,
+) -> Result<(), AppError> {
+    let mut tx = pool
+        .begin()
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+    let auth_methods = auth_methods_to_strings(&user.auth_methods);
+
+    sqlx::query(
+        r#"
+        INSERT INTO users (id, email, email_verified, password_hash, name, picture,
+                           wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
+                           created_at, updated_at, last_login_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        "#,
+    )
+    .bind(user.id)
+    .bind(&user.email)
+    .bind(user.email_verified)
+    .bind(&user.password_hash)
+    .bind(&user.name)
+    .bind(&user.picture)
+    .bind(&user.wallet_address)
+    .bind(&user.google_id)
+    .bind(&user.apple_id)
+    .bind(&user.stripe_customer_id)
+    .bind(&auth_methods)
+    .bind(user.is_system_admin)
+    .bind(user.created_at)
+    .bind(user.updated_at)
+    .bind(user.last_login_at)
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| AppError::Internal(e.into()))?;
+
+    sqlx::query(
+        r#"
+        INSERT INTO memberships (id, user_id, org_id, role)
+        VALUES ($1, $2, $3, $4)
+        "#,
+    )
+    .bind(membership.id)
+    .bind(membership.user_id)
+    .bind(membership.org_id)
+    .bind(membership.role.as_str())
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| AppError::Internal(e.into()))?;
+
+    sqlx::query(
+        r#"
+        INSERT INTO api_keys (id, user_id, key_hash, key_prefix, created_at, last_used_at)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        "#,
+    )
+    .bind(api_key.id)
+    .bind(api_key.user_id)
+    .bind(&api_key.key_hash)
+    .bind(&api_key.key_prefix)
+    .bind(api_key.created_at)
+    .bind(api_key.last_used_at)
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| AppError::Internal(e.into()))?;
+
+    tx.commit()
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+    Ok(())
+}
 
 /// POST /auth/solana/challenge - Generate a challenge for Solana wallet sign-in
 pub async fn solana_challenge<C: AuthCallback, E: EmailService>(
@@ -121,33 +218,39 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
             is_system_admin: false,
             created_at: now,
             updated_at: now,
+            last_login_at: Some(now),
         };
-        let user = state.user_repo.create(user).await?;
-
-        // Auto-create personal organization
-        let personal_org = OrgEntity::new_personal(user.id, user.name.as_deref());
-        let personal_org = state.org_repo.create(personal_org).await?;
-
-        // Create owner membership for personal org
-        let membership = MembershipEntity::new(user.id, personal_org.id, OrgRole::Owner);
-        state.membership_repo.create(membership).await?;
-
-        // Create API key for user
+        let org_assignment = resolve_org_assignment(&state, user.id).await?;
+        let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
         let raw_api_key = generate_api_key();
-        let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key);
-        state.api_key_repo.create(api_key_entity).await?;
+        let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key, "default");
+
+        #[cfg(feature = "postgres")]
+        let user = if let Some(pool) = state.postgres_pool.as_ref() {
+            create_user_with_membership_and_api_key_tx(pool, &user, &membership, &api_key_entity)
+                .await?;
+            user
+        } else {
+            let created = state.user_repo.create(user).await?;
+            state.membership_repo.create(membership).await?;
+            state.api_key_repo.create(api_key_entity).await?;
+            created
+        };
+
+        #[cfg(not(feature = "postgres"))]
+        let user = {
+            let created = state.user_repo.create(user).await?;
+            state.membership_repo.create(membership).await?;
+            state.api_key_repo.create(api_key_entity).await?;
+            created
+        };
 
         (user, true, Some(raw_api_key))
     };
 
-    // Get user's memberships and orgs to find default org context
+    // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let org_ids: Vec<_> = memberships.iter().map(|m| m.org_id).collect();
-    let orgs = state.org_repo.find_by_ids(&org_ids).await?;
-    let orgs_by_id: std::collections::HashMap<_, _> = orgs.into_iter().map(|o| (o.id, o)).collect();
-
-    // Select default org using shared helper
-    let token_context = get_default_org_context(&memberships, &orgs_by_id, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();
@@ -188,9 +291,9 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
     };
 
     let callback_data = if is_new_user {
-        state.callback.on_registered(&payload).await.ok()
+        call_registered_callback_with_timeout(&state.callback, &payload).await
     } else {
-        state.callback.on_authenticated(&payload).await.ok()
+        call_authenticated_callback_with_timeout(&state.callback, &payload).await
     };
 
     // Log audit event (fire-and-forget, don't fail auth on audit error)
@@ -216,6 +319,7 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
         is_new_user,
         callback_data,
         api_key,
+        email_queued: None,
     };
 
     Ok(build_json_response_with_cookies(

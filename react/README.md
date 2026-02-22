@@ -152,6 +152,13 @@ function AuthStatus() {
 | `TotpVerify` | Verification prompt during login |
 | `OtpInput` | 6-digit code input component |
 
+### User Withdrawals
+
+| Component | Description |
+|-----------|-------------|
+| `WithdrawalFlow` | Multi-step withdrawal wizard (token select, amount, confirm, success) |
+| `WithdrawalHistory` | Paginated withdrawal history with Solana explorer links |
+
 ### Privacy Cash (Deposits & Credits)
 
 | Component | Description |
@@ -178,12 +185,24 @@ function AuthStatus() {
 | `CredentialList` | List all authentication methods (passwords, passkeys, OAuth) |
 | `CredentialCard` | Individual credential display with management options |
 
-### Admin
+### Admin Dashboard
 
 | Component | Description |
 |-----------|-------------|
-| `AdminPanel` | Admin dashboard with tabs for members, invites, sessions, system settings |
+| `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections |
+| `AdminShell` | Plugin host for combining multiple admin dashboards (cedros-login + cedros-pay) |
+| `AdminPanel` | Legacy admin dashboard with tabs for members, invites, sessions, system settings |
 | `SystemSettings` | System settings editor (privacy, withdrawal, rate limits) - system admin only |
+
+#### Admin Plugin System
+
+The admin dashboard supports a plugin architecture for creating unified dashboards that combine sections from multiple Cedros packages (e.g., cedros-login + cedros-pay).
+
+| Export | Description |
+|--------|-------------|
+| `cedrosLoginPlugin` | Plugin definition for cedros-login admin sections |
+| `AdminShell` | Host component that renders plugins with unified sidebar |
+| `useAdminShell` | Hook for accessing admin shell context |
 
 ### Shared
 
@@ -442,6 +461,22 @@ const {
   revokeAll,        // Revoke all sessions (logout everywhere)
   refetch,
 } = useSessions();
+```
+
+### User Withdrawals
+
+```tsx
+// Withdraw SOL/SPL tokens to external addresses
+const {
+  getBalances,   // Fetch SOL + SPL token balances from wallet
+  withdrawSol,   // Withdraw native SOL (destination, amountLamports)
+  withdrawSpl,   // Withdraw SPL token (destination, tokenMint, amount)
+  getHistory,    // Paginated withdrawal history (limit, offset)
+  isSubmitting,  // True while withdrawal is in flight
+  error,         // Error message or null
+  clearError,    // Clear error state
+  lastResult,    // Most recent WithdrawalResponse
+} = useWithdrawal();
 ```
 
 ### Privacy Cash (Deposits & Credits)
@@ -972,6 +1007,45 @@ function InviteButton({ orgId }) {
 }
 ```
 
+### User Withdrawals
+
+Withdraw SOL or SPL tokens from the user's embedded wallet to any external Solana address.
+Requires `feature_user_withdrawals` to be enabled via system settings.
+
+```tsx
+import { WithdrawalFlow, WithdrawalHistory, useWithdrawal } from '@cedros/login-react';
+
+// Multi-step withdrawal wizard
+function WithdrawPage() {
+  return (
+    <div>
+      <WithdrawalFlow
+        onSuccess={(result) => console.log('Sent:', result.txSignature)}
+        onCancel={() => console.log('Cancelled')}
+      />
+
+      <WithdrawalHistory
+        pageSize={10}
+        onTransactionClick={(item) => console.log('Clicked:', item)}
+      />
+    </div>
+  );
+}
+
+// Using the hook directly
+function CustomWithdraw() {
+  const { getBalances, withdrawSol, withdrawSpl, getHistory, isSubmitting } = useWithdrawal();
+
+  const handleWithdraw = async () => {
+    const balances = await getBalances();
+    const result = await withdrawSol('DestinationAddress...', 100_000_000);
+    console.log('Tx:', result.txSignature, 'Fee:', result.feeLamports);
+  };
+
+  return <button onClick={handleWithdraw} disabled={isSubmitting}>Withdraw</button>;
+}
+```
+
 ### Privacy Cash
 
 **Deposits work in all wallet recovery modes**, but private (privacy-preserving) deposits require the wallet to be configured in "no-recovery" mode for security reasons.
@@ -1093,6 +1167,126 @@ function AdminStatsWidget() {
 }
 ```
 
+### Admin Dashboard
+
+The `CedrosAdminDashboard` is a complete, ready-to-use admin panel with sidebar navigation:
+
+```tsx
+import { CedrosAdminDashboard } from '@cedros/login-react';
+
+function AdminPage() {
+  return (
+    <CedrosAdminDashboard
+      title="My App Admin"
+      sections={['users', 'team', 'deposits', 'withdrawals', 'settings-auth', 'settings-credits']}
+      defaultSection="users"
+      pageSize={20}
+      refreshInterval={30000}
+    />
+  );
+}
+```
+
+**Available sections:**
+- `users` - User management with stats (system admin only)
+- `team` - Organization members and pending invites
+- `deposits` - Browse all deposits with status filtering
+- `withdrawals` - Process company withdrawal queue
+- `settings-auth` - Authentication settings (OAuth, passkeys, etc.)
+- `settings-messaging` - Email/SMTP and webhook configuration
+- `settings-wallet` - User wallet settings
+- `settings-credits` - Credit system and treasury configuration
+- `settings-server` - Auth server settings
+
+### Unified Admin Dashboard (Plugin System)
+
+When using both `@cedros/login-react` and `@cedros/pay-react`, you can create a unified admin dashboard that combines sections from both packages using the plugin architecture:
+
+```tsx
+import { AdminShell, cedrosLoginPlugin } from '@cedros/login-react';
+import { cedrosPayPlugin } from '@cedros/pay-react'; // hypothetical
+import { useCedrosLogin } from '@cedros/login-react';
+import { useOrgs } from '@cedros/login-react';
+
+function UnifiedAdminDashboard() {
+  const { user, getAccessToken } = useCedrosLogin();
+  const { activeOrg, role, permissions } = useOrgs();
+
+  // Build host context from all auth providers
+  const hostContext = {
+    cedrosLogin: {
+      user,
+      getAccessToken,
+      serverUrl: 'https://api.example.com/auth',
+    },
+    cedrosPay: {
+      serverUrl: 'https://api.example.com/pay',
+      // Add wallet/JWT context if using cedros-pay
+    },
+    org: activeOrg ? {
+      orgId: activeOrg.id,
+      role: role || 'member',
+      permissions: permissions || [],
+    } : undefined,
+  };
+
+  return (
+    <AdminShell
+      title="Admin Dashboard"
+      plugins={[cedrosLoginPlugin, cedrosPayPlugin]}
+      hostContext={hostContext}
+      defaultSection="cedros-login:users"
+      pageSize={20}
+      refreshInterval={30000}
+    />
+  );
+}
+```
+
+**How it works:**
+
+1. Each package exports an `AdminPlugin` that defines its sections and components
+2. `AdminShell` aggregates sections from all plugins into a unified sidebar
+3. Sections are grouped (Users, Store, Configuration) and sorted by order
+4. Each plugin's CSS is isolated via namespace scoping
+
+**Plugin Structure:**
+
+```tsx
+// Each plugin exports this structure
+export const cedrosLoginPlugin: AdminPlugin = {
+  id: 'cedros-login',
+  name: 'Cedros Login',
+  version: '1.0.0',
+  sections: [
+    { id: 'users', label: 'Users', icon: <UsersIcon />, group: 'Users', order: 0 },
+    { id: 'team', label: 'Team', icon: <TeamIcon />, group: 'Users', order: 1 },
+    // ... more sections
+  ],
+  components: {
+    users: UsersSection,
+    team: TeamSection,
+    // ... lazy-loaded components
+  },
+  createPluginContext: (hostContext) => ({
+    serverUrl: hostContext.cedrosLogin?.serverUrl || '',
+    userId: hostContext.cedrosLogin?.user?.id,
+    getAccessToken: hostContext.cedrosLogin?.getAccessToken || (() => null),
+    hasPermission: (p) => /* permission check */,
+  }),
+  checkPermission: (permission, hostContext) => /* ... */,
+  cssNamespace: 'cedros-dashboard',
+};
+```
+
+**Sidebar grouping in unified mode:**
+
+| Group | Source | Sections |
+|-------|--------|----------|
+| Users | cedros-login | users, team, deposits, withdrawals |
+| Store | cedros-pay | products, subscriptions, transactions, coupons |
+| Configuration | both | All settings pages from both plugins |
+
 ## TypeScript
 
 All components and hooks are fully typed:
@@ -1128,6 +1322,12 @@ import type {
   SignTransactionRequest,
   SignTransactionResponse,
 
+  // User Withdrawal types
+  WithdrawalResponse,
+  WalletBalancesResponse,
+  UserWithdrawalHistoryItem,
+  UserWithdrawalHistoryResponse,
+
   // Privacy Cash types
   DepositRequest,
   DepositResponse,
@@ -1148,6 +1348,14 @@ import type {
   ListSystemSettingsResponse,
   UpdateSystemSettingsResponse,
   UseSystemSettingsReturn,
+
+  // Admin plugin types
+  AdminPlugin,
+  AdminSectionConfig,
+  AdminSectionProps,
+  PluginContext,
+  HostContext,
+  PluginRegistry,
 
   // Config types
   CedrosLoginConfig,

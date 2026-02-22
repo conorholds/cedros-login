@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,20 @@ import {
   ScrollView,
   ViewStyle,
   StyleProp,
-  Clipboard,
 } from "react-native";
+// RN-07: Use community clipboard package (optional peer dep).
+// Falls back to no-op if not installed.
+let Clipboard: { setString: (s: string) => void } = {
+  setString: () => {
+    console.warn("@react-native-clipboard/clipboard is not installed");
+  },
+};
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  Clipboard = require("@react-native-clipboard/clipboard").default;
+} catch {
+  // Optional peer dep not installed — fallback assigned above
+}
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
@@ -33,13 +45,38 @@ export function RecoveryPhraseDisplay({
   const [isRevealed, setIsRevealed] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [hasConfirmed, setHasConfirmed] = useState(false);
+  const clipboardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tracks whether a copy occurred independently of the render cycle (avoids stale closure)
+  const wasCopiedRef = useRef(false);
 
-  const words = phrase.split(" ");
+  const words = phrase.split(" ").filter((w) => w.length > 0);
+
+  // F-45: Clear clipboard on unmount to prevent phrase leakage
+  useEffect(() => {
+    return () => {
+      if (clipboardTimerRef.current) {
+        clearTimeout(clipboardTimerRef.current);
+      }
+      // Clear clipboard if phrase was copied during this session
+      if (wasCopiedRef.current) {
+        Clipboard.setString("");
+      }
+    };
+  }, []);
 
   const handleCopy = () => {
     Clipboard.setString(phrase);
+    wasCopiedRef.current = true;
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+    // F-45: Auto-clear clipboard after 30 seconds
+    if (clipboardTimerRef.current) {
+      clearTimeout(clipboardTimerRef.current);
+    }
+    clipboardTimerRef.current = setTimeout(() => {
+      Clipboard.setString("");
+      clipboardTimerRef.current = null;
+    }, 30_000);
   };
 
   const handleConfirm = () => {

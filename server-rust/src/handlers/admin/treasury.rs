@@ -81,7 +81,7 @@ pub async fn authorize_treasury<C: AuthCallback, E: EmailService>(
     // Get wallet material
     let wallet_material = state
         .wallet_material_repo
-        .find_by_user(admin_id)
+        .find_default_by_user(admin_id)
         .await?
         .ok_or_else(|| AppError::NotFound("Admin does not have an SSS wallet enrolled".into()))?;
 

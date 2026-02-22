@@ -27,13 +27,13 @@ use crate::errors::AppError;
 use crate::models::{AuthMethod, AuthResponse, RegisterRequest};
 use crate::repositories::{
     default_expiry, generate_api_key, generate_verification_token, hash_verification_token,
-    normalize_email, ApiKeyEntity, AuditEventType, MembershipEntity, OrgEntity, OrgRole,
+    normalize_email, validate_email_ascii_local, ApiKeyEntity, AuditEventType, MembershipEntity,
     SessionEntity, TokenType, UserEntity,
 };
 use crate::services::{EmailService, TokenContext};
 use crate::utils::{
     attach_auth_cookies, extract_client_ip_with_fallback, hash_refresh_token, is_disposable_email,
-    is_valid_email, user_entity_to_auth_user, PeerIp,
+    is_valid_email, resolve_org_assignment, user_entity_to_auth_user, PeerIp,
 };
 use crate::AppState;
 
@@ -56,7 +56,6 @@ fn auth_methods_to_strings(methods: &[AuthMethod]) -> Vec<String> {
 async fn register_with_transaction(
     pool: &PgPool,
     user: &UserEntity,
-    org: &OrgEntity,
     membership: &MembershipEntity,
     api_key: Option<&ApiKeyEntity>,
     session: &SessionEntity,
@@ -88,22 +87,6 @@ async fn register_with_transaction(
     .bind(user.is_system_admin)
     .bind(user.created_at)
     .bind(user.updated_at)
-    .execute(&mut *tx)
-    .await
-    .map_err(|e| AppError::Internal(e.into()))?;
-
-    sqlx::query(
-        r#"
-        INSERT INTO organizations (id, name, slug, logo_url, is_personal, owner_id)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        "#,
-    )
-    .bind(org.id)
-    .bind(&org.name)
-    .bind(&org.slug)
-    .bind(&org.logo_url)
-    .bind(org.is_personal)
-    .bind(org.owner_id)
     .execute(&mut *tx)
     .await
     .map_err(|e| AppError::Internal(e.into()))?;
@@ -189,6 +172,9 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         ));
     }
 
+    // SRV-10: Reject non-ASCII local parts to prevent homograph attacks
+    validate_email_ascii_local(&req.email)?;
+
     let normalized_email = normalize_email(&req.email);
 
     // Validate password strength BEFORE checking email to prevent timing attacks
@@ -209,26 +195,34 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     let mut user =
         UserEntity::new_email_user(normalized_email.clone(), password_hash, req.name.clone());
 
-    // Auto-create personal organization
-    let personal_org = OrgEntity::new_personal(user.id, user.name.as_deref());
+    // SRV-11: When verification is not required, mark email as verified at registration.
+    // This prevents a race where config flips from false→true after registration,
+    // leaving users in an unverifiable state.
+    if !state.config.email.require_verification {
+        user.email_verified = true;
+    }
 
-    // Create owner membership for personal org
-    let membership = MembershipEntity::new(user.id, personal_org.id, OrgRole::Owner);
+    // Resolve which org this user should join
+    let org_assignment = resolve_org_assignment(&state, user.id).await?;
+    let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
 
     // Create API key for user
     let (raw_api_key, api_key_entity) = if state.config.email.require_verification {
         (None, None)
     } else {
         let raw = generate_api_key();
-        (Some(raw.clone()), Some(ApiKeyEntity::new(user.id, &raw)))
+        (
+            Some(raw.clone()),
+            Some(ApiKeyEntity::new(user.id, &raw, "default")),
+        )
     };
 
     // Create session with org context
     // New users are never system admins, so is_system_admin is None
     let session_id = uuid::Uuid::new_v4();
     let token_context = TokenContext {
-        org_id: Some(personal_org.id),
-        role: Some(OrgRole::Owner.as_str().to_string()),
+        org_id: Some(org_assignment.org_id),
+        role: Some(org_assignment.role.as_str().to_string()),
         is_system_admin: None,
     };
     let token_pair =
@@ -257,18 +251,10 @@ pub async fn register<C: AuthCallback, E: EmailService>(
 
     #[cfg(feature = "postgres")]
     if let Some(pool) = state.postgres_pool.as_ref() {
-        register_with_transaction(
-            pool,
-            &user,
-            &personal_org,
-            &membership,
-            api_key_entity.as_ref(),
-            &session,
-        )
-        .await?;
+        register_with_transaction(pool, &user, &membership, api_key_entity.as_ref(), &session)
+            .await?;
     } else {
         user = state.user_repo.create(user).await?;
-        let _ = state.org_repo.create(personal_org).await?;
         state.membership_repo.create(membership).await?;
         if let Some(api_key_entity) = api_key_entity {
             state.api_key_repo.create(api_key_entity).await?;
@@ -279,7 +265,6 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     #[cfg(not(feature = "postgres"))]
     {
         user = state.user_repo.create(user).await?;
-        let _ = state.org_repo.create(personal_org).await?;
         state.membership_repo.create(membership).await?;
         if let Some(api_key_entity) = api_key_entity {
             state.api_key_repo.create(api_key_entity).await?;
@@ -287,6 +272,8 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         state.session_repo.create(session).await?;
     }
 
+    // S-05: Track email queue result to include in response
+    let mut email_queued: Option<bool> = None;
     if state.config.email.require_verification {
         let token = generate_verification_token();
         let token_hash = hash_verification_token(&token);
@@ -302,7 +289,7 @@ pub async fn register<C: AuthCallback, E: EmailService>(
             .await
             .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to create token: {}", e)))?;
 
-        state
+        let queued = state
             .comms_service
             .queue_verification_email(&req.email, user.name.as_deref(), &token, Some(user.id))
             .await
@@ -314,7 +301,8 @@ pub async fn register<C: AuthCallback, E: EmailService>(
                 );
                 e
             })
-            .ok();
+            .is_ok();
+        email_queued = Some(queued);
     }
 
     // Fire callback
@@ -351,6 +339,7 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         is_new_user: true,
         callback_data,
         api_key: raw_api_key,
+        email_queued,
     };
 
     // Build response with optional cookies

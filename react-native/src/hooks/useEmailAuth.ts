@@ -31,7 +31,7 @@ export function useEmailAuth(): UseEmailAuthReturn {
         }
         return response;
       } catch (err) {
-        const authError =
+        const authError: AuthError =
           err instanceof Error
             ? { code: "LOGIN_FAILED", message: err.message }
             : { code: "LOGIN_FAILED", message: "Login failed" };
@@ -63,7 +63,7 @@ export function useEmailAuth(): UseEmailAuthReturn {
         }
         return response;
       } catch (err) {
-        const authError =
+        const authError: AuthError =
           err instanceof Error
             ? { code: "REGISTER_FAILED", message: err.message }
             : { code: "REGISTER_FAILED", message: "Registration failed" };

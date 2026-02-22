@@ -71,11 +71,14 @@ impl SessionRepository for PostgresSessionRepository {
     }
 
     async fn find_by_refresh_token(&self, hash: &str) -> Result<Option<SessionEntity>, AppError> {
+        // S-07: Filter out expired sessions at the DB level.
+        // Note: we intentionally do NOT filter revoked_at here because the caller
+        // needs revoked sessions for token-reuse detection.
         let row: Option<SessionRow> = sqlx::query_as(
             r#"
             SELECT id, user_id, refresh_token_hash, ip_address, user_agent,
                    created_at, expires_at, revoked_at, revoked_reason, last_strong_auth_at
-            FROM sessions WHERE refresh_token_hash = $1
+            FROM sessions WHERE refresh_token_hash = $1 AND expires_at > NOW()
             "#,
         )
         .bind(hash)

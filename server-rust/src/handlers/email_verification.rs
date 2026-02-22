@@ -8,7 +8,8 @@ use crate::callback::AuthCallback;
 use crate::errors::AppError;
 use crate::models::MessageResponse;
 use crate::repositories::{
-    default_expiry, generate_verification_token, hash_verification_token, TokenType,
+    default_expiry, generate_verification_token, hash_verification_token, normalize_email,
+    TokenType,
 };
 use crate::services::EmailService;
 use crate::AppState;
@@ -41,7 +42,9 @@ pub async fn send_verification<C: AuthCallback, E: EmailService>(
         }),
     );
 
-    let user = match state.user_repo.find_by_email(&req.email).await? {
+    // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
+    let email = normalize_email(&req.email);
+    let user = match state.user_repo.find_by_email(&email).await? {
         Some(user) => user,
         None => return Ok(response),
     };
@@ -74,7 +77,7 @@ pub async fn send_verification<C: AuthCallback, E: EmailService>(
     // Queue verification email via outbox for async delivery
     state
         .comms_service
-        .queue_verification_email(&req.email, user.name.as_deref(), &token, Some(user.id))
+        .queue_verification_email(&email, user.name.as_deref(), &token, Some(user.id))
         .await?;
 
     Ok(response)

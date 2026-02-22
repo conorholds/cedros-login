@@ -98,6 +98,28 @@ pub struct DepositConfigResponse {
     pub company_fee_percent: f64,
     /// Company processing fixed fee in lamports (default: 0)
     pub company_fee_fixed_lamports: u64,
+
+    // UI configuration
+    /// Whether to show the explainer step for non-crypto-native users
+    pub show_explainer: bool,
+    /// Custom token definitions from admin settings
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub custom_tokens: Option<Vec<CustomTokenDefinition>>,
+}
+
+/// Custom token definition for deposits
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomTokenDefinition {
+    /// Token symbol (e.g., "MYTOKEN")
+    pub symbol: String,
+    /// Solana mint address
+    pub mint: String,
+    /// Token decimals (e.g., 6 for USDC, 9 for SOL)
+    pub decimals: u8,
+    /// Optional logo URL
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub logo_url: Option<String>,
 }
 
 /// Swap quote response for public deposits

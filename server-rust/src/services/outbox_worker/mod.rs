@@ -50,6 +50,8 @@ fn sanitize_error_for_log(error: &str) -> String {
     // Simple email pattern redaction (look for @ followed by common patterns)
     let mut result = String::with_capacity(truncated.len());
     let mut i = 0;
+    // S-33: Collects into Vec<char> for random-access indexing. The input is
+    // capped at 500 chars (truncated above), so the allocation is negligible.
     let chars: Vec<char> = truncated.chars().collect();
 
     while i < chars.len() {
@@ -159,7 +161,8 @@ impl OutboxWorker {
         // OutboxWorkerConfig for environments with different resource constraints.
         // Higher values improve throughput but increase memory/connection usage.
         const MAX_CONCURRENCY: usize = 8;
-        let concurrency = std::cmp::min(events.len().max(1), MAX_CONCURRENCY);
+        // S-26: events.len() is guaranteed > 0 here (checked above), so .max(1) was dead code.
+        let concurrency = std::cmp::min(events.len(), MAX_CONCURRENCY);
         let semaphore = Arc::new(tokio::sync::Semaphore::new(concurrency));
         let mut join_set = tokio::task::JoinSet::new();
 

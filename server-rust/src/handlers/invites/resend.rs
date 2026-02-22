@@ -72,7 +72,8 @@ pub async fn resend_invite<C: AuthCallback, E: EmailService>(
     let new_invite = InviteEntity {
         id: Uuid::new_v4(),
         org_id,
-        email: old_invite.email,
+        email: old_invite.email.clone(),
+        wallet_address: old_invite.wallet_address.clone(),
         role: old_invite.role,
         token_hash,
         invited_by: auth.user_id, // Update to current user
@@ -83,30 +84,34 @@ pub async fn resend_invite<C: AuthCallback, E: EmailService>(
 
     let created = state.invite_repo.create(new_invite).await?;
 
-    // Get org name for email
-    let org = state
-        .org_repo
-        .find_by_id(org_id)
-        .await?
-        .ok_or(AppError::NotFound("Organization not found".into()))?;
+    // Only send email for email-based invites
+    if let Some(ref email) = created.email {
+        // Get org name for email
+        let org = state
+            .org_repo
+            .find_by_id(org_id)
+            .await?
+            .ok_or(AppError::NotFound("Organization not found".into()))?;
 
-    // Get inviter's name for email
-    let inviter = state.user_repo.find_by_id(auth.user_id).await?;
-    let inviter_name = inviter.and_then(|u| u.name);
+        // Get inviter's name for email
+        let inviter = state.user_repo.find_by_id(auth.user_id).await?;
+        let inviter_name = inviter.and_then(|u| u.name);
 
-    // Queue invite email via outbox for async delivery
-    state
-        .comms_service
-        .queue_invite_email(
-            &created.email,
-            &org.name,
-            inviter_name.as_deref(),
-            created.role.as_str(),
-            &invite_token,
-            org_id,
-            auth.user_id,
-        )
-        .await?;
+        // Queue invite email via outbox for async delivery
+        state
+            .comms_service
+            .queue_invite_email(
+                email,
+                &org.name,
+                inviter_name.as_deref(),
+                created.role.as_str(),
+                &invite_token,
+                org_id,
+                auth.user_id,
+            )
+            .await?;
+    }
+    // Wallet-based invites: no email to send, token returned in response
 
     Ok(Json(InviteWithTokenResponse {
         invite: InviteResponse::from_entity(&created),

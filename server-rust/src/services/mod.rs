@@ -43,11 +43,14 @@ mod deposit_fee_service;
 mod deposit_service;
 mod deposit_tiered_service;
 mod email;
+mod encrypted_payload;
 mod encryption_service;
 mod google_service;
 mod hold_expiration_worker;
 mod jupiter_swap_service;
 mod jwt_service;
+mod logging_service;
+mod metrics_service;
 mod mfa_attempt_service;
 mod micro_batch_worker;
 mod note_encryption_service;
@@ -89,6 +92,7 @@ pub use email::{
     NoopEmailService, PasswordResetEmailData, PostmarkEmailService, SecurityAlertEmailData,
     VerificationEmailData,
 };
+pub(crate) use encrypted_payload::decrypt_base64_payload;
 pub use encryption_service::EncryptionService;
 pub use google_service::{GoogleService, GoogleTokenClaims};
 pub use hold_expiration_worker::{HoldExpirationConfig, HoldExpirationWorker};
@@ -97,6 +101,13 @@ pub use jupiter_swap_service::{
     SwapOrder as JupiterSwapOrder,
 };
 pub use jwt_service::{AccessTokenClaims, JwtService, TokenContext};
+pub use logging_service::{init_logging, LogLevel, LoggingService};
+pub use metrics_service::{
+    get_prometheus_handle, init_metrics, record_auth_duration, record_auth_failure,
+    record_auth_success, record_credits_spent, record_deposit, record_error, record_http_request,
+    record_rate_limit_hit, record_session_created, record_session_revoked, record_user_registered,
+    record_withdrawal, render_metrics, set_active_sessions, set_total_users,
+};
 pub use mfa_attempt_service::MfaAttemptService;
 pub use micro_batch_worker::MicroBatchWorker;
 pub use note_encryption_service::{

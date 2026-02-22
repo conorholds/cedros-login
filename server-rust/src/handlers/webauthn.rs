@@ -14,8 +14,11 @@ use uuid::Uuid;
 
 use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
+use crate::handlers::auth::call_authenticated_callback_with_timeout;
 use crate::models::{AuthMethod, AuthResponse};
-use crate::repositories::{AuditEventType, CredentialEntity, CredentialType, SessionEntity};
+use crate::repositories::{
+    normalize_email, AuditEventType, CredentialEntity, CredentialType, SessionEntity,
+};
 use crate::services::{
     webauthn_service::{VerifyAuthenticationRequest, VerifyRegistrationRequest},
     EmailService,
@@ -150,11 +153,19 @@ pub async fn register_verify<C: AuthCallback, E: EmailService>(
         CredentialType::WebauthnPasskey,
         request.label,
     );
-    let _ = state
+    // S-30: Log error instead of silently ignoring unified credential creation failure
+    if let Err(e) = state
         .storage
         .credential_repository()
         .create(unified_cred)
-        .await;
+        .await
+    {
+        tracing::warn!(
+            user_id = %auth_user.user_id,
+            error = %e,
+            "Failed to create unified credential entry for WebAuthn passkey"
+        );
+    }
 
     Ok(Json(serde_json::json!({
         "success": true,
@@ -174,10 +185,13 @@ pub async fn auth_options<C: AuthCallback, E: EmailService>(
     Json(request): Json<StartAuthRequest>,
 ) -> Result<Json<AuthOptionsResponse>, AppError> {
     let result = if let Some(ref email) = request.email {
-        // Email-first flow: find user by email and get their credentials
+        // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
+        let normalized = normalize_email(email);
+        // S-11: Return uniform error for non-existent user and no-passkeys user
+        // to prevent email enumeration via differing error responses.
         let user = state
             .user_repo
-            .find_by_email(email)
+            .find_by_email(&normalized)
             .await?
             .ok_or_else(|| AppError::InvalidCredentials)?;
 
@@ -188,9 +202,7 @@ pub async fn auth_options<C: AuthCallback, E: EmailService>(
             .await?;
 
         if creds.is_empty() {
-            return Err(AppError::NotFound(
-                "No passkeys registered for this account".into(),
-            ));
+            return Err(AppError::InvalidCredentials);
         }
 
         state
@@ -293,11 +305,7 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
 
     // Get memberships for token context
     let memberships = state.membership_repo.find_by_user(verified_user_id).await?;
-    let org_ids: Vec<_> = memberships.iter().map(|m| m.org_id).collect();
-    let orgs = state.org_repo.find_by_ids(&org_ids).await?;
-    let orgs_by_id: std::collections::HashMap<_, _> = orgs.into_iter().map(|o| (o.id, o)).collect();
-
-    let token_context = get_default_org_context(&memberships, &orgs_by_id, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin);
 
     // Create session
     let session_id = Uuid::new_v4();
@@ -336,7 +344,7 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
         ip_address,
         user_agent,
     };
-    let callback_data = state.callback.on_authenticated(&payload).await.ok();
+    let callback_data = call_authenticated_callback_with_timeout(&state.callback, &payload).await;
 
     // Log audit event
     let _ = state
@@ -356,6 +364,7 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
         is_new_user: false,
         callback_data,
         api_key: None,
+        email_queued: None,
     };
 
     Ok(build_json_response_with_cookies(

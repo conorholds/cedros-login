@@ -1,10 +1,14 @@
 /**
- * Sidecar configuration loaded from environment variables
+ * Sidecar configuration
+ *
+ * Minimal env vars (API key, port, host, database URL) plus database-sourced settings.
+ * All configurable settings are stored in the database and managed via admin UI.
  */
 export interface Config {
     port: number;
     host: string;
     apiKey: string;
+    databaseUrl: string;
     solanaRpcUrl: string;
     solanaNetwork: 'devnet' | 'mainnet-beta';
     privacyCashProgramId: string;
@@ -20,4 +24,18 @@ export interface Config {
         rateLimit: number;
     };
 }
-export declare function loadConfig(): Config;
+export declare function resolveJupiterRateLimit(): number;
+/**
+ * Load configuration from environment and database
+ *
+ * Required env vars:
+ *   - DATABASE_URL: PostgreSQL connection string
+ *   - SIDECAR_API_KEY: API key for authenticating requests to sidecar
+ *
+ * Optional env vars (for local dev/testing only):
+ *   - PORT: Listen port (default: 3100)
+ *   - HOST: Listen host (default: 127.0.0.1)
+ *
+ * All other settings are loaded from the database (system_settings table)
+ */
+export declare function loadConfig(): Promise<Config>;

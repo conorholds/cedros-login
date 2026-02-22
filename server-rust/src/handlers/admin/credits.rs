@@ -14,6 +14,7 @@ use crate::errors::AppError;
 use crate::handlers::admin::users::validate_system_admin;
 use crate::models::{AdjustCreditsRequest, AdjustCreditsResponse};
 use crate::services::{CreditService, EmailService};
+use crate::utils::validate_currency;
 use crate::AppState;
 
 /// Credit stats for a single currency (API response)
@@ -124,6 +125,9 @@ pub async fn adjust_credits<C: AuthCallback, E: EmailService>(
     Json(request): Json<AdjustCreditsRequest>,
 ) -> Result<Json<AdjustCreditsResponse>, AppError> {
     let admin_id = validate_system_admin(&state, &headers).await?;
+
+    // SRV-14: Validate currency against whitelist
+    validate_currency(&request.currency)?;
 
     // Verify target user exists
     let _target_user = state
@@ -310,6 +314,7 @@ mod tests {
             wallet_signing_service: WalletSigningService::new(),
             wallet_unlock_cache: create_wallet_unlock_cache(),
             treasury_config_repo: storage.treasury_config_repo.clone(),
+            user_withdrawal_log_repo: storage.user_withdrawal_log_repo.clone(),
             privacy_sidecar_client: None,
             note_encryption_service: None,
             sol_price_service: std::sync::Arc::new(crate::services::SolPriceService::new()),
@@ -353,11 +358,12 @@ mod tests {
             is_system_admin: true,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 
         let api_key = generate_api_key();
-        let api_key_entity = ApiKeyEntity::new(user.id, &api_key);
+        let api_key_entity = ApiKeyEntity::new(user.id, &api_key, "default");
         state.api_key_repo.create(api_key_entity).await.unwrap();
 
         (user.id, api_key)
@@ -380,6 +386,7 @@ mod tests {
             is_system_admin: false,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         user.id
@@ -437,10 +444,11 @@ mod tests {
             is_system_admin: false,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         let api_key = generate_api_key();
-        let api_key_entity = ApiKeyEntity::new(user.id, &api_key);
+        let api_key_entity = ApiKeyEntity::new(user.id, &api_key, "default");
         state.api_key_repo.create(api_key_entity).await.unwrap();
 
         let target_user_id = setup_regular_user(&state).await;

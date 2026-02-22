@@ -107,6 +107,19 @@ const TYPO_TLDS = new Set([
 ]);
 
 /**
+ * Normalize an email address by trimming whitespace and lowercasing.
+ *
+ * Must be called before API calls and storage to ensure consistent
+ * identity matching (RN-04).
+ *
+ * @param email - The raw email input from the user
+ * @returns The normalized email string
+ */
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/**
  * Validate email format with robust validation.
  *
  * Validates:

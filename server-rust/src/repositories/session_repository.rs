@@ -256,7 +256,11 @@ impl SessionRepository for InMemorySessionRepository {
         drop(token_index);
 
         let sessions = self.sessions.read().await;
-        Ok(sessions.get(&session_id).cloned())
+        // S-07: Filter out expired sessions (consistent with Postgres impl)
+        Ok(sessions
+            .get(&session_id)
+            .filter(|s| s.expires_at > chrono::Utc::now())
+            .cloned())
     }
 
     async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<SessionEntity>, AppError> {

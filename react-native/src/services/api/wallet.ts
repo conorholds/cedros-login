@@ -12,7 +12,6 @@ import type {
   ShareCRecoveryResponse,
   PendingWalletRecoveryResponse,
   AcknowledgeRecoveryRequest,
-  MessageResponse,
 } from "../../types";
 import type ApiClient from "./client";
 
@@ -25,14 +24,14 @@ export class WalletApi {
 
   async getWalletStatus(): Promise<WalletStatusApiResponse> {
     const response =
-      await this.client.get<WalletStatusApiResponse>("/wallet/status");
+      await this.client.get<WalletStatusApiResponse>("/auth/wallet/status");
     return response.data;
   }
 
   async getWalletMaterial(): Promise<WalletMaterialResponse | null> {
     try {
       const response =
-        await this.client.get<WalletMaterialResponse>("/wallet/material");
+        await this.client.get<WalletMaterialResponse>("/auth/wallet/material");
       return response.data;
     } catch (error) {
       const apiError = error as { status?: number };
@@ -44,18 +43,18 @@ export class WalletApi {
   }
 
   async enroll(request: WalletEnrollRequest): Promise<void> {
-    await this.client.post("/wallet/enroll", request);
+    await this.client.post("/auth/wallet/enroll", request);
   }
 
   async recover(request: WalletRecoverRequest): Promise<void> {
-    await this.client.post("/wallet/recover", request);
+    await this.client.post("/auth/wallet/recover", request);
   }
 
   async getShareBForRecovery(
     request: ShareCRecoveryRequest,
   ): Promise<ShareCRecoveryResponse> {
     const response = await this.client.post<ShareCRecoveryResponse>(
-      "/wallet/recover-share-b",
+      "/auth/wallet/share-b",
       request,
     );
     return response.data;
@@ -65,31 +64,31 @@ export class WalletApi {
     request: SignTransactionRequest,
   ): Promise<SignTransactionResponse> {
     const response = await this.client.post<SignTransactionResponse>(
-      "/wallet/sign",
+      "/auth/wallet/sign",
       request,
     );
     return response.data;
   }
 
   async rotateUserSecret(request: RotateUserSecretRequest): Promise<void> {
-    await this.client.post("/wallet/rotate-secret", request);
+    await this.client.post("/auth/wallet/rotate-user-secret", request);
   }
 
   async unlock(request: WalletUnlockRequest): Promise<WalletUnlockResponse> {
     const response = await this.client.post<WalletUnlockResponse>(
-      "/wallet/unlock",
+      "/auth/wallet/unlock",
       request,
     );
     return response.data;
   }
 
   async lock(): Promise<void> {
-    await this.client.post("/wallet/lock", {});
+    await this.client.post("/auth/wallet/lock", {});
   }
 
   async checkPendingRecovery(): Promise<PendingWalletRecoveryResponse> {
     const response = await this.client.get<PendingWalletRecoveryResponse>(
-      "/wallet/pending-recovery",
+      "/auth/wallet/pending-recovery",
     );
     return response.data;
   }
@@ -97,21 +96,9 @@ export class WalletApi {
   async acknowledgeRecovery(
     request: AcknowledgeRecoveryRequest,
   ): Promise<void> {
-    await this.client.post("/wallet/acknowledge-recovery", request);
+    await this.client.post("/auth/wallet/acknowledge-recovery", request);
   }
 
-  async getDiscoveryConfig(): Promise<{
-    enabled: boolean;
-    recoveryMode: string;
-    unlockTtlSeconds: number;
-  }> {
-    const response = await this.client.get<{
-      enabled: boolean;
-      recoveryMode: string;
-      unlockTtlSeconds: number;
-    }>("/wallet/discovery");
-    return response.data;
-  }
 }
 
 export default WalletApi;

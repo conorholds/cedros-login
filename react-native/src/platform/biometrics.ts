@@ -19,7 +19,9 @@ export const biometrics = {
    * @requires react-native-biometrics SDK
    */
   isAvailable: async (): Promise<boolean> => {
-    // Implementation requires react-native-biometrics SDK configuration
+    console.warn(
+      '[@cedros/login-react-native] Biometrics stub: install react-native-biometrics for real support'
+    );
     return false;
   },
 
@@ -30,8 +32,10 @@ export const biometrics = {
    *
    * @requires react-native-biometrics SDK
    */
-  authenticate: async (reason?: string): Promise<boolean> => {
-    // Implementation requires react-native-biometrics SDK configuration
+  authenticate: async (_reason?: string): Promise<boolean> => {
+    console.warn(
+      '[@cedros/login-react-native] Biometrics stub: install react-native-biometrics for real support'
+    );
     return false;
   },
 };

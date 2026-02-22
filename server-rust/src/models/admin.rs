@@ -49,6 +49,11 @@ pub struct AdminUserResponse {
     pub is_system_admin: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_login_at: Option<DateTime<Utc>>,
+    /// Credit balance in lamports (only present if credit system is enabled)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub balance_lamports: Option<i64>,
 }
 
 impl From<&UserEntity> for AdminUserResponse {
@@ -65,7 +70,17 @@ impl From<&UserEntity> for AdminUserResponse {
             is_system_admin: entity.is_system_admin,
             created_at: entity.created_at,
             updated_at: entity.updated_at,
+            last_login_at: entity.last_login_at,
+            balance_lamports: None, // Set separately via with_balance()
         }
+    }
+}
+
+impl AdminUserResponse {
+    /// Add balance information to the response
+    pub fn with_balance(mut self, balance: i64) -> Self {
+        self.balance_lamports = Some(balance);
+        self
     }
 }
 

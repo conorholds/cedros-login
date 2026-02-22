@@ -234,6 +234,19 @@ All endpoints are served under `AUTH_BASE_PATH` (default: `/auth`). Paths below 
 | `POST` | `/wallet/lock` | Explicitly lock wallet |
 | `POST` | `/wallet/sign` | Sign transaction (uses cached key if unlocked) |
 | `POST` | `/wallet/rotate-user-secret` | Re-encrypt Share A with new credential |
+| `GET` | `/wallet/list` | List all wallets (default + per-API-key) |
+| `POST` | `/wallet/rotate` | Rotate wallet (replace keypair, irreversible) |
+
+### User Withdrawals
+
+Withdraw SOL/SPL tokens from the user's embedded wallet to an external Solana address. Gated by the `feature_user_withdrawals` system setting (disabled by default). All endpoints use auth-sensitive rate limiting (10 req/60s per IP+path).
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/wallet/withdraw/balances` | Get SOL + SPL token balances from wallet |
+| `POST` | `/wallet/withdraw/sol` | Withdraw native SOL to external address |
+| `POST` | `/wallet/withdraw/spl` | Withdraw SPL token to external address |
+| `GET` | `/wallet/withdraw/history` | Get paginated withdrawal history |
 
 ### Credits
 
@@ -260,8 +273,11 @@ server-to-server flows (e.g. payments/webhooks) where only an external identifie
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/user/api-key` | Get API key metadata (not full key) |
-| `POST` | `/user/api-key/regenerate` | Regenerate API key (returns full key once) |
+| `GET` | `/user/api-key` | Get API key metadata (legacy, single-key) |
+| `POST` | `/user/api-key/regenerate` | Regenerate API key (legacy, returns full key once) |
+| `GET` | `/user/api-keys` | List all API keys for current user |
+| `POST` | `/user/api-keys` | Create new API key with label |
+| `DELETE` | `/user/api-keys/:key_id` | Delete a specific API key |
 | `POST` | `/auth/validate-api-key` | Validate API key (server-to-server) |
 
 ### Audit Logs

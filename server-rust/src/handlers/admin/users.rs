@@ -5,7 +5,7 @@ use axum::{
     http::HeaderMap,
     Json,
 };
-use std::sync::Arc;
+use std::sync::{atomic::AtomicBool, atomic::Ordering, Arc};
 use uuid::Uuid;
 
 use crate::callback::AuthCallback;
@@ -14,6 +14,10 @@ use crate::models::{
     AdminUpdateUserRequest, AdminUserResponse, ListUsersQueryParams, ListUsersResponse,
     MessageResponse, SetSystemAdminRequest,
 };
+
+/// S-13: Cache whether any system admins exist to avoid querying on every admin request.
+/// Once true, it stays true forever (admins don't un-exist).
+static ADMINS_EXIST: AtomicBool = AtomicBool::new(false);
 use crate::repositories::pagination::{cap_limit, cap_offset};
 use crate::repositories::{
     default_expiry, generate_verification_token, hash_verification_token, normalize_email,
@@ -36,6 +40,12 @@ pub async fn validate_system_admin<C: AuthCallback, E: EmailService>(
     // Authenticate via JWT or API key
     let auth_user = authenticate(state, headers).await?;
 
+    // P-01: Check JWT claim first — skip DB lookup for known admins
+    if auth_user.is_system_admin == Some(true) {
+        return Ok(auth_user.user_id);
+    }
+
+    // Fall back to DB lookup for API key auth or tokens without the claim
     let user = state
         .user_repo
         .find_by_id(auth_user.user_id)
@@ -47,8 +57,17 @@ pub async fn validate_system_admin<C: AuthCallback, E: EmailService>(
     }
 
     // Check for bootstrap scenario: no admins exist + user matches bootstrap email
+    // S-13: Skip the DB count query once we know admins exist (monotonic flag).
     if let Some(ref bootstrap_email) = state.config.server.bootstrap_admin_email {
+        if ADMINS_EXIST.load(Ordering::Relaxed) {
+            return Err(AppError::Forbidden(
+                "Only system administrators can access this resource".into(),
+            ));
+        }
         let admin_count = state.user_repo.count_system_admins().await?;
+        if admin_count > 0 {
+            ADMINS_EXIST.store(true, Ordering::Relaxed);
+        }
         if admin_count == 0 {
             // HANDLER-08/SEC-10: Use NFKC normalization to prevent Unicode homograph attacks.
             // An attacker could register with visually similar Cyrillic characters
@@ -64,6 +83,7 @@ pub async fn validate_system_admin<C: AuthCallback, E: EmailService>(
                         .set_system_admin(auth_user.user_id, true)
                         .await?;
 
+                    ADMINS_EXIST.store(true, Ordering::Relaxed);
                     tracing::info!(
                         user_id = %auth_user.user_id,
                         email = %user_email,
@@ -103,8 +123,22 @@ pub async fn list_users<C: AuthCallback, E: EmailService>(
     let users = users_result?;
     let total = total_result?;
 
-    let user_responses: Vec<AdminUserResponse> =
-        users.iter().map(AdminUserResponse::from).collect();
+    let user_ids: Vec<Uuid> = users.iter().map(|user| user.id).collect();
+    let balances = state
+        .credit_repo
+        .get_balances(&user_ids, "SOL")
+        .await
+        .map_err(|e| {
+            tracing::error!(error = %e, "Failed to fetch admin user balances");
+            e
+        })?;
+
+    // Build responses with balances
+    let mut user_responses = Vec::with_capacity(users.len());
+    for user in &users {
+        let balance = *balances.get(&user.id).unwrap_or(&0);
+        user_responses.push(AdminUserResponse::from(user).with_balance(balance));
+    }
 
     Ok(Json(ListUsersResponse {
         users: user_responses,
@@ -130,7 +164,16 @@ pub async fn get_user<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::NotFound("User not found".into()))?;
 
-    Ok(Json(AdminUserResponse::from(&user)))
+    let balance = state
+        .credit_repo
+        .get_balance(user_id, "SOL")
+        .await
+        .map_err(|e| {
+            tracing::error!(error = %e, user_id = %user_id, "Failed to fetch admin user balance");
+            e
+        })?;
+
+    Ok(Json(AdminUserResponse::from(&user).with_balance(balance)))
 }
 
 /// PATCH /admin/users/:user_id/system-admin - Set system admin status
@@ -218,6 +261,8 @@ pub async fn update_user<C: AuthCallback, E: EmailService>(
         user.name = Some(name);
     }
     if let Some(email) = request.email {
+        // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
+        let email = normalize_email(&email);
         // Check if email is already taken by another user
         if let Some(existing) = state.user_repo.find_by_email(&email).await? {
             if existing.id != user_id {
@@ -609,6 +654,41 @@ pub async fn get_user_withdrawal_history<C: AuthCallback, E: EmailService>(
     }))
 }
 
+/// User statistics by authentication method
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AdminUserStatsResponse {
+    /// Total number of users
+    pub total: u64,
+    /// Count by auth method
+    pub auth_method_counts: std::collections::HashMap<String, u64>,
+}
+
+/// GET /admin/users/stats - Get user statistics by auth method
+///
+/// Requires system admin privileges.
+/// Returns total user count and breakdown by authentication method.
+pub async fn get_user_stats<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+) -> Result<Json<AdminUserStatsResponse>, AppError> {
+    validate_system_admin(&state, &headers).await?;
+
+    // PERF-02: Parallelize total count and auth method counts
+    let (total_result, counts_result) = tokio::join!(
+        state.user_repo.count(),
+        state.user_repo.count_by_auth_methods()
+    );
+
+    let total = total_result?;
+    let auth_method_counts = counts_result?;
+
+    Ok(Json(AdminUserStatsResponse {
+        total,
+        auth_method_counts,
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -746,6 +826,7 @@ mod tests {
             wallet_signing_service: WalletSigningService::new(),
             wallet_unlock_cache: create_wallet_unlock_cache(),
             treasury_config_repo: storage.treasury_config_repo.clone(),
+            user_withdrawal_log_repo: storage.user_withdrawal_log_repo.clone(),
             privacy_sidecar_client: None,
             note_encryption_service: None,
             sol_price_service: std::sync::Arc::new(crate::services::SolPriceService::new()),
@@ -791,11 +872,12 @@ mod tests {
             is_system_admin: false,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 
         let api_key = generate_api_key();
-        let api_key_entity = ApiKeyEntity::new(user.id, &api_key);
+        let api_key_entity = ApiKeyEntity::new(user.id, &api_key, "default");
         state.api_key_repo.create(api_key_entity).await.unwrap();
 
         (user.id, api_key)

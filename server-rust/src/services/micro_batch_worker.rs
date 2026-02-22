@@ -20,7 +20,6 @@
 //! 7. Execute via Jupiter Ultra
 //! 8. Mark deposits as Batched
 
-use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::task::JoinHandle;
@@ -32,7 +31,8 @@ use zeroize::Zeroize;
 use crate::errors::AppError;
 use crate::repositories::{DepositRepository, TreasuryConfigRepository};
 use crate::services::{
-    NoteEncryptionService, PrivacySidecarClient, SettingsService, SolPriceService, NOTE_NONCE_SIZE,
+    decrypt_base64_payload, NoteEncryptionService, PrivacySidecarClient, SettingsService,
+    SolPriceService,
 };
 
 /// Default poll interval (5 minutes)
@@ -141,10 +141,23 @@ impl MicroBatchWorker {
 
     /// Process pending micro deposits if threshold is reached
     async fn process_batch(&self) -> Result<(), AppError> {
-        // Get total pending lamports
-        let total_lamports = self.deposit_repo.sum_pending_batch_lamports().await?;
-        if total_lamports == 0 {
+        // F-03: Fetch deposit IDs FIRST, then sum from that set.
+        // This eliminates the TOCTOU race where new deposits arrive between
+        // sum_pending_batch_lamports() and get_pending_batch_deposits().
+        // R-05: Bound query to prevent unbounded result sets.
+        let deposits = self.deposit_repo.get_pending_batch_deposits(1000).await?;
+        if deposits.is_empty() {
             debug!("No pending micro deposits");
+            return Ok(());
+        }
+
+        // Sum lamports from the fetched set (not a separate query)
+        let total_lamports: i64 = deposits
+            .iter()
+            .map(|d| d.deposit_amount_lamports.unwrap_or(0))
+            .sum();
+        if total_lamports <= 0 {
+            debug!("Pending deposits have zero total lamports");
             return Ok(());
         }
 
@@ -163,9 +176,14 @@ impl MicroBatchWorker {
             return Ok(());
         }
 
+        let deposit_ids: Vec<Uuid> = deposits.iter().map(|d| d.id).collect();
+
         info!(
             total_lamports,
-            total_usd, threshold_usd, "Batch threshold reached, executing swap"
+            total_usd,
+            threshold_usd,
+            deposit_count = deposit_ids.len(),
+            "Batch threshold reached, executing swap"
         );
 
         // Get treasury config (global fallback)
@@ -189,11 +207,7 @@ impl MicroBatchWorker {
         // Handle result
         let (tx_signature, output_amount) = result?;
 
-        // Get deposit IDs to mark as batched
-        let deposits = self.deposit_repo.get_pending_batch_deposits().await?;
-        let deposit_ids: Vec<Uuid> = deposits.iter().map(|d| d.id).collect();
-
-        // Mark deposits as batched
+        // Mark the exact deposits we summed and swapped
         let batch_id = Uuid::new_v4();
         self.deposit_repo
             .mark_batch_complete(&deposit_ids, batch_id, &tx_signature)
@@ -213,27 +227,7 @@ impl MicroBatchWorker {
 
     /// Decrypt treasury private key from stored encrypted value
     fn decrypt_treasury_key(&self, encrypted: &str) -> Result<String, AppError> {
-        // Decode base64
-        let combined = BASE64.decode(encrypted).map_err(|e| {
-            AppError::Internal(anyhow::anyhow!("Invalid treasury key encoding: {}", e))
-        })?;
-
-        // Split nonce and ciphertext
-        if combined.len() < NOTE_NONCE_SIZE {
-            return Err(AppError::Internal(anyhow::anyhow!(
-                "Treasury key too short"
-            )));
-        }
-
-        let nonce = &combined[..NOTE_NONCE_SIZE];
-        let ciphertext = &combined[NOTE_NONCE_SIZE..];
-
-        // Decrypt
-        let plaintext = self.note_encryption.decrypt(nonce, ciphertext)?;
-
-        // Convert to string (should be base58 encoded keypair)
-        String::from_utf8(plaintext)
-            .map_err(|e| AppError::Internal(anyhow::anyhow!("Invalid treasury key format: {}", e)))
+        decrypt_treasury_key_value(&self.note_encryption, encrypted)
     }
 
     /// Execute a batch swap via the sidecar (Jupiter)
@@ -271,5 +265,61 @@ impl MicroBatchWorker {
         );
 
         Ok((result.tx_signature, output_amount))
+    }
+}
+
+fn decrypt_treasury_key_value(
+    note_encryption: &NoteEncryptionService,
+    encrypted: &str,
+) -> Result<String, AppError> {
+    let plaintext = decrypt_base64_payload(
+        note_encryption,
+        encrypted,
+        "Invalid treasury key encoding",
+        "Treasury key too short",
+    )?;
+
+    // Convert to string (should be base58 encoded keypair)
+    String::from_utf8(plaintext)
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("Invalid treasury key format: {}", e)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::decrypt_treasury_key_value;
+    use crate::errors::AppError;
+    use crate::services::NoteEncryptionService;
+    use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
+
+    fn test_note_encryption() -> NoteEncryptionService {
+        let key = [7u8; 32];
+        NoteEncryptionService::new(&key, "test-key").expect("test note encryption service")
+    }
+
+    #[test]
+    fn decrypt_treasury_key_value_round_trip() {
+        let note_encryption = test_note_encryption();
+        let private_key = "4KT8YfDLgqbQ2MqLMV6vY2FJz8n6hfsQmnB6QZoA4Yys";
+
+        let encrypted = note_encryption
+            .encrypt(private_key.as_bytes())
+            .expect("encrypt private key");
+
+        let mut combined = encrypted.nonce;
+        combined.extend(encrypted.ciphertext);
+        let encoded = BASE64.encode(combined);
+
+        let decrypted = decrypt_treasury_key_value(&note_encryption, &encoded)
+            .expect("decrypt treasury key value");
+        assert_eq!(decrypted, private_key);
+    }
+
+    #[test]
+    fn decrypt_treasury_key_value_rejects_payload_without_ciphertext() {
+        let note_encryption = test_note_encryption();
+        let encoded = BASE64.encode(vec![0u8; 12]);
+
+        let err = decrypt_treasury_key_value(&note_encryption, &encoded).expect_err("must fail");
+        assert!(matches!(err, AppError::Internal(_)));
     }
 }

@@ -77,6 +77,21 @@ pub fn normalize_email(email: &str) -> String {
     email.nfkc().collect::<String>().to_lowercase()
 }
 
+/// SRV-10: Reject emails with non-ASCII characters in the local part.
+/// Prevents homograph attacks (e.g., Cyrillic 'а' vs Latin 'a').
+/// Domain parts are handled by DNS/IDNA and are safe.
+pub fn validate_email_ascii_local(email: &str) -> Result<(), crate::errors::AppError> {
+    if let Some(at_pos) = email.rfind('@') {
+        let local = &email[..at_pos];
+        if !local.is_ascii() {
+            return Err(crate::errors::AppError::Validation(
+                "Email local part must contain only ASCII characters".into(),
+            ));
+        }
+    }
+    Ok(())
+}
+
 /// User entity for storage
 #[derive(Debug, Clone)]
 pub struct UserEntity {
@@ -94,6 +109,8 @@ pub struct UserEntity {
     pub is_system_admin: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    /// Last successful login timestamp
+    pub last_login_at: Option<DateTime<Utc>>,
 }
 
 impl UserEntity {
@@ -115,6 +132,7 @@ impl UserEntity {
             is_system_admin: false,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         }
     }
 }
@@ -184,6 +202,17 @@ pub trait UserRepository: Send + Sync {
 
     /// Delete a user by ID
     async fn delete(&self, id: Uuid) -> Result<(), AppError>;
+
+    /// Count users by auth method
+    ///
+    /// Returns a map of auth method string to count.
+    /// Each user is counted once per auth method they have.
+    async fn count_by_auth_methods(
+        &self,
+    ) -> Result<std::collections::HashMap<String, u64>, AppError>;
+
+    /// Update last login timestamp for a user
+    async fn update_last_login(&self, id: Uuid) -> Result<(), AppError>;
 }
 
 /// In-memory user repository for development/testing
@@ -538,6 +567,37 @@ impl UserRepository for InMemoryUserRepository {
             stripe_index.remove(stripe_customer_id);
         }
 
+        Ok(())
+    }
+
+    async fn count_by_auth_methods(
+        &self,
+    ) -> Result<std::collections::HashMap<String, u64>, AppError> {
+        let users = self.users.read().await;
+        let mut counts = std::collections::HashMap::new();
+
+        for user in users.values() {
+            for method in &user.auth_methods {
+                let method_str = match method {
+                    crate::models::AuthMethod::Email => "email",
+                    crate::models::AuthMethod::Google => "google",
+                    crate::models::AuthMethod::Apple => "apple",
+                    crate::models::AuthMethod::Solana => "solana",
+                    crate::models::AuthMethod::WebAuthn => "webauthn",
+                    crate::models::AuthMethod::Sso => "sso",
+                };
+                *counts.entry(method_str.to_string()).or_insert(0) += 1;
+            }
+        }
+
+        Ok(counts)
+    }
+
+    async fn update_last_login(&self, id: Uuid) -> Result<(), AppError> {
+        let mut users = self.users.write().await;
+        if let Some(user) = users.get_mut(&id) {
+            user.last_login_at = Some(Utc::now());
+        }
         Ok(())
     }
 }

@@ -11,22 +11,21 @@ use crate::errors::AppError;
 use crate::repositories::{
     ApiKeyRepository, AuditLogRepository, CredentialRepository, CreditHoldRepository,
     CreditRefundRequestRepository, CreditRepository, CustomRoleRepository, DepositRepository,
-    InMemoryApiKeyRepository,
-    InMemoryAuditLogRepository, InMemoryCredentialRepository, InMemoryCreditHoldRepository,
-    InMemoryCreditRefundRequestRepository,
-    InMemoryCreditRepository, InMemoryCustomRoleRepository, InMemoryDepositRepository,
-    InMemoryInviteRepository, InMemoryLoginAttemptRepository, InMemoryMembershipRepository,
-    InMemoryNonceRepository, InMemoryOrgRepository, InMemoryOutboxRepository,
-    InMemoryPendingWalletRecoveryRepository, InMemoryPolicyRepository,
-    InMemoryPrivacyNoteRepository, InMemorySessionRepository, InMemorySsoRepository,
-    InMemorySystemSettingsRepository, InMemoryTotpRepository, InMemoryTreasuryConfigRepository,
-    InMemoryUserRepository, InMemoryVerificationRepository, InMemoryWalletMaterialRepository,
-    InMemoryWebAuthnRepository, InMemoryWithdrawalHistoryRepository, InviteRepository,
-    LoginAttemptRepository, MembershipRepository, NonceRepository, OrgRepository, OutboxRepository,
+    InMemoryApiKeyRepository, InMemoryAuditLogRepository, InMemoryCredentialRepository,
+    InMemoryCreditHoldRepository, InMemoryCreditRefundRequestRepository, InMemoryCreditRepository,
+    InMemoryCustomRoleRepository, InMemoryDepositRepository, InMemoryInviteRepository,
+    InMemoryLoginAttemptRepository, InMemoryMembershipRepository, InMemoryNonceRepository,
+    InMemoryOrgRepository, InMemoryOutboxRepository, InMemoryPendingWalletRecoveryRepository,
+    InMemoryPolicyRepository, InMemoryPrivacyNoteRepository, InMemorySessionRepository,
+    InMemorySsoRepository, InMemorySystemSettingsRepository, InMemoryTotpRepository,
+    InMemoryTreasuryConfigRepository, InMemoryUserRepository, InMemoryUserWithdrawalLogRepository,
+    InMemoryVerificationRepository, InMemoryWalletMaterialRepository, InMemoryWebAuthnRepository,
+    InMemoryWithdrawalHistoryRepository, InviteRepository, LoginAttemptRepository,
+    MembershipRepository, NonceRepository, OrgRepository, OutboxRepository,
     PendingWalletRecoveryRepository, PolicyRepository, PrivacyNoteRepository, SessionRepository,
     SsoRepository, SystemSettingsRepository, TotpRepository, TreasuryConfigRepository,
-    UserRepository, VerificationRepository, WalletMaterialRepository, WebAuthnRepository,
-    WithdrawalHistoryRepository,
+    UserRepository, UserWithdrawalLogRepository, VerificationRepository, WalletMaterialRepository,
+    WebAuthnRepository, WithdrawalHistoryRepository,
 };
 use crate::services::EncryptionService;
 
@@ -34,14 +33,14 @@ use crate::services::EncryptionService;
 use crate::repositories::{
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
-    PostgresCustomRoleRepository,
-    PostgresDepositRepository, PostgresInviteRepository, PostgresLoginAttemptRepository,
-    PostgresMembershipRepository, PostgresNonceRepository, PostgresOrgRepository,
-    PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository, PostgresPolicyRepository,
-    PostgresPrivacyNoteRepository, PostgresSessionRepository, PostgresSsoRepository,
-    PostgresSystemSettingsRepository, PostgresTotpRepository, PostgresTreasuryConfigRepository,
-    PostgresUserRepository, PostgresVerificationRepository, PostgresWalletMaterialRepository,
-    PostgresWebAuthnRepository, PostgresWithdrawalHistoryRepository,
+    PostgresCustomRoleRepository, PostgresDepositRepository, PostgresInviteRepository,
+    PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
+    PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
+    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresSessionRepository,
+    PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
+    PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
+    PostgresVerificationRepository, PostgresWalletMaterialRepository, PostgresWebAuthnRepository,
+    PostgresWithdrawalHistoryRepository,
 };
 
 #[cfg(feature = "postgres")]
@@ -78,6 +77,7 @@ pub struct Storage {
     pub system_settings_repo: Arc<dyn SystemSettingsRepository>,
     pub treasury_config_repo: Arc<dyn TreasuryConfigRepository>,
     pub withdrawal_history_repo: Arc<dyn WithdrawalHistoryRepository>,
+    pub user_withdrawal_log_repo: Arc<dyn UserWithdrawalLogRepository>,
     pub pending_wallet_recovery_repo: Arc<dyn PendingWalletRecoveryRepository>,
     #[cfg(feature = "postgres")]
     pub pg_pool: Option<PgPool>,
@@ -101,6 +101,14 @@ impl Storage {
 
     /// Create in-memory storage (for development/testing)
     pub fn in_memory() -> Self {
+        // Build the credit repository first so the hold repository can share it.
+        // This allows `capture_hold` to deduct the balance atomically, mirroring
+        // what the Postgres implementation does inside a single DB transaction.
+        let credit_repo: Arc<dyn CreditRepository> = Arc::new(InMemoryCreditRepository::new());
+        let credit_hold_repo: Arc<dyn CreditHoldRepository> = Arc::new(
+            InMemoryCreditHoldRepository::with_credit_repo(Arc::clone(&credit_repo)),
+        );
+
         Self {
             user_repo: Arc::new(InMemoryUserRepository::new()),
             session_repo: Arc::new(InMemorySessionRepository::new()),
@@ -121,13 +129,14 @@ impl Storage {
             webauthn_repo: Arc::new(InMemoryWebAuthnRepository::new()),
             sso_repo: Arc::new(InMemorySsoRepository::new()),
             deposit_repo: Arc::new(InMemoryDepositRepository::new()),
-            credit_repo: Arc::new(InMemoryCreditRepository::new()),
-            credit_hold_repo: Arc::new(InMemoryCreditHoldRepository::new()),
+            credit_repo,
+            credit_hold_repo,
             credit_refund_request_repo: Arc::new(InMemoryCreditRefundRequestRepository::new()),
             privacy_note_repo: Arc::new(InMemoryPrivacyNoteRepository::new()),
             system_settings_repo: Arc::new(InMemorySystemSettingsRepository::with_defaults()),
             treasury_config_repo: Arc::new(InMemoryTreasuryConfigRepository::new()),
             withdrawal_history_repo: Arc::new(InMemoryWithdrawalHistoryRepository::new()),
+            user_withdrawal_log_repo: Arc::new(InMemoryUserWithdrawalLogRepository::new()),
             pending_wallet_recovery_repo: Arc::new(InMemoryPendingWalletRecoveryRepository::new()),
             #[cfg(feature = "postgres")]
             pg_pool: None,
@@ -151,7 +160,7 @@ impl Storage {
         Ok(Self::in_memory())
     }
 
-    /// Create PostgreSQL storage
+    /// Create PostgreSQL storage by connecting to the given URL.
     #[cfg(feature = "postgres")]
     pub async fn postgres(url: &str, config: &DatabaseConfig) -> Result<Self, AppError> {
         let pool = PgPoolOptions::new()
@@ -159,7 +168,37 @@ impl Storage {
             .min_connections(config.min_connections)
             .acquire_timeout(Duration::from_secs(config.connect_timeout_secs))
             .idle_timeout(Duration::from_secs(config.idle_timeout_secs))
+            // SRV-14: Set per-connection statement timeout to prevent runaway queries
+            .after_connect(|conn, _meta| {
+                Box::pin(async move {
+                    sqlx::query("SET statement_timeout = '30s'")
+                        .execute(&mut *conn)
+                        .await?;
+                    Ok(())
+                })
+            })
             .connect(url)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
+
+        Self::postgres_with_pool(pool).await
+    }
+
+    /// Create PostgreSQL storage from an existing connection pool.
+    ///
+    /// Use this when you already have a `PgPool` (e.g. shared with other
+    /// services) instead of creating a second pool to the same database.
+    /// Runs pending migrations automatically.
+    #[cfg(feature = "postgres")]
+    pub async fn postgres_with_pool(pool: PgPool) -> Result<Self, AppError> {
+        // Run database migrations automatically so library consumers
+        // don't need a separate migration step.
+        // ignore_missing = true so we don't choke on migration entries
+        // from the host app or other embedded packages sharing the DB.
+        let mut migrator = sqlx::migrate!();
+        migrator.set_ignore_missing(true);
+        migrator
+            .run(&pool)
             .await
             .map_err(|e| AppError::Internal(e.into()))?;
 
@@ -191,11 +230,16 @@ impl Storage {
             deposit_repo: Arc::new(PostgresDepositRepository::new(pool.clone())),
             credit_repo: Arc::new(PostgresCreditRepository::new(pool.clone())),
             credit_hold_repo: Arc::new(PostgresCreditHoldRepository::new(pool.clone())),
-            credit_refund_request_repo: Arc::new(PostgresCreditRefundRequestRepository::new(pool.clone())),
+            credit_refund_request_repo: Arc::new(PostgresCreditRefundRequestRepository::new(
+                pool.clone(),
+            )),
             privacy_note_repo: Arc::new(PostgresPrivacyNoteRepository::new(pool.clone())),
             system_settings_repo: Arc::new(PostgresSystemSettingsRepository::new(pool.clone())),
             treasury_config_repo: Arc::new(PostgresTreasuryConfigRepository::new(pool.clone())),
             withdrawal_history_repo: Arc::new(PostgresWithdrawalHistoryRepository::new(
+                pool.clone(),
+            )),
+            user_withdrawal_log_repo: Arc::new(PostgresUserWithdrawalLogRepository::new(
                 pool.clone(),
             )),
             pending_wallet_recovery_repo: Arc::new(PostgresPendingWalletRecoveryRepository::new(
@@ -393,10 +437,10 @@ fn select_totp_encryption_secret() -> Result<String, AppError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Mutex;
     use crate::models::sso::SsoAuthState;
     use crate::repositories::{NonceEntity, SessionEntity, UserEntity, WebAuthnChallenge};
     use chrono::{Duration as ChronoDuration, Utc};
+    use std::sync::Mutex;
     use std::time::Duration;
     use uuid::Uuid;
 
@@ -472,6 +516,7 @@ mod tests {
             is_system_admin: false,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            last_login_at: None,
         };
 
         let created = storage.user_repo.create(user.clone()).await.unwrap();
@@ -501,6 +546,7 @@ mod tests {
             is_system_admin: false,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            last_login_at: None,
         };
         let user = storage.user_repo.create(user).await.unwrap();
 

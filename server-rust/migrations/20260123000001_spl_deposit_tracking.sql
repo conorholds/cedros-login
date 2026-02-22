@@ -2,19 +2,19 @@
 -- For Jupiter gasless swaps: SPL token → SOL → Privacy Cash
 
 -- Input token mint address (e.g., USDC mint)
-ALTER TABLE deposit_sessions ADD COLUMN input_token_mint TEXT;
+ALTER TABLE deposit_sessions ADD COLUMN IF NOT EXISTS input_token_mint TEXT;
 
 -- Input token amount (pre-swap, in token's smallest unit)
-ALTER TABLE deposit_sessions ADD COLUMN input_token_amount BIGINT;
+ALTER TABLE deposit_sessions ADD COLUMN IF NOT EXISTS input_token_amount BIGINT;
 
 -- Swap transaction signature (Jupiter swap tx)
-ALTER TABLE deposit_sessions ADD COLUMN swap_tx_signature TEXT;
+ALTER TABLE deposit_sessions ADD COLUMN IF NOT EXISTS swap_tx_signature TEXT;
 
 -- Credit currency used for this deposit (e.g., 'USD' for USDC, 'SOL' for native)
-ALTER TABLE deposit_sessions ADD COLUMN credit_currency TEXT;
+ALTER TABLE deposit_sessions ADD COLUMN IF NOT EXISTS credit_currency TEXT;
 
 -- Credit amount (pre-swap amount credited to user - company absorbs fees)
-ALTER TABLE deposit_sessions ADD COLUMN credit_amount BIGINT;
+ALTER TABLE deposit_sessions ADD COLUMN IF NOT EXISTS credit_amount BIGINT;
 
 -- Add held_balance column to credit_balances for hold/capture pattern
 -- This allows placing holds on credits without immediately deducting
@@ -29,11 +29,11 @@ ALTER TABLE credit_transactions ADD COLUMN IF NOT EXISTS reference_id UUID;
 ALTER TABLE credit_transactions ADD COLUMN IF NOT EXISTS hold_id UUID;
 
 -- Index for finding deposits by input token
-CREATE INDEX idx_deposit_sessions_input_token ON deposit_sessions(input_token_mint)
+CREATE INDEX IF NOT EXISTS idx_deposit_sessions_input_token ON deposit_sessions(input_token_mint)
     WHERE input_token_mint IS NOT NULL;
 
 -- Index for credit transaction idempotency
-CREATE UNIQUE INDEX idx_credit_transactions_idempotency ON credit_transactions(idempotency_key)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_transactions_idempotency ON credit_transactions(idempotency_key)
     WHERE idempotency_key IS NOT NULL;
 
 -- =============================================================================
@@ -42,7 +42,7 @@ CREATE UNIQUE INDEX idx_credit_transactions_idempotency ON credit_transactions(i
 -- Webhook-detected SPL token transfers that need user confirmation to process.
 -- User must authenticate and confirm to trigger the Jupiter swap + Privacy Cash deposit.
 
-CREATE TABLE pending_spl_deposits (
+CREATE TABLE IF NOT EXISTS pending_spl_deposits (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id),
     wallet_address TEXT NOT NULL,
@@ -75,10 +75,10 @@ CREATE TABLE pending_spl_deposits (
     expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '7 days')
 );
 
-CREATE INDEX idx_pending_spl_deposits_user ON pending_spl_deposits(user_id);
-CREATE INDEX idx_pending_spl_deposits_wallet ON pending_spl_deposits(wallet_address);
-CREATE INDEX idx_pending_spl_deposits_status ON pending_spl_deposits(status);
-CREATE INDEX idx_pending_spl_deposits_pending ON pending_spl_deposits(user_id, status)
+CREATE INDEX IF NOT EXISTS idx_pending_spl_deposits_user ON pending_spl_deposits(user_id);
+CREATE INDEX IF NOT EXISTS idx_pending_spl_deposits_wallet ON pending_spl_deposits(wallet_address);
+CREATE INDEX IF NOT EXISTS idx_pending_spl_deposits_status ON pending_spl_deposits(status);
+CREATE INDEX IF NOT EXISTS idx_pending_spl_deposits_pending ON pending_spl_deposits(user_id, status)
     WHERE status = 'pending';
 
 -- Comment explaining the SPL deposit flow

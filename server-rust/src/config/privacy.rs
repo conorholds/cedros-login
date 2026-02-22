@@ -8,7 +8,7 @@ use serde::Deserialize;
 
 /// Default sidecar URL for local development
 pub fn default_sidecar_url() -> String {
-    "http://localhost:3001".to_string()
+    "http://localhost:3100".to_string()
 }
 
 /// Default sidecar timeout (30 seconds)
@@ -163,5 +163,15 @@ impl PrivacyConfig {
     /// Check if an SPL token mint is whitelisted
     pub fn is_token_whitelisted(&self, mint: &str) -> bool {
         self.spl_token_whitelist.contains(&mint.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_sidecar_url_matches_sidecar_service_port() {
+        assert_eq!(default_sidecar_url(), "http://localhost:3100");
     }
 }

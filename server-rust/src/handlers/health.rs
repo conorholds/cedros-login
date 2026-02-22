@@ -185,6 +185,7 @@ mod tests {
             wallet_signing_service: WalletSigningService::new(),
             wallet_unlock_cache: create_wallet_unlock_cache(),
             treasury_config_repo: storage.treasury_config_repo.clone(),
+            user_withdrawal_log_repo: storage.user_withdrawal_log_repo.clone(),
             privacy_sidecar_client: None,
             note_encryption_service: None,
             sol_price_service: std::sync::Arc::new(crate::services::SolPriceService::new()),

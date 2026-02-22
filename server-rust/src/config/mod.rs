@@ -551,6 +551,214 @@ impl Config {
         config.validate()?;
         Ok(config)
     }
+
+    /// Apply settings from database, overriding env-loaded values where DB values are set.
+    ///
+    /// This method is used during server initialization to merge database-managed
+    /// settings with the environment-loaded config. Database settings take precedence
+    /// when they have non-empty values.
+    ///
+    /// # Settings applied
+    /// - Auth providers: Google, Apple, Solana, WebAuthn enabled flags and credentials
+    /// - Feature flags: Privacy Cash, wallet signing, SSO, organizations, MFA
+    /// - Security: CORS origins, cookie settings
+    /// - Server: Frontend URL, base path
+    ///
+    /// # Note
+    /// This method is available but not yet used in the default server initialization.
+    /// Runtime settings (rate limits, privacy period) are read via SettingsService.
+    #[allow(dead_code)]
+    pub async fn apply_db_settings(
+        &mut self,
+        settings: &crate::services::SettingsService,
+    ) -> Result<(), AppError> {
+        // Auth providers
+        if let Some(enabled) = settings.get_bool("auth_google_enabled").await? {
+            self.google.enabled = enabled;
+            tracing::debug!(enabled, "DB override: auth_google_enabled");
+        }
+        if let Some(client_id) = settings.get("auth_google_client_id").await? {
+            if !client_id.is_empty() {
+                self.google.client_id = Some(client_id);
+                tracing::debug!("DB override: auth_google_client_id");
+            }
+        }
+
+        if let Some(enabled) = settings.get_bool("auth_apple_enabled").await? {
+            self.apple.enabled = enabled;
+            tracing::debug!(enabled, "DB override: auth_apple_enabled");
+        }
+        if let Some(client_id) = settings.get("auth_apple_client_id").await? {
+            if !client_id.is_empty() {
+                self.apple.client_id = Some(client_id);
+                tracing::debug!("DB override: auth_apple_client_id");
+            }
+        }
+        if let Some(team_id) = settings.get("auth_apple_team_id").await? {
+            if !team_id.is_empty() {
+                self.apple.team_id = Some(team_id);
+                tracing::debug!("DB override: auth_apple_team_id");
+            }
+        }
+
+        if let Some(enabled) = settings.get_bool("auth_solana_enabled").await? {
+            self.solana.enabled = enabled;
+            tracing::debug!(enabled, "DB override: auth_solana_enabled");
+        }
+        if let Some(expiry) = settings.get_u64("auth_solana_challenge_expiry").await? {
+            self.solana.challenge_expiry_seconds = expiry;
+            tracing::debug!(expiry, "DB override: auth_solana_challenge_expiry");
+        }
+
+        if let Some(enabled) = settings.get_bool("auth_webauthn_enabled").await? {
+            self.webauthn.enabled = enabled;
+            tracing::debug!(enabled, "DB override: auth_webauthn_enabled");
+        }
+        if let Some(rp_id) = settings.get("auth_webauthn_rp_id").await? {
+            if !rp_id.is_empty() {
+                self.webauthn.rp_id = Some(rp_id);
+                tracing::debug!("DB override: auth_webauthn_rp_id");
+            }
+        }
+        if let Some(rp_name) = settings.get("auth_webauthn_rp_name").await? {
+            if !rp_name.is_empty() {
+                self.webauthn.rp_name = Some(rp_name);
+                tracing::debug!("DB override: auth_webauthn_rp_name");
+            }
+        }
+        if let Some(rp_origin) = settings.get("auth_webauthn_rp_origin").await? {
+            if !rp_origin.is_empty() {
+                self.webauthn.rp_origin = Some(rp_origin);
+                tracing::debug!("DB override: auth_webauthn_rp_origin");
+            }
+        }
+
+        // Email auth
+        if let Some(enabled) = settings.get_bool("auth_email_enabled").await? {
+            self.email.enabled = enabled;
+            tracing::debug!(enabled, "DB override: auth_email_enabled");
+        }
+        if let Some(require_verification) =
+            settings.get_bool("auth_email_require_verification").await?
+        {
+            self.email.require_verification = require_verification;
+            tracing::debug!(
+                require_verification,
+                "DB override: auth_email_require_verification"
+            );
+        }
+        if let Some(block_disposable) = settings.get_bool("auth_email_block_disposable").await? {
+            self.email.block_disposable_emails = block_disposable;
+            tracing::debug!(block_disposable, "DB override: auth_email_block_disposable");
+        }
+
+        // Feature flags
+        if let Some(enabled) = settings.get_bool("feature_privacy_cash").await? {
+            self.privacy.enabled = enabled;
+            tracing::debug!(enabled, "DB override: feature_privacy_cash");
+        }
+        if let Some(enabled) = settings.get_bool("feature_wallet_signing").await? {
+            self.wallet.enabled = enabled;
+            tracing::debug!(enabled, "DB override: feature_wallet_signing");
+        }
+        if let Some(enabled) = settings.get_bool("feature_sso").await? {
+            self.sso.enabled = enabled;
+            tracing::debug!(enabled, "DB override: feature_sso");
+        }
+        // feature_user_withdrawals is read directly from settings_service in the handler
+        // (no config struct field needed since it's purely runtime-gated)
+
+        // Security settings
+        if let Some(cors_origins) = settings.get("security_cors_origins").await? {
+            if !cors_origins.is_empty() {
+                self.cors.allowed_origins = cors_origins
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+                    .collect();
+                tracing::debug!("DB override: security_cors_origins");
+            }
+        }
+        if let Some(cookie_domain) = settings.get("security_cookie_domain").await? {
+            if !cookie_domain.is_empty() {
+                self.cookie.domain = Some(cookie_domain);
+                tracing::debug!("DB override: security_cookie_domain");
+            }
+        }
+        if let Some(cookie_secure) = settings.get_bool("security_cookie_secure").await? {
+            self.cookie.secure = cookie_secure;
+            tracing::debug!(cookie_secure, "DB override: security_cookie_secure");
+        }
+        if let Some(same_site) = settings.get("security_cookie_same_site").await? {
+            if !same_site.is_empty() {
+                self.cookie.same_site = same_site;
+                tracing::debug!("DB override: security_cookie_same_site");
+            }
+        }
+        if let Some(session_timeout) = settings.get_u64("security_session_timeout").await? {
+            self.jwt.refresh_token_expiry = session_timeout;
+            tracing::debug!(session_timeout, "DB override: security_session_timeout");
+        }
+
+        // Server settings
+        if let Some(frontend_url) = settings.get("server_frontend_url").await? {
+            if !frontend_url.is_empty() {
+                self.server.frontend_url = Some(frontend_url);
+                tracing::debug!("DB override: server_frontend_url");
+            }
+        }
+        if let Some(base_path) = settings.get("server_base_path").await? {
+            if !base_path.is_empty() {
+                self.server.auth_base_path = base_path;
+                tracing::debug!("DB override: server_base_path");
+            }
+        }
+        if let Some(trust_proxy) = settings.get_bool("server_trust_proxy").await? {
+            self.server.trust_proxy = trust_proxy;
+            tracing::debug!(trust_proxy, "DB override: server_trust_proxy");
+        }
+
+        // Webhook settings
+        if let Some(enabled) = settings.get_bool("webhook_enabled").await? {
+            self.webhook.enabled = enabled;
+            tracing::debug!(enabled, "DB override: webhook_enabled");
+        }
+        if let Some(url) = settings.get("webhook_url").await? {
+            if !url.is_empty() {
+                self.webhook.url = Some(url);
+                tracing::debug!("DB override: webhook_url");
+            }
+        }
+        if let Some(timeout) = settings.get_u64("webhook_timeout").await? {
+            self.webhook.timeout_secs = timeout;
+            tracing::debug!(timeout, "DB override: webhook_timeout");
+        }
+        if let Some(retries) = settings.get_u32("webhook_retries").await? {
+            self.webhook.retry_attempts = retries;
+            tracing::debug!(retries, "DB override: webhook_retries");
+        }
+
+        // Rate limit settings
+        if let Some(auth_limit) = settings.get_u32("rate_limit_auth").await? {
+            self.rate_limit.auth_limit = auth_limit;
+            tracing::debug!(auth_limit, "DB override: rate_limit_auth");
+        }
+        if let Some(general_limit) = settings.get_u32("rate_limit_general").await? {
+            self.rate_limit.general_limit = general_limit;
+            tracing::debug!(general_limit, "DB override: rate_limit_general");
+        }
+        if let Some(credit_limit) = settings.get_u32("rate_limit_credit").await? {
+            self.rate_limit.credit_limit = credit_limit;
+            tracing::debug!(credit_limit, "DB override: rate_limit_credit");
+        }
+        if let Some(window_secs) = settings.get_u64("rate_limit_window").await? {
+            self.rate_limit.window_secs = window_secs;
+            tracing::debug!(window_secs, "DB override: rate_limit_window");
+        }
+
+        tracing::info!("Applied database settings (DB values override environment)");
+        Ok(())
+    }
 }
 
 #[cfg(test)]

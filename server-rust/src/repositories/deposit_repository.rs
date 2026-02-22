@@ -27,6 +27,8 @@ pub enum DepositStatus {
     Expired,
     /// Error occurred
     Failed,
+    /// S-03: Withdrawal failed but retries remain — distinct from Completed
+    PendingRetry,
     /// Micro deposit awaiting batch swap (SOL accumulated in treasury)
     PendingBatch,
     /// Micro deposit included in a completed batch swap
@@ -44,6 +46,7 @@ impl DepositStatus {
             Self::Withdrawn => "withdrawn",
             Self::Expired => "expired",
             Self::Failed => "failed",
+            Self::PendingRetry => "pending_retry",
             Self::PendingBatch => "pending_batch",
             Self::Batched => "batched",
         }
@@ -59,6 +62,7 @@ impl DepositStatus {
             "withdrawn" => Some(Self::Withdrawn),
             "expired" => Some(Self::Expired),
             "failed" => Some(Self::Failed),
+            "pending_retry" => Some(Self::PendingRetry),
             "pending_batch" => Some(Self::PendingBatch),
             "batched" => Some(Self::Batched),
             _ => None,
@@ -425,8 +429,8 @@ pub trait DepositRepository: Send + Sync {
 
     // ==================== Micro Batch Methods ====================
 
-    /// Get all micro deposits with PendingBatch status
-    async fn get_pending_batch_deposits(&self) -> Result<Vec<DepositSessionEntity>, AppError>;
+    /// Get micro deposits with PendingBatch status, bounded by limit
+    async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError>;
 
     /// Sum total lamports of all pending batch deposits
     async fn sum_pending_batch_lamports(&self) -> Result<i64, AppError>;
@@ -724,7 +728,8 @@ impl DepositRepository for InMemoryDepositRepository {
             .values()
             .filter(|s| {
                 (s.status == DepositStatus::Completed
-                    || s.status == DepositStatus::PartiallyWithdrawn)
+                    || s.status == DepositStatus::PartiallyWithdrawn
+                    || s.status == DepositStatus::PendingRetry)
                     && s.stored_share_b.is_some()
                     && s.withdrawal_available_at.is_some_and(|t| t <= now)
                     && !s.is_fully_withdrawn() // Has remaining balance
@@ -744,7 +749,8 @@ impl DepositRepository for InMemoryDepositRepository {
             .values()
             .filter(|s| {
                 (s.status == DepositStatus::Completed
-                    || s.status == DepositStatus::PartiallyWithdrawn)
+                    || s.status == DepositStatus::PartiallyWithdrawn
+                    || s.status == DepositStatus::PendingRetry)
                     && s.stored_share_b.is_some()
                     && s.withdrawal_available_at.is_some_and(|t| t <= now)
                     && !s.is_fully_withdrawn()
@@ -767,7 +773,8 @@ impl DepositRepository for InMemoryDepositRepository {
             .values()
             .filter(|s| {
                 (s.status == DepositStatus::Completed
-                    || s.status == DepositStatus::PartiallyWithdrawn)
+                    || s.status == DepositStatus::PartiallyWithdrawn
+                    || s.status == DepositStatus::PendingRetry)
                     && s.stored_share_b.is_some()
                     && s.withdrawal_available_at.is_some_and(|t| t <= now)
                     && !s.is_fully_withdrawn()
@@ -787,7 +794,8 @@ impl DepositRepository for InMemoryDepositRepository {
             .filter_map(|(id, session)| {
                 let available_at = session.withdrawal_available_at?;
                 let is_ready = (session.status == DepositStatus::Completed
-                    || session.status == DepositStatus::PartiallyWithdrawn)
+                    || session.status == DepositStatus::PartiallyWithdrawn
+                    || session.status == DepositStatus::PendingRetry)
                     && session.stored_share_b.is_some()
                     && available_at <= now
                     && !session.is_fully_withdrawn(); // Has remaining balance
@@ -931,7 +939,7 @@ impl DepositRepository for InMemoryDepositRepository {
             }
 
             match session.status {
-                DepositStatus::Completed => {
+                DepositStatus::Completed | DepositStatus::PendingRetry => {
                     stats.pending_withdrawal_count += 1;
                     stats.pending_withdrawal_lamports += amount;
                     stats.total_deposited_lamports += amount;
@@ -974,7 +982,7 @@ impl DepositRepository for InMemoryDepositRepository {
         let mut filtered: Vec<_> = sessions
             .values()
             .filter(|s| {
-                s.status == DepositStatus::Completed
+                (s.status == DepositStatus::Completed || s.status == DepositStatus::PendingRetry)
                     && s.withdrawal_available_at.is_some_and(|t| t > now)
             })
             .cloned()
@@ -997,19 +1005,20 @@ impl DepositRepository for InMemoryDepositRepository {
         Ok(sessions
             .values()
             .filter(|s| {
-                s.status == DepositStatus::Completed
+                (s.status == DepositStatus::Completed || s.status == DepositStatus::PendingRetry)
                     && s.withdrawal_available_at.is_some_and(|t| t > now)
             })
             .count() as u64)
     }
 
-    async fn get_pending_batch_deposits(&self) -> Result<Vec<DepositSessionEntity>, AppError> {
+    async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError> {
         let sessions = self.sessions.read().await;
         Ok(sessions
             .values()
             .filter(|s| {
                 s.status == DepositStatus::PendingBatch && s.deposit_type == DepositType::SolMicro
             })
+            .take(limit as usize)
             .cloned()
             .collect())
     }
@@ -1106,9 +1115,7 @@ mod tests {
 
         let items = repo.find_by_user_pending(user_id).await.unwrap();
         assert_eq!(items.len(), 200);
-        assert!(items
-            .windows(2)
-            .all(|w| w[0].created_at >= w[1].created_at));
+        assert!(items.windows(2).all(|w| w[0].created_at >= w[1].created_at));
     }
 
     #[tokio::test]

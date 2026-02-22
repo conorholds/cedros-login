@@ -9,6 +9,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use uuid::Uuid;
 
 /// KDF parameters for Argon2id
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,7 +27,7 @@ pub struct KdfParamsDto {
 ///
 /// Priority order (when user has multiple): passkey > password > pin
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum ShareAAuthMethod {
     /// Email users reuse login password (Argon2id KDF)
     Password,
@@ -34,6 +35,8 @@ pub enum ShareAAuthMethod {
     Pin,
     /// Users with passkey login use PRF extension (HKDF)
     Passkey,
+    /// API key derives encryption key via Argon2id (raw key as input)
+    ApiKey,
 }
 
 impl fmt::Display for ShareAAuthMethod {
@@ -42,6 +45,7 @@ impl fmt::Display for ShareAAuthMethod {
             ShareAAuthMethod::Password => write!(f, "password"),
             ShareAAuthMethod::Pin => write!(f, "pin"),
             ShareAAuthMethod::Passkey => write!(f, "passkey"),
+            ShareAAuthMethod::ApiKey => write!(f, "api_key"),
         }
     }
 }
@@ -54,6 +58,7 @@ impl std::str::FromStr for ShareAAuthMethod {
             "password" => Ok(ShareAAuthMethod::Password),
             "pin" => Ok(ShareAAuthMethod::Pin),
             "passkey" => Ok(ShareAAuthMethod::Passkey),
+            "api_key" => Ok(ShareAAuthMethod::ApiKey),
             _ => Err(format!("Invalid auth method: {}", s)),
         }
     }
@@ -200,7 +205,7 @@ pub struct SignTransactionRequest {
     pub credential: Option<UnlockCredential>,
 }
 
-/// Unlock credential for signing (one of password, pin, or passkey PRF)
+/// Unlock credential for signing (one of password, pin, passkey PRF, or API key)
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum UnlockCredential {
@@ -210,6 +215,8 @@ pub enum UnlockCredential {
     Pin(String),
     /// PRF output for passkey auth method (base64, 32 bytes)
     PrfOutput(String),
+    /// Raw API key for api_key auth method
+    ApiKey(String),
 }
 
 /// Response from transaction signing
@@ -344,6 +351,57 @@ pub struct AcknowledgeRecoveryRequest {
     pub confirmed: bool,
 }
 
+/// Request to rotate wallet (delete old wallet, create new one - irreversible)
+///
+/// Same fields as WalletEnrollRequest. The old wallet is destroyed and replaced
+/// with new material. Any funds at the old pubkey address are NOT migrated.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WalletRotateRequest {
+    /// New base58-encoded Solana public key
+    pub solana_pubkey: String,
+    /// Auth method for Share A
+    pub share_a_auth_method: ShareAAuthMethod,
+    /// AES-GCM ciphertext (base64)
+    pub share_a_ciphertext: String,
+    /// AES-GCM nonce (base64, 12 bytes)
+    pub share_a_nonce: String,
+    /// Argon2id salt (base64, 16+ bytes) - required for password/pin/api_key methods
+    #[serde(default)]
+    pub share_a_kdf_salt: Option<String>,
+    /// KDF parameters - required for password/pin/api_key methods
+    #[serde(default)]
+    pub share_a_kdf_params: Option<KdfParamsDto>,
+    /// PRF salt (base64, 32 bytes) - required for passkey method
+    #[serde(default)]
+    pub prf_salt: Option<String>,
+    /// PIN (plaintext, 6+ digits) - required for PIN method
+    #[serde(default)]
+    pub pin: Option<String>,
+    /// Plaintext Share B (base64)
+    pub share_b: String,
+}
+
+/// Summary of a wallet for list responses
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WalletSummary {
+    pub id: Uuid,
+    pub solana_pubkey: String,
+    pub share_a_auth_method: ShareAAuthMethod,
+    /// Label of the API key this wallet is linked to (None = default wallet)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_key_label: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Response listing all wallets for a user
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WalletListResponse {
+    pub wallets: Vec<WalletSummary>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -362,6 +420,10 @@ mod tests {
             serde_json::to_string(&ShareAAuthMethod::Passkey).unwrap(),
             "\"passkey\""
         );
+        assert_eq!(
+            serde_json::to_string(&ShareAAuthMethod::ApiKey).unwrap(),
+            "\"api_key\""
+        );
     }
 
     #[test]
@@ -374,6 +436,9 @@ mod tests {
 
         let passkey: ShareAAuthMethod = serde_json::from_str("\"passkey\"").unwrap();
         assert_eq!(passkey, ShareAAuthMethod::Passkey);
+
+        let api_key: ShareAAuthMethod = serde_json::from_str("\"api_key\"").unwrap();
+        assert_eq!(api_key, ShareAAuthMethod::ApiKey);
     }
 
     #[test]

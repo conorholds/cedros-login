@@ -19,6 +19,8 @@ export class TokenManager {
   private onRefreshNeeded: (() => Promise<void>) | null = null;
   private onSessionExpired: (() => void) | null = null;
   private isDestroyed: boolean = false;
+  /** RN-03: Deduplicates concurrent refresh calls. */
+  private refreshInFlight: Promise<void> | null = null;
 
   constructor() {
     this.loadFromStorage();
@@ -42,8 +44,9 @@ export class TokenManager {
           await removeItem(TOKEN_KEY);
         }
       }
-    } catch {
-      // Ignore parse errors
+    } catch (err) {
+      console.warn('[TokenManager] Failed to parse stored tokens; clearing corrupted data.', err instanceof Error ? err.message : String(err));
+      await removeItem(TOKEN_KEY).catch(() => undefined);
     }
   }
 
@@ -127,6 +130,21 @@ export class TokenManager {
   }
 
   /**
+   * Execute refresh with deduplication. Concurrent callers share one in-flight request.
+   */
+  private doRefresh(): void {
+    if (this.refreshInFlight || !this.onRefreshNeeded) return;
+
+    this.refreshInFlight = this.onRefreshNeeded()
+      .catch(() => {
+        this.onSessionExpired?.();
+      })
+      .finally(() => {
+        this.refreshInFlight = null;
+      });
+  }
+
+  /**
    * Schedule automatic token refresh
    */
   private scheduleRefresh(): void {
@@ -138,16 +156,11 @@ export class TokenManager {
     const delay = refreshAt - Date.now();
 
     if (delay <= 0) {
-      // Token already expired or about to expire
-      this.onRefreshNeeded().catch(() => {
-        this.onSessionExpired?.();
-      });
+      this.doRefresh();
     } else {
       this.refreshTimer = setTimeout(() => {
         if (!this.isDestroyed) {
-          this.onRefreshNeeded?.().catch(() => {
-            this.onSessionExpired?.();
-          });
+          this.doRefresh();
         }
       }, delay);
     }

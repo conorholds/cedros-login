@@ -5,7 +5,7 @@
 -- "SELECT * FROM audit_logs WHERE session_id = ? ORDER BY created_at DESC"
 -- which is common for showing session activity timeline.
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_audit_logs_session_time
+CREATE INDEX IF NOT EXISTS idx_audit_logs_session_time
     ON audit_logs(session_id, created_at DESC)
     WHERE session_id IS NOT NULL;
 

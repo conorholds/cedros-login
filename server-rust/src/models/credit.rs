@@ -141,13 +141,14 @@ pub struct CaptureHoldResponse {
 }
 
 impl CaptureHoldResponse {
-    pub fn from_result(result: SpendResult, currency: &str) -> Self {
-        let display = format_balance(result.new_balance_lamports, currency);
+    /// S-14: Currency is now included in SpendResult, avoiding a double-fetch.
+    pub fn from_result(result: SpendResult) -> Self {
+        let display = format_balance(result.new_balance_lamports, &result.currency);
         Self {
             transaction_id: result.transaction_id,
             new_balance_lamports: result.new_balance_lamports,
             amount_lamports: result.amount_lamports,
-            currency: currency.to_string(),
+            currency: result.currency,
             display,
         }
     }

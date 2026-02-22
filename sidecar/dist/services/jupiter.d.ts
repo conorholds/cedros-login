@@ -62,6 +62,10 @@ export declare class JupiterService {
     private apiKey;
     private minSwapUsd;
     private rateLimit;
+    private readonly requestTimestampsMs;
+    private throttleLock;
+    /** F-06: Circuit breaker to avoid wasting resources during Jupiter outages */
+    private readonly circuitBreaker;
     constructor(config: Config);
     /**
      * Get minimum swap amount in USD required for gasless swaps
@@ -71,6 +75,12 @@ export declare class JupiterService {
      * Get configured rate limit (requests per 10 seconds) for queue throttling
      */
     getRateLimit(): number;
+    /**
+     * Enforce max N requests per 10-second rolling window.
+     * P-04: Uses mutex pattern instead of promise chain to prevent memory leak
+     * under sustained load. Each call awaits the previous lock then releases its own.
+     */
+    private throttle;
     /**
      * Get a swap order (unsigned transaction) from Jupiter Ultra API
      *

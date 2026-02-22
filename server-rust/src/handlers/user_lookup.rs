@@ -103,7 +103,10 @@ pub async fn lookup_by_stripe_customer<C: AuthCallback, E: EmailService>(
     let admin_id = validate_system_admin(&state, &headers).await?;
 
     // Basic validation - Stripe customers are typically like `cus_...`
-    if !stripe_customer_id.starts_with("cus_") || stripe_customer_id.len() < 8 || stripe_customer_id.len() > 64 {
+    if !stripe_customer_id.starts_with("cus_")
+        || stripe_customer_id.len() < 8
+        || stripe_customer_id.len() > 64
+    {
         return Err(AppError::Validation(
             "Invalid Stripe customer ID format".into(),
         ));
@@ -143,7 +146,10 @@ pub async fn link_stripe_customer<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<StripeCustomerLookupResponse>, AppError> {
     let admin_id = validate_system_admin(&state, &headers).await?;
 
-    if !stripe_customer_id.starts_with("cus_") || stripe_customer_id.len() < 8 || stripe_customer_id.len() > 64 {
+    if !stripe_customer_id.starts_with("cus_")
+        || stripe_customer_id.len() < 8
+        || stripe_customer_id.len() > 64
+    {
         return Err(AppError::Validation(
             "Invalid Stripe customer ID format".into(),
         ));

@@ -31,7 +31,11 @@ function toLamports(value) {
     if (!Number.isFinite(n) || n <= 0) {
         throw new Error('Invalid lamports value');
     }
-    return Math.floor(n);
+    // SC-21: Reject non-integer lamport values to prevent silent rounding errors.
+    if (!Number.isInteger(n)) {
+        throw new Error('Lamports value must be an integer');
+    }
+    return n;
 }
 /**
  * Verify a finalized SOL transfer using a parsed Solana transaction.
@@ -64,6 +68,10 @@ function verifySolTransferFromParsedTransaction(tx, params) {
         observedLamports += toLamports(ix.parsed.info.lamports);
         if (!matchedSource)
             matchedSource = source;
+        // SC-07: When source is pinned, accept only the first matching instruction
+        // to prevent adversarial inflation via duplicate transfer instructions.
+        if (expectedSource)
+            break;
     }
     if (observedLamports <= 0) {
         throw new Error('No matching SOL transfer found');

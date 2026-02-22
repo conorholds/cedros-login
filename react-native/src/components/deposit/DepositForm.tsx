@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -37,35 +37,29 @@ export function DepositForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const tiers: Array<{
-    value: DepositTier;
-    label: string;
-    description: string;
-    minAmount: number;
-    color: string;
-  }> = [
+  const tiers = useMemo(() => [
     {
-      value: "private",
+      value: "private" as DepositTier,
       label: "Private",
       description: `Min ${config.privateMinSol} SOL - Enhanced privacy`,
       minAmount: config.privateMinSol,
       color: colors.primary[600],
     },
     {
-      value: "public",
+      value: "public" as DepositTier,
       label: "Public",
       description: `Min $${config.publicMinUsd} USD worth - Standard deposit`,
       minAmount: config.publicMinUsd / config.solPriceUsd,
       color: colors.info,
     },
     {
-      value: "sol_micro",
+      value: "sol_micro" as DepositTier,
       label: "Micro",
       description: `Up to $${config.solMicroMaxUsd} USD worth - Direct SOL`,
       minAmount: 0.001,
       color: colors.success,
     },
-  ];
+  ], [config.privateMinSol, config.publicMinUsd, config.solPriceUsd, config.solMicroMaxUsd]);
 
   const validateForm = useCallback((): boolean => {
     const numAmount = parseFloat(amount);
@@ -84,7 +78,7 @@ export function DepositForm({
 
     setAmountError(undefined);
     return true;
-  }, [amount, selectedTier]);
+  }, [amount, selectedTier, tiers]);
 
   const handleDeposit = useCallback(async () => {
     if (!validateForm()) {

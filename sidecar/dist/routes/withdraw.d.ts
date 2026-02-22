@@ -11,5 +11,5 @@
  */
 import { Router } from 'express';
 import { PrivacyCashService } from '../services/privacy-cash.js';
-import { JupiterService } from '../services/jupiter.js';
-export declare function createWithdrawRoutes(privacyCash: PrivacyCashService, _jupiter?: JupiterService): Router;
+export declare function normalizeWithdrawTargetCurrency(targetCurrency?: string): 'SOL';
+export declare function createWithdrawRoutes(privacyCash: PrivacyCashService): Router;

@@ -11,7 +11,7 @@
 --
 -- Security: This is temporary storage. Data expires and auto-deletes if not acknowledged.
 
-CREATE TABLE pending_wallet_recovery (
+CREATE TABLE IF NOT EXISTS pending_wallet_recovery (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- Link to user (one pending recovery per user)
@@ -39,7 +39,7 @@ CREATE TABLE pending_wallet_recovery (
 );
 
 -- Index for cleanup job to find expired records
-CREATE INDEX idx_pending_wallet_recovery_expires_at ON pending_wallet_recovery(expires_at);
+CREATE INDEX IF NOT EXISTS idx_pending_wallet_recovery_expires_at ON pending_wallet_recovery(expires_at);
 
 -- Comment for documentation
 COMMENT ON TABLE pending_wallet_recovery IS

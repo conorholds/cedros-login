@@ -129,10 +129,9 @@ impl GoogleService {
             )));
         }
 
-        tokio::time::timeout(
-            Duration::from_secs(GOOGLE_API_TIMEOUT_SECS),
-            async move { response.json::<JwkSet>().await },
-        )
+        tokio::time::timeout(Duration::from_secs(GOOGLE_API_TIMEOUT_SECS), async move {
+            response.json::<JwkSet>().await
+        })
         .await
         .map_err(|_| {
             AppError::Internal(anyhow::anyhow!(

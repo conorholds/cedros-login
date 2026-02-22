@@ -11,8 +11,11 @@ function createHealthRoutes(solana, privacyCash) {
     const router = (0, express_1.Router)();
     router.get('/health', async (_req, res) => {
         try {
-            const rpcConnected = await solana.isConnected();
-            const sdkLoaded = await privacyCash.isLoaded();
+            // SC-07: Timeout health probes to prevent /health from hanging
+            const HEALTH_TIMEOUT_MS = 5_000;
+            const withTimeout = (p, fallback) => Promise.race([p, new Promise((resolve) => setTimeout(() => resolve(fallback), HEALTH_TIMEOUT_MS))]);
+            const rpcConnected = await withTimeout(solana.isConnected(), false);
+            const sdkLoaded = await withTimeout(privacyCash.isLoaded(), false);
             const status = rpcConnected && sdkLoaded ? 'healthy' : 'degraded';
             res.json({
                 status,

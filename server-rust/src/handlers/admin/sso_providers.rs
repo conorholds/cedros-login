@@ -1,7 +1,8 @@
 //! Admin SSO provider management handlers
 //!
 //! CRUD endpoints for managing SSO (OIDC) providers per organization.
-//! All endpoints require system admin privileges.
+//! Org owners can manage SSO providers for their own org.
+//! System admins can manage all SSO providers.
 
 use axum::{
     extract::{Path, Query, State},
@@ -14,18 +15,27 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::callback::AuthCallback;
-use crate::errors::{AppError, ERR_SYSTEM_ADMIN_REQUIRED};
+use crate::errors::AppError;
 use crate::models::sso::SsoProvider;
 use crate::repositories::pagination::{cap_limit, cap_offset};
+use crate::repositories::OrgRole;
 use crate::services::EmailService;
 use crate::utils::authenticate;
 use crate::AppState;
 
-/// Validate system admin access
-async fn validate_system_admin<C: AuthCallback, E: EmailService>(
+/// Result of SSO access validation
+struct SsoAccessContext {
+    user_id: Uuid,
+    is_system_admin: bool,
+    /// Org IDs where user is owner (can manage SSO)
+    owned_org_ids: Vec<Uuid>,
+}
+
+/// Validate SSO management access - allows system admins or org owners
+async fn validate_sso_access<C: AuthCallback, E: EmailService>(
     state: &Arc<AppState<C, E>>,
     headers: &HeaderMap,
-) -> Result<Uuid, AppError> {
+) -> Result<SsoAccessContext, AppError> {
     let auth_user = authenticate(state, headers).await?;
 
     let user = state
@@ -34,11 +44,34 @@ async fn validate_system_admin<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::InvalidToken)?;
 
-    if !user.is_system_admin {
-        return Err(AppError::Forbidden(ERR_SYSTEM_ADMIN_REQUIRED.into()));
+    // Get orgs where user is owner
+    let memberships = state
+        .membership_repo
+        .find_by_user(auth_user.user_id)
+        .await?;
+    let owned_org_ids: Vec<Uuid> = memberships
+        .into_iter()
+        .filter(|m| m.role == OrgRole::Owner)
+        .map(|m| m.org_id)
+        .collect();
+
+    // Must be system admin OR owner of at least one org
+    if !user.is_system_admin && owned_org_ids.is_empty() {
+        return Err(AppError::Forbidden(
+            "SSO management requires org owner or system admin privileges".into(),
+        ));
     }
 
-    Ok(auth_user.user_id)
+    Ok(SsoAccessContext {
+        user_id: auth_user.user_id,
+        is_system_admin: user.is_system_admin,
+        owned_org_ids,
+    })
+}
+
+/// Check if user can manage SSO for a specific org
+fn can_manage_org(ctx: &SsoAccessContext, org_id: Uuid) -> bool {
+    ctx.is_system_admin || ctx.owned_org_ids.contains(&org_id)
 }
 
 /// Query params for listing SSO providers
@@ -174,19 +207,29 @@ pub struct UpdateSsoProviderRequest {
     pub email_domain: Option<String>,
 }
 
-/// GET /admin/sso-providers - List all SSO providers
+/// GET /admin/sso-providers - List SSO providers
+///
+/// System admins see all providers (optionally filtered by org_id).
+/// Org owners see only providers for their owned orgs.
 pub async fn list_sso_providers<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     headers: HeaderMap,
     Query(params): Query<ListSsoProvidersQuery>,
 ) -> Result<Json<ListSsoProvidersResponse>, AppError> {
-    validate_system_admin(&state, &headers).await?;
+    let ctx = validate_sso_access(&state, &headers).await?;
 
     let limit = cap_limit(params.limit);
     let offset = cap_offset(params.offset);
 
-    let (providers_result, total_result) = if let Some(org_id) = params.org_id {
-        tokio::join!(
+    // Fetch providers based on access level
+    let (providers, total): (Vec<SsoProvider>, usize) = if let Some(org_id) = params.org_id {
+        // If org_id specified, verify access
+        if !can_manage_org(&ctx, org_id) {
+            return Err(AppError::Forbidden(
+                "You don't have access to this organization's SSO providers".into(),
+            ));
+        }
+        let (providers, total) = tokio::join!(
             state
                 .storage
                 .sso_repository()
@@ -195,25 +238,39 @@ pub async fn list_sso_providers<C: AuthCallback, E: EmailService>(
                 .storage
                 .sso_repository()
                 .count_providers_for_org(org_id)
-        )
-    } else {
-        tokio::join!(
+        );
+        (providers?, total? as usize)
+    } else if ctx.is_system_admin {
+        // System admin with no filter sees all
+        let (providers, total) = tokio::join!(
             state
                 .storage
                 .sso_repository()
                 .list_all_providers_paged(limit, offset),
             state.storage.sso_repository().count_all_providers()
-        )
+        );
+        (providers?, total? as usize)
+    } else {
+        // Non-admin: page/count directly across owned org IDs.
+        let (providers, total) = tokio::join!(
+            state
+                .storage
+                .sso_repository()
+                .list_providers_for_orgs_paged(&ctx.owned_org_ids, limit, offset),
+            state
+                .storage
+                .sso_repository()
+                .count_providers_for_orgs(&ctx.owned_org_ids)
+        );
+        (providers?, total? as usize)
     };
 
-    let providers = providers_result?;
-    let total = total_result?;
     let providers: Vec<SsoProviderResponse> =
         providers.iter().map(SsoProviderResponse::from).collect();
 
     Ok(Json(ListSsoProvidersResponse {
         providers,
-        total: total as usize,
+        total,
         limit,
         offset,
     }))
@@ -225,7 +282,7 @@ pub async fn get_sso_provider<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Path(id): Path<Uuid>,
 ) -> Result<Json<SsoProviderResponse>, AppError> {
-    validate_system_admin(&state, &headers).await?;
+    let ctx = validate_sso_access(&state, &headers).await?;
 
     let provider = state
         .storage
@@ -233,6 +290,13 @@ pub async fn get_sso_provider<C: AuthCallback, E: EmailService>(
         .find_provider_by_id(id)
         .await?
         .ok_or_else(|| AppError::NotFound("SSO provider not found".into()))?;
+
+    // Verify user can access this provider's org
+    if !can_manage_org(&ctx, provider.org_id) {
+        return Err(AppError::Forbidden(
+            "You don't have access to this SSO provider".into(),
+        ));
+    }
 
     Ok(Json(SsoProviderResponse::from(&provider)))
 }
@@ -243,7 +307,7 @@ pub async fn create_sso_provider<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Json(request): Json<CreateSsoProviderRequest>,
 ) -> Result<Json<SsoProviderResponse>, AppError> {
-    let admin_id = validate_system_admin(&state, &headers).await?;
+    let ctx = validate_sso_access(&state, &headers).await?;
 
     // Validate organization exists
     let _org = state
@@ -251,6 +315,15 @@ pub async fn create_sso_provider<C: AuthCallback, E: EmailService>(
         .find_by_id(request.org_id)
         .await?
         .ok_or_else(|| AppError::NotFound("Organization not found".into()))?;
+
+    // Verify user can manage this org's SSO
+    if !can_manage_org(&ctx, request.org_id) {
+        return Err(AppError::Forbidden(
+            "You don't have permission to manage SSO for this organization".into(),
+        ));
+    }
+
+    let admin_id = ctx.user_id;
 
     validate_sso_provider_settings(
         &request.issuer_url,
@@ -314,7 +387,7 @@ pub async fn update_sso_provider<C: AuthCallback, E: EmailService>(
     Path(id): Path<Uuid>,
     Json(request): Json<UpdateSsoProviderRequest>,
 ) -> Result<Json<SsoProviderResponse>, AppError> {
-    let admin_id = validate_system_admin(&state, &headers).await?;
+    let ctx = validate_sso_access(&state, &headers).await?;
 
     let mut provider = state
         .storage
@@ -322,6 +395,15 @@ pub async fn update_sso_provider<C: AuthCallback, E: EmailService>(
         .find_provider_by_id(id)
         .await?
         .ok_or_else(|| AppError::NotFound("SSO provider not found".into()))?;
+
+    // Verify user can manage this provider's org
+    if !can_manage_org(&ctx, provider.org_id) {
+        return Err(AppError::Forbidden(
+            "You don't have permission to manage this SSO provider".into(),
+        ));
+    }
+
+    let admin_id = ctx.user_id;
 
     // Apply updates
     if let Some(name) = request.name {
@@ -379,7 +461,7 @@ pub async fn delete_sso_provider<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Path(id): Path<Uuid>,
 ) -> Result<Json<DeleteResponse>, AppError> {
-    let admin_id = validate_system_admin(&state, &headers).await?;
+    let ctx = validate_sso_access(&state, &headers).await?;
 
     // Check provider exists
     let provider = state
@@ -388,6 +470,15 @@ pub async fn delete_sso_provider<C: AuthCallback, E: EmailService>(
         .find_provider_by_id(id)
         .await?
         .ok_or_else(|| AppError::NotFound("SSO provider not found".into()))?;
+
+    // Verify user can manage this provider's org
+    if !can_manage_org(&ctx, provider.org_id) {
+        return Err(AppError::Forbidden(
+            "You don't have permission to delete this SSO provider".into(),
+        ));
+    }
+
+    let admin_id = ctx.user_id;
 
     state.storage.sso_repository().delete_provider(id).await?;
 

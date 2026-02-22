@@ -43,8 +43,8 @@ use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
 use crate::models::{AuthMethod, AuthResponse, LoginRequest, MfaLoginRequest};
 use crate::repositories::{
-    default_expiry, generate_verification_token, hash_verification_token, AuditEventType,
-    SessionEntity, TokenType, UserEntity,
+    default_expiry, generate_verification_token, hash_verification_token, normalize_email,
+    AuditEventType, SessionEntity, TokenType, UserEntity,
 };
 use crate::services::EmailService;
 use crate::utils::{
@@ -64,14 +64,24 @@ pub async fn login<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
+    // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
+    let email = normalize_email(&req.email);
+
     let ip_address =
         extract_client_ip_with_fallback(&headers, state.config.server.trust_proxy, peer_ip);
 
     // Check if account is locked out
-    let lockout_status = state
+    let lockout_status = match state
         .login_attempt_repo
-        .get_lockout_status(&req.email, &state.login_attempt_config)
-        .await?;
+        .get_lockout_status(&email, &state.login_attempt_config)
+        .await
+    {
+        Ok(status) => status,
+        Err(err) => {
+            tracing::debug!(error = %err, step = "login_lockout_status");
+            return Err(err);
+        }
+    };
 
     if lockout_status.is_locked {
         let remaining_mins = lockout_status
@@ -86,9 +96,9 @@ pub async fn login<C: AuthCallback, E: EmailService>(
     }
 
     // Find user by email
-    let user = match state.user_repo.find_by_email(&req.email).await? {
-        Some(u) => u,
-        None => {
+    let user = match state.user_repo.find_by_email(&email).await {
+        Ok(Some(u)) => u,
+        Ok(None) => {
             // Run dummy password verification to prevent timing-based email enumeration.
             // Without this, an attacker could distinguish unknown emails (fast response)
             // from known emails (slow response due to argon2 verification).
@@ -102,12 +112,16 @@ pub async fn login<C: AuthCallback, E: EmailService>(
                 .login_attempt_repo
                 .record_failed_attempt_atomic(
                     None,
-                    &req.email,
+                    &email,
                     ip_address.as_deref(),
                     &state.login_attempt_config,
                 )
                 .await;
             return Err(AppError::InvalidCredentials);
+        }
+        Err(err) => {
+            tracing::debug!(error = %err, step = "login_find_user");
+            return Err(err);
         }
     };
 
@@ -127,7 +141,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
                 .login_attempt_repo
                 .record_failed_attempt_atomic(
                     Some(user.id),
-                    &req.email,
+                    &email,
                     ip_address.as_deref(),
                     &state.login_attempt_config,
                 )
@@ -148,7 +162,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
             .login_attempt_repo
             .record_failed_attempt_atomic(
                 Some(user.id),
-                &req.email,
+                &email,
                 ip_address.as_deref(),
                 &state.login_attempt_config,
             )
@@ -160,7 +174,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
             let _ = state
                 .comms_service
                 .notify_login_threshold(
-                    &req.email,
+                    &email,
                     updated_status.failed_attempts,
                     ip_address.as_deref(),
                 )
@@ -178,19 +192,17 @@ pub async fn login<C: AuthCallback, E: EmailService>(
     // HANDLER-03: We return a GENERIC error to avoid revealing password correctness.
     // Previously returned "Email not verified" which confirmed correct password.
     // Now we return the same error as invalid credentials to prevent this leak.
+    // S-01: Do NOT clear failed attempts here — password is correct but auth is not
+    // complete. Clearing the counter would let an attacker with the correct password
+    // reset the lockout indefinitely without ever completing login.
     if state.config.email.require_verification && !user.email_verified {
-        let _ = state
-            .login_attempt_repo
-            .clear_failed_attempts(&req.email)
-            .await;
-        // Use generic error - don't reveal that password was correct but email unverified
         return Err(AppError::InvalidCredentials);
     }
 
     // Successful login - clear failed attempts
     let _ = state
         .login_attempt_repo
-        .clear_failed_attempts(&req.email)
+        .clear_failed_attempts(&email)
         .await;
 
     // Check if MFA is enabled - if so, return MFA required response
@@ -227,6 +239,8 @@ pub async fn login<C: AuthCallback, E: EmailService>(
             .await
         {
             tracing::warn!(error = %e, user_id = %user.id, "Failed to log MFA challenge audit event");
+            // SRV-15: Track audit log failures for alerting
+            metrics::counter!("security.audit_log.failure").increment(1);
         }
 
         return Ok(Json(json!({
@@ -266,6 +280,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
         is_new_user: false,
         callback_data,
         api_key: None,
+        email_queued: None,
     };
 
     // Build response with optional cookies
@@ -357,6 +372,12 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
     )? {
         Some(ts) => ts,
         None => {
+            // SRV-10: Audit log failed MFA attempt
+            let _ = state
+                .audit_service
+                .log_user_event(AuditEventType::MfaVerificationFailed, user_id, Some(&headers))
+                .await;
+
             // Record failed attempt and enforce lockout.
             if let Err(lockout) = state.mfa_attempt_service.record_failed(user_id).await {
                 return Err(AppError::TooManyRequests(format!(
@@ -431,6 +452,7 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
         is_new_user: false,
         callback_data,
         api_key: None,
+        email_queued: None,
     };
 
     // Build response with optional cookies
@@ -457,11 +479,7 @@ async fn complete_login_flow<C: AuthCallback, E: EmailService>(
     AppError,
 > {
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let org_ids: Vec<_> = memberships.iter().map(|m| m.org_id).collect();
-    let orgs = state.org_repo.find_by_ids(&org_ids).await?;
-    let orgs_by_id: std::collections::HashMap<_, _> = orgs.into_iter().map(|o| (o.id, o)).collect();
-
-    let token_context = get_default_org_context(&memberships, &orgs_by_id, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin);
 
     let session_id = uuid::Uuid::new_v4();
     let token_pair =

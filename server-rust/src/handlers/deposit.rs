@@ -104,7 +104,7 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
     // Get wallet material - user must have enrolled SSS wallet
     let wallet_material = state
         .wallet_material_repo
-        .find_by_user(auth_user.user_id)
+        .find_default_by_user(auth_user.user_id)
         .await?
         .ok_or_else(|| {
             AppError::NotFound(
@@ -232,22 +232,37 @@ fn parse_token_list(value: String) -> Vec<String> {
 pub async fn deposit_config<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
 ) -> Result<Json<DepositConfigResponse>, AppError> {
-    // Read privacy period from database settings
-    let privacy_period_secs = state
-        .settings_service
-        .get_u64("privacy_period_secs")
-        .await?
-        .unwrap_or(604800); // 7 days default
+    // F-11: Parallelize independent async lookups (~40ms sequential → ~10ms parallel)
+    let token_mints = &[BONK_MINT, ORE_MINT, EURC_MINT];
 
-    // Get current SOL price
-    let sol_price_usd = state.sol_price_service.get_sol_price_usd().await?;
+    let (
+        privacy_period_secs_opt,
+        sol_price_usd,
+        private_min_lamports_opt,
+        treasury_config,
+        micro_batch_threshold_opt,
+        fee_config,
+        quick_action_tokens_opt,
+        custom_token_symbols_opt,
+        mint_prices_result,
+        show_explainer_opt,
+        custom_tokens_json_opt,
+    ) = tokio::try_join!(
+        state.settings_service.get_u64("privacy_period_secs"),
+        state.sol_price_service.get_sol_price_usd(),
+        state.settings_service.get_u64("private_deposit_min_lamports"),
+        async { state.treasury_config_repo.find_for_org(None).await.map(Some) },
+        state.settings_service.get_u64("micro_batch_threshold_usd"),
+        state.deposit_credit_service.get_fee_config(),
+        state.settings_service.get("deposit_quick_action_tokens"),
+        state.settings_service.get("deposit_custom_tokens"),
+        async { Ok::<_, AppError>(state.sol_price_service.get_token_prices(token_mints).await.unwrap_or_default()) },
+        state.settings_service.get_bool("deposit_show_explainer"),
+        state.settings_service.get("deposit_custom_tokens_json"),
+    )?;
 
-    // Get private deposit minimum (configurable via admin settings)
-    let private_min_lamports = state
-        .settings_service
-        .get_u64("private_deposit_min_lamports")
-        .await?
-        .unwrap_or(DEFAULT_PRIVATE_MIN_LAMPORTS);
+    let privacy_period_secs = privacy_period_secs_opt.unwrap_or(604800); // 7 days default
+    let private_min_lamports = private_min_lamports_opt.unwrap_or(DEFAULT_PRIVATE_MIN_LAMPORTS);
 
     // Calculate tier thresholds
     let private_min_sol = private_min_lamports as f64 / LAMPORTS_PER_SOL;
@@ -264,20 +279,11 @@ pub async fn deposit_config<C: AuthCallback, E: EmailService>(
         .unwrap_or_default();
     let company_currency = state.config.privacy.company_currency.clone();
 
-    // Get treasury wallet for micro deposits (global fallback)
-    let treasury_config = state.treasury_config_repo.find_for_org(None).await?;
-    let micro_deposit_address = treasury_config.map(|c| c.wallet_address);
-
-    // Get micro batch threshold (default: $10 = Jupiter minimum)
-    let micro_batch_threshold_usd = state
-        .settings_service
-        .get_u64("micro_batch_threshold_usd")
-        .await?
+    let micro_deposit_address = treasury_config.flatten().map(|c| c.wallet_address);
+    let micro_batch_threshold_usd = micro_batch_threshold_opt
         .map(|v| v as f64)
         .unwrap_or(JUPITER_MIN_USD);
 
-    // Get fee configuration for display
-    let fee_config = state.deposit_credit_service.get_fee_config().await?;
     let fee_policy = match fee_config.policy {
         crate::services::FeePolicy::CompanyPaysAll => "company_pays_all",
         crate::services::FeePolicy::UserPaysSwap => "user_pays_swap",
@@ -285,42 +291,33 @@ pub async fn deposit_config<C: AuthCallback, E: EmailService>(
         crate::services::FeePolicy::UserPaysAll => "user_pays_all",
     };
 
-    let quick_action_tokens = state
-        .settings_service
-        .get("deposit_quick_action_tokens")
-        .await?
+    let quick_action_tokens = quick_action_tokens_opt
         .unwrap_or_else(|| DEFAULT_QUICK_ACTION_TOKENS.to_string());
-    let custom_token_symbols = state
-        .settings_service
-        .get("deposit_custom_tokens")
-        .await?
+    let custom_token_symbols = custom_token_symbols_opt
         .unwrap_or_else(|| DEFAULT_CUSTOM_TOKENS.to_string());
-
-    // Fetch prices for non-stablecoin tokens (BONK, ORE, EURC)
-    // SOL price already fetched above; stablecoins are assumed $1
-    let token_mints = &[BONK_MINT, ORE_MINT, EURC_MINT];
-    let mint_prices = state
-        .sol_price_service
-        .get_token_prices(token_mints)
-        .await
-        .unwrap_or_default();
 
     // Build symbol -> price map
     let mut token_prices = std::collections::HashMap::new();
     token_prices.insert("SOL".to_string(), sol_price_usd);
-    if let Some(&price) = mint_prices.get(BONK_MINT) {
+    if let Some(&price) = mint_prices_result.get(BONK_MINT) {
         token_prices.insert("BONK".to_string(), price);
     }
-    if let Some(&price) = mint_prices.get(ORE_MINT) {
+    if let Some(&price) = mint_prices_result.get(ORE_MINT) {
         token_prices.insert("ORE".to_string(), price);
     }
-    if let Some(&price) = mint_prices.get(EURC_MINT) {
+    if let Some(&price) = mint_prices_result.get(EURC_MINT) {
         token_prices.insert("EURC".to_string(), price);
     }
 
     // Private deposits require no-recovery wallet mode (to prevent front-running)
     use crate::config::WalletRecoveryMode;
     let private_deposits_enabled = state.config.wallet.recovery_mode == WalletRecoveryMode::None;
+
+    let show_explainer = show_explainer_opt.unwrap_or(false);
+
+    // Parse custom token definitions from JSON
+    let custom_tokens: Option<Vec<crate::models::CustomTokenDefinition>> = custom_tokens_json_opt
+        .and_then(|json_str| serde_json::from_str(&json_str).ok());
 
     Ok(Json(DepositConfigResponse {
         enabled: state.config.privacy.enabled,
@@ -346,6 +343,8 @@ pub async fn deposit_config<C: AuthCallback, E: EmailService>(
         swap_fee_fixed_lamports: fee_config.swap_fixed_lamports,
         company_fee_percent: fee_config.company_percent_bps as f64 / 100.0,
         company_fee_fixed_lamports: fee_config.company_fixed_lamports,
+        show_explainer,
+        custom_tokens,
     }))
 }
 
@@ -586,7 +585,11 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
 
     // CRITICAL: Defense-in-depth validation - verify token is still whitelisted
     // (Token may have been removed from whitelist since webhook received deposit)
-    if !state.config.privacy.is_token_whitelisted(&pending.token_mint) {
+    if !state
+        .config
+        .privacy
+        .is_token_whitelisted(&pending.token_mint)
+    {
         tracing::warn!(
             pending_id = %pending.id,
             token_mint = %pending.token_mint,
@@ -602,7 +605,7 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
     // Get wallet material - user must have enrolled SSS wallet
     let wallet_material = state
         .wallet_material_repo
-        .find_by_user(auth_user.user_id)
+        .find_default_by_user(auth_user.user_id)
         .await?
         .ok_or_else(|| AppError::NotFound("SSS wallet not enrolled".into()))?;
 
@@ -661,10 +664,11 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
         )
         .await;
 
+    // S-02: Log DB update errors instead of silently discarding with `let _ =`
     #[cfg(feature = "postgres")]
     match result {
         Ok(ok) => {
-            let _ = sqlx::query(
+            if let Err(db_err) = sqlx::query(
                 r#"
                 UPDATE pending_spl_deposits
                 SET status = 'completed',
@@ -677,7 +681,15 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
             .bind(pending.id)
             .bind(ok.session_id)
             .execute(pool)
-            .await;
+            .await
+            {
+                // S-08: Deposit succeeded on-chain but DB status update failed
+                tracing::error!(
+                    pending_id = %pending.id,
+                    error = %db_err,
+                    "Deposit succeeded on-chain but failed to update status to completed"
+                );
+            }
 
             Ok(Json(ConfirmSplDepositResponse {
                 success: true,
@@ -690,7 +702,7 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
         }
         Err(e) => {
             let msg = e.to_string();
-            let _ = sqlx::query(
+            if let Err(db_err) = sqlx::query(
                 r#"
                 UPDATE pending_spl_deposits
                 SET status = 'failed',
@@ -702,16 +714,20 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
             .bind(pending.id)
             .bind(&msg)
             .execute(pool)
-            .await;
+            .await
+            {
+                tracing::error!(
+                    pending_id = %pending.id,
+                    error = %db_err,
+                    "Failed to update pending_spl_deposits status after deposit failure"
+                );
+            }
 
-            Ok(Json(ConfirmSplDepositResponse {
-                success: false,
-                pending_id: pending.id,
-                deposit_session_id: None,
-                swap_tx_signature: None,
-                deposit_tx_signature: None,
-                error: Some(msg),
-            }))
+            // S-02: Return error status, not HTTP 200 with success:false
+            Err(AppError::Internal(anyhow::anyhow!(
+                "SPL deposit failed: {}",
+                msg
+            )))
         }
     }
 }

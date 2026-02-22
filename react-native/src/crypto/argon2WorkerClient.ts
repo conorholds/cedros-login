@@ -1,23 +1,11 @@
 import { argon2Derive } from './argon2';
 import type { Argon2Salt, EncryptionKey, KdfParams } from './types';
 import { DEFAULT_KDF_PARAMS } from './types';
+import type { WorkerRequest, WorkerResponse } from './argon2WorkerTypes';
 
 type PendingRequest = {
   resolve: (key: EncryptionKey) => void;
   reject: (error: Error) => void;
-};
-
-type WorkerRequest = {
-  id: number;
-  password: string;
-  salt: Uint8Array;
-  params: KdfParams;
-};
-
-type WorkerResponse = {
-  id: number;
-  key?: Uint8Array;
-  error?: string;
 };
 
 let worker: Worker | null = null;
@@ -26,6 +14,11 @@ const pending = new Map<number, PendingRequest>();
 
 function getWorker(): Worker | null {
   if (typeof Worker === 'undefined') {
+    return null;
+  }
+
+  // import.meta.url is not defined in the Hermes JS engine (React Native)
+  if (typeof import.meta === 'undefined' || typeof import.meta.url === 'undefined') {
     return null;
   }
 

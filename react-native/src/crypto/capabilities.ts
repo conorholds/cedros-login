@@ -6,10 +6,17 @@
  * feature should be disabled with an appropriate message.
  */
 
+import { Platform } from 'react-native';
 import type { CryptoCapabilities } from './types';
 import { isArgon2Supported } from './argon2';
 import { isHkdfSupported } from './hkdf';
-import { isWebAuthnAvailable, isPrfSupported } from './webauthnPrf';
+// WebAuthn PRF is browser-only; in React Native these always return false
+function isWebAuthnAvailable(): boolean {
+  return false;
+}
+async function isPrfSupported(): Promise<boolean> {
+  return false;
+}
 
 /**
  * Check all required crypto capabilities
@@ -27,7 +34,8 @@ export async function checkCryptoCapabilities(): Promise<CryptoCapabilities> {
     isArgon2Supported(),
   ]);
 
-  const allSupported = webCrypto && aesGcm && hkdf && webAuthn && webAuthnPrf && argon2;
+  // WebAuthn/PRF are browser-only; exclude from allSupported on React Native
+  const allSupported = webCrypto && aesGcm && hkdf && argon2;
 
   return {
     webCrypto,
@@ -141,84 +149,49 @@ export function getMissingCapabilitiesMessage(capabilities: CryptoCapabilities):
 }
 
 /**
- * Check if the browser is known to support all required features
+ * Get platform info relevant to crypto support.
  *
- * @returns Object with browser info and support status
+ * In React Native, browser UA parsing is not meaningful. Returns the
+ * React Native platform (ios/android/etc.) and OS version instead.
+ *
+ * @returns Object with platform info and support status
  */
 export function getBrowserSupportInfo(): {
   browser: string;
   version: string;
   likelySupported: boolean;
 } {
-  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-
-  // Chrome
-  const chromeMatch = ua.match(/Chrome\/(\d+)/);
-  if (chromeMatch) {
-    const version = parseInt(chromeMatch[1], 10);
-    return {
-      browser: 'Chrome',
-      version: chromeMatch[1],
-      likelySupported: version >= 116,
-    };
-  }
-
-  // Safari
-  const safariMatch = ua.match(/Version\/(\d+)/);
-  if (safariMatch && ua.includes('Safari') && !ua.includes('Chrome')) {
-    const version = parseInt(safariMatch[1], 10);
-    return {
-      browser: 'Safari',
-      version: safariMatch[1],
-      likelySupported: version >= 17,
-    };
-  }
-
-  // Firefox
-  const firefoxMatch = ua.match(/Firefox\/(\d+)/);
-  if (firefoxMatch) {
-    return {
-      browser: 'Firefox',
-      version: firefoxMatch[1],
-      likelySupported: false, // Firefox PRF support is limited
-    };
-  }
-
-  // Edge
-  const edgeMatch = ua.match(/Edg\/(\d+)/);
-  if (edgeMatch) {
-    const version = parseInt(edgeMatch[1], 10);
-    return {
-      browser: 'Edge',
-      version: edgeMatch[1],
-      likelySupported: version >= 116,
-    };
-  }
-
   return {
-    browser: 'Unknown',
-    version: 'Unknown',
-    likelySupported: false,
+    browser: Platform.OS,
+    version: String(Platform.Version),
+    // React Native crypto support depends on the JS engine and native modules,
+    // not the OS version. Use checkCryptoCapabilities() for a definitive check.
+    likelySupported: true,
   };
 }
+
+/** TTL for capability cache: 60 seconds */
+const CAPABILITY_CACHE_TTL_MS = 60_000;
 
 /**
  * Cache for capability check results
  */
 let cachedCapabilities: CryptoCapabilities | null = null;
+let cacheExpiresAt: number = 0;
 
 /**
- * Get cached capabilities or check if not cached
+ * Get cached capabilities or check if not cached or expired
  *
  * @param forceRefresh - If true, bypass cache and recheck
  * @returns Capability check results
  */
 export async function getCryptoCapabilities(forceRefresh = false): Promise<CryptoCapabilities> {
-  if (!forceRefresh && cachedCapabilities !== null) {
+  if (!forceRefresh && cachedCapabilities !== null && Date.now() < cacheExpiresAt) {
     return cachedCapabilities;
   }
 
   cachedCapabilities = await checkCryptoCapabilities();
+  cacheExpiresAt = Date.now() + CAPABILITY_CACHE_TTL_MS;
   return cachedCapabilities;
 }
 
@@ -227,4 +200,5 @@ export async function getCryptoCapabilities(forceRefresh = false): Promise<Crypt
  */
 export function clearCapabilityCache(): void {
   cachedCapabilities = null;
+  cacheExpiresAt = 0;
 }

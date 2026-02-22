@@ -1,13 +1,12 @@
 //! Authentication utilities for JWT and API key authentication
 
 use axum::http::HeaderMap;
-use std::collections::HashMap;
 use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
-use crate::repositories::{MembershipEntity, OrgEntity, API_KEY_PREFIX};
+use crate::repositories::{MembershipEntity, API_KEY_PREFIX};
 use crate::services::{EmailService, TokenContext};
 use crate::AppState;
 
@@ -26,41 +25,28 @@ pub struct AuthenticatedUser {
     pub role: Option<String>,
     /// Whether this auth came from an API key (vs JWT)
     pub is_api_key_auth: bool,
+    /// ID of the API key used for authentication (None for JWT auth)
+    pub api_key_id: Option<Uuid>,
+    /// Raw API key string (needed for Argon2id derivation when using API key wallet auth).
+    /// Lives only in memory for the request lifetime, same as password in login flow.
+    pub raw_api_key: Option<String>,
+    /// P-01: Whether user is a system admin (from JWT claims). Avoids DB lookup in admin handlers.
+    pub is_system_admin: Option<bool>,
 }
 
 /// Get the default organization context for a user from their memberships.
 ///
-/// Selects the default org using this priority:
-/// 1. Personal organization (if exists)
-/// 2. First membership (fallback)
-///
-/// Returns a `TokenContext` with org_id, role, and is_system_admin set.
+/// Returns the first membership's org_id and role as the default context.
 ///
 /// # Arguments
 /// * `memberships` - User's organization memberships
-/// * `orgs_by_id` - Map of org_id to OrgEntity for efficient lookup
 /// * `is_system_admin` - Whether the user is a system-wide admin
 pub fn get_default_org_context(
     memberships: &[MembershipEntity],
-    orgs_by_id: &HashMap<Uuid, OrgEntity>,
     is_system_admin: bool,
 ) -> TokenContext {
     let admin_flag = if is_system_admin { Some(true) } else { None };
 
-    // Prefer personal org
-    for membership in memberships {
-        if let Some(org) = orgs_by_id.get(&membership.org_id) {
-            if org.is_personal {
-                return TokenContext {
-                    org_id: Some(membership.org_id),
-                    role: Some(membership.role.as_str().to_string()),
-                    is_system_admin: admin_flag,
-                };
-            }
-        }
-    }
-
-    // Fall back to first membership if no personal org
     if let Some(membership) = memberships.first() {
         return TokenContext {
             org_id: Some(membership.org_id),
@@ -141,6 +127,9 @@ async fn authenticate_api_key<C: AuthCallback, E: EmailService>(
         org_id: None,
         role: None,
         is_api_key_auth: true,
+        api_key_id: Some(api_key_entity.id),
+        raw_api_key: Some(api_key.to_string()),
+        is_system_admin: if user.is_system_admin { Some(true) } else { None },
     })
 }
 
@@ -181,15 +170,17 @@ async fn authenticate_jwt<C: AuthCallback, E: EmailService>(
         org_id: claims.org_id,
         role: claims.role,
         is_api_key_auth: false,
+        api_key_id: None,
+        raw_api_key: None,
+        is_system_admin: claims.is_system_admin,
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::repositories::{MembershipEntity, OrgEntity, OrgRole};
+    use crate::repositories::{MembershipEntity, OrgRole};
     use chrono::Utc;
-    use std::collections::HashMap;
 
     #[test]
     fn test_authenticated_user_fields() {
@@ -199,6 +190,9 @@ mod tests {
             org_id: Some(Uuid::new_v4()),
             role: Some("owner".to_string()),
             is_api_key_auth: false,
+            api_key_id: None,
+            raw_api_key: None,
+            is_system_admin: None,
         };
         assert!(!user.is_api_key_auth);
         assert!(user.session_id.is_some());
@@ -206,50 +200,50 @@ mod tests {
 
     #[test]
     fn test_authenticated_user_api_key_auth() {
+        let key_id = Uuid::new_v4();
         let user = AuthenticatedUser {
             user_id: Uuid::new_v4(),
             session_id: None,
             org_id: Some(Uuid::new_v4()),
             role: Some("owner".to_string()),
             is_api_key_auth: true,
+            api_key_id: Some(key_id),
+            raw_api_key: Some("ck_test123".to_string()),
+            is_system_admin: None,
         };
         assert!(user.is_api_key_auth);
         assert!(user.session_id.is_none());
+        assert_eq!(user.api_key_id, Some(key_id));
+        assert!(user.raw_api_key.is_some());
     }
 
     #[test]
-    fn test_get_default_org_context_prefers_personal() {
+    fn test_get_default_org_context_uses_first_membership() {
         let user_id = Uuid::new_v4();
-        let personal_org = OrgEntity::new_personal(user_id, None);
-        let personal_org_id = personal_org.id;
-        let team_org = OrgEntity::new("Team".to_string(), "team".to_string(), user_id, false);
+        let org_id = Uuid::new_v4();
 
-        let memberships = vec![
-            MembershipEntity {
-                id: Uuid::new_v4(),
-                user_id,
-                org_id: team_org.id,
-                role: OrgRole::Admin,
-                joined_at: Utc::now(),
-            },
-            MembershipEntity {
-                id: Uuid::new_v4(),
-                user_id,
-                org_id: personal_org_id,
-                role: OrgRole::Owner,
-                joined_at: Utc::now(),
-            },
-        ];
+        let memberships = vec![MembershipEntity {
+            id: Uuid::new_v4(),
+            user_id,
+            org_id,
+            role: OrgRole::Member,
+            joined_at: Utc::now(),
+        }];
 
-        let orgs_by_id = HashMap::from([(team_org.id, team_org), (personal_org_id, personal_org)]);
-
-        let context = get_default_org_context(&memberships, &orgs_by_id, false);
-        assert_eq!(context.org_id, Some(personal_org_id));
-        assert_eq!(context.role.as_deref(), Some("owner"));
+        let context = get_default_org_context(&memberships, false);
+        assert_eq!(context.org_id, Some(org_id));
+        assert_eq!(context.role.as_deref(), Some("member"));
         assert_eq!(context.is_system_admin, None);
 
         // Test with system admin
-        let admin_context = get_default_org_context(&memberships, &orgs_by_id, true);
+        let admin_context = get_default_org_context(&memberships, true);
         assert_eq!(admin_context.is_system_admin, Some(true));
+    }
+
+    #[test]
+    fn test_get_default_org_context_empty_memberships() {
+        let context = get_default_org_context(&[], false);
+        assert_eq!(context.org_id, None);
+        assert_eq!(context.role, None);
     }
 }

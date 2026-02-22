@@ -21,7 +21,7 @@ use crate::models::{
     BalancesResponse, CreditBalanceResponse, CreditHistoryResponse, CreditUsageResponse,
     PendingHoldsResponse, RefundRequestInput, RefundRequestResponse,
 };
-use crate::repositories::{CreditRefundRequestEntity};
+use crate::repositories::CreditRefundRequestEntity;
 use crate::services::{CreditService, EmailService};
 use crate::utils::authenticate;
 use crate::AppState;

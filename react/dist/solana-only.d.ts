@@ -1,13 +1,594 @@
+import { CSSProperties } from 'react';
+import { JSX } from 'react/jsx-runtime';
+import { NamedExoticComponent } from 'react';
+import { ReactNode } from 'react';
+
 /**
- * @cedros/login-react/solana-only
- *
- * Bundle with only Solana wallet authentication (~120KB due to wallet-adapter).
+ * Authentication callbacks
  */
-export { CedrosLoginProvider } from './context/CedrosLoginProvider';
-export { useCedrosLogin } from './context/useCedrosLogin';
-export { SolanaLoginButton } from './components/solana/SolanaLoginButton';
-export { LoadingSpinner } from './components/shared/LoadingSpinner';
-export { ErrorMessage } from './components/shared/ErrorMessage';
-export { useAuth } from './hooks/useAuth';
-export { useSolanaAuth } from './hooks/useSolanaAuth';
-export type { AuthMethod, AuthUser, TokenPair, AuthError, AuthErrorCode, AuthResponse, ChallengeResponse, AuthState, SolanaNetwork, SolanaConfig, SessionStorage, ThemeMode, FeatureFlags, SessionConfig, AuthCallbacks, ThemeOverrides, CedrosLoginConfig, } from './types';
+export declare interface AuthCallbacks {
+    /** Called after successful login */
+    onLoginSuccess?: (user: AuthUser, method: AuthMethod) => void;
+    /** Called when login fails */
+    onLoginError?: (error: AuthError) => void;
+    /** Called after logout */
+    onLogout?: () => void;
+    /** Called when session expires */
+    onSessionExpired?: () => void;
+}
+
+/**
+ * Authentication error response
+ */
+export declare interface AuthError {
+    code: AuthErrorCode;
+    message: string;
+    details?: Record<string, unknown>;
+}
+
+/**
+ * Standard error codes
+ */
+export declare type AuthErrorCode = 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'EMAIL_EXISTS' | 'WALLET_EXISTS' | 'INVALID_TOKEN' | 'TOKEN_EXPIRED' | 'INVALID_SIGNATURE' | 'INVALID_PUBLIC_KEY' | 'CHALLENGE_EXPIRED' | 'VALIDATION_ERROR' | 'RATE_LIMITED' | 'NOT_FOUND' | 'FORBIDDEN' | 'UNAUTHORIZED' | 'STEP_UP_REQUIRED' | 'TOTP_REQUIRED' | 'INVALID_TOTP_CODE' | 'SERVICE_UNAVAILABLE' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN_ERROR';
+
+/**
+ * Authentication method used for login/registration
+ * TYPE-01: Must match backend AuthMethod enum in server/src/models/mod.rs
+ */
+export declare type AuthMethod = 'email' | 'google' | 'apple' | 'solana' | 'webauthn' | 'sso';
+
+/**
+ * Authentication response from server
+ */
+export declare interface AuthResponse {
+    user: AuthUser;
+    tokens?: TokenPair;
+    isNewUser: boolean;
+    callbackData?: Record<string, unknown>;
+}
+
+/**
+ * Authentication state
+ */
+export declare type AuthState = 'idle' | 'loading' | 'authenticated' | 'unauthenticated' | 'error';
+
+/**
+ * Auth state context — changes only on login/logout/token refresh.
+ *
+ * Subscribing to this context alone avoids re-renders from UI state
+ * changes (modal open/close, error display).
+ */
+declare interface AuthStateContextValue {
+    config: CedrosLoginConfig;
+    user: AuthUser | null;
+    authState: AuthState;
+    logout: () => Promise<void>;
+    refreshUser: () => Promise<void>;
+    _internal?: CedrosLoginInternalAPI;
+}
+
+/**
+ * UI state context — changes on modal/error state changes.
+ *
+ * Subscribing to this context alone avoids re-renders from auth state
+ * changes (login, token refresh).
+ */
+declare interface AuthUIContextValue {
+    error: AuthError | null;
+    isModalOpen: boolean;
+    openModal: () => void;
+    closeModal: () => void;
+}
+
+/**
+ * Authenticated user information
+ */
+export declare interface AuthUser {
+    id: string;
+    email?: string;
+    name?: string;
+    picture?: string;
+    walletAddress?: string;
+    authMethods: AuthMethod[];
+    emailVerified: boolean;
+    /** Whether TOTP 2FA is enabled for this user */
+    totpEnabled?: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+/**
+ * Full configuration for CedrosLoginProvider
+ */
+export declare interface CedrosLoginConfig {
+    /** Auth server base URL */
+    serverUrl: string;
+    /** App name for Solana message: "Login to {appName}". Default: window.location.hostname */
+    appName?: string;
+    /** Google OAuth client ID. Required if Google auth enabled */
+    googleClientId?: string;
+    /** Apple Sign In client ID (Services ID). Required if Apple auth enabled */
+    appleClientId?: string;
+    /** Solana configuration options */
+    solana?: SolanaConfig;
+    /** Enable/disable auth methods */
+    features?: FeatureFlags;
+    /** Form behavior configuration (forgot password, terms, email opt-in) */
+    forms?: FormConfig;
+    /** TOTP/2FA configuration (app-based authenticator) */
+    totp?: TotpConfig;
+    /** Embedded wallet configuration */
+    wallet?: WalletConfig;
+    /** Session/token configuration */
+    session?: SessionConfig;
+    /** Authentication event callbacks */
+    callbacks?: AuthCallbacks;
+    /** Theme mode. Default: 'auto' */
+    theme?: ThemeMode;
+    /** CSS variable overrides for custom theming */
+    themeOverrides?: ThemeOverrides;
+    /** API request timeout in ms. Default: 10000 */
+    requestTimeout?: number;
+    /** Retry attempts on transient errors. Default: 2 */
+    retryAttempts?: number;
+}
+
+/**
+ * Combined context value (backward-compatible with existing consumers)
+ */
+declare interface CedrosLoginContextValue extends AuthStateContextValue, AuthUIContextValue {
+}
+
+/**
+ * Internal helpers for auth hooks (not part of public API)
+ */
+declare interface CedrosLoginInternalAPI {
+    handleLoginSuccess: (user: AuthUser, tokens?: TokenPair) => void;
+    getAccessToken: () => string | null;
+}
+
+/**
+ * Provider component that wraps your app and provides authentication context.
+ *
+ * @example
+ * ```tsx
+ * <CedrosLoginProvider config={{ serverUrl: 'https://api.example.com' }}>
+ *   <App />
+ * </CedrosLoginProvider>
+ * ```
+ */
+export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element;
+
+declare interface CedrosLoginProviderProps {
+    config: CedrosLoginConfig;
+    children: ReactNode;
+}
+
+/**
+ * Solana challenge response
+ */
+export declare interface ChallengeResponse {
+    nonce: string;
+    message: string;
+    expiresAt: string;
+}
+
+/**
+ * UI-08: Standardized error prop type for display components.
+ *
+ * Use this type for component props that display errors to users.
+ * Components should handle both AuthError objects and plain strings:
+ * - AuthError: structured error from API with code and message
+ * - string: simple error message for form validation or local errors
+ * - null: no error state
+ *
+ * @example
+ * ```tsx
+ * interface MyFormProps {
+ *   error?: DisplayError;
+ * }
+ *
+ * // In component:
+ * const message = typeof error === 'string' ? error : error?.message;
+ * ```
+ */
+declare type DisplayError = AuthError | string | null;
+
+/**
+ * Email marketing opt-in checkbox configuration
+ */
+declare interface EmailOptInConfig {
+    /** Whether to show the checkbox. @default false */
+    show?: boolean;
+    /** Default checked state. @default false */
+    defaultChecked?: boolean;
+    /** Custom label text. @default "Send me updates and news" */
+    label?: string;
+}
+
+/**
+ * Error message display component with accessibility support.
+ * Announces errors to screen readers and optionally focuses the message.
+ * Wrapped with React.memo to prevent unnecessary re-renders.
+ */
+export declare const ErrorMessage: NamedExoticComponent<ErrorMessageProps>;
+
+declare interface ErrorMessageProps {
+    error: DisplayError;
+    className?: string;
+    onDismiss?: () => void;
+    /** If true, focus the error message when it appears (for accessibility) */
+    autoFocus?: boolean;
+}
+
+/**
+ * Feature flags to enable/disable auth methods
+ */
+export declare interface FeatureFlags {
+    /** Enable email/password auth. Default: true */
+    email?: boolean;
+    /** Enable Google OAuth. Default: true (requires googleClientId) */
+    google?: boolean;
+    /** Enable Apple Sign In. Default: true (requires appleClientId) */
+    apple?: boolean;
+    /** Enable Solana wallet sign-in. Default: true */
+    solana?: boolean;
+    /** Enable WebAuthn passkeys (server-managed). Default: true */
+    webauthn?: boolean;
+    /** Enable embedded wallet auto-enrollment on registration. Default: true */
+    walletEnrollment?: boolean;
+}
+
+/**
+ * Forgot password behavior configuration
+ */
+declare interface ForgotPasswordConfig {
+    /**
+     * Mode for handling "forgot password" clicks.
+     * - 'reset': Shows ForgotPasswordForm (traditional reset flow)
+     * - 'instantLink': Sends an instant link for passwordless sign-in
+     * @default 'reset'
+     */
+    mode?: 'reset' | 'instantLink';
+}
+
+/**
+ * Form behavior configuration
+ */
+declare interface FormConfig {
+    /** Forgot password behavior on sign in form */
+    forgotPassword?: ForgotPasswordConfig;
+    /** Terms of service checkbox on register form */
+    termsOfService?: TermsOfServiceConfig;
+    /** Email marketing opt-in checkbox on register form */
+    emailOptIn?: EmailOptInConfig;
+}
+
+/**
+ * Accessible loading spinner component.
+ * Announces loading state to screen readers when announce prop is true.
+ * Wrapped with React.memo to prevent unnecessary re-renders.
+ */
+export declare const LoadingSpinner: NamedExoticComponent<LoadingSpinnerProps>;
+
+declare interface LoadingSpinnerProps {
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+    className?: string;
+    style?: CSSProperties;
+    /** Custom label for screen readers (default: "Loading") */
+    label?: string;
+    /** If true, announce the loading state to screen readers */
+    announce?: boolean;
+}
+
+/**
+ * Session handling configuration
+ *
+ * @security For best security, use the default `cookie` storage with `autoRefresh: true`.
+ * Avoid `localStorage` in production unless absolutely necessary.
+ */
+export declare interface SessionConfig {
+    /**
+     * Where to store tokens. Default: 'cookie'
+     *
+     * @security `cookie` is strongly recommended for production use.
+     * See {@link SessionStorage} for security implications of each option.
+     */
+    storage?: SessionStorage;
+    /** Auto-refresh tokens before expiry. Default: true */
+    autoRefresh?: boolean;
+    /** Sync auth state across browser tabs. Default: true */
+    syncTabs?: boolean;
+    /** Storage key for tokens when using web storage. Default: 'cedros_tokens' */
+    persistKey?: string;
+    /**
+     * Explicitly allow web storage for tokens.
+     *
+     * @security This is intentionally opt-in because `localStorage` and
+     * `sessionStorage` are vulnerable to XSS token theft.
+     *
+     * If you enable this, also implement a strict CSP and audit any third-party scripts.
+     */
+    allowWebStorage?: boolean;
+}
+
+/**
+ * Session storage mode
+ *
+ * **Security considerations:**
+ * - `cookie`: **Recommended.** HttpOnly cookies managed by server. Immune to XSS.
+ * - `memory`: Secure but lost on page refresh. Good for high-security applications.
+ * - `localStorage`: **Use with caution.** Tokens are accessible to any JavaScript
+ *   on the page, making them vulnerable to XSS attacks. Only use when cookie-based
+ *   auth is not possible (e.g., cross-origin scenarios without proper CORS).
+ */
+export declare type SessionStorage = 'cookie' | 'memory' | 'localStorage' | 'sessionStorage';
+
+/**
+ * Solana configuration options
+ */
+export declare interface SolanaConfig {
+    /** Solana network to connect to. Default: 'mainnet-beta' */
+    network?: SolanaNetwork;
+    /** Auto-reconnect wallet on page load. Default: false */
+    autoConnect?: boolean;
+}
+
+/**
+ * Solana wallet login button with one-click authentication.
+ *
+ * Handles wallet connection and message signing automatically.
+ * If wallet is already connected, signs immediately.
+ * If not connected, connects first then auto-signs.
+ */
+export declare function SolanaLoginButton({ onSuccess, onError, className, variant, size, disabled, hideIfNoWallet, walletContext, }: SolanaLoginButtonProps): JSX.Element | null;
+
+declare interface SolanaLoginButtonProps {
+    onSuccess?: () => void;
+    onError?: (error: Error) => void;
+    className?: string;
+    variant?: 'default' | 'outline';
+    size?: 'sm' | 'md' | 'lg';
+    disabled?: boolean;
+    /**
+     * Hide the button if no Solana wallets are detected.
+     * When true (default), button renders nothing if no wallets are installed.
+     * When false, button always renders (useful for showing "install wallet" prompts).
+     * @default true
+     */
+    hideIfNoWallet?: boolean;
+    /**
+     * Solana wallet adapter context. Pass this from @solana/wallet-adapter-react's useWallet().
+     * The button will handle connection and signing automatically for a one-click experience.
+     */
+    walletContext?: {
+        publicKey: {
+            toBase58: () => string;
+        } | null;
+        signMessage: ((message: Uint8Array) => Promise<Uint8Array>) | null;
+        connected: boolean;
+        connecting: boolean;
+        connect: () => Promise<void>;
+        wallet: {
+            adapter: {
+                name: string;
+            };
+        } | null;
+        select: (walletName: string) => void;
+        wallets: Array<{
+            adapter: {
+                name: string;
+                icon: string;
+                readyState: string;
+            };
+        }>;
+    };
+}
+
+/**
+ * Solana network configuration
+ */
+export declare type SolanaNetwork = 'mainnet-beta' | 'devnet';
+
+/**
+ * Terms of service checkbox configuration
+ */
+declare interface TermsOfServiceConfig {
+    /** Whether to show the checkbox. @default false */
+    show?: boolean;
+    /** Whether agreement is required to register. @default true (when shown) */
+    required?: boolean;
+    /** Default checked state. @default false */
+    defaultChecked?: boolean;
+    /** URL to terms of service page */
+    url?: string;
+    /** Custom label text. @default "I agree to the Terms of Service" */
+    label?: string;
+}
+
+/**
+ * Theme mode
+ */
+export declare type ThemeMode = 'light' | 'dark' | 'auto';
+
+/**
+ * CSS variable theme overrides
+ */
+export declare interface ThemeOverrides {
+    '--cedros-primary'?: string;
+    '--cedros-primary-foreground'?: string;
+    '--cedros-background'?: string;
+    '--cedros-foreground'?: string;
+    '--cedros-muted'?: string;
+    '--cedros-muted-foreground'?: string;
+    '--cedros-border'?: string;
+    '--cedros-input'?: string;
+    '--cedros-ring'?: string;
+    '--cedros-radius'?: string;
+    '--cedros-destructive'?: string;
+    '--cedros-destructive-foreground'?: string;
+    [key: string]: string | undefined;
+}
+
+/**
+ * JWT token pair returned from authentication
+ */
+export declare interface TokenPair {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+}
+
+/**
+ * Two-factor authentication (TOTP) configuration
+ *
+ * Admin-level settings for app-based 2FA using authenticator apps.
+ */
+declare interface TotpConfig {
+    /**
+     * Whether TOTP 2FA is enabled for the application.
+     * @default false
+     */
+    enabled?: boolean;
+    /**
+     * Whether TOTP 2FA is required for all users.
+     * If false, users can optionally enable it for their account.
+     * @default false
+     */
+    required?: boolean;
+    /**
+     * Issuer name shown in authenticator apps.
+     * @default appName or hostname
+     */
+    issuer?: string;
+}
+
+/**
+ * Main authentication hook providing user state and actions.
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const { user, isAuthenticated, logout, openLoginModal } = useAuth();
+ *
+ *   if (!isAuthenticated) {
+ *     return <button onClick={openLoginModal}>Login</button>;
+ *   }
+ *
+ *   return (
+ *     <div>
+ *       <p>Welcome, {user?.name}</p>
+ *       <button onClick={logout}>Logout</button>
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
+export declare function useAuth(): UseAuthReturn;
+
+declare interface UseAuthReturn {
+    user: AuthUser | null;
+    authState: AuthState;
+    error: AuthError | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    logout: () => Promise<void>;
+    refreshUser: () => Promise<void>;
+    openLoginModal: () => void;
+    closeLoginModal: () => void;
+}
+
+/**
+ * Hook to access the full Cedros Login context.
+ * Must be used within a CedrosLoginProvider.
+ *
+ * For better performance, prefer `useAuthState()` or `useAuthUI()` when you
+ * only need a subset of the context. This hook re-renders on any change.
+ */
+export declare function useCedrosLogin(): CedrosLoginContextValue;
+
+/**
+ * Hook for Solana wallet authentication.
+ *
+ * @example
+ * ```tsx
+ * function SolanaLogin() {
+ *   const { requestChallenge, signIn, isLoading } = useSolanaAuth();
+ *   const { publicKey, signMessage } = useWallet();
+ *
+ *   const handleLogin = async () => {
+ *     const challenge = await requestChallenge(publicKey.toBase58());
+ *     const signature = await signMessage(new TextEncoder().encode(challenge.message));
+ *     const result = await signIn(
+ *       publicKey.toBase58(),
+ *       Buffer.from(signature).toString('base64'),
+ *       challenge.message
+ *     );
+ *   };
+ * }
+ * ```
+ */
+export declare function useSolanaAuth(): UseSolanaAuthReturn;
+
+declare interface UseSolanaAuthReturn {
+    requestChallenge: (publicKey: string) => Promise<ChallengeResponse>;
+    signIn: (publicKey: string, signature: string, message: string) => Promise<AuthResponse>;
+    isLoading: boolean;
+    error: AuthError | null;
+    clearError: () => void;
+}
+
+/**
+ * Embedded wallet configuration
+ *
+ * Controls whether the embedded wallet is advertised to other Cedros modules
+ * (like cedros-pay) running in the same application.
+ */
+declare interface WalletConfig {
+    /**
+     * Expose embedded wallet availability via window global.
+     *
+     * When enabled, sets `window.__CEDROS_EMBEDDED_WALLET__` with:
+     * - `available`: boolean - whether user has enrolled SSS wallet
+     * - `publicKey`: string | null - Solana public key if available
+     *
+     * This allows other modules (e.g., cedros-pay) to detect embedded wallet
+     * and offer crypto payment options to users without browser wallet extensions.
+     *
+     * @security The signing function is NOT exposed on window. Signing must go
+     * through React context (useTransactionSigning hook) to prevent unauthorized
+     * access by arbitrary scripts.
+     *
+     * @default false
+     */
+    exposeAvailability?: boolean;
+    /**
+     * Whether to include the user's wallet public key in the window global.
+     *
+     * @security This is a privacy tradeoff: exposing a stable identifier on `window`
+     * makes it available to any script on the page.
+     *
+     * If you only need to know whether an embedded wallet exists, keep this `false`.
+     *
+     * @default false
+     */
+    exposePublicKey?: boolean;
+    /**
+     * SEC-004: Allowed domains for WebAuthn RP ID validation.
+     *
+     * In production, passkey operations will be rejected if the current hostname
+     * is not in this list. This prevents passkey registration on malicious domains
+     * that might be serving the app.
+     *
+     * @security Without this, an attacker could phish users to a lookalike domain
+     * and get them to register passkeys that only work on the malicious domain.
+     * While this doesn't compromise real credentials, it can be used in social
+     * engineering attacks.
+     *
+     * @example ['myapp.com', 'app.myapp.com']
+     * @default [] (localhost/127.0.0.1 always allowed for development)
+     */
+    allowedRpDomains?: string[];
+}
+
+export { }

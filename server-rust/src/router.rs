@@ -55,9 +55,11 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
     // This is acceptable for development but MUST be configured for production.
     // Set CORS_ORIGINS to a comma-separated list of allowed origins.
     let cors = if state.config.cors.allowed_origins.is_empty() {
-        tracing::warn!(
-            "CORS_ORIGINS not configured - allowing any origin. \
-            Set CORS_ORIGINS for production-like security."
+        // S-09: Elevate to error — wildcard CORS is a security risk in production
+        tracing::error!(
+            "CORS_ORIGINS not configured - allowing any origin (wildcard). \
+            This is only acceptable for local development. \
+            Set CORS_ORIGINS to a comma-separated list of allowed origins for production."
         );
         // If no origins configured, allow any (development mode)
         // Note: credentials cannot be used with wildcard origin in browsers
@@ -107,7 +109,15 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
     let replicas_hint = RateLimitStore::replicas_hint();
     let auth_limit = if replicas_hint > 1 {
         let adjusted = std::cmp::max(1, db_auth_limit / replicas_hint);
-        if adjusted != db_auth_limit {
+        // S-27: Warn when the floor is applied (replicas > configured limit)
+        if db_auth_limit < replicas_hint {
+            tracing::warn!(
+                configured = db_auth_limit,
+                effective_per_instance = adjusted,
+                replicas = replicas_hint,
+                "Rate limit per replica is less than 1; floored to 1 (higher than configured)"
+            );
+        } else if adjusted != db_auth_limit {
             tracing::warn!(
                 configured = db_auth_limit,
                 effective_per_instance = adjusted,
@@ -192,7 +202,11 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
 
     let root_routes = Router::new()
         .route("/health", get(handlers::health_check::<C, E>))
-        .route("/.well-known/jwks.json", get(handlers::jwks::<C, E>));
+        .route("/metrics", get(handlers::prometheus_metrics::<C, E>))
+        .route("/.well-known/jwks.json", get(handlers::jwks::<C, E>))
+        // Setup routes (unauthenticated - for first-run configuration)
+        .route("/setup/status", get(handlers::setup_status::<C, E>))
+        .route("/setup/admin", post(handlers::create_first_admin::<C, E>));
     let routed = if base_path == "/" {
         base_router.merge(root_routes)
     } else {
@@ -200,12 +214,21 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
     };
 
     // Apply common middleware layers
-    routed
+    let router = routed
         .layer(CsrfLayer::new(state.config.cookie.clone()))
         .layer(RequestIdLayer::new())
-        .layer(TraceLayer::new_for_http())
-        .layer(cors)
-        // Security headers
+        .layer(TraceLayer::new_for_http());
+
+    // Only apply the internal CORS layer when not disabled.
+    // Embedded apps should set cors.disabled = true and manage CORS themselves.
+    let router = if state.config.cors.disabled {
+        router
+    } else {
+        router.layer(cors)
+    };
+
+    // Security headers
+    router
         .layer(SetResponseHeaderLayer::overriding(
             header::X_FRAME_OPTIONS,
             HeaderValue::from_static("DENY"),
@@ -221,6 +244,11 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
         .layer(SetResponseHeaderLayer::overriding(
             header::HeaderName::from_static("permissions-policy"),
             HeaderValue::from_static("geolocation=(), microphone=(), camera=()"),
+        ))
+        // S-10: HSTS — enforce HTTPS for all future connections
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::STRICT_TRANSPORT_SECURITY,
+            HeaderValue::from_static("max-age=31536000; includeSubDomains"),
         ))
         // Request body size limit to prevent DoS
         .layer(RequestBodyLimitLayer::new(MAX_BODY_SIZE))
@@ -286,9 +314,21 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/webauthn/register/verify",
             post(handlers::webauthn_register_verify::<C, E>),
         )
-        // Wallet signing and unlock need strict rate limiting to prevent abuse
+        // Wallet signing, unlock, and rotation need strict rate limiting to prevent abuse
         .route("/wallet/sign", post(handlers::sign_transaction::<C, E>))
         .route("/wallet/unlock", post(handlers::wallet_unlock::<C, E>))
+        .route("/wallet/rotate", post(handlers::wallet_rotate::<C, E>))
+        // User withdrawal routes — strict rate limiting for financial operations
+        .route(
+            "/wallet/withdraw/balances",
+            get(handlers::withdraw_balances::<C, E>),
+        )
+        .route("/wallet/withdraw/sol", post(handlers::withdraw_sol::<C, E>))
+        .route("/wallet/withdraw/spl", post(handlers::withdraw_spl::<C, E>))
+        .route(
+            "/wallet/withdraw/history",
+            get(handlers::withdraw_history::<C, E>),
+        )
         // Enterprise SSO routes
         .route("/sso/start", post(handlers::start_sso::<C, E>))
 }
@@ -299,10 +339,46 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         // Discovery endpoints (no auth required)
         .route("/discovery", get(handlers::auth_config::<C, E>))
         .route("/openapi.json", get(handlers::openapi_spec))
+        // AI-friendly discovery endpoints
+        .route("/ai.txt", get(handlers::ai_txt::<C, E>))
+        .route("/llms.txt", get(handlers::llms_txt::<C, E>))
+        .route("/llms-full.txt", get(handlers::llms_full_txt::<C, E>))
+        .route("/llms-admin.txt", get(handlers::llms_admin_txt::<C, E>))
+        .route("/agent.md", get(handlers::agent_md::<C, E>))
+        .route("/skill.md", get(handlers::skill_md::<C, E>))
+        .route("/skill.json", get(handlers::skill_json::<C, E>))
+        .route("/heartbeat.md", get(handlers::heartbeat_md::<C, E>))
+        .route("/heartbeat.json", get(handlers::heartbeat_json::<C, E>))
+        // Individual skill files
+        .route("/skills/auth.md", get(handlers::skill_auth_md::<C, E>))
+        .route(
+            "/skills/profile.md",
+            get(handlers::skill_profile_md::<C, E>),
+        )
+        .route("/skills/orgs.md", get(handlers::skill_orgs_md::<C, E>))
+        .route("/skills/mfa.md", get(handlers::skill_mfa_md::<C, E>))
+        .route("/skills/wallet.md", get(handlers::skill_wallet_md::<C, E>))
+        .route("/skills/admin.md", get(handlers::skill_admin_md::<C, E>))
+        // Standard AI manifests
+        .route(
+            "/.well-known/ai-discovery.json",
+            get(handlers::ai_discovery_index::<C, E>),
+        )
+        .route(
+            "/.well-known/ai-plugin.json",
+            get(handlers::ai_plugin_json::<C, E>),
+        )
+        .route("/.well-known/agent.json", get(handlers::agent_json::<C, E>))
+        .route("/.well-known/mcp", get(handlers::mcp_discovery::<C, E>))
+        .route(
+            "/.well-known/skills.zip",
+            get(handlers::skills_bundle_zip::<C, E>),
+        )
         .route("/logout", post(handlers::logout::<C, E>))
         // M-02: Granular logout - revoke all sessions at once
         .route("/logout-all", post(handlers::logout_all::<C, E>))
         .route("/user", get(handlers::get_user::<C, E>))
+        .route("/me", patch(handlers::update_profile::<C, E>))
         .route(
             "/send-verification",
             post(handlers::send_verification::<C, E>),
@@ -313,6 +389,15 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route(
             "/user/api-key/regenerate",
             post(handlers::regenerate_api_key::<C, E>),
+        )
+        // Multi-API-key management
+        .route(
+            "/user/api-keys",
+            get(handlers::list_api_keys::<C, E>).post(handlers::create_api_key::<C, E>),
+        )
+        .route(
+            "/user/api-keys/{id}",
+            delete(handlers::delete_api_key::<C, E>),
         )
         // Organization routes
         .route(
@@ -400,6 +485,7 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/admin/audit", get(handlers::get_system_audit_logs::<C, E>))
         // Admin management routes
         .route("/admin/users", get(handlers::list_users::<C, E>))
+        .route("/admin/users/stats", get(handlers::get_user_stats::<C, E>))
         .route(
             "/admin/users/{user_id}",
             get(handlers::get_admin_user::<C, E>)
@@ -443,6 +529,12 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route(
             "/admin/settings",
             get(handlers::list_settings::<C, E>).patch(handlers::update_settings::<C, E>),
+        )
+        // Admin dashboard permissions routes (system admin)
+        .route(
+            "/admin/dashboard-permissions",
+            get(handlers::get_dashboard_permissions::<C, E>)
+                .put(handlers::update_dashboard_permissions::<C, E>),
         )
         // Admin deposit routes (system admin)
         .route(
@@ -510,6 +602,7 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/wallet/status", get(handlers::wallet_status::<C, E>))
         .route("/wallet/lock", post(handlers::wallet_lock::<C, E>))
         .route("/wallet/recover", post(handlers::wallet_recover::<C, E>))
+        .route("/wallet/list", get(handlers::list_wallets::<C, E>))
         // Share C recovery: get Share B after proving ownership via Share C
         .route(
             "/wallet/share-b",

@@ -12,10 +12,9 @@
 -- - 'passkey': Users with passkey login use PRF extension (HKDF)
 
 -- Add new columns
-ALTER TABLE solana_wallet_material
-    ADD COLUMN share_b BYTEA,
-    ADD COLUMN share_a_auth_method VARCHAR(20),
-    ADD COLUMN share_a_pin_hash VARCHAR(255);
+ALTER TABLE solana_wallet_material ADD COLUMN IF NOT EXISTS share_b BYTEA;
+ALTER TABLE solana_wallet_material ADD COLUMN IF NOT EXISTS share_a_auth_method VARCHAR(20);
+ALTER TABLE solana_wallet_material ADD COLUMN IF NOT EXISTS share_a_pin_hash VARCHAR(255);
 
 -- Bump scheme_version for new wallets (v2)
 -- Existing v1 wallets would need a migration process (not handled here)
@@ -29,19 +28,28 @@ COMMENT ON COLUMN solana_wallet_material.scheme_version IS 'v1=client-side signi
 -- In production, run data migration then: ALTER COLUMN share_b SET NOT NULL;
 
 -- Update constraints for new columns
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_auth_method_check
-        CHECK (share_a_auth_method IN ('password', 'pin', 'passkey') OR share_a_auth_method IS NULL);
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_auth_method_check
+            CHECK (share_a_auth_method IN ('password', 'pin', 'passkey') OR share_a_auth_method IS NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Constraint: PIN hash required for PIN auth method
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_pin_hash_check
-        CHECK (share_a_auth_method != 'pin' OR share_a_pin_hash IS NOT NULL);
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_pin_hash_check
+            CHECK (share_a_auth_method != 'pin' OR share_a_pin_hash IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Constraint: PRF salt required for passkey auth method
-ALTER TABLE solana_wallet_material
-    ADD CONSTRAINT solana_wallet_passkey_prf_check
-        CHECK (share_a_auth_method != 'passkey' OR prf_salt IS NOT NULL);
+DO $$ BEGIN
+    ALTER TABLE solana_wallet_material
+        ADD CONSTRAINT solana_wallet_passkey_prf_check
+            CHECK (share_a_auth_method != 'passkey' OR prf_salt IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Drop old Share B encryption columns (after migration)
 -- These were for client-side PRF decryption which is no longer needed

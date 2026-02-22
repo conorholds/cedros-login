@@ -8,14 +8,23 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAuthMiddleware = createAuthMiddleware;
 const crypto_1 = require("crypto");
+const paths_js_1 = require("./paths.js");
+/** Hash a key with SHA-256 so all comparisons use fixed-length buffers */
+function hashKey(key) {
+    return (0, crypto_1.createHash)('sha256').update(key).digest();
+}
 /**
- * Create auth middleware with the given API key
+ * Create auth middleware with the given API key.
+ *
+ * Both keys are SHA-256 hashed before comparison. This eliminates
+ * the length-leak timing side-channel (S-03r) while keeping
+ * constant-time equality via timingSafeEqual on fixed 32-byte digests.
  */
 function createAuthMiddleware(apiKey) {
-    const apiKeyBuffer = Buffer.from(apiKey);
+    const apiKeyHash = hashKey(apiKey);
     return (req, res, next) => {
         // Skip auth for health check
-        if (req.path === '/health') {
+        if (req.path === paths_js_1.HEALTH_PATH) {
             return next();
         }
         const authHeader = req.headers.authorization;
@@ -28,11 +37,9 @@ function createAuthMiddleware(apiKey) {
             res.status(401).json({ error: 'Invalid Authorization header format. Expected: Bearer <token>' });
             return;
         }
-        const providedKey = match[1];
-        const providedBuffer = Buffer.from(providedKey);
-        // Timing-safe comparison to prevent timing attacks
-        if (providedBuffer.length !== apiKeyBuffer.length ||
-            !(0, crypto_1.timingSafeEqual)(providedBuffer, apiKeyBuffer)) {
+        const providedHash = hashKey(match[1]);
+        // Constant-time comparison on fixed-length SHA-256 digests
+        if (!(0, crypto_1.timingSafeEqual)(providedHash, apiKeyHash)) {
             res.status(401).json({ error: 'Invalid API key' });
             return;
         }

@@ -110,7 +110,11 @@ export function validateKdfParams(params: KdfParams): void {
     throw new Error("KDF memory cost too high (maximum 1 GiB)");
   }
 
-  // Time: 1 minimum, 10 maximum
+  // Time: 1 minimum, 10 maximum.
+  // The ceiling of 10 is a DoS-prevention limit: an attacker-controlled
+  // tCost value could otherwise force arbitrarily long derivation on the
+  // client, blocking the UI or draining battery. 10 iterations is well
+  // above OWASP recommendations and sufficient for high-security use cases.
   if (params.tCost < 1) {
     throw new Error("KDF time cost must be at least 1");
   }

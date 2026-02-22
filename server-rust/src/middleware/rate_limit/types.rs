@@ -118,12 +118,18 @@ pub struct RateLimitError {
 impl IntoResponse for RateLimitError {
     fn into_response(self) -> axum::response::Response {
         let body = serde_json::to_string(&self).unwrap_or_default();
+        // 8.1: Use unwrap_or_else with fallback instead of .expect() in hot path
         Response::builder()
             .status(axum::http::StatusCode::TOO_MANY_REQUESTS)
             .header("Content-Type", "application/json")
             .header("Retry-After", self.retry_after.to_string())
             .body(Body::from(body))
-            .expect("response builder with valid body cannot fail")
+            .unwrap_or_else(|_| {
+                Response::builder()
+                    .status(axum::http::StatusCode::TOO_MANY_REQUESTS)
+                    .body(Body::empty())
+                    .unwrap_or_default()
+            })
     }
 }
 

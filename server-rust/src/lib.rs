@@ -22,7 +22,7 @@
 //! ### Embedded Library
 //!
 //! Integrate into your own Axum application:
-//! ```rust,ignore
+//! ```text
 //! use cedros_login::{router, Config, NoopCallback};
 //! use std::sync::Arc;
 //!
@@ -58,17 +58,19 @@ pub use services::{
     EmailService, InstantLinkEmailData, LogEmailService, NoopEmailService, PasswordResetEmailData,
     VerificationEmailData,
 };
+#[cfg(feature = "postgres")]
+pub use sqlx::PgPool;
 pub use storage::Storage;
 
 use axum::Router;
 use repositories::{
     ApiKeyRepository, AuditLogRepository, CredentialRepository, CreditHoldRepository,
     CreditRefundRequestRepository, CreditRepository, CustomRoleRepository, DepositRepository,
-    InviteRepository,
-    LoginAttemptConfig, LoginAttemptRepository, MembershipRepository, NonceRepository,
-    OrgRepository, OutboxRepository, PolicyRepository, PrivacyNoteRepository, SessionRepository,
-    SystemSettingsRepository, TotpRepository, TreasuryConfigRepository, UserRepository,
-    VerificationRepository, WalletMaterialRepository, WebAuthnRepository,
+    InviteRepository, LoginAttemptConfig, LoginAttemptRepository, MembershipRepository,
+    NonceRepository, OrgRepository, OutboxRepository, PolicyRepository, PrivacyNoteRepository,
+    SessionRepository, SystemSettingsRepository, TotpRepository, TreasuryConfigRepository,
+    UserRepository, UserWithdrawalLogRepository, VerificationRepository, WalletMaterialRepository,
+    WebAuthnRepository,
 };
 use services::{
     create_wallet_unlock_cache, AppleService, AuditService, CommsService, DepositCreditService,
@@ -77,8 +79,6 @@ use services::{
     SettingsService, SidecarClientConfig, SolPriceService, SolanaService, StepUpService,
     TotpService, WalletSigningService, WalletUnlockCache, WebAuthnService,
 };
-#[cfg(feature = "postgres")]
-use sqlx::PgPool;
 use std::sync::Arc;
 use utils::TokenCipher;
 
@@ -106,6 +106,18 @@ fn build_note_encryption_service(
     key_id: &str,
 ) -> Result<NoteEncryptionService, AppError> {
     NoteEncryptionService::new(key_bytes, key_id)
+}
+
+fn preload_settings_cache(settings_service: &Arc<SettingsService>) {
+    if let Ok(handle) = tokio::runtime::Handle::try_current() {
+        if handle.runtime_flavor() == tokio::runtime::RuntimeFlavor::MultiThread {
+            tokio::task::block_in_place(|| {
+                if let Err(error) = handle.block_on(settings_service.refresh()) {
+                    tracing::warn!(error = %error, "Failed to preload settings cache during router setup");
+                }
+            });
+        }
+    }
 }
 
 /// Application state shared across all handlers
@@ -151,6 +163,8 @@ pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub system_settings_repo: Arc<dyn SystemSettingsRepository>,
     /// Treasury configuration repository for micro deposit batching
     pub treasury_config_repo: Arc<dyn TreasuryConfigRepository>,
+    /// User withdrawal log repository for tracking user-initiated withdrawals
+    pub user_withdrawal_log_repo: Arc<dyn UserWithdrawalLogRepository>,
     /// Settings service with caching for runtime configuration
     pub settings_service: Arc<SettingsService>,
     /// SEC-04: Per-user MFA attempt tracking to prevent brute-force
@@ -190,7 +204,7 @@ pub fn router<C: AuthCallback + 'static>(config: Config, callback: Arc<C>) -> Ro
 ///
 /// ## Example with PostgreSQL
 ///
-/// ```rust,ignore
+/// ```text
 /// use cedros_login::{router_with_storage, Config, Storage, NoopCallback};
 /// use std::sync::Arc;
 ///
@@ -250,24 +264,56 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
     // (e.g., rate limit configuration) will return None and fall back to config defaults.
     // The cache is populated on first async access (e.g., deposit handler, withdrawal worker).
     let settings_service = Arc::new(SettingsService::new(storage.system_settings_repo.clone()));
+    preload_settings_cache(&settings_service);
 
     // Create privacy services if enabled
     let (privacy_sidecar_client, note_encryption_service) = if config.privacy.enabled {
-        let sidecar =
-            build_privacy_sidecar_client(&config).expect("Failed to create privacy sidecar client");
+        let mut errors = Vec::new();
 
-        let encryption_key = config
-            .privacy
-            .note_encryption_key
-            .as_ref()
-            .expect("note_encryption_key is required when privacy is enabled");
-        let key_bytes = decode_note_encryption_key(encryption_key)
-            .expect("Invalid base64 in note_encryption_key");
-        let note_encryption =
-            build_note_encryption_service(&key_bytes, &config.privacy.note_encryption_key_id)
-                .expect("Failed to create note encryption service");
+        let sidecar = match build_privacy_sidecar_client(&config) {
+            Ok(s) => Some(Arc::new(s)),
+            Err(e) => {
+                errors.push(format!("Failed to create privacy sidecar client: {}", e));
+                None
+            }
+        };
 
-        (Some(Arc::new(sidecar)), Some(Arc::new(note_encryption)))
+        let note_encryption = match config.privacy.note_encryption_key.as_ref() {
+            Some(key) => match decode_note_encryption_key(key) {
+                Ok(key_bytes) => match build_note_encryption_service(
+                    &key_bytes,
+                    &config.privacy.note_encryption_key_id,
+                ) {
+                    Ok(n) => Some(Arc::new(n)),
+                    Err(e) => {
+                        errors.push(format!("Failed to create note encryption service: {}", e));
+                        None
+                    }
+                },
+                Err(e) => {
+                    errors.push(format!("Invalid base64 in note_encryption_key: {}", e));
+                    None
+                }
+            },
+            None => {
+                errors.push("note_encryption_key is required when privacy is enabled".to_string());
+                None
+            }
+        };
+
+        // S-04: Fail startup when privacy is enabled but required services can't be created.
+        // Silently disabling would allow the server to accept deposits it cannot process.
+        if !errors.is_empty() {
+            for error in &errors {
+                tracing::error!("{}", error);
+            }
+            panic!(
+                "Privacy is enabled but required services failed to initialize: {}",
+                errors.join("; ")
+            );
+        } else {
+            (sidecar, note_encryption)
+        }
     } else {
         (None, None)
     };
@@ -277,15 +323,18 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         .privacy
         .company_wallet_address
         .as_ref()
-        .map(|wallet| {
-            Arc::new(
-                JupiterSwapService::new(
-                    wallet.clone(),
-                    &config.privacy.company_currency,
-                    None, // API key from env could be added later
-                )
-                .expect("Failed to create Jupiter swap service"),
-            )
+        .and_then(|wallet| {
+            match JupiterSwapService::new(
+                wallet.clone(),
+                &config.privacy.company_currency,
+                None, // API key from env could be added later
+            ) {
+                Ok(service) => Some(Arc::new(service)),
+                Err(e) => {
+                    tracing::error!(error = %e, "Failed to create Jupiter swap service, swap features disabled");
+                    None
+                }
+            }
         });
 
     // Create SOL price service (shared across deposit services)
@@ -339,6 +388,7 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         privacy_note_repo: storage.privacy_note_repo.clone(),
         system_settings_repo: storage.system_settings_repo.clone(),
         treasury_config_repo: storage.treasury_config_repo.clone(),
+        user_withdrawal_log_repo: storage.user_withdrawal_log_repo.clone(),
         settings_service: settings_service.clone(),
         mfa_attempt_service: MfaAttemptService::new(),
         step_up_service,
@@ -383,12 +433,14 @@ pub fn create_withdrawal_worker(
         }
     };
 
-    // Create note encryption service
-    let encryption_key = config
-        .privacy
-        .note_encryption_key
-        .as_ref()
-        .expect("note_encryption_key is required when privacy is enabled");
+    // S-05: Gracefully handle missing key instead of panicking
+    let encryption_key = match config.privacy.note_encryption_key.as_ref() {
+        Some(k) => k,
+        None => {
+            tracing::error!("note_encryption_key is required when privacy is enabled");
+            return None;
+        }
+    };
     let key_bytes = match decode_note_encryption_key(encryption_key) {
         Ok(k) => k,
         Err(e) => {
@@ -453,12 +505,14 @@ pub fn create_micro_batch_worker(
         }
     };
 
-    // Create note encryption service
-    let encryption_key = config
-        .privacy
-        .note_encryption_key
-        .as_ref()
-        .expect("note_encryption_key is required when privacy is enabled");
+    // S-05: Gracefully handle missing key instead of panicking
+    let encryption_key = match config.privacy.note_encryption_key.as_ref() {
+        Some(k) => k,
+        None => {
+            tracing::error!("note_encryption_key is required when privacy is enabled");
+            return None;
+        }
+    };
     let key_bytes = match decode_note_encryption_key(encryption_key) {
         Ok(k) => k,
         Err(e) => {
@@ -597,5 +651,24 @@ mod tests {
         config.privacy.sidecar_api_key = Some("test-key".to_string());
 
         assert!(build_privacy_sidecar_client(&config).is_ok());
+    }
+
+    #[test]
+    fn test_preload_settings_cache_populates_cached_values() {
+        let storage = Storage::in_memory();
+        let settings_service = Arc::new(SettingsService::new(storage.system_settings_repo));
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(1)
+            .enable_all()
+            .build()
+            .expect("runtime");
+
+        runtime.block_on(async {
+            preload_settings_cache(&settings_service);
+        });
+
+        assert!(settings_service
+            .get_cached_u32_sync("rate_limit_auth")
+            .is_some());
     }
 }

@@ -318,11 +318,7 @@ impl NotificationService for DiscordNotificationService {
             embeds: vec![embed],
         };
 
-        let response_fut = self
-            .client
-            .post(&self.webhook_url)
-            .json(&payload)
-            .send();
+        let response_fut = self.client.post(&self.webhook_url).json(&payload).send();
 
         let response = tokio::time::timeout(
             std::time::Duration::from_secs(NOTIFICATION_TIMEOUT_SECS),
@@ -428,11 +424,7 @@ impl NotificationService for TelegramNotificationService {
 
         let url = format!("https://api.telegram.org/bot{}/sendMessage", self.bot_token);
 
-        let response_fut = self
-            .client
-            .post(&url)
-            .json(&message)
-            .send();
+        let response_fut = self.client.post(&url).json(&message).send();
 
         let response = tokio::time::timeout(
             std::time::Duration::from_secs(NOTIFICATION_TIMEOUT_SECS),

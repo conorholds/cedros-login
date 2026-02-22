@@ -419,7 +419,7 @@ mod tests {
         ]);
 
         assert!(matcher.matches(Some(&Value::String("admin".to_string()))));
-        assert!(!matcher.matches(Some(&Value::String("viewer".to_string()))));
+        assert!(!matcher.matches(Some(&Value::String("member".to_string()))));
     }
 
     #[test]

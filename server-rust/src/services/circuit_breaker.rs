@@ -63,7 +63,7 @@ impl Default for CircuitBreakerConfig {
 ///
 /// For concurrent usage in async contexts, wrap in `Arc<Mutex<CircuitBreaker>>`:
 ///
-/// ```ignore
+/// ```text
 /// let cb = Arc::new(Mutex::new(CircuitBreaker::new("my_service")));
 ///
 /// // In async handler:

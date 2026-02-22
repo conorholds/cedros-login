@@ -346,6 +346,13 @@ pub trait CreditRepository: Send + Sync {
     /// Get balance for a user and currency
     async fn get_balance(&self, user_id: Uuid, currency: &str) -> Result<i64, AppError>;
 
+    /// Get balances for many users in one call (missing users default to 0 by caller).
+    async fn get_balances(
+        &self,
+        user_ids: &[Uuid],
+        currency: &str,
+    ) -> Result<HashMap<Uuid, i64>, AppError>;
+
     /// Get or create balance entity for a user and currency
     async fn get_or_create_balance(
         &self,
@@ -456,6 +463,24 @@ impl CreditRepository for InMemoryCreditRepository {
             .get(&(user_id, currency.to_string()))
             .map(|b| b.balance)
             .unwrap_or(0))
+    }
+
+    async fn get_balances(
+        &self,
+        user_ids: &[Uuid],
+        currency: &str,
+    ) -> Result<HashMap<Uuid, i64>, AppError> {
+        let balances = self.balances.read().await;
+        let mut out = HashMap::with_capacity(user_ids.len());
+        let currency = currency.to_string();
+
+        for user_id in user_ids {
+            if let Some(balance) = balances.get(&(*user_id, currency.clone())) {
+                out.insert(*user_id, balance.balance);
+            }
+        }
+
+        Ok(out)
     }
 
     async fn get_or_create_balance(
@@ -781,6 +806,29 @@ mod tests {
 
         let balance = repo.get_balance(user_id, "SOL").await.unwrap();
         assert_eq!(balance, 1000000);
+    }
+
+    #[tokio::test]
+    async fn test_get_balances_returns_existing_users() {
+        let repo = InMemoryCreditRepository::new();
+        let user_a = Uuid::new_v4();
+        let user_b = Uuid::new_v4();
+        let session_id = Uuid::new_v4();
+        let note_id = Uuid::new_v4();
+
+        let tx = CreditTransactionEntity::new_deposit(user_a, 500, "SOL", session_id, note_id);
+        repo.add_credit(user_a, 500, "SOL", tx).await.unwrap();
+
+        let balances = repo.get_balances(&[user_a, user_b], "SOL").await.unwrap();
+        assert_eq!(balances.get(&user_a), Some(&500));
+        assert!(!balances.contains_key(&user_b));
+    }
+
+    #[tokio::test]
+    async fn test_get_balances_empty_input() {
+        let repo = InMemoryCreditRepository::new();
+        let balances = repo.get_balances(&[], "SOL").await.unwrap();
+        assert!(balances.is_empty());
     }
 
     #[tokio::test]

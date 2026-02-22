@@ -437,6 +437,46 @@ const SECRET_VALUE_PATTERNS: &[&str] = &[
     "-----BEGIN", // PEM encoded key
 ];
 
+/// SRV-13: Known reference types for credit operations
+const ALLOWED_REFERENCE_TYPES: &[&str] = &[
+    "order",
+    "subscription",
+    "refund",
+    "bonus",
+    "promo",
+    "correction",
+    "deposit",
+    "withdrawal",
+];
+
+/// SRV-13: Validate reference_type against known whitelist
+pub fn validate_reference_type(reference_type: &str) -> Result<(), AppError> {
+    if !ALLOWED_REFERENCE_TYPES.contains(&reference_type) {
+        return Err(AppError::Validation(format!(
+            "Unknown reference_type '{}'. Allowed: {}",
+            reference_type,
+            ALLOWED_REFERENCE_TYPES.join(", ")
+        )));
+    }
+    Ok(())
+}
+
+/// SRV-14: Allowed credit currencies
+const ALLOWED_CURRENCIES: &[&str] = &["SOL", "USD"];
+
+/// SRV-14: Validate currency against known whitelist.
+/// The credit system uses "SOL" and "USD" internally (USDC/USDT map to "USD" at the deposit layer).
+pub fn validate_currency(currency: &str) -> Result<(), AppError> {
+    if !ALLOWED_CURRENCIES.contains(&currency) {
+        return Err(AppError::Validation(format!(
+            "Unknown currency '{}'. Allowed: {}",
+            currency,
+            ALLOWED_CURRENCIES.join(", ")
+        )));
+    }
+    Ok(())
+}
+
 /// Validate metadata does not contain obvious secrets
 ///
 /// Returns Ok(()) if metadata is safe, or an error describing the issue.
@@ -511,6 +551,22 @@ fn validate_value_recursive(value: &Value, depth: usize) -> Result<(), AppError>
     }
 
     Ok(())
+}
+
+/// Validate a Solana wallet address format.
+///
+/// Solana addresses are base58-encoded 32-byte public keys, typically 32-44 characters.
+/// This performs basic format validation but does not verify the key is on the curve.
+pub fn is_valid_wallet_address(address: &str) -> bool {
+    // Solana addresses are typically 32-44 characters (base58 encoding of 32 bytes)
+    if address.len() < 32 || address.len() > 44 {
+        return false;
+    }
+
+    // Must be valid base58 characters (1-9, A-H, J-N, P-Z, a-k, m-z)
+    // Excludes: 0, O, I, l (to avoid ambiguity)
+    const BASE58_CHARS: &str = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    address.chars().all(|c| BASE58_CHARS.contains(c))
 }
 
 #[cfg(test)]
@@ -833,5 +889,52 @@ mod tests {
         assert!(!is_disposable_email("notanemail"));
         assert!(!is_disposable_email(""));
         assert!(!is_disposable_email("@"));
+    }
+
+    // =========================================================================
+    // Wallet Address Validation Tests
+    // =========================================================================
+
+    #[test]
+    fn test_valid_wallet_addresses() {
+        // Valid Solana addresses (base58, 32-44 chars)
+        assert!(is_valid_wallet_address(
+            "6o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL"
+        ));
+        assert!(is_valid_wallet_address("11111111111111111111111111111111"));
+        assert!(is_valid_wallet_address(
+            "So11111111111111111111111111111111111111112"
+        ));
+    }
+
+    #[test]
+    fn test_invalid_wallet_too_short() {
+        assert!(!is_valid_wallet_address("1234567890123456789012345678901")); // 31 chars
+        assert!(!is_valid_wallet_address("abc"));
+        assert!(!is_valid_wallet_address(""));
+    }
+
+    #[test]
+    fn test_invalid_wallet_too_long() {
+        assert!(!is_valid_wallet_address(
+            "123456789012345678901234567890123456789012345"
+        )); // 45 chars
+    }
+
+    #[test]
+    fn test_invalid_wallet_invalid_chars() {
+        // Contains 0 (zero), O, I, l - not valid base58
+        assert!(!is_valid_wallet_address(
+            "0o6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL"
+        )); // 0
+        assert!(!is_valid_wallet_address(
+            "Oo6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL"
+        )); // O
+        assert!(!is_valid_wallet_address(
+            "Io6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL"
+        )); // I
+        assert!(!is_valid_wallet_address(
+            "lo6HrBfnmzpQsMJHJZuQTFhBnXPKadjFnPkKB7p2AFSL"
+        )); // l
     }
 }

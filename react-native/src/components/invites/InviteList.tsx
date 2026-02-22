@@ -26,7 +26,7 @@ export function InviteList({
   invites,
   onCancel,
   onInvitePress,
-  isLoading = false,
+  isLoading: _isLoading = false,
   containerStyle,
   testID = "invite-list",
 }: InviteListProps): React.ReactElement {

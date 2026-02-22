@@ -1,10 +1,10 @@
 import type {
   AuthResponse,
   TokenPair,
-  MfaRequiredResponse,
   MfaLoginRequest,
 } from "../../types";
 import type ApiClient from "./client";
+import type { ApiResponse } from "./client";
 
 export interface LoginRequest {
   email: string;
@@ -36,14 +36,6 @@ export interface SolanaSignInRequest {
   signature: string;
   nonce: string;
   publicKey?: string;
-}
-
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
-
-export interface LogoutRequest {
-  refreshToken?: string;
 }
 
 export class AuthApi {
@@ -134,11 +126,11 @@ export class AuthApi {
   async getSolanaChallenge(
     walletAddress: string,
   ): Promise<{ nonce: string; message: string; expiresAt: string }> {
-    const response = await this.client.get<{
+    const response = await this.client.post<{
       nonce: string;
       message: string;
       expiresAt: string;
-    }>("/auth/solana/challenge", { walletAddress });
+    }>("/auth/solana/challenge", { publicKey: walletAddress });
     return response.data;
   }
 
@@ -169,12 +161,25 @@ export class AuthApi {
       throw error;
     }
 
-    const response = await this.client.post<TokenPair>("/auth/refresh", {
+    const response = await this.client.post<{ tokens?: TokenPair }>(
+      "/auth/refresh",
+      {
       refreshToken,
-    });
-    await this.client.getTokenManager().setTokens(response.data);
+      },
+    );
+    const tokens = response.data.tokens;
+    if (!tokens) {
+      const error = new Error("No refreshed tokens returned") as Error & {
+        code: string;
+        status: number;
+      };
+      error.code = "UNAUTHORIZED";
+      error.status = 401;
+      throw error;
+    }
+    await this.client.getTokenManager().setTokens(tokens);
 
-    return response.data;
+    return tokens;
   }
 
   async forgotPassword(email: string): Promise<void> {
@@ -186,11 +191,21 @@ export class AuthApi {
   }
 
   async resendVerificationEmail(email: string): Promise<void> {
-    await this.client.post("/auth/resend-verification", { email });
+    await this.client.post("/auth/send-verification", { email });
   }
 
   async verifyEmail(token: string): Promise<void> {
-    await this.client.get("/auth/verify-email", { token });
+    await this.client.post("/auth/verify-email", { token });
+  }
+
+  /** Public accessor for the token manager (avoids private bracket access) */
+  getTokenManager() {
+    return this.client.getTokenManager();
+  }
+
+  /** Public accessor for GET requests (avoids private bracket access) */
+  async getRequest<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.client.get<T>(endpoint);
   }
 }
 

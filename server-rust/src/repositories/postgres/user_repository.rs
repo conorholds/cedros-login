@@ -46,6 +46,7 @@ mod tests {
             is_system_admin: false,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            last_login_at: None,
         };
 
         let entity: UserEntity = row.into();
@@ -72,6 +73,7 @@ struct UserRow {
     is_system_admin: bool,
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
+    last_login_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 impl From<UserRow> for UserEntity {
@@ -103,6 +105,7 @@ impl From<UserRow> for UserEntity {
             is_system_admin: row.is_system_admin,
             created_at: row.created_at,
             updated_at: row.updated_at,
+            last_login_at: row.last_login_at,
         }
     }
 }
@@ -128,7 +131,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users WHERE id = $1
             "#,
         )
@@ -150,7 +153,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users WHERE email = $1
             "#,
         )
@@ -167,7 +170,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users WHERE wallet_address = $1
             "#,
         )
@@ -184,7 +187,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users WHERE google_id = $1
             "#,
         )
@@ -201,7 +204,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users WHERE apple_id = $1
             "#,
         )
@@ -221,7 +224,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users WHERE stripe_customer_id = $1
             "#,
         )
@@ -240,11 +243,11 @@ impl UserRepository for PostgresUserRepository {
             r#"
             INSERT INTO users (id, email, email_verified, password_hash, name, picture,
                               wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                              created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                              created_at, updated_at, last_login_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             RETURNING id, email, email_verified, password_hash, name, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                      created_at, updated_at
+                      created_at, updated_at, last_login_at
             "#,
         )
         .bind(user.id)
@@ -261,6 +264,7 @@ impl UserRepository for PostgresUserRepository {
         .bind(user.is_system_admin)
         .bind(user.created_at)
         .bind(user.updated_at)
+        .bind(user.last_login_at)
         .fetch_one(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
@@ -290,7 +294,7 @@ impl UserRepository for PostgresUserRepository {
             WHERE id = $1
             RETURNING id, email, email_verified, password_hash, name, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                      created_at, updated_at
+                      created_at, updated_at, last_login_at
             "#,
         )
         .bind(user.id)
@@ -384,7 +388,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at
+                   created_at, updated_at, last_login_at
             FROM users
             ORDER BY created_at DESC
             LIMIT $1 OFFSET $2
@@ -457,6 +461,43 @@ impl UserRepository for PostgresUserRepository {
 
     async fn delete(&self, id: Uuid) -> Result<(), AppError> {
         let result = sqlx::query("DELETE FROM users WHERE id = $1")
+            .bind(id)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::NotFound("User not found".into()));
+        }
+
+        Ok(())
+    }
+
+    async fn count_by_auth_methods(
+        &self,
+    ) -> Result<std::collections::HashMap<String, u64>, AppError> {
+        // Use UNNEST to expand the auth_methods array and count occurrences
+        let rows: Vec<(String, i64)> = sqlx::query_as(
+            r#"
+            SELECT method, COUNT(*) as count
+            FROM users, UNNEST(auth_methods) AS method
+            GROUP BY method
+            "#,
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        let mut counts = std::collections::HashMap::new();
+        for (method, count) in rows {
+            counts.insert(method, count.max(0) as u64);
+        }
+
+        Ok(counts)
+    }
+
+    async fn update_last_login(&self, id: Uuid) -> Result<(), AppError> {
+        let result = sqlx::query("UPDATE users SET last_login_at = NOW() WHERE id = $1")
             .bind(id)
             .execute(&self.pool)
             .await

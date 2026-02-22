@@ -136,6 +136,59 @@ pub struct BalanceResponse {
     pub user_pubkey: String,
 }
 
+/// Request to transfer SOL from user wallet to external address
+#[derive(Debug, Serialize)]
+pub struct TransferSolRequest {
+    pub user_private_key: String,
+    pub destination: String,
+    pub amount_lamports: u64,
+}
+
+/// Request to transfer SPL tokens from user wallet to external address
+#[derive(Debug, Serialize)]
+pub struct TransferSplRequest {
+    pub user_private_key: String,
+    pub destination: String,
+    pub token_mint: String,
+    /// Amount in smallest token unit
+    pub amount: String,
+}
+
+/// Response from a user withdrawal transfer
+#[derive(Debug, Deserialize)]
+pub struct TransferResponse {
+    pub success: bool,
+    pub tx_signature: String,
+    pub fee_lamports: i64,
+}
+
+impl SidecarSuccess for TransferResponse {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+}
+
+/// Request to get all token balances for a wallet
+#[derive(Debug, Serialize)]
+pub struct WalletBalancesRequest {
+    pub wallet_address: String,
+}
+
+/// A single SPL token balance entry
+#[derive(Debug, Clone, Deserialize, serde::Serialize)]
+pub struct TokenBalanceEntry {
+    pub mint: String,
+    pub amount: String,
+    pub decimals: u8,
+}
+
+/// Response from fetching wallet token balances
+#[derive(Debug, Deserialize, serde::Serialize)]
+pub struct WalletBalancesResponse {
+    pub sol_lamports: u64,
+    pub tokens: Vec<TokenBalanceEntry>,
+}
+
 /// Request to verify a finalized SOL transfer
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

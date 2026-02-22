@@ -396,7 +396,7 @@ mod tests {
             .await
             .unwrap();
         let role2 = repo
-            .create(create_test_role(org_id, "Viewer"))
+            .create(create_test_role(org_id, "Support"))
             .await
             .unwrap();
 

@@ -145,6 +145,8 @@ pub async fn update_settings<C: AuthCallback, E: EmailService>(
                 value: u.value,
                 category: existing.category.clone(),
                 description: existing.description.clone(),
+                is_secret: existing.is_secret,
+                encryption_version: existing.encryption_version.clone(),
                 updated_at: Utc::now(),
                 updated_by: Some(admin_id),
             })

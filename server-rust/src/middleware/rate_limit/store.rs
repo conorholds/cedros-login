@@ -219,18 +219,20 @@ impl RateLimitStore {
         }
     }
 
-    /// Cleanup old entries periodically
+    /// Cleanup old entries periodically.
+    /// 3.2: Single lock acquisition for check + update to eliminate TOCTOU race.
     async fn maybe_cleanup(&self, now: Instant) {
         let should_cleanup = {
-            let last = self.last_cleanup.lock().await;
-            now.duration_since(*last) > self.cleanup_interval
+            let mut last = self.last_cleanup.lock().await;
+            if now.duration_since(*last) > self.cleanup_interval {
+                *last = now;
+                true
+            } else {
+                false
+            }
         };
 
         if should_cleanup {
-            let mut last = self.last_cleanup.lock().await;
-            *last = now;
-            drop(last);
-
             let stale_threshold = Duration::from_secs(600); // 10 minutes
             self.entries
                 .retain(|_, entry| now.duration_since(entry.last_access) < stale_threshold);

@@ -565,7 +565,7 @@ impl DepositRepository for PostgresDepositRepository {
         let rows: Vec<DepositSessionRow> = sqlx::query_as(&format!(
             r#"
             SELECT {} FROM deposit_sessions
-            WHERE status IN ('completed', 'partially_withdrawn')
+            WHERE status IN ('completed', 'partially_withdrawn', 'pending_retry')
               AND stored_share_b IS NOT NULL
               AND withdrawal_available_at <= $1
               AND withdrawn_amount_lamports < COALESCE(deposit_amount_lamports, 0)
@@ -594,7 +594,7 @@ impl DepositRepository for PostgresDepositRepository {
         let rows: Vec<DepositSessionRow> = sqlx::query_as(&format!(
             r#"
             SELECT {} FROM deposit_sessions
-            WHERE status IN ('completed', 'partially_withdrawn')
+            WHERE status IN ('completed', 'partially_withdrawn', 'pending_retry')
               AND stored_share_b IS NOT NULL
               AND withdrawal_available_at <= $1
               AND withdrawn_amount_lamports < COALESCE(deposit_amount_lamports, 0)
@@ -620,7 +620,7 @@ impl DepositRepository for PostgresDepositRepository {
         let count: i64 = sqlx::query_scalar(
             r#"
             SELECT COUNT(*) FROM deposit_sessions
-            WHERE status IN ('completed', 'partially_withdrawn')
+            WHERE status IN ('completed', 'partially_withdrawn', 'pending_retry')
               AND stored_share_b IS NOT NULL
               AND withdrawal_available_at <= $1
               AND withdrawn_amount_lamports < COALESCE(deposit_amount_lamports, 0)
@@ -644,7 +644,7 @@ impl DepositRepository for PostgresDepositRepository {
             WITH claim AS (
                 SELECT id
                 FROM deposit_sessions
-                WHERE status IN ('completed', 'partially_withdrawn')
+                WHERE status IN ('completed', 'partially_withdrawn', 'pending_retry')
                   AND stored_share_b IS NOT NULL
                   AND withdrawal_available_at <= $1
                   AND withdrawn_amount_lamports < COALESCE(deposit_amount_lamports, 0)
@@ -815,11 +815,11 @@ impl DepositRepository for PostgresDepositRepository {
             r#"
             SELECT
                 COUNT(*) as total_deposits,
-                COALESCE(SUM(CASE WHEN status IN ('completed', 'withdrawn') THEN deposit_amount_lamports ELSE 0 END), 0) as total_deposited,
-                COUNT(*) FILTER (WHERE status = 'completed') as pending_withdrawal_count,
-                COALESCE(SUM(CASE WHEN status = 'completed' THEN deposit_amount_lamports ELSE 0 END), 0) as pending_withdrawal_lamports,
+                COALESCE(SUM(CASE WHEN status IN ('completed', 'withdrawn') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as total_deposited,
+                COUNT(*) FILTER (WHERE status IN ('completed', 'pending_retry')) as pending_withdrawal_count,
+                COALESCE(SUM(CASE WHEN status IN ('completed', 'pending_retry') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as pending_withdrawal_lamports,
                 COUNT(*) FILTER (WHERE status = 'withdrawn') as total_withdrawn_count,
-                COALESCE(SUM(CASE WHEN status = 'withdrawn' THEN deposit_amount_lamports ELSE 0 END), 0) as total_withdrawn_lamports,
+                COALESCE(SUM(CASE WHEN status = 'withdrawn' THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as total_withdrawn_lamports,
                 COUNT(*) FILTER (WHERE status = 'failed') as failed_count
             FROM deposit_sessions
             "#,
@@ -832,10 +832,10 @@ impl DepositRepository for PostgresDepositRepository {
         let ready: (i64, Option<i64>, i64, Option<i64>) = sqlx::query_as(
             r#"
             SELECT
-                COUNT(*) FILTER (WHERE status = 'completed' AND withdrawal_available_at <= NOW()) as ready_count,
-                COALESCE(SUM(CASE WHEN status = 'completed' AND withdrawal_available_at <= NOW() THEN deposit_amount_lamports ELSE 0 END), 0) as ready_lamports,
-                COUNT(*) FILTER (WHERE status = 'completed' AND withdrawal_available_at > NOW()) as in_period_count,
-                COALESCE(SUM(CASE WHEN status = 'completed' AND withdrawal_available_at > NOW() THEN deposit_amount_lamports ELSE 0 END), 0) as in_period_lamports
+                COUNT(*) FILTER (WHERE status IN ('completed', 'pending_retry') AND withdrawal_available_at <= NOW()) as ready_count,
+                COALESCE(SUM(CASE WHEN status IN ('completed', 'pending_retry') AND withdrawal_available_at <= NOW() THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as ready_lamports,
+                COUNT(*) FILTER (WHERE status IN ('completed', 'pending_retry') AND withdrawal_available_at > NOW()) as in_period_count,
+                COALESCE(SUM(CASE WHEN status IN ('completed', 'pending_retry') AND withdrawal_available_at > NOW() THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as in_period_lamports
             FROM deposit_sessions
             "#,
         )
@@ -848,11 +848,11 @@ impl DepositRepository for PostgresDepositRepository {
             r#"
             SELECT
                 COUNT(*) FILTER (WHERE input_token_mint = $1) as usdc_count,
-                COALESCE(SUM(CASE WHEN input_token_mint = $1 THEN input_token_amount ELSE 0 END), 0) as usdc_input,
+                COALESCE(SUM(CASE WHEN input_token_mint = $1 THEN input_token_amount ELSE 0 END)::BIGINT, 0) as usdc_input,
                 COUNT(*) FILTER (WHERE input_token_mint = $2) as usdt_count,
-                COALESCE(SUM(CASE WHEN input_token_mint = $2 THEN input_token_amount ELSE 0 END), 0) as usdt_input,
+                COALESCE(SUM(CASE WHEN input_token_mint = $2 THEN input_token_amount ELSE 0 END)::BIGINT, 0) as usdt_input,
                 COUNT(*) FILTER (WHERE input_token_mint IS NULL AND status IN ('completed', 'withdrawn')) as native_count,
-                COALESCE(SUM(CASE WHEN input_token_mint IS NULL AND status IN ('completed', 'withdrawn') THEN deposit_amount_lamports ELSE 0 END), 0) as native_input
+                COALESCE(SUM(CASE WHEN input_token_mint IS NULL AND status IN ('completed', 'withdrawn') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as native_input
             FROM deposit_sessions
             "#,
         )
@@ -893,7 +893,7 @@ impl DepositRepository for PostgresDepositRepository {
         let rows: Vec<DepositSessionRow> = sqlx::query_as(&format!(
             r#"
             SELECT {} FROM deposit_sessions
-            WHERE status = 'completed'
+            WHERE status IN ('completed', 'pending_retry')
               AND withdrawal_available_at > $1
             ORDER BY withdrawal_available_at ASC, created_at DESC
             LIMIT $2 OFFSET $3
@@ -917,7 +917,7 @@ impl DepositRepository for PostgresDepositRepository {
         let count: i64 = sqlx::query_scalar(
             r#"
             SELECT COUNT(*) FROM deposit_sessions
-            WHERE status = 'completed'
+            WHERE status IN ('completed', 'pending_retry')
               AND withdrawal_available_at > $1
             "#,
         )
@@ -929,15 +929,17 @@ impl DepositRepository for PostgresDepositRepository {
         Ok(count as u64)
     }
 
-    async fn get_pending_batch_deposits(&self) -> Result<Vec<DepositSessionEntity>, AppError> {
+    async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError> {
         let rows: Vec<DepositSessionRow> = sqlx::query_as(&format!(
             r#"
             SELECT {} FROM deposit_sessions
             WHERE status = 'pending_batch' AND deposit_type = 'sol_micro'
             ORDER BY created_at ASC
+            LIMIT $1
             "#,
             SELECT_COLS
         ))
+        .bind(limit)
         .fetch_all(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
@@ -951,7 +953,7 @@ impl DepositRepository for PostgresDepositRepository {
     async fn sum_pending_batch_lamports(&self) -> Result<i64, AppError> {
         let sum: Option<i64> = sqlx::query_scalar(
             r#"
-            SELECT COALESCE(SUM(deposit_amount_lamports), 0)
+            SELECT COALESCE(SUM(deposit_amount_lamports)::BIGINT, 0)
             FROM deposit_sessions
             WHERE status = 'pending_batch' AND deposit_type = 'sol_micro'
             "#,

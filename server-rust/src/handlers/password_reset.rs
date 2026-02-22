@@ -26,7 +26,8 @@ use crate::callback::AuthCallback;
 use crate::errors::AppError;
 use crate::models::MessageResponse;
 use crate::repositories::{
-    default_expiry, generate_verification_token, hash_verification_token, AuditEventType, TokenType,
+    default_expiry, generate_verification_token, hash_verification_token, normalize_email,
+    AuditEventType, TokenType,
 };
 use crate::services::EmailService;
 use crate::AppState;
@@ -75,7 +76,23 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
         }),
     );
 
-    let throttle_key = format!("password_reset:{}", req.email.trim().to_lowercase());
+    // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
+    let email = normalize_email(&req.email);
+
+    // Find user by email first
+    let user = match state.user_repo.find_by_email(&email).await? {
+        Some(u) => u,
+        None => {
+            // SEC-003: Add delay to prevent timing-based email enumeration
+            add_timing_normalization_delay().await;
+            return Ok(response); // Don't reveal if email exists
+        }
+    };
+
+    // S-15: Rate-limit after user lookup so attackers can't lock out real users
+    // by flooding reset requests for their email address. Non-existent emails
+    // are handled above with a timing-normalized early return.
+    let throttle_key = format!("password_reset:{}", email);
     let throttle_status = state
         .login_attempt_repo
         .record_failed_attempt_atomic(None, &throttle_key, None, &state.login_attempt_config)
@@ -89,16 +106,6 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
         }
         return Err(AppError::RateLimited);
     }
-
-    // Find user by email
-    let user = match state.user_repo.find_by_email(&req.email).await? {
-        Some(u) => u,
-        None => {
-            // SEC-003: Add delay to prevent timing-based email enumeration
-            add_timing_normalization_delay().await;
-            return Ok(response); // Don't reveal if email exists
-        }
-    };
 
     // User must have a password (email auth method)
     if user.password_hash.is_none() {
@@ -131,7 +138,7 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
     // Queue password reset email via outbox for async delivery
     state
         .comms_service
-        .queue_password_reset_email(&req.email, user.name.as_deref(), &token, Some(user.id))
+        .queue_password_reset_email(&email, user.name.as_deref(), &token, Some(user.id))
         .await?;
 
     // REL-001: Log audit event with warning on failure (security-critical event)
@@ -160,8 +167,13 @@ pub async fn reset_password<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
-    // Validate password BEFORE consuming token (fail fast, don't waste the token)
+    // S-21: Validate and hash password BEFORE consuming token so that if
+    // either fails, the token is not wasted and the user can retry.
     state.password_service.validate(&req.new_password)?;
+    let password_hash = state
+        .password_service
+        .hash(req.new_password.clone())
+        .await?;
 
     let token_hash = hash_verification_token(&req.token);
 
@@ -176,12 +188,6 @@ pub async fn reset_password<C: AuthCallback, E: EmailService>(
     if token.token_type != TokenType::PasswordReset {
         return Err(AppError::Validation("Invalid token type".to_string()));
     }
-
-    // Hash the already-validated password
-    let password_hash = state
-        .password_service
-        .hash(req.new_password.clone())
-        .await?;
 
     // Update user password
     state

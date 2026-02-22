@@ -113,10 +113,7 @@ pub trait CreditRefundRequestRepository: Send + Sync {
         entity: CreditRefundRequestEntity,
     ) -> Result<CreditRefundRequestEntity, AppError>;
 
-    async fn find_by_id(
-        &self,
-        id: Uuid,
-    ) -> Result<Option<CreditRefundRequestEntity>, AppError>;
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<CreditRefundRequestEntity>, AppError>;
 
     async fn list(
         &self,
@@ -173,10 +170,7 @@ impl CreditRefundRequestRepository for InMemoryCreditRefundRequestRepository {
         Ok(entity)
     }
 
-    async fn find_by_id(
-        &self,
-        id: Uuid,
-    ) -> Result<Option<CreditRefundRequestEntity>, AppError> {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<CreditRefundRequestEntity>, AppError> {
         let data = self.data.read().await;
         Ok(data.get(&id).cloned())
     }

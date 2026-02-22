@@ -11,9 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createBatchRouter = createBatchRouter;
 const express_1 = require("express");
 const jupiter_js_1 = require("../services/jupiter.js");
-function createBatchRouter(config) {
+function createBatchRouter(jupiterService) {
     const router = (0, express_1.Router)();
-    const jupiterService = new jupiter_js_1.JupiterService(config);
     /**
      * POST /batch/swap
      *
@@ -30,7 +29,14 @@ function createBatchRouter(config) {
                     error: 'Missing or invalid privateKey',
                 });
             }
-            if (!body.amountLamports || typeof body.amountLamports !== 'number' || body.amountLamports <= 0) {
+            // SC-02: Use safe integer for max lamports (SOL total supply ~585M = 5.85e17 lamports)
+            const MAX_LAMPORTS = 585_000_000_000_000_000;
+            if (!body.amountLamports ||
+                typeof body.amountLamports !== 'number' ||
+                !Number.isFinite(body.amountLamports) ||
+                !Number.isInteger(body.amountLamports) ||
+                body.amountLamports <= 0 ||
+                body.amountLamports > MAX_LAMPORTS) {
                 return res.status(400).json({
                     success: false,
                     error: 'Missing or invalid amountLamports',
@@ -55,16 +61,22 @@ function createBatchRouter(config) {
             try {
                 keypair = jupiter_js_1.JupiterService.parseKeypair(body.privateKey);
             }
-            catch (e) {
-                console.error('[Batch] Failed to parse private key:', e);
+            catch {
+                console.error('[Batch] Failed to parse private key');
                 return res.status(400).json({
                     success: false,
                     error: 'Invalid private key format',
                 });
             }
             console.log(`[Batch] Executing swap: ${body.amountLamports} lamports SOL -> ${body.outputCurrency}`);
-            // Execute the swap
-            const result = await jupiterService.swapFromSol(outputMint, body.amountLamports.toString(), keypair);
+            // Execute the swap — zero treasury key material immediately after use
+            let result;
+            try {
+                result = await jupiterService.swapFromSol(outputMint, body.amountLamports.toString(), keypair);
+            }
+            finally {
+                keypair.secretKey.fill(0);
+            }
             if (!result.success) {
                 console.error(`[Batch] Swap failed: ${result.error}`);
                 return res.status(500).json({
@@ -90,7 +102,7 @@ function createBatchRouter(config) {
             console.error('[Batch] Unexpected error:', error);
             return res.status(500).json({
                 success: false,
-                error: error instanceof Error ? error.message : 'Internal server error',
+                error: 'Internal server error',
             });
         }
     });

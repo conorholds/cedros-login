@@ -54,6 +54,10 @@ pub async fn change_password<C: AuthCallback, E: EmailService>(
         .ok_or_else(|| AppError::Validation("User has no password set".into()))?;
 
     // Verify current password
+    // S-20: The .clone() is required because spawn_blocking needs 'static ownership.
+    // The clone is dropped (not zeroized) after verify completes. The original in
+    // `req` IS zeroized on drop (via ZeroizeOnDrop derive). Accepted trade-off:
+    // spawn_blocking fundamentally requires an owned copy.
     if !state
         .password_service
         .verify(req.current_password.clone(), password_hash.clone())
@@ -72,15 +76,29 @@ pub async fn change_password<C: AuthCallback, E: EmailService>(
         .await?;
 
     // Check if user has a wallet with password auth method
-    let wallet_material = state.wallet_material_repo.find_by_user(user_id).await?;
+    let wallet_material = state
+        .wallet_material_repo
+        .find_default_by_user(user_id)
+        .await?;
     let needs_wallet_reencrypt = wallet_material
         .as_ref()
         .map(|m| m.share_a_auth_method == ShareAAuthMethod::Password)
         .unwrap_or(false);
 
-    // If user has password-protected wallet, re-encrypt Share A
+    // S-12: Re-encrypt Share A and update password in sequence.
+    // These are not wrapped in a single DB transaction (repository layer doesn't
+    // expose transactions). The window between the two writes is small, but on crash
+    // between them the wallet could become inaccessible. Password update happens last
+    // so that on partial failure the wallet is still encrypted with the old password
+    // and the user can retry with the old password.
+    // TODO: Wrap in DB transaction when repository layer supports it.
     if needs_wallet_reencrypt {
-        let material = wallet_material.as_ref().unwrap();
+        // 8.2: Use let-else instead of .unwrap() for defensive error handling
+        let Some(material) = wallet_material.as_ref() else {
+            return Err(AppError::Internal(anyhow::anyhow!(
+                "wallet material missing after needs_wallet_reencrypt check"
+            )));
+        };
 
         // Re-encrypt Share A with new password
         let reencrypted = state

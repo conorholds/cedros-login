@@ -12,7 +12,7 @@ use axum::{
 };
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::future::Future;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -93,6 +93,20 @@ async fn ensure_sso_credential(
         }
     }
     Ok(())
+}
+
+async fn ensure_membership_for_new_user<F, Fut>(
+    is_new_user: bool,
+    create_membership: F,
+) -> Result<(), AppError>
+where
+    F: FnOnce() -> Fut,
+    Fut: Future<Output = Result<(), AppError>>,
+{
+    if !is_new_user {
+        return Ok(());
+    }
+    create_membership().await
 }
 
 /// POST /auth/sso/start
@@ -224,6 +238,7 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                 is_system_admin: false,
                 created_at: now,
                 updated_at: now,
+                last_login_at: Some(now),
             };
 
             let created = state.user_repo.create(new_user).await?;
@@ -239,24 +254,20 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
     )
     .await?;
 
-    // Add user to organization if new
-    if is_new_user {
-        // Find or create membership
+    ensure_membership_for_new_user(is_new_user, || async {
         let membership = crate::repositories::MembershipEntity::new(
             user.id,
             provider.org_id,
             crate::repositories::OrgRole::Member,
         );
-        let _ = state.membership_repo.create(membership).await;
-    }
+        state.membership_repo.create(membership).await?;
+        Ok(())
+    })
+    .await?;
 
     // Get memberships for token context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let org_ids: Vec<_> = memberships.iter().map(|m| m.org_id).collect();
-    let orgs = state.org_repo.find_by_ids(&org_ids).await?;
-    let orgs_by_id: HashMap<_, _> = orgs.into_iter().map(|o| (o.id, o)).collect();
-
-    let token_context = get_default_org_context(&memberships, &orgs_by_id, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin);
 
     // Create session
     let session_id = Uuid::new_v4();
@@ -338,6 +349,7 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         is_new_user,
         callback_data,
         api_key: None,
+        email_queued: None,
     };
 
     Ok(build_json_response_with_cookies(
@@ -405,6 +417,7 @@ mod tests {
     use async_trait::async_trait;
     use chrono::Utc;
     use serde_json::Value;
+    use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
     use std::time::Duration as StdDuration;
     use uuid::Uuid;
@@ -519,5 +532,29 @@ mod tests {
         let creds = repo.find_by_user(user_id).await.unwrap();
         assert_eq!(creds.len(), 1);
         assert_eq!(creds[0].credential_type, CredentialType::SsoOidc);
+    }
+
+    #[tokio::test]
+    async fn test_ensure_membership_for_new_user_propagates_error() {
+        let result = ensure_membership_for_new_user(true, || async {
+            Err(AppError::Internal(anyhow::anyhow!("membership failed")))
+        })
+        .await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_ensure_membership_for_existing_user_skips_create() {
+        let called = Arc::new(AtomicBool::new(false));
+        let called_clone = called.clone();
+
+        ensure_membership_for_new_user(false, || async move {
+            called_clone.store(true, Ordering::SeqCst);
+            Ok(())
+        })
+        .await
+        .expect("existing users should skip membership creation");
+
+        assert!(!called.load(Ordering::SeqCst));
     }
 }

@@ -11,7 +11,9 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::errors::AppError;
-use crate::repositories::{CreditHoldEntity, CreditHoldRepository, CreditRepository, CreditTransactionEntity};
+use crate::repositories::{
+    CreditHoldEntity, CreditHoldRepository, CreditRepository, CreditTransactionEntity,
+};
 
 // Re-export types for external consumers
 pub use super::credit_types::{
@@ -205,6 +207,7 @@ impl CreditService {
             transaction_id: tx_id,
             new_balance_lamports: new_balance,
             amount_lamports: amount,
+            currency: currency.to_string(),
         })
     }
 
@@ -258,7 +261,9 @@ impl CreditService {
             )));
         }
 
-        // Check available balance first
+        // Fast-path balance check — rejects most insufficient-balance requests
+        // without touching the hold table. The authoritative atomic check is in
+        // the repository's create_hold transaction (SRV-01).
         let balance = self
             .credit_repo
             .get_or_create_balance(user_id, currency)
@@ -327,7 +332,8 @@ impl CreditService {
             );
             return Err(AppError::Validation(format!(
                 "Hold {} cannot be captured, status: {}",
-                hold_id, hold.status.as_str()
+                hold_id,
+                hold.status.as_str()
             )));
         }
 
@@ -344,19 +350,16 @@ impl CreditService {
         );
         let tx_id = tx.id;
 
-        // Capture the hold (updates held_balance)
-        self.hold_repo.capture_hold(hold_id, tx_id).await?;
-
-        // Deduct from actual balance
-        let new_balance = self
-            .credit_repo
-            .deduct_credit(hold.user_id, hold.amount, &hold.currency, tx)
-            .await?;
+        // SRV-02: Capture hold + deduct balance + insert transaction record
+        // in a single DB transaction to prevent inconsistency on crash.
+        let (_captured, new_balance) =
+            self.hold_repo.capture_hold(hold_id, tx_id, tx).await?;
 
         Ok(SpendResult {
             transaction_id: tx_id,
             new_balance_lamports: new_balance,
             amount_lamports: hold.amount,
+            currency: hold.currency,
         })
     }
 

@@ -15,6 +15,8 @@ import type {
 import { initializeApiServices, getAuthApi } from "../services/api";
 import { TokenManager } from "../utils/tokenManager";
 
+export const AUTH_USER_ENDPOINT = "/auth/user";
+
 export interface CedrosLoginContextValue {
   config: CedrosLoginConfig;
   user: AuthUser | null;
@@ -24,8 +26,8 @@ export interface CedrosLoginContextValue {
   login: (
     user: AuthUser,
     tokens?: { accessToken: string; refreshToken: string; expiresIn: number },
-  ) => void;
-  logout: () => void;
+  ) => Promise<void>;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   getAccessToken: () => string | null;
   clearError: () => void;
@@ -52,17 +54,21 @@ export function CedrosLoginProvider({
       config,
       tokenManager,
     });
+    return () => {
+      tokenManager.destroy();
+    };
   }, [config]);
 
-  const login = useCallback((newUser: AuthUser, tokens?: TokenPair) => {
+  const login = useCallback(async (newUser: AuthUser, tokens?: TokenPair) => {
     setUser(newUser);
     setError(null);
 
     if (tokens) {
       try {
         const authApi = getAuthApi();
-        const tokenManager = authApi["client"].getTokenManager();
-        tokenManager.setTokens(tokens);
+        const tokenManager = authApi.getTokenManager();
+        // F-23: Await token persistence to prevent data loss on crash/navigation
+        await tokenManager.setTokens(tokens);
       } catch {
         // API not initialized yet
       }
@@ -79,7 +85,6 @@ export function CedrosLoginProvider({
       setError({ code: "LOGOUT_FAILED", message: errorMessage });
     } finally {
       setUser(null);
-      setError(null);
       setIsLoading(false);
     }
   }, []);
@@ -88,13 +93,13 @@ export function CedrosLoginProvider({
     setIsLoading(true);
     try {
       const authApi = getAuthApi();
-      const token = authApi["client"].getTokenManager().getAccessToken();
+      const token = authApi.getTokenManager().getAccessToken();
       if (!token) {
         setUser(null);
         return;
       }
-      const response = await authApi["client"].get<{ user: AuthUser }>(
-        "/auth/me",
+      const response = await authApi.getRequest<{ user: AuthUser }>(
+        AUTH_USER_ENDPOINT,
       );
       if (response?.data.user) {
         setUser(response.data.user);
@@ -113,7 +118,7 @@ export function CedrosLoginProvider({
   const getAccessToken = useCallback((): string | null => {
     try {
       const authApi = getAuthApi();
-      return authApi["client"].getTokenManager().getAccessToken();
+      return authApi.getTokenManager().getAccessToken();
     } catch {
       return null;
     }

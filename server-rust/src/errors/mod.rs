@@ -193,18 +193,40 @@ impl IntoResponse for AppError {
                 ErrorCode::StepUpRequired,
                 self.to_string(),
             ),
-            AppError::Internal(_) | AppError::Database(_) | AppError::Config(_) => {
+            AppError::Internal(err) => {
+                // Debug-only detail: avoid exposing sensitive data at higher log levels.
+                tracing::debug!(error = %err, "Internal error detail");
+                tracing::error!(
+                    error_kind = %"internal",
+                    error_code = ?ErrorCode::ServerError,
+                    "Request failed"
+                );
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ErrorCode::ServerError,
+                    "Internal server error".to_string(),
+                )
+            }
+            AppError::Database(msg) => {
+                tracing::debug!(error = %msg, "Database error detail");
+                tracing::error!(
+                    error_kind = %"database",
+                    error_code = ?ErrorCode::ServerError,
+                    "Request failed"
+                );
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ErrorCode::ServerError,
+                    "Internal server error".to_string(),
+                )
+            }
+            AppError::Config(msg) => {
+                tracing::debug!(error = %msg, "Config error detail");
                 // Avoid logging internal error details at error level since they may contain
                 // secrets/PII. The current span should already include request context (e.g.
                 // request id) when present.
-                let kind = match &self {
-                    AppError::Internal(_) => "internal",
-                    AppError::Database(_) => "database",
-                    AppError::Config(_) => "config",
-                    _ => "unknown",
-                };
                 tracing::error!(
-                    error_kind = %kind,
+                    error_kind = %"config",
                     error_code = ?ErrorCode::ServerError,
                     "Request failed"
                 );

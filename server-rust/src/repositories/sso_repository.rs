@@ -5,7 +5,7 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -58,6 +58,17 @@ pub trait SsoRepository: Send + Sync {
 
     /// Count providers for a specific org
     async fn count_providers_for_org(&self, org_id: Uuid) -> Result<u64, AppError>;
+
+    /// List providers across a set of org IDs with pagination.
+    async fn list_providers_for_orgs_paged(
+        &self,
+        org_ids: &[Uuid],
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<SsoProvider>, AppError>;
+
+    /// Count providers across a set of org IDs.
+    async fn count_providers_for_orgs(&self, org_ids: &[Uuid]) -> Result<u64, AppError>;
 
     /// Update a provider
     async fn update_provider(&self, provider: SsoProvider) -> Result<SsoProvider, AppError>;
@@ -183,6 +194,43 @@ impl SsoRepository for InMemorySsoRepository {
     async fn count_providers_for_org(&self, org_id: Uuid) -> Result<u64, AppError> {
         let providers = self.providers.read().await;
         Ok(providers.values().filter(|p| p.org_id == org_id).count() as u64)
+    }
+
+    async fn list_providers_for_orgs_paged(
+        &self,
+        org_ids: &[Uuid],
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<SsoProvider>, AppError> {
+        if org_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let org_set: HashSet<Uuid> = org_ids.iter().copied().collect();
+        let providers = self.providers.read().await;
+        let mut result: Vec<_> = providers
+            .values()
+            .filter(|p| org_set.contains(&p.org_id))
+            .cloned()
+            .collect();
+        result.sort_by(|a, b| (a.org_id, a.name.clone()).cmp(&(b.org_id, b.name.clone())));
+
+        let start = offset as usize;
+        let end = start.saturating_add(limit as usize);
+        Ok(result.into_iter().skip(start).take(end - start).collect())
+    }
+
+    async fn count_providers_for_orgs(&self, org_ids: &[Uuid]) -> Result<u64, AppError> {
+        if org_ids.is_empty() {
+            return Ok(0);
+        }
+
+        let org_set: HashSet<Uuid> = org_ids.iter().copied().collect();
+        let providers = self.providers.read().await;
+        Ok(providers
+            .values()
+            .filter(|p| org_set.contains(&p.org_id))
+            .count() as u64)
     }
 
     async fn update_provider(&self, provider: SsoProvider) -> Result<SsoProvider, AppError> {
@@ -350,6 +398,42 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(org_page.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_list_and_count_providers_for_orgs() {
+        let repo = InMemorySsoRepository::new();
+        let org_a = Uuid::new_v4();
+        let org_b = Uuid::new_v4();
+        let org_c = Uuid::new_v4();
+
+        for (org, name) in [
+            (org_a, "Alpha"),
+            (org_a, "Bravo"),
+            (org_b, "Charlie"),
+            (org_c, "Delta"),
+        ] {
+            repo.create_provider(SsoProvider::new(
+                org,
+                name.into(),
+                format!("https://{}.example.com", name.to_lowercase()),
+                format!("client-{}", name.to_lowercase()),
+                "secret".into(),
+            ))
+            .await
+            .unwrap();
+        }
+
+        let owned_orgs = vec![org_a, org_b];
+        let total = repo.count_providers_for_orgs(&owned_orgs).await.unwrap();
+        assert_eq!(total, 3);
+
+        let page = repo
+            .list_providers_for_orgs_paged(&owned_orgs, 10, 0)
+            .await
+            .unwrap();
+        assert_eq!(page.len(), 3);
+        assert!(page.iter().all(|p| p.org_id == org_a || p.org_id == org_b));
     }
 
     #[tokio::test]

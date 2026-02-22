@@ -8,8 +8,9 @@
 //! ```
 
 use cedros_login::services::{
-    DiscordNotificationService, LogEmailService, LogNotificationService, OutboxWorker,
-    OutboxWorkerConfig, PostmarkEmailService, TelegramNotificationService,
+    init_logging, init_metrics, DiscordNotificationService, LogEmailService,
+    LogNotificationService, OutboxWorker, OutboxWorkerConfig, PostmarkEmailService,
+    TelegramNotificationService,
 };
 use cedros_login::utils::TokenCipher;
 use cedros_login::{
@@ -22,24 +23,35 @@ use tokio::net::TcpListener;
 use tokio::signal;
 use tokio_util::sync::CancellationToken;
 use tracing::info;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
+fn is_production_like_environment(environment: &str) -> bool {
+    let env_lc = environment.trim().to_ascii_lowercase();
+    !matches!(env_lc.as_str(), "dev" | "development" | "local" | "test")
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load environment variables from .env file
     dotenvy::dotenv().ok();
 
-    // Initialize tracing
-    tracing_subscriber::registry()
-        .with(
-            EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "cedros_login=debug,tower_http=debug,axum=debug".into()),
-        )
-        .with(tracing_subscriber::fmt::layer())
-        .init();
+    // Initialize tracing with reloadable filter (allows runtime log level changes)
+    let logging_service = init_logging("cedros_login=info,tower_http=info,axum=info");
 
-    // Load configuration
+    // Initialize Prometheus metrics
+    let _metrics_handle = init_metrics();
+
+    // Load configuration from environment (infrastructure + defaults)
     let config = Config::from_env()?;
+    if config.database.url.is_none()
+        && is_production_like_environment(&config.notification.environment)
+    {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "DATABASE_URL is required in production-like environments",
+        )
+        .into());
+    }
+
     let addr = format!("{}:{}", config.server.host, config.server.port);
 
     info!("Starting Cedros Login Server");
@@ -83,27 +95,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .discord_enabled()
     {
         info!("Using Discord notification service");
+        let webhook_url = config
+            .notification
+            .discord_webhook_url
+            .clone()
+            .ok_or("discord_webhook_url required when DISCORD_WEBHOOK_URL is set")?;
         Arc::new(DiscordNotificationService::new(
-            config
-                .notification
-                .discord_webhook_url
-                .clone()
-                .expect("discord_webhook_url required when discord_enabled()"),
+            webhook_url,
             config.notification.environment.clone(),
         ))
     } else if config.notification.telegram_enabled() {
         info!("Using Telegram notification service");
+        let bot_token = config
+            .notification
+            .telegram_bot_token
+            .clone()
+            .ok_or("telegram_bot_token required when TELEGRAM_BOT_TOKEN is set")?;
+        let chat_id = config
+            .notification
+            .telegram_chat_id
+            .clone()
+            .ok_or("telegram_chat_id required when TELEGRAM_CHAT_ID is set")?;
         Arc::new(TelegramNotificationService::new(
-            config
-                .notification
-                .telegram_bot_token
-                .clone()
-                .expect("telegram_bot_token required when telegram_enabled()"),
-            config
-                .notification
-                .telegram_chat_id
-                .clone()
-                .expect("telegram_chat_id required when telegram_enabled()"),
+            bot_token,
+            chat_id,
             config.notification.environment.clone(),
         ))
     } else {
@@ -135,6 +150,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let settings_service = Arc::new(cedros_login::services::SettingsService::new(
         storage.system_settings_repo.clone(),
     ));
+
+    // Refresh settings cache so runtime values are available immediately
+    if let Err(e) = settings_service.refresh().await {
+        tracing::warn!("Failed to load initial settings from database: {}", e);
+    } else {
+        info!("Loaded runtime settings from database (configure via admin dashboard)");
+
+        // Apply logging settings from database (allows runtime log level changes)
+        if let Err(e) = logging_service.apply_from_settings(&settings_service).await {
+            tracing::warn!("Failed to apply logging settings: {}", e);
+        }
+    }
 
     // Start withdrawal worker for Privacy Cash deposits (if enabled)
     let withdrawal_worker_handle = create_withdrawal_worker(
@@ -217,17 +244,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// Create a future that resolves when a shutdown signal is received
 async fn shutdown_signal() {
     let ctrl_c = async {
-        signal::ctrl_c()
-            .await
-            .expect("Failed to install Ctrl+C handler");
+        match signal::ctrl_c().await {
+            Ok(()) => {}
+            Err(e) => {
+                tracing::error!(error = %e, "Failed to install Ctrl+C handler, shutdown signal may not work properly");
+                // Wait indefinitely since we can't listen for Ctrl+C
+                std::future::pending::<()>().await;
+            }
+        }
     };
 
     #[cfg(unix)]
     let terminate = async {
-        signal::unix::signal(signal::unix::SignalKind::terminate())
-            .expect("Failed to install SIGTERM handler")
-            .recv()
-            .await;
+        match signal::unix::signal(signal::unix::SignalKind::terminate()) {
+            Ok(mut stream) => {
+                stream.recv().await;
+            }
+            Err(e) => {
+                tracing::error!(error = %e, "Failed to install SIGTERM handler, SIGTERM signal may not work properly");
+                // Wait indefinitely since we can't listen for SIGTERM
+                std::future::pending::<()>().await;
+            }
+        }
     };
 
     #[cfg(not(unix))]
@@ -240,5 +278,18 @@ async fn shutdown_signal() {
         _ = terminate => {
             info!("Received SIGTERM, initiating graceful shutdown...");
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_production_like_environment;
+
+    #[test]
+    fn production_like_environment_detection() {
+        assert!(is_production_like_environment("production"));
+        assert!(is_production_like_environment("staging"));
+        assert!(!is_production_like_environment("development"));
+        assert!(!is_production_like_environment("test"));
     }
 }

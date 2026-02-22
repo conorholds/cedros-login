@@ -2,6 +2,8 @@
 //!
 //! Reads settings from the database and caches them for performance.
 //! Cache is automatically refreshed after TTL expires.
+//!
+//! Supports encrypted secrets via the EncryptionService.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -9,15 +11,24 @@ use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 
 use crate::errors::AppError;
-use crate::repositories::SystemSettingsRepository;
+use crate::repositories::{SystemSetting, SystemSettingsRepository};
+use crate::services::EncryptionService;
 
 /// Default cache TTL (60 seconds)
 const DEFAULT_CACHE_TTL_SECS: u64 = 60;
 
+/// Cached setting with metadata
+#[derive(Clone)]
+struct CachedSetting {
+    value: String,
+    is_secret: bool,
+}
+
 /// Service for reading system settings with caching
 pub struct SettingsService {
     repo: Arc<dyn SystemSettingsRepository>,
-    cache: RwLock<HashMap<String, String>>,
+    encryption: Option<EncryptionService>,
+    cache: RwLock<HashMap<String, CachedSetting>>,
     last_refresh: RwLock<Option<Instant>>,
     cache_ttl: Duration,
 }
@@ -27,6 +38,21 @@ impl SettingsService {
     pub fn new(repo: Arc<dyn SystemSettingsRepository>) -> Self {
         Self {
             repo,
+            encryption: None,
+            cache: RwLock::new(HashMap::new()),
+            last_refresh: RwLock::new(None),
+            cache_ttl: Duration::from_secs(DEFAULT_CACHE_TTL_SECS),
+        }
+    }
+
+    /// Create with encryption service for handling secrets
+    pub fn with_encryption(
+        repo: Arc<dyn SystemSettingsRepository>,
+        encryption: EncryptionService,
+    ) -> Self {
+        Self {
+            repo,
+            encryption: Some(encryption),
             cache: RwLock::new(HashMap::new()),
             last_refresh: RwLock::new(None),
             cache_ttl: Duration::from_secs(DEFAULT_CACHE_TTL_SECS),
@@ -37,6 +63,22 @@ impl SettingsService {
     pub fn with_ttl(repo: Arc<dyn SystemSettingsRepository>, ttl_secs: u64) -> Self {
         Self {
             repo,
+            encryption: None,
+            cache: RwLock::new(HashMap::new()),
+            last_refresh: RwLock::new(None),
+            cache_ttl: Duration::from_secs(ttl_secs),
+        }
+    }
+
+    /// Create with encryption and custom TTL
+    pub fn with_encryption_and_ttl(
+        repo: Arc<dyn SystemSettingsRepository>,
+        encryption: EncryptionService,
+        ttl_secs: u64,
+    ) -> Self {
+        Self {
+            repo,
+            encryption: Some(encryption),
             cache: RwLock::new(HashMap::new()),
             last_refresh: RwLock::new(None),
             cache_ttl: Duration::from_secs(ttl_secs),
@@ -59,7 +101,13 @@ impl SettingsService {
         let mut cache = self.cache.write().await;
         cache.clear();
         for setting in settings {
-            cache.insert(setting.key, setting.value);
+            cache.insert(
+                setting.key,
+                CachedSetting {
+                    value: setting.value,
+                    is_secret: setting.is_secret,
+                },
+            );
         }
 
         let mut last_refresh = self.last_refresh.write().await;
@@ -77,10 +125,103 @@ impl SettingsService {
     }
 
     /// Get a setting value as string
+    /// Note: For secrets, this returns the encrypted value. Use `get_secret()` for decrypted values.
     pub async fn get(&self, key: &str) -> Result<Option<String>, AppError> {
         self.ensure_fresh().await?;
         let cache = self.cache.read().await;
-        Ok(cache.get(key).cloned())
+        Ok(cache.get(key).map(|s| s.value.clone()))
+    }
+
+    /// Get a secret setting value (decrypted)
+    /// Returns None if key not found, or error if decryption fails
+    pub async fn get_secret(&self, key: &str) -> Result<Option<String>, AppError> {
+        self.ensure_fresh().await?;
+        let cache = self.cache.read().await;
+
+        match cache.get(key) {
+            None => Ok(None),
+            Some(cached) => {
+                if !cached.is_secret {
+                    // Not a secret, return as-is
+                    return Ok(Some(cached.value.clone()));
+                }
+
+                // Empty secret value means not configured
+                if cached.value.is_empty() {
+                    return Ok(Some(String::new()));
+                }
+
+                // Decrypt the secret
+                let encryption = self.encryption.as_ref().ok_or_else(|| {
+                    AppError::Internal(anyhow::anyhow!(
+                        "EncryptionService required to read secret '{}'",
+                        key
+                    ))
+                })?;
+
+                let decrypted = encryption.decrypt(&cached.value)?;
+                Ok(Some(decrypted))
+            }
+        }
+    }
+
+    /// Set a secret setting value (encrypts before storing)
+    pub async fn set_secret(
+        &self,
+        key: &str,
+        plaintext: &str,
+        category: &str,
+        updated_by: Option<uuid::Uuid>,
+    ) -> Result<(), AppError> {
+        let encryption = self.encryption.as_ref().ok_or_else(|| {
+            AppError::Internal(anyhow::anyhow!(
+                "EncryptionService required to write secret '{}'",
+                key
+            ))
+        })?;
+
+        let encrypted = encryption.encrypt(plaintext)?;
+        let version = format!("v{}", encryption.key_version());
+
+        let mut setting =
+            SystemSetting::new_secret(key.to_string(), encrypted, category.to_string(), &version);
+        setting.updated_by = updated_by;
+
+        self.repo.upsert(setting).await?;
+
+        // Invalidate cache to pick up new value
+        let mut last_refresh = self.last_refresh.write().await;
+        *last_refresh = None;
+
+        Ok(())
+    }
+
+    /// Set a regular (non-secret) setting value
+    pub async fn set(
+        &self,
+        key: &str,
+        value: &str,
+        category: &str,
+        updated_by: Option<uuid::Uuid>,
+    ) -> Result<(), AppError> {
+        let mut setting =
+            SystemSetting::new(key.to_string(), value.to_string(), category.to_string());
+        setting.updated_by = updated_by;
+
+        self.repo.upsert(setting).await?;
+
+        // Invalidate cache to pick up new value
+        let mut last_refresh = self.last_refresh.write().await;
+        *last_refresh = None;
+
+        Ok(())
+    }
+
+    /// Check if a setting is marked as a secret
+    pub async fn is_secret(&self, key: &str) -> Result<bool, AppError> {
+        self.ensure_fresh().await?;
+        let cache = self.cache.read().await;
+        Ok(cache.get(key).map(|s| s.is_secret).unwrap_or(false))
     }
 
     /// Get a setting value as u64
@@ -142,10 +283,34 @@ impl SettingsService {
     }
 
     /// Get all cached settings (for admin API)
+    /// Note: Secret values are returned as-is (encrypted). Use get_secret() to decrypt.
     pub async fn get_all_cached(&self) -> Result<HashMap<String, String>, AppError> {
         self.ensure_fresh().await?;
         let cache = self.cache.read().await;
-        Ok(cache.clone())
+        Ok(cache
+            .iter()
+            .map(|(k, v)| (k.clone(), v.value.clone()))
+            .collect())
+    }
+
+    /// Get all settings by category prefix (e.g., "auth.google" matches "auth.google.*")
+    pub async fn get_by_category_prefix(
+        &self,
+        prefix: &str,
+    ) -> Result<HashMap<String, String>, AppError> {
+        self.ensure_fresh().await?;
+        let cache = self.cache.read().await;
+        let prefix_with_sep = if prefix.ends_with('.') || prefix.ends_with('_') {
+            prefix.to_string()
+        } else {
+            format!("{}.", prefix)
+        };
+
+        Ok(cache
+            .iter()
+            .filter(|(k, _)| k.starts_with(&prefix_with_sep) || k.starts_with(prefix))
+            .map(|(k, v)| (k.clone(), v.value.clone()))
+            .collect())
     }
 
     // =========================================================================
@@ -160,7 +325,7 @@ impl SettingsService {
         self.cache
             .try_read()
             .ok()
-            .and_then(|cache| cache.get(key).cloned())
+            .and_then(|cache| cache.get(key).map(|s| s.value.clone()))
     }
 
     /// Get u32 from cache synchronously
@@ -235,7 +400,7 @@ mod tests {
         let service = SettingsService::new(repo);
 
         let all = service.get_all_cached().await.unwrap();
-        assert_eq!(all.len(), 14); // All default settings
+        assert_eq!(all.len(), 19); // All default settings (14 original + 5 server/logging/metrics)
         assert_eq!(all.get("privacy_period_secs"), Some(&"604800".to_string()));
     }
 }

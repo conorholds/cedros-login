@@ -12,9 +12,13 @@ import { typography } from "../../theme/typography";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
+import type { AuthError } from "../../types";
 
 export interface GoogleLoginButtonProps {
+  /** Callback invoked on press; should trigger native Google Sign-In and return the ID token. */
+  onRequestToken: () => Promise<{ idToken: string }>;
   onSuccess?: () => void;
+  onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -26,17 +30,11 @@ export interface GoogleLoginButtonProps {
  * This component includes a placeholder Google icon (letter "G" in a colored circle).
  * Consumers should provide their own custom Google icon component for production use.
  * Consider using react-native-vector-icons or a custom SVG/PNG icon.
- *
- * @example
- * ```tsx
- * // With custom icon (recommended for production)
- * <GoogleLoginButton
- *   onSuccess={() => console.log('Signed in!')}
- * />
- * ```
  */
 export function GoogleLoginButton({
+  onRequestToken,
   onSuccess,
+  onError,
   style,
   testID = "google-login-button",
 }: GoogleLoginButtonProps): React.ReactElement {
@@ -44,12 +42,17 @@ export function GoogleLoginButton({
 
   const handlePress = useCallback(async () => {
     try {
-      await signIn();
+      const { idToken } = await onRequestToken();
+      await signIn(idToken);
       onSuccess?.();
-    } catch {
-      // Error handled by hook
+    } catch (e) {
+      const authError: AuthError =
+        e && typeof e === "object" && "code" in e
+          ? (e as AuthError)
+          : { code: "UNKNOWN_ERROR", message: String(e) };
+      onError?.(authError);
     }
-  }, [signIn, onSuccess]);
+  }, [onRequestToken, signIn, onSuccess, onError]);
 
   return (
     <View style={style}>

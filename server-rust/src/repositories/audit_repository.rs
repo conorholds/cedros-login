@@ -21,6 +21,7 @@ pub enum AuditEventType {
     UserRegister,
     UserPasswordChanged,
     UserEmailVerified,
+    UserProfileUpdated,
 
     // Session events
     SessionCreated,
@@ -60,6 +61,8 @@ pub enum AuditEventType {
     MfaRecoveryCodesRegenerated,
     MfaChallengeIssued,
     MfaLoginCompleted,
+    /// SRV-10: Failed TOTP verification attempt
+    MfaVerificationFailed,
 
     // Custom role events
     CustomRoleCreated,
@@ -86,6 +89,7 @@ impl AuditEventType {
             Self::UserRegister => "user.register",
             Self::UserPasswordChanged => "user.password_changed",
             Self::UserEmailVerified => "user.email_verified",
+            Self::UserProfileUpdated => "user.profile_updated",
             Self::SessionCreated => "session.created",
             Self::SessionRevoked => "session.revoked",
             Self::SessionRevokedAll => "session.revoked_all",
@@ -110,6 +114,7 @@ impl AuditEventType {
             Self::MfaRecoveryCodesRegenerated => "mfa.recovery_codes_regenerated",
             Self::MfaChallengeIssued => "mfa.challenge_issued",
             Self::MfaLoginCompleted => "mfa.login_completed",
+            Self::MfaVerificationFailed => "mfa.verification_failed",
             Self::CustomRoleCreated => "custom_role.created",
             Self::CustomRoleUpdated => "custom_role.updated",
             Self::CustomRoleDeleted => "custom_role.deleted",
@@ -134,6 +139,7 @@ impl AuditEventType {
             "user.register" => Some(Self::UserRegister),
             "user.password_changed" => Some(Self::UserPasswordChanged),
             "user.email_verified" => Some(Self::UserEmailVerified),
+            "user.profile_updated" => Some(Self::UserProfileUpdated),
             "session.created" => Some(Self::SessionCreated),
             "session.revoked" => Some(Self::SessionRevoked),
             "session.revoked_all" => Some(Self::SessionRevokedAll),
@@ -158,6 +164,7 @@ impl AuditEventType {
             "mfa.recovery_codes_regenerated" => Some(Self::MfaRecoveryCodesRegenerated),
             "mfa.challenge_issued" => Some(Self::MfaChallengeIssued),
             "mfa.login_completed" => Some(Self::MfaLoginCompleted),
+            "mfa.verification_failed" => Some(Self::MfaVerificationFailed),
             "custom_role.created" => Some(Self::CustomRoleCreated),
             "custom_role.updated" => Some(Self::CustomRoleUpdated),
             "custom_role.deleted" => Some(Self::CustomRoleDeleted),

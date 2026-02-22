@@ -24,7 +24,7 @@ use crate::models::{
     SpendCreditsRequest, SpendCreditsResponse,
 };
 use crate::services::{CreditService, EmailService};
-use crate::utils::validate_metadata_no_secrets;
+use crate::utils::{validate_currency, validate_metadata_no_secrets, validate_reference_type};
 use crate::AppState;
 
 /// POST /credits/spend/{user_id} - Spend credits directly
@@ -44,6 +44,12 @@ pub async fn spend_credits<C: AuthCallback, E: EmailService>(
 
     // Validate metadata doesn't contain secrets
     validate_metadata_no_secrets(request.metadata.as_ref())?;
+
+    // SRV-13: Validate reference_type against known types
+    validate_reference_type(&request.reference_type)?;
+
+    // SRV-14: Validate currency against whitelist
+    validate_currency(&request.currency)?;
 
     // Verify target user exists
     let _target_user = state
@@ -105,6 +111,14 @@ pub async fn create_hold<C: AuthCallback, E: EmailService>(
     // Validate metadata doesn't contain secrets
     validate_metadata_no_secrets(request.metadata.as_ref())?;
 
+    // SRV-13: Validate reference_type against known types (if provided)
+    if let Some(ref rt) = request.reference_type {
+        validate_reference_type(rt)?;
+    }
+
+    // SRV-14: Validate currency against whitelist
+    validate_currency(&request.currency)?;
+
     // Verify target user exists
     let _target_user = state
         .user_repo
@@ -112,8 +126,13 @@ pub async fn create_hold<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::NotFound("User not found".into()))?;
 
-    // Validate TTL (max 60 minutes)
-    let ttl_minutes = request.ttl_minutes.min(60);
+    // SRV-12: Validate TTL bounds (1-60 minutes). ttl=0 would create an already-expired hold.
+    if request.ttl_minutes < 1 || request.ttl_minutes > 60 {
+        return Err(AppError::Validation(
+            "ttl_minutes must be between 1 and 60".into(),
+        ));
+    }
+    let ttl_minutes = request.ttl_minutes;
 
     // Create credit service
     let credit_service =
@@ -166,16 +185,8 @@ pub async fn capture_hold<C: AuthCallback, E: EmailService>(
     let credit_service =
         CreditService::new(state.credit_repo.clone(), state.credit_hold_repo.clone());
 
-    // Get hold details to determine currency
-    let hold = state
-        .credit_hold_repo
-        .get_hold(hold_id)
-        .await?
-        .ok_or_else(|| AppError::NotFound(format!("Hold {} not found", hold_id)))?;
-
-    let currency = hold.currency.clone();
-
-    // Capture the hold
+    // S-14: Capture returns currency from the hold it fetches internally,
+    // avoiding a separate get_hold() call just to read the currency.
     let result = credit_service.capture(hold_id).await?;
 
     tracing::info!(
@@ -186,7 +197,7 @@ pub async fn capture_hold<C: AuthCallback, E: EmailService>(
         "Credit hold captured"
     );
 
-    Ok(Json(CaptureHoldResponse::from_result(result, &currency)))
+    Ok(Json(CaptureHoldResponse::from_result(result)))
 }
 
 /// POST /credits/release/{hold_id} - Release a hold
@@ -356,6 +367,7 @@ mod tests {
             wallet_signing_service: WalletSigningService::new(),
             wallet_unlock_cache: create_wallet_unlock_cache(),
             treasury_config_repo: storage.treasury_config_repo.clone(),
+            user_withdrawal_log_repo: storage.user_withdrawal_log_repo.clone(),
             privacy_sidecar_client: None,
             note_encryption_service: None,
             sol_price_service: std::sync::Arc::new(crate::services::SolPriceService::new()),
@@ -399,11 +411,12 @@ mod tests {
             is_system_admin: true,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 
         let api_key = generate_api_key();
-        let api_key_entity = ApiKeyEntity::new(user.id, &api_key);
+        let api_key_entity = ApiKeyEntity::new(user.id, &api_key, "default");
         state.api_key_repo.create(api_key_entity).await.unwrap();
 
         (user.id, api_key)
@@ -426,6 +439,7 @@ mod tests {
             is_system_admin: false,
             created_at: now,
             updated_at: now,
+            last_login_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         user.id

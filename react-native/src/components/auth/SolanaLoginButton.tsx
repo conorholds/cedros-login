@@ -12,9 +12,17 @@ import { typography } from "../../theme/typography";
 import { useSolanaAuth } from "../../hooks/useSolanaAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
+import type { AuthError } from "../../types";
 
 export interface SolanaLoginButtonProps {
+  /** Callback invoked on press; should trigger wallet adapter and return credentials. */
+  onRequestToken: () => Promise<{
+    walletAddress: string;
+    signature: string;
+    nonce: string;
+  }>;
   onSuccess?: () => void;
+  onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -26,17 +34,11 @@ export interface SolanaLoginButtonProps {
  * This component includes a placeholder icon ("SOL" text in a colored box).
  * Consumers should provide their own custom Solana icon for production use.
  * Consider using the official Solana logo or a custom SVG/PNG icon.
- *
- * @example
- * ```tsx
- * // With custom icon (recommended for production)
- * <SolanaLoginButton
- *   onSuccess={() => console.log('Wallet connected!')}
- * />
- * ```
  */
 export function SolanaLoginButton({
+  onRequestToken,
   onSuccess,
+  onError,
   style,
   testID = "solana-login-button",
 }: SolanaLoginButtonProps): React.ReactElement {
@@ -44,12 +46,17 @@ export function SolanaLoginButton({
 
   const handlePress = useCallback(async () => {
     try {
-      await signIn();
+      const { walletAddress, signature, nonce } = await onRequestToken();
+      await signIn(walletAddress, signature, nonce);
       onSuccess?.();
-    } catch {
-      // Error handled by hook
+    } catch (e) {
+      const authError: AuthError =
+        e && typeof e === "object" && "code" in e
+          ? (e as AuthError)
+          : { code: "UNKNOWN_ERROR", message: String(e) };
+      onError?.(authError);
     }
-  }, [signIn, onSuccess]);
+  }, [onRequestToken, signIn, onSuccess, onError]);
 
   return (
     <View style={style}>

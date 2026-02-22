@@ -106,18 +106,25 @@ impl JwtService {
         match Self::try_new(config) {
             Ok(svc) => svc,
             Err(e) => {
-                // NOTE: This constructor cannot return a Result. Avoid panicking to reduce
-                // backtrace noise in production and instead fail fast with a clear log.
-                tracing::error!(error = %e, "Failed to initialize JwtService");
+                // 1.1 FIX: If a PEM key was explicitly provided and failed to parse,
+                // treat as fatal. Do NOT silently fall back to ephemeral key, as that
+                // would invalidate all existing sessions with no clear signal.
+                if config.rsa_private_key_pem.is_some() {
+                    tracing::error!(
+                        error = %e,
+                        "JwtService: configured RSA private key is invalid — refusing to fall back to ephemeral key"
+                    );
+                    std::process::exit(1);
+                }
 
-                // Best-effort fallback: if a provided RSA key is invalid/unsupported, try
-                // again with an ephemeral key.
+                // No PEM configured — generate ephemeral key (dev/test mode)
+                tracing::error!(error = %e, "Failed to initialize JwtService");
                 let mut fallback = config.clone();
                 fallback.rsa_private_key_pem = None;
                 match Self::try_new(&fallback) {
                     Ok(svc) => {
                         tracing::warn!(
-                            "JwtService initialized with ephemeral key due to prior failure; tokens will be invalid after restart"
+                            "JwtService initialized with ephemeral key; tokens will be invalid after restart"
                         );
                         svc
                     }
@@ -333,6 +340,12 @@ impl JwtService {
     /// Also explicitly enables expiration validation (enabled by default but explicit
     /// for defense-in-depth).
     pub fn validate_access_token(&self, token: &str) -> Result<AccessTokenClaims, AppError> {
+        // SRV-13: Verify kid header matches current key before full validation
+        let header = jsonwebtoken::decode_header(token).map_err(|_| AppError::InvalidToken)?;
+        if header.kid.as_deref() != Some(&self.kid) {
+            return Err(AppError::InvalidToken);
+        }
+
         // Explicitly specify RS256 to prevent algorithm confusion attacks
         let mut validation = Validation::new(Algorithm::RS256);
         validation.set_issuer(&[&self.issuer]);

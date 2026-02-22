@@ -81,7 +81,7 @@
 //!
 //! ### 2. Compensation on Failure
 //! When a multi-step operation fails, undo completed steps:
-//! ```ignore
+//! ```text
 //! // Example: Safe invite acceptance pattern
 //! let invite = invite_repo.mark_accepted_if_valid(invite_id).await?;
 //! match membership_repo.create(membership).await {
@@ -113,7 +113,7 @@
 //! ## Future Improvement
 //!
 //! A full fix requires adding transaction support to the trait layer:
-//! ```ignore
+//! ```text
 //! async fn begin_transaction(&self) -> Result<Transaction, AppError>;
 //! async fn create_in_tx(&self, tx: &mut Transaction, entity: T) -> Result<T, AppError>;
 //! ```
@@ -141,8 +141,10 @@ mod session_repository;
 mod sso_repository;
 mod system_settings_repository;
 mod totp_repository;
+mod transactional_ops;
 mod treasury_config_repository;
 mod user_repository;
+mod user_withdrawal_log_repository;
 mod verification_repository;
 mod wallet_material_repository;
 mod webauthn_repository;
@@ -218,10 +220,16 @@ pub use system_settings_repository::{
     InMemorySystemSettingsRepository, SystemSetting, SystemSettingsRepository,
 };
 pub use totp_repository::{InMemoryTotpRepository, RecoveryCode, TotpRepository, TotpSecret};
+pub use transactional_ops::TransactionalOps;
 pub use treasury_config_repository::{
     InMemoryTreasuryConfigRepository, TreasuryConfigEntity, TreasuryConfigRepository,
 };
-pub use user_repository::{normalize_email, InMemoryUserRepository, UserEntity, UserRepository};
+pub use user_repository::{
+    normalize_email, validate_email_ascii_local, InMemoryUserRepository, UserEntity, UserRepository,
+};
+pub use user_withdrawal_log_repository::{
+    InMemoryUserWithdrawalLogRepository, UserWithdrawalLogEntry, UserWithdrawalLogRepository,
+};
 pub use verification_repository::{
     default_expiry, generate_verification_token, hash_verification_token,
     InMemoryVerificationRepository, RepositoryError, TokenType, VerificationRepository,
@@ -242,12 +250,12 @@ pub use withdrawal_history_repository::{
 pub use postgres::{
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
-    PostgresCustomRoleRepository,
-    PostgresDepositRepository, PostgresInviteRepository, PostgresLoginAttemptRepository,
-    PostgresMembershipRepository, PostgresNonceRepository, PostgresOrgRepository,
-    PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository, PostgresPolicyRepository,
-    PostgresPrivacyNoteRepository, PostgresSessionRepository, PostgresSsoRepository,
-    PostgresSystemSettingsRepository, PostgresTotpRepository, PostgresTreasuryConfigRepository,
-    PostgresUserRepository, PostgresVerificationRepository, PostgresWalletMaterialRepository,
-    PostgresWebAuthnRepository, PostgresWithdrawalHistoryRepository,
+    PostgresCustomRoleRepository, PostgresDepositRepository, PostgresInviteRepository,
+    PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
+    PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
+    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresSessionRepository,
+    PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
+    PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
+    PostgresVerificationRepository, PostgresWalletMaterialRepository, PostgresWebAuthnRepository,
+    PostgresWithdrawalHistoryRepository,
 };

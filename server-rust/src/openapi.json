@@ -27,7 +27,8 @@
     {"name": "invites", "description": "Organization invitations"},
     {"name": "mfa", "description": "Multi-factor authentication"},
     {"name": "sessions", "description": "Session management"},
-    {"name": "admin", "description": "System administration"}
+    {"name": "admin", "description": "System administration"},
+    {"name": "wallet", "description": "Embedded Solana wallet operations"}
   ],
   "paths": {
     "/discovery": {
@@ -340,6 +341,123 @@
             "content": {
               "application/json": {
                 "schema": {"$ref": "#/components/schemas/RegenerateApiKeyResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/api-keys": {
+      "get": {
+        "tags": ["api-keys"],
+        "summary": "List all API keys",
+        "description": "Returns metadata for all API keys belonging to the current user.",
+        "operationId": "listApiKeys",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "List of API keys",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ApiKeyListResponse"}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["api-keys"],
+        "summary": "Create a new API key",
+        "description": "Creates a new API key with a label. The full key is returned only once.",
+        "operationId": "createApiKey",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateApiKeyRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API key created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/CreateApiKeyResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/api-keys/{key_id}": {
+      "delete": {
+        "tags": ["api-keys"],
+        "summary": "Delete an API key",
+        "description": "Deletes a specific API key. If a wallet was linked to this key, it becomes orphaned.",
+        "operationId": "deleteApiKey",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "key_id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key deleted",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/MessageResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallet/list": {
+      "get": {
+        "tags": ["wallet"],
+        "summary": "List all wallets",
+        "description": "Returns all wallets for the current user, including the default wallet and per-API-key wallets.",
+        "operationId": "listWallets",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "List of wallets",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/WalletListResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wallet/rotate": {
+      "post": {
+        "tags": ["wallet"],
+        "summary": "Rotate wallet",
+        "description": "Deletes the current wallet and creates a new one with a new keypair. This is irreversible — any funds at the old address are NOT migrated.",
+        "operationId": "walletRotate",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/WalletRotateRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet rotated",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/MessageResponse"}
               }
             }
           }
@@ -845,7 +963,9 @@
       "ApiKeyResponse": {
         "type": "object",
         "properties": {
+          "id": {"type": "string", "format": "uuid"},
           "keyPrefix": {"type": "string", "description": "First 8 chars of key"},
+          "label": {"type": "string", "description": "Human-readable label (e.g. 'default', 'bot-alpha')"},
           "createdAt": {"type": "string", "format": "date-time"},
           "lastUsedAt": {"type": "string", "format": "date-time"}
         }
@@ -853,7 +973,72 @@
       "RegenerateApiKeyResponse": {
         "type": "object",
         "properties": {
-          "apiKey": {"type": "string", "description": "New API key (shown only once)"}
+          "apiKey": {"type": "string", "description": "New API key (shown only once)"},
+          "keyPrefix": {"type": "string"},
+          "label": {"type": "string"},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "message": {"type": "string"}
+        }
+      },
+      "ApiKeyListResponse": {
+        "type": "object",
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/ApiKeyResponse"}
+          }
+        }
+      },
+      "CreateApiKeyRequest": {
+        "type": "object",
+        "required": ["label"],
+        "properties": {
+          "label": {"type": "string", "minLength": 1, "maxLength": 100, "description": "Human-readable label for the key"}
+        }
+      },
+      "CreateApiKeyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "apiKey": {"type": "string", "description": "New API key (shown only once)"},
+          "keyPrefix": {"type": "string"},
+          "label": {"type": "string"},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "message": {"type": "string"}
+        }
+      },
+      "WalletListResponse": {
+        "type": "object",
+        "properties": {
+          "wallets": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/WalletSummary"}
+          }
+        }
+      },
+      "WalletSummary": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "walletPubkey": {"type": "string", "description": "Base58-encoded Solana public key"},
+          "authMethod": {"type": "string", "enum": ["password", "pin", "passkey", "api_key"]},
+          "apiKeyLabel": {"type": "string", "description": "Label of linked API key, or null for default wallet"},
+          "isDefault": {"type": "boolean"},
+          "createdAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "WalletRotateRequest": {
+        "type": "object",
+        "description": "Same structure as WalletEnrollRequest — provides new wallet material for the rotated wallet.",
+        "required": ["authMethod", "walletPubkey"],
+        "properties": {
+          "authMethod": {"type": "string", "enum": ["password", "pin", "passkey", "api_key"]},
+          "walletPubkey": {"type": "string"},
+          "encryptedShareA": {"type": "string"},
+          "encryptedShareB": {"type": "string"},
+          "shareAKdfSalt": {"type": "string"},
+          "shareAKdfParams": {"type": "string"},
+          "prfSalt": {"type": "string"}
         }
       },
       "CreateOrgRequest": {

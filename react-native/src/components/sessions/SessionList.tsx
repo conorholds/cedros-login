@@ -26,7 +26,7 @@ export function SessionList({
   sessions,
   onRevoke,
   onRevokeAll,
-  isLoading = false,
+  isLoading: _isLoading = false,
   containerStyle,
   testID = "session-list",
 }: SessionListProps): React.ReactElement {

@@ -99,10 +99,7 @@ impl CreditRefundRequestRepository for PostgresCreditRefundRequestRepository {
         row.try_into()
     }
 
-    async fn find_by_id(
-        &self,
-        id: Uuid,
-    ) -> Result<Option<CreditRefundRequestEntity>, AppError> {
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<CreditRefundRequestEntity>, AppError> {
         let row: Option<RefundRequestRow> = sqlx::query_as(
             r#"
             SELECT
@@ -177,20 +174,16 @@ impl CreditRefundRequestRepository for PostgresCreditRefundRequestRepository {
     async fn count(&self, status: Option<CreditRefundRequestStatus>) -> Result<u64, AppError> {
         let count: i64 = match status {
             Some(s) => {
-                sqlx::query_scalar(
-                    "SELECT COUNT(*) FROM credit_refund_requests WHERE status = $1",
-                )
-                .bind(s.as_str())
-                .fetch_one(&self.pool)
-                .await
-                .map_err(|e| AppError::Internal(e.into()))?
-            }
-            None => {
-                sqlx::query_scalar("SELECT COUNT(*) FROM credit_refund_requests")
+                sqlx::query_scalar("SELECT COUNT(*) FROM credit_refund_requests WHERE status = $1")
+                    .bind(s.as_str())
                     .fetch_one(&self.pool)
                     .await
                     .map_err(|e| AppError::Internal(e.into()))?
             }
+            None => sqlx::query_scalar("SELECT COUNT(*) FROM credit_refund_requests")
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?,
         };
 
         Ok(count as u64)

@@ -21,19 +21,21 @@ pub struct ApiKeyEntity {
     pub user_id: Uuid,
     pub key_hash: String,
     pub key_prefix: String,
+    pub label: String,
     pub created_at: DateTime<Utc>,
     pub last_used_at: Option<DateTime<Utc>>,
 }
 
 impl ApiKeyEntity {
-    /// Create a new API key entity from a raw key
-    pub fn new(user_id: Uuid, raw_key: &str) -> Self {
+    /// Create a new API key entity from a raw key with a label
+    pub fn new(user_id: Uuid, raw_key: &str, label: &str) -> Self {
         let now = Utc::now();
         Self {
             id: Uuid::new_v4(),
             user_id,
             key_hash: hash_api_key(raw_key),
             key_prefix: raw_key.chars().take(16).collect(),
+            label: label.to_string(),
             created_at: now,
             last_used_at: None,
         }
@@ -63,8 +65,11 @@ pub trait ApiKeyRepository: Send + Sync {
     /// Create a new API key
     async fn create(&self, entity: ApiKeyEntity) -> Result<ApiKeyEntity, AppError>;
 
-    /// Find API key by user ID
-    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Option<ApiKeyEntity>, AppError>;
+    /// Find all API keys for a user (ordered by created_at)
+    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<ApiKeyEntity>, AppError>;
+
+    /// Find first API key for a user (backwards compat for single-key callers)
+    async fn find_one_by_user_id(&self, user_id: Uuid) -> Result<Option<ApiKeyEntity>, AppError>;
 
     /// Find API key by raw key (validates using constant-time hash comparison)
     ///
@@ -73,8 +78,11 @@ pub trait ApiKeyRepository: Send + Sync {
     /// 2. Using constant-time comparison for the full hash verification
     async fn find_by_key(&self, raw_key: &str) -> Result<Option<ApiKeyEntity>, AppError>;
 
-    /// Delete API key for user (for regeneration)
+    /// Delete all API keys for user (for account deletion cascade)
     async fn delete_for_user(&self, user_id: Uuid) -> Result<(), AppError>;
+
+    /// Delete a specific API key by ID (ownership verified by user_id)
+    async fn delete_by_id(&self, id: Uuid, user_id: Uuid) -> Result<bool, AppError>;
 
     /// Update last_used_at timestamp
     async fn update_last_used(&self, id: Uuid) -> Result<(), AppError>;
@@ -103,11 +111,32 @@ impl Default for InMemoryApiKeyRepository {
 impl ApiKeyRepository for InMemoryApiKeyRepository {
     async fn create(&self, entity: ApiKeyEntity) -> Result<ApiKeyEntity, AppError> {
         let mut keys = self.keys.write().await;
+        // Check for duplicate (user_id, label)
+        let duplicate = keys
+            .values()
+            .any(|k| k.user_id == entity.user_id && k.label == entity.label);
+        if duplicate {
+            return Err(AppError::Validation(format!(
+                "API key with label '{}' already exists",
+                entity.label
+            )));
+        }
         keys.insert(entity.id, entity.clone());
         Ok(entity)
     }
 
-    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Option<ApiKeyEntity>, AppError> {
+    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Vec<ApiKeyEntity>, AppError> {
+        let keys = self.keys.read().await;
+        let mut result: Vec<_> = keys
+            .values()
+            .filter(|k| k.user_id == user_id)
+            .cloned()
+            .collect();
+        result.sort_by_key(|k| k.created_at);
+        Ok(result)
+    }
+
+    async fn find_one_by_user_id(&self, user_id: Uuid) -> Result<Option<ApiKeyEntity>, AppError> {
         let keys = self.keys.read().await;
         Ok(keys.values().find(|k| k.user_id == user_id).cloned())
     }
@@ -116,8 +145,6 @@ impl ApiKeyRepository for InMemoryApiKeyRepository {
         let keys = self.keys.read().await;
         let key_hash = hash_api_key(raw_key);
         // R-02: Use constant-time comparison to prevent timing attacks.
-        // An attacker could otherwise measure response times to incrementally
-        // discover valid API key hashes.
         Ok(keys
             .values()
             .find(|k| k.key_hash.as_bytes().ct_eq(key_hash.as_bytes()).into())
@@ -128,6 +155,13 @@ impl ApiKeyRepository for InMemoryApiKeyRepository {
         let mut keys = self.keys.write().await;
         keys.retain(|_, k| k.user_id != user_id);
         Ok(())
+    }
+
+    async fn delete_by_id(&self, id: Uuid, user_id: Uuid) -> Result<bool, AppError> {
+        let mut keys = self.keys.write().await;
+        let before = keys.len();
+        keys.retain(|_, k| !(k.id == id && k.user_id == user_id));
+        Ok(keys.len() < before)
     }
 
     async fn update_last_used(&self, id: Uuid) -> Result<(), AppError> {
@@ -164,13 +198,14 @@ mod tests {
         let repo = InMemoryApiKeyRepository::new();
         let user_id = Uuid::new_v4();
         let raw_key = generate_api_key();
-        let entity = ApiKeyEntity::new(user_id, &raw_key);
+        let entity = ApiKeyEntity::new(user_id, &raw_key, "default");
 
         repo.create(entity).await.unwrap();
 
         let found = repo.find_by_user_id(user_id).await.unwrap();
-        assert!(found.is_some());
-        assert_eq!(found.unwrap().user_id, user_id);
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].user_id, user_id);
+        assert_eq!(found[0].label, "default");
     }
 
     #[tokio::test]
@@ -178,7 +213,7 @@ mod tests {
         let repo = InMemoryApiKeyRepository::new();
         let user_id = Uuid::new_v4();
         let raw_key = generate_api_key();
-        let entity = ApiKeyEntity::new(user_id, &raw_key);
+        let entity = ApiKeyEntity::new(user_id, &raw_key, "default");
 
         repo.create(entity).await.unwrap();
 
@@ -196,13 +231,32 @@ mod tests {
         let repo = InMemoryApiKeyRepository::new();
         let user_id = Uuid::new_v4();
         let raw_key = generate_api_key();
-        let entity = ApiKeyEntity::new(user_id, &raw_key);
+        let entity = ApiKeyEntity::new(user_id, &raw_key, "default");
 
         repo.create(entity).await.unwrap();
-        assert!(repo.find_by_user_id(user_id).await.unwrap().is_some());
+        assert!(!repo.find_by_user_id(user_id).await.unwrap().is_empty());
 
         repo.delete_for_user(user_id).await.unwrap();
-        assert!(repo.find_by_user_id(user_id).await.unwrap().is_none());
+        assert!(repo.find_by_user_id(user_id).await.unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_delete_by_id() {
+        let repo = InMemoryApiKeyRepository::new();
+        let user_id = Uuid::new_v4();
+        let raw_key = generate_api_key();
+        let entity = ApiKeyEntity::new(user_id, &raw_key, "default");
+        let id = entity.id;
+
+        repo.create(entity).await.unwrap();
+
+        // Wrong user_id should not delete
+        assert!(!repo.delete_by_id(id, Uuid::new_v4()).await.unwrap());
+        assert!(!repo.find_by_user_id(user_id).await.unwrap().is_empty());
+
+        // Correct user_id should delete
+        assert!(repo.delete_by_id(id, user_id).await.unwrap());
+        assert!(repo.find_by_user_id(user_id).await.unwrap().is_empty());
     }
 
     #[tokio::test]
@@ -210,17 +264,43 @@ mod tests {
         let repo = InMemoryApiKeyRepository::new();
         let user_id = Uuid::new_v4();
         let raw_key = generate_api_key();
-        let entity = ApiKeyEntity::new(user_id, &raw_key);
+        let entity = ApiKeyEntity::new(user_id, &raw_key, "default");
         let id = entity.id;
 
         repo.create(entity).await.unwrap();
 
-        let before = repo.find_by_user_id(user_id).await.unwrap().unwrap();
+        let before = repo.find_one_by_user_id(user_id).await.unwrap().unwrap();
         assert!(before.last_used_at.is_none());
 
         repo.update_last_used(id).await.unwrap();
 
-        let after = repo.find_by_user_id(user_id).await.unwrap().unwrap();
+        let after = repo.find_one_by_user_id(user_id).await.unwrap().unwrap();
         assert!(after.last_used_at.is_some());
+    }
+
+    #[tokio::test]
+    async fn test_multi_key_per_user() {
+        let repo = InMemoryApiKeyRepository::new();
+        let user_id = Uuid::new_v4();
+
+        let key1 = generate_api_key();
+        let key2 = generate_api_key();
+
+        repo.create(ApiKeyEntity::new(user_id, &key1, "default"))
+            .await
+            .unwrap();
+        repo.create(ApiKeyEntity::new(user_id, &key2, "bot-alpha"))
+            .await
+            .unwrap();
+
+        let keys = repo.find_by_user_id(user_id).await.unwrap();
+        assert_eq!(keys.len(), 2);
+
+        // Duplicate label should fail
+        let key3 = generate_api_key();
+        let result = repo
+            .create(ApiKeyEntity::new(user_id, &key3, "default"))
+            .await;
+        assert!(result.is_err());
     }
 }

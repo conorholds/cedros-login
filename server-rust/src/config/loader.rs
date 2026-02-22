@@ -107,6 +107,9 @@ pub fn load_cors_config() -> CorsConfig {
         allowed_origins: std::env::var("CORS_ORIGINS")
             .map(|v| v.split(',').map(|s| s.trim().to_string()).collect())
             .unwrap_or_else(|_| CorsConfig::default().allowed_origins),
+        disabled: std::env::var("CORS_DISABLED")
+            .map(|v| v == "true" || v == "1")
+            .unwrap_or(false),
     }
 }
 

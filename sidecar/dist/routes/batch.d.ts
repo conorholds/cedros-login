@@ -7,5 +7,5 @@
  * into the company's preferred currency (USDC/USDT).
  */
 import { Router } from 'express';
-import { Config } from '../config.js';
-export declare function createBatchRouter(config: Config): Router;
+import { JupiterService } from '../services/jupiter.js';
+export declare function createBatchRouter(jupiterService: JupiterService): Router;
