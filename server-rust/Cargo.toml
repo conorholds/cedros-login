@@ -1,6 +1,6 @@
 [package]
 name = "cedros-login-server"
-version = "0.0.16"
+version = "0.0.17"
 edition = "2021"
 rust-version = "1.75"
 description = "Authentication server for cedros-login with email/password, Google OAuth, and Solana wallet sign-in"
