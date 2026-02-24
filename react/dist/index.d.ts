@@ -101,7 +101,7 @@ export declare interface AdminDepositItem {
  *
  * Shows paginated list of all deposits with user info.
  */
-export declare function AdminDepositList({ statusFilter, pageSize, refreshInterval, className, onLoad, onDepositClick, }: AdminDepositListProps): JSX.Element;
+export declare function AdminDepositList({ statusFilter, pageSize, refreshInterval, refreshSignal, className, onLoad, onDepositClick, }: AdminDepositListProps): JSX.Element;
 
 export declare interface AdminDepositListProps {
     /** Filter by status (comma-separated) */
@@ -110,6 +110,8 @@ export declare interface AdminDepositListProps {
     pageSize?: number;
     /** Auto-refresh interval in milliseconds (0 to disable) */
     refreshInterval?: number;
+    /** External refresh signal from parent coordinator */
+    refreshSignal?: number;
     /** Additional CSS classes */
     className?: string;
     /** Callback when list is loaded */
@@ -131,11 +133,13 @@ export declare interface AdminDepositListResponse {
  *
  * Shows total deposits, withdrawals, and pending amounts.
  */
-export declare function AdminDepositStats({ refreshInterval, className, onLoad, }: AdminDepositStatsProps): JSX.Element | null;
+export declare function AdminDepositStats({ refreshInterval, refreshSignal, className, onLoad, }: AdminDepositStatsProps): JSX.Element | null;
 
 export declare interface AdminDepositStatsProps {
     /** Auto-refresh interval in milliseconds (0 to disable) */
     refreshInterval?: number;
+    /** External refresh signal from parent coordinator */
+    refreshSignal?: number;
     /** Additional CSS classes */
     className?: string;
     /** Callback when stats are loaded */
@@ -226,13 +230,15 @@ export declare interface AdminPlugin {
  *
  * Shows deposits that are still in the privacy period (not yet available for withdrawal).
  */
-export declare function AdminPrivacyPeriodDeposits({ pageSize, refreshInterval, className, onLoad, onItemClick, }: AdminPrivacyPeriodDepositsProps): JSX.Element;
+export declare function AdminPrivacyPeriodDeposits({ pageSize, refreshInterval, refreshSignal, className, onLoad, onItemClick, }: AdminPrivacyPeriodDepositsProps): JSX.Element;
 
 export declare interface AdminPrivacyPeriodDepositsProps {
     /** Number of items per page (default: 20) */
     pageSize?: number;
     /** Auto-refresh interval in milliseconds (0 to disable) */
     refreshInterval?: number;
+    /** External refresh signal from parent coordinator */
+    refreshSignal?: number;
     /** Additional CSS classes */
     className?: string;
     /** Callback when list is loaded */
@@ -414,13 +420,15 @@ declare interface AdminUserWithdrawalHistoryResponse {
  *
  * Shows deposits that have been fully withdrawn.
  */
-export declare function AdminWithdrawalHistory({ pageSize, refreshInterval, className, onLoad, onItemClick, }: AdminWithdrawalHistoryProps): JSX.Element;
+export declare function AdminWithdrawalHistory({ pageSize, refreshInterval, refreshSignal, className, onLoad, onItemClick, }: AdminWithdrawalHistoryProps): JSX.Element;
 
 export declare interface AdminWithdrawalHistoryProps {
     /** Number of items per page (default: 20) */
     pageSize?: number;
     /** Auto-refresh interval in milliseconds (0 to disable) */
     refreshInterval?: number;
+    /** External refresh signal from parent coordinator */
+    refreshSignal?: number;
     /** Additional CSS classes */
     className?: string;
     /** Callback when list is loaded */
@@ -434,13 +442,15 @@ export declare interface AdminWithdrawalHistoryProps {
  *
  * Shows deposits ready for withdrawal processing with action buttons.
  */
-export declare function AdminWithdrawalQueue({ pageSize, refreshInterval, className, onLoad, onItemClick, onWithdrawalProcessed, onAllProcessed, }: AdminWithdrawalQueueProps): JSX.Element;
+export declare function AdminWithdrawalQueue({ pageSize, refreshInterval, refreshSignal, className, onLoad, onItemClick, onWithdrawalProcessed, onAllProcessed, }: AdminWithdrawalQueueProps): JSX.Element;
 
 export declare interface AdminWithdrawalQueueProps {
     /** Number of items per page (default: 20) */
     pageSize?: number;
     /** Auto-refresh interval in milliseconds (0 to disable) */
     refreshInterval?: number;
+    /** External refresh signal from parent coordinator */
+    refreshSignal?: number;
     /** Additional CSS classes */
     className?: string;
     /** Callback when list is loaded */
@@ -453,11 +463,13 @@ export declare interface AdminWithdrawalQueueProps {
     onAllProcessed?: (response: ProcessAllWithdrawalsResponse) => void;
 }
 
-export declare function AdminWithdrawalStats({ refreshInterval, className, onLoad, }: AdminWithdrawalStatsProps): JSX.Element | null;
+export declare function AdminWithdrawalStats({ refreshInterval, refreshSignal, className, onLoad, }: AdminWithdrawalStatsProps): JSX.Element | null;
 
 export declare interface AdminWithdrawalStatsProps {
     /** Auto-refresh interval in milliseconds (0 to disable) */
     refreshInterval?: number;
+    /** External refresh signal from parent coordinator */
+    refreshSignal?: number;
     /** Additional CSS classes */
     className?: string;
     /** Callback when stats are loaded */
@@ -730,10 +742,19 @@ export { cedrosLoginPlugin as loginPlugin }
  * </CedrosLoginProvider>
  * ```
  */
-export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element;
+export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element | null;
+
+/**
+ * Config accepted by CedrosLoginProvider.
+ * Same as CedrosLoginConfig but `features` also accepts `'auto'`
+ * to fetch enabled methods from the server at startup.
+ */
+export declare type CedrosLoginProviderConfig = Omit<CedrosLoginConfig, 'features'> & {
+    features?: FeatureFlags | 'auto';
+};
 
 export declare interface CedrosLoginProviderProps {
-    config: CedrosLoginConfig;
+    config: CedrosLoginProviderConfig;
     children: ReactNode;
 }
 
@@ -1374,6 +1395,8 @@ export declare interface FeatureFlags {
     solana?: boolean;
     /** Enable WebAuthn passkeys (server-managed). Default: true */
     webauthn?: boolean;
+    /** Enable instant-link passwordless sign-in. Default: false */
+    instantLink?: boolean;
     /** Enable embedded wallet auto-enrollment on registration. Default: true */
     walletEnrollment?: boolean;
 }

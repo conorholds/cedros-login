@@ -338,6 +338,7 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
     Router::new()
         // Discovery endpoints (no auth required)
         .route("/discovery", get(handlers::auth_config::<C, E>))
+        .route("/features", get(handlers::auth_features::<C, E>))
         .route("/openapi.json", get(handlers::openapi_spec))
         // AI-friendly discovery endpoints
         .route("/ai.txt", get(handlers::ai_txt::<C, E>))

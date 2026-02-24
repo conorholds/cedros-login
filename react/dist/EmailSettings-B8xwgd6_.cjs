@@ -1,1 +1,0 @@
-"use strict";const i=require("react/jsx-runtime"),e=require("./SettingsPageLayout-COSYLMu7.cjs"),n=["email"];function s({className:t}){return i.jsx(e.SettingsPageLayout,{title:"Email & SMTP",description:"Configure outbound email delivery for verification, password reset, and notifications.",categories:n,className:t})}exports.EmailSettings=s;

@@ -14,6 +14,7 @@ mod deposit;
 mod deposit_tiered;
 mod discovery;
 mod email_verification;
+mod features;
 mod google;
 mod health;
 mod instant_link;
@@ -79,6 +80,7 @@ pub use deposit::{
 pub use deposit_tiered::{deposit_quote, execute_micro_deposit, execute_public_deposit};
 pub use discovery::{auth_config, jwks, openapi_spec};
 pub use email_verification::{send_verification, verify_email};
+pub use features::auth_features;
 pub use google::google_auth;
 pub use health::health_check;
 pub use instant_link::{send_instant_link, verify_instant_link};

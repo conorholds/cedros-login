@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime");require("react");const t=require("./CreditSystemSettings-CBot8EPW.cjs");function r(){return e.jsx("div",{className:"cedros-dashboard__section",children:e.jsx(t.CreditSystemSettings,{})})}exports.default=r;

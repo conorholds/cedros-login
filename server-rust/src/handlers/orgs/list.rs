@@ -42,9 +42,9 @@ pub async fn list_orgs<C: AuthCallback, E: EmailService>(
 
     let mut orgs = resolve_orgs_from_memberships(&state, &memberships).await?;
 
-    // Self-healing: if user has no *resolved* orgs (either zero memberships,
-    // or all memberships point to deleted orgs), auto-assign to default org.
-    if orgs.is_empty() {
+    // F-04: Self-heal only on the canonical first page when the authoritative
+    // membership count is zero. Empty paginated slices must not trigger writes.
+    if orgs.is_empty() && offset == 0 && total == 0 {
         if let Ok(assignment) = resolve_org_assignment(&state, auth.user_id).await {
             let new_membership =
                 MembershipEntity::new(auth.user_id, assignment.org_id, assignment.role);
@@ -53,7 +53,8 @@ pub async fn list_orgs<C: AuthCallback, E: EmailService>(
                     .membership_repo
                     .find_by_user_paged(auth.user_id, limit, offset)
                     .await?;
-                total = memberships.len() as u64;
+                // Preserve total semantics from repository count.
+                total = state.membership_repo.count_by_user(auth.user_id).await?;
                 orgs = resolve_orgs_from_memberships(&state, &memberships).await?;
             }
         }

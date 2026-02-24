@@ -157,10 +157,19 @@ declare interface CedrosLoginInternalAPI {
  * </CedrosLoginProvider>
  * ```
  */
-export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element;
+export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element | null;
+
+/**
+ * Config accepted by CedrosLoginProvider.
+ * Same as CedrosLoginConfig but `features` also accepts `'auto'`
+ * to fetch enabled methods from the server at startup.
+ */
+declare type CedrosLoginProviderConfig = Omit<CedrosLoginConfig, 'features'> & {
+    features?: FeatureFlags | 'auto';
+};
 
 declare interface CedrosLoginProviderProps {
-    config: CedrosLoginConfig;
+    config: CedrosLoginProviderConfig;
     children: ReactNode;
 }
 
@@ -235,6 +244,8 @@ export declare interface FeatureFlags {
     solana?: boolean;
     /** Enable WebAuthn passkeys (server-managed). Default: true */
     webauthn?: boolean;
+    /** Enable instant-link passwordless sign-in. Default: false */
+    instantLink?: boolean;
     /** Enable embedded wallet auto-enrollment on registration. Default: true */
     walletEnrollment?: boolean;
 }

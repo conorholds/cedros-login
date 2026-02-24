@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const t=require("react/jsx-runtime");require("react");const e=require("./AuthenticationSettings-BPAh1my6.cjs");function i(){return t.jsx("div",{className:"cedros-dashboard__section",children:t.jsx(e.AuthenticationSettings,{})})}exports.default=i;

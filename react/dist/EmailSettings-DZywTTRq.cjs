@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime");require("react");const t=require("./EmailSettings-B8xwgd6_.cjs");function i(){return e.jsx("div",{className:"cedros-dashboard__section",children:e.jsx(t.EmailSettings,{})})}exports.default=i;

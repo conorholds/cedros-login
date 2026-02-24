@@ -79,7 +79,20 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
     // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
     let email = normalize_email(&req.email);
 
-    // Find user by email first
+    // F-01: Throttle before user lookup so lockout state does not reveal account existence.
+    // Keep response generic even while throttled to avoid account enumeration.
+    let throttle_key = format!("password_reset:{}", email);
+    let throttle_status = state
+        .login_attempt_repo
+        .record_failed_attempt_atomic(None, &throttle_key, None, &state.login_attempt_config)
+        .await?;
+    if throttle_status.is_locked {
+        // SEC-003: Normalize timing and response to match non-existing users.
+        add_timing_normalization_delay().await;
+        return Ok(response);
+    }
+
+    // Find user by email
     let user = match state.user_repo.find_by_email(&email).await? {
         Some(u) => u,
         None => {
@@ -88,24 +101,6 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
             return Ok(response); // Don't reveal if email exists
         }
     };
-
-    // S-15: Rate-limit after user lookup so attackers can't lock out real users
-    // by flooding reset requests for their email address. Non-existent emails
-    // are handled above with a timing-normalized early return.
-    let throttle_key = format!("password_reset:{}", email);
-    let throttle_status = state
-        .login_attempt_repo
-        .record_failed_attempt_atomic(None, &throttle_key, None, &state.login_attempt_config)
-        .await?;
-    if throttle_status.is_locked {
-        if let Some(remaining) = throttle_status.lockout_remaining_secs {
-            return Err(AppError::TooManyRequests(format!(
-                "Too many password reset requests. Try again in {} seconds",
-                remaining
-            )));
-        }
-        return Err(AppError::RateLimited);
-    }
 
     // User must have a password (email auth method)
     if user.password_hash.is_none() {

@@ -1,0 +1,1 @@
+"use strict";const e=require("react/jsx-runtime"),o=require("./SettingsPageLayout-j5lMjEID.cjs"),i=["webhook"];function n({className:t}){return e.jsx(o.SettingsPageLayout,{title:"Webhooks",description:"Configure HTTP webhook notifications for authentication events.",categories:i,className:t})}exports.WebhookSettings=n;
