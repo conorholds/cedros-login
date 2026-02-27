@@ -128,6 +128,7 @@ mod credit_refund_request_repository;
 mod credit_repository;
 mod custom_role_repository;
 mod deposit_repository;
+mod derived_wallet_repository;
 mod invite_repository;
 mod login_attempt_repository;
 mod membership_repository;
@@ -147,6 +148,7 @@ mod user_repository;
 mod user_withdrawal_log_repository;
 mod verification_repository;
 mod wallet_material_repository;
+mod wallet_rotation_history_repository;
 mod webauthn_repository;
 mod withdrawal_history_repository;
 
@@ -186,6 +188,10 @@ pub use custom_role_repository::{CustomRole, CustomRoleRepository, InMemoryCusto
 pub use deposit_repository::{
     DepositRepository, DepositSessionEntity, DepositStats, DepositStatus, DepositType,
     InMemoryDepositRepository, WalletType,
+};
+pub use derived_wallet_repository::{
+    CreateDerivedWallet, DerivedWalletEntity, DerivedWalletRepository,
+    InMemoryDerivedWalletRepository,
 };
 pub use invite_repository::{
     default_invite_expiry, generate_invite_token, hash_invite_token, InMemoryInviteRepository,
@@ -235,6 +241,10 @@ pub use verification_repository::{
     InMemoryVerificationRepository, RepositoryError, TokenType, VerificationRepository,
     VerificationToken,
 };
+pub use wallet_rotation_history_repository::{
+    CreateWalletRotationHistory, InMemoryWalletRotationHistoryRepository, WalletRemovalReason,
+    WalletRotationHistoryEntity, WalletRotationHistoryRepository,
+};
 pub use wallet_material_repository::{
     CreateWalletMaterial, InMemoryWalletMaterialRepository, KdfParams, RotateUserSecret,
     ShareAAuthMethod, WalletMaterialEntity, WalletMaterialRepository,
@@ -250,12 +260,14 @@ pub use withdrawal_history_repository::{
 pub use postgres::{
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
-    PostgresCustomRoleRepository, PostgresDepositRepository, PostgresInviteRepository,
+    PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,
+    PostgresInviteRepository,
     PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
     PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
     PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresSessionRepository,
     PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
     PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
-    PostgresVerificationRepository, PostgresWalletMaterialRepository, PostgresWebAuthnRepository,
+    PostgresVerificationRepository, PostgresWalletMaterialRepository,
+    PostgresWalletRotationHistoryRepository, PostgresWebAuthnRepository,
     PostgresWithdrawalHistoryRepository,
 };

@@ -298,6 +298,8 @@ mod tests {
             outbox_repo: storage.outbox_repo.clone(),
             api_key_repo: storage.api_key_repo.clone(),
             wallet_material_repo: storage.wallet_material_repo.clone(),
+            derived_wallet_repo: storage.derived_wallet_repo.clone(),
+            wallet_rotation_history_repo: storage.wallet_rotation_history_repo.clone(),
             credential_repo: storage.credential_repo.clone(),
             webauthn_repo: storage.webauthn_repo.clone(),
             deposit_repo: storage.deposit_repo.clone(),

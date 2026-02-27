@@ -184,6 +184,18 @@ pub async fn auth_options<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     Json(request): Json<StartAuthRequest>,
 ) -> Result<Json<AuthOptionsResponse>, AppError> {
+    // Enabled check: runtime setting > static config
+    let enabled = state
+        .settings_service
+        .get_bool("auth_webauthn_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.webauthn.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("WebAuthn auth disabled".into()));
+    }
+
     let result = if let Some(ref email) = request.email {
         // F-34: Normalize email (NFKC + lowercase) to prevent Unicode homograph bypasses
         let normalized = normalize_email(email);
@@ -238,6 +250,18 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Json(request): Json<VerifyAuthRequest>,
 ) -> Result<impl IntoResponse, AppError> {
+    // Enabled check: runtime setting > static config
+    let enabled = state
+        .settings_service
+        .get_bool("auth_webauthn_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.webauthn.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("WebAuthn auth disabled".into()));
+    }
+
     // Parse the credential from JSON
     let credential: webauthn_rs::prelude::PublicKeyCredential =
         serde_json::from_value(request.credential.clone())
@@ -305,7 +329,7 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
 
     // Get memberships for token context
     let memberships = state.membership_repo.find_by_user(verified_user_id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
     let session_id = Uuid::new_v4();

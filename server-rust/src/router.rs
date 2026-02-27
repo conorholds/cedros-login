@@ -537,6 +537,12 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             get(handlers::get_dashboard_permissions::<C, E>)
                 .put(handlers::update_dashboard_permissions::<C, E>),
         )
+        // Admin disposable email domain blocklist routes (system admin)
+        .route(
+            "/admin/disposable-domains",
+            get(handlers::get_disposable_domains::<C, E>)
+                .put(handlers::update_disposable_domains::<C, E>),
+        )
         // Admin deposit routes (system admin)
         .route(
             "/admin/deposits",
@@ -604,6 +610,15 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/wallet/lock", post(handlers::wallet_lock::<C, E>))
         .route("/wallet/recover", post(handlers::wallet_recover::<C, E>))
         .route("/wallet/list", get(handlers::list_wallets::<C, E>))
+        // Derived wallets (multi-wallet support)
+        .route(
+            "/wallet/derived",
+            get(handlers::list_all_wallets::<C, E>).post(handlers::create_derived_wallet::<C, E>),
+        )
+        .route(
+            "/wallet/derived/{id}",
+            delete(handlers::delete_derived_wallet::<C, E>),
+        )
         // Share C recovery: get Share B after proving ownership via Share C
         .route(
             "/wallet/share-b",

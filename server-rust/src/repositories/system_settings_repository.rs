@@ -270,6 +270,17 @@ impl InMemorySystemSettingsRepository {
                 "server".to_string(),
             )
             .with_description("API key for Cedros Pay integration"),
+            // Feature flag: Cedros Pay integration (disabled by default)
+            // When enabled, shows the Integrations tab in Admin > Auth Server settings.
+            // Not needed for co-located deployments using JWT/JWKS inter-service auth.
+            SystemSetting::new(
+                "feature_cedros_pay".to_string(),
+                "false".to_string(),
+                "features".to_string(),
+            )
+            .with_description(
+                "Enable Cedros Pay integration (shows Integrations tab with API key configuration)",
+            ),
             SystemSetting::new(
                 "server_metrics_api_key".to_string(),
                 "".to_string(),
@@ -348,7 +359,7 @@ mod tests {
     async fn test_with_defaults() {
         let repo = InMemorySystemSettingsRepository::with_defaults();
         let settings = repo.get_all().await.unwrap();
-        assert_eq!(settings.len(), 19); // All default settings (14 original + 5 server/logging/metrics)
+        assert_eq!(settings.len(), 20); // All default settings (14 original + 5 server/logging/metrics + feature_cedros_pay)
     }
 
     #[tokio::test]

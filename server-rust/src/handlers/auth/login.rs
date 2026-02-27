@@ -60,7 +60,15 @@ pub async fn login<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.email.enabled {
+    // Enabled check: runtime setting > static config
+    let email_enabled = state
+        .settings_service
+        .get_bool("auth_email_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !email_enabled {
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
@@ -303,7 +311,15 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<MfaLoginRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.email.enabled {
+    // Enabled check: runtime setting > static config
+    let email_enabled = state
+        .settings_service
+        .get_bool("auth_email_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !email_enabled {
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
@@ -479,7 +495,7 @@ async fn complete_login_flow<C: AuthCallback, E: EmailService>(
     AppError,
 > {
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     let session_id = uuid::Uuid::new_v4();
     let token_pair =

@@ -1,6 +1,6 @@
 [package]
 name = "cedros-login-server"
-version = "0.0.17"
+version = "0.0.19"
 edition = "2021"
 rust-version = "1.75"
 description = "Authentication server for cedros-login with email/password, Google OAuth, and Solana wallet sign-in"
@@ -94,7 +94,8 @@ zip = { version = "2", default-features = false, features = ["deflate"] }
 # SEC-06: Zeroize sensitive data in memory
 zeroize = { version = "1", features = ["derive"] }
 
-# Webhook signing
+# Webhook signing / HKDF wallet derivation
+hkdf = "0.12"
 hmac = "0.12"
 sha2 = "0.10"
 hex = "0.4"

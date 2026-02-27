@@ -32,6 +32,8 @@ pub struct AuthenticatedUser {
     pub raw_api_key: Option<String>,
     /// P-01: Whether user is a system admin (from JWT claims). Avoids DB lookup in admin handlers.
     pub is_system_admin: Option<bool>,
+    /// Whether user's email address has been verified (from JWT claims)
+    pub email_verified: Option<bool>,
 }
 
 /// Get the default organization context for a user from their memberships.
@@ -41,9 +43,11 @@ pub struct AuthenticatedUser {
 /// # Arguments
 /// * `memberships` - User's organization memberships
 /// * `is_system_admin` - Whether the user is a system-wide admin
+/// * `email_verified` - Whether the user's email is verified
 pub fn get_default_org_context(
     memberships: &[MembershipEntity],
     is_system_admin: bool,
+    email_verified: bool,
 ) -> TokenContext {
     let admin_flag = if is_system_admin { Some(true) } else { None };
 
@@ -52,11 +56,13 @@ pub fn get_default_org_context(
             org_id: Some(membership.org_id),
             role: Some(membership.role.as_str().to_string()),
             is_system_admin: admin_flag,
+            email_verified: Some(email_verified),
         };
     }
 
     TokenContext {
         is_system_admin: admin_flag,
+        email_verified: Some(email_verified),
         ..Default::default()
     }
 }
@@ -130,6 +136,7 @@ async fn authenticate_api_key<C: AuthCallback, E: EmailService>(
         api_key_id: Some(api_key_entity.id),
         raw_api_key: Some(api_key.to_string()),
         is_system_admin: if user.is_system_admin { Some(true) } else { None },
+        email_verified: Some(user.email_verified),
     })
 }
 
@@ -173,6 +180,7 @@ async fn authenticate_jwt<C: AuthCallback, E: EmailService>(
         api_key_id: None,
         raw_api_key: None,
         is_system_admin: claims.is_system_admin,
+        email_verified: claims.email_verified,
     })
 }
 
@@ -193,6 +201,7 @@ mod tests {
             api_key_id: None,
             raw_api_key: None,
             is_system_admin: None,
+            email_verified: None,
         };
         assert!(!user.is_api_key_auth);
         assert!(user.session_id.is_some());
@@ -210,6 +219,7 @@ mod tests {
             api_key_id: Some(key_id),
             raw_api_key: Some("ck_test123".to_string()),
             is_system_admin: None,
+            email_verified: None,
         };
         assert!(user.is_api_key_auth);
         assert!(user.session_id.is_none());
@@ -230,19 +240,21 @@ mod tests {
             joined_at: Utc::now(),
         }];
 
-        let context = get_default_org_context(&memberships, false);
+        let context = get_default_org_context(&memberships, false, true);
         assert_eq!(context.org_id, Some(org_id));
         assert_eq!(context.role.as_deref(), Some("member"));
         assert_eq!(context.is_system_admin, None);
+        assert_eq!(context.email_verified, Some(true));
 
         // Test with system admin
-        let admin_context = get_default_org_context(&memberships, true);
+        let admin_context = get_default_org_context(&memberships, true, false);
         assert_eq!(admin_context.is_system_admin, Some(true));
+        assert_eq!(admin_context.email_verified, Some(false));
     }
 
     #[test]
     fn test_get_default_org_context_empty_memberships() {
-        let context = get_default_org_context(&[], false);
+        let context = get_default_org_context(&[], false, false);
         assert_eq!(context.org_id, None);
         assert_eq!(context.role, None);
     }

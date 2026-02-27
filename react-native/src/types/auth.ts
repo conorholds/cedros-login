@@ -88,6 +88,7 @@ export type AuthErrorCode =
   | 'SERVICE_UNAVAILABLE'
   | 'SERVER_ERROR'
   | 'NETWORK_ERROR'
+  | 'WALLET_ERROR'
   | 'UNKNOWN_ERROR';
 
 /**

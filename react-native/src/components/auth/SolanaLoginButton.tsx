@@ -3,6 +3,7 @@ import {
   TouchableOpacity,
   View,
   Text,
+  Platform,
   ViewStyle,
   StyleProp,
 } from "react-native";
@@ -10,13 +11,21 @@ import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
 import { useSolanaAuth } from "../../hooks/useSolanaAuth";
+import { useMobileWalletAuth } from "../../hooks/useMobileWalletAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import type { AuthError } from "../../types";
 
 export interface SolanaLoginButtonProps {
-  /** Callback invoked on press; should trigger wallet adapter and return credentials. */
-  onRequestToken: () => Promise<{
+  /**
+   * Optional callback to provide wallet credentials.
+   *
+   * When provided, this overrides the built-in MWA flow (useful for custom
+   * wallet integrations or iOS where MWA is unavailable).
+   *
+   * When omitted on Android, the built-in MWA challenge-sign flow is used.
+   */
+  onRequestToken?: () => Promise<{
     walletAddress: string;
     signature: string;
     nonce: string;
@@ -28,12 +37,13 @@ export interface SolanaLoginButtonProps {
 }
 
 /**
- * Solana wallet connection button component.
+ * Solana wallet sign-in button.
  *
- * @remarks
- * This component includes a placeholder icon ("SOL" text in a colored box).
- * Consumers should provide their own custom Solana icon for production use.
- * Consider using the official Solana logo or a custom SVG/PNG icon.
+ * On Android, uses the built-in Mobile Wallet Adapter (MWA) flow by default.
+ * On iOS, requires `onRequestToken` to be provided (MWA is Android-only).
+ *
+ * The button auto-hides on iOS when no `onRequestToken` override is provided,
+ * unless the consumer explicitly renders it.
  */
 export function SolanaLoginButton({
   onRequestToken,
@@ -41,12 +51,25 @@ export function SolanaLoginButton({
   onError,
   style,
   testID = "solana-login-button",
-}: SolanaLoginButtonProps): React.ReactElement {
-  const { signIn, isLoading, error } = useSolanaAuth();
+}: SolanaLoginButtonProps): React.ReactElement | null {
+  const { signIn, isLoading: signInLoading, error: signInError } = useSolanaAuth();
+  const mwa = useMobileWalletAuth();
+
+  const isLoading = signInLoading || mwa.isLoading;
+  const error = signInError || mwa.error;
 
   const handlePress = useCallback(async () => {
     try {
-      const { walletAddress, signature, nonce } = await onRequestToken();
+      // If consumer provides a custom handler, use it (backwards compatible)
+      if (onRequestToken) {
+        const { walletAddress, signature, nonce } = await onRequestToken();
+        await signIn(walletAddress, signature, nonce);
+        onSuccess?.();
+        return;
+      }
+
+      // Built-in MWA flow (Android only)
+      const { walletAddress, signature, nonce } = await mwa.connect();
       await signIn(walletAddress, signature, nonce);
       onSuccess?.();
     } catch (e) {
@@ -56,7 +79,12 @@ export function SolanaLoginButton({
           : { code: "UNKNOWN_ERROR", message: String(e) };
       onError?.(authError);
     }
-  }, [onRequestToken, signIn, onSuccess, onError]);
+  }, [onRequestToken, signIn, mwa, onSuccess, onError]);
+
+  // On iOS without an override callback, don't render (MWA is Android-only)
+  if (Platform.OS !== "android" && !onRequestToken) {
+    return null;
+  }
 
   return (
     <View style={style}>
@@ -112,7 +140,7 @@ export function SolanaLoginButton({
                 color: colors.white,
               }}
             >
-              Connect Wallet
+              Use Installed Wallet
             </Text>
           </>
         )}

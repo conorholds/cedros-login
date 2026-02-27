@@ -6,7 +6,10 @@ use std::sync::Arc;
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
 use crate::models::{MessageResponse, RotateUserSecretRequest, WalletRotateRequest};
-use crate::repositories::{AuditEventType, CreateWalletMaterial, RotateUserSecret};
+use crate::repositories::{
+    AuditEventType, CreateWalletMaterial, CreateWalletRotationHistory, RotateUserSecret,
+    WalletRemovalReason,
+};
 use crate::services::EmailService;
 use crate::utils::authenticate;
 use crate::AppState;
@@ -115,9 +118,48 @@ pub async fn wallet_rotate<C: AuthCallback, E: EmailService>(
     let (share_a_kdf_salt, share_a_kdf_params, prf_salt, share_a_pin_hash) =
         process_auth_method_fields(&state, &req.share_a_auth_method, &fields).await?;
 
+    // Record history for the main wallet before deletion
+    state
+        .wallet_rotation_history_repo
+        .create(CreateWalletRotationHistory {
+            user_id,
+            old_wallet_id: current.id,
+            old_solana_pubkey: current.solana_pubkey.clone(),
+            derivation_index: 0,
+            label: Some("Default".into()),
+            reason: WalletRemovalReason::Rotated,
+        })
+        .await?;
+
+    // Record history for all derived wallets before bulk deletion
+    let derived = state.derived_wallet_repo.find_by_user_id(user_id).await?;
+    if !derived.is_empty() {
+        let entries: Vec<_> = derived
+            .into_iter()
+            .map(|dw| CreateWalletRotationHistory {
+                user_id,
+                old_wallet_id: dw.id,
+                old_solana_pubkey: dw.solana_pubkey,
+                derivation_index: dw.derivation_index,
+                label: Some(dw.label),
+                reason: WalletRemovalReason::RotatedParent,
+            })
+            .collect();
+        state
+            .wallet_rotation_history_repo
+            .create_batch(entries)
+            .await?;
+    }
+
     state
         .wallet_material_repo
         .delete_by_id(current.id, user_id)
+        .await?;
+
+    // New master seed means all HKDF-derived pubkeys are now invalid.
+    state
+        .derived_wallet_repo
+        .delete_by_user_id(user_id)
         .await?;
 
     let create_params = CreateWalletMaterial {

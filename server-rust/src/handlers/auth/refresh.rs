@@ -179,7 +179,7 @@ pub async fn refresh<C: AuthCallback, E: EmailService>(
     let memberships = state.membership_repo.find_by_user(session.user_id).await?;
 
     // Select default org using shared helper
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Generate new tokens with preserved org context
     let new_session_id = uuid::Uuid::new_v4();

@@ -98,16 +98,44 @@ export declare interface AuthUser {
 }
 
 /**
- * Full configuration for CedrosLoginProvider
+ * Full configuration for the authentication system.
+ *
+ * **Note:** When passing config to `<CedrosLoginProvider>`, use
+ * {@link CedrosLoginProviderConfig} instead — it extends this type
+ * with `features: 'auto'` support. This base type is used internally
+ * after the provider resolves auto-discovery.
+ *
+ * ```
+ * CedrosLoginProviderConfig   (public prop type — accepts features: 'auto')
+ *   └── CedrosLoginConfig     (internal type — features is always FeatureFlags)
+ * ```
  */
 export declare interface CedrosLoginConfig {
     /** Auth server base URL */
     serverUrl: string;
     /** App name for Solana message: "Login to {appName}". Default: window.location.hostname */
     appName?: string;
-    /** Google OAuth client ID. Required if Google auth enabled */
+    /**
+     * Google OAuth client ID. Required if Google auth enabled.
+     *
+     * **CSP requirements** (when using Google One Tap / credential popup):
+     * ```
+     * script-src https://accounts.google.com;
+     * connect-src https://accounts.google.com;
+     * frame-src https://accounts.google.com;
+     * ```
+     */
     googleClientId?: string;
-    /** Apple Sign In client ID (Services ID). Required if Apple auth enabled */
+    /**
+     * Apple Sign In client ID (Services ID). Required if Apple auth enabled.
+     *
+     * **CSP requirements** (when using Apple Sign In popup):
+     * ```
+     * script-src https://appleid.cdn-apple.com;
+     * connect-src https://appleid.apple.com;
+     * frame-src https://appleid.apple.com;
+     * ```
+     */
     appleClientId?: string;
     /** Solana configuration options */
     solana?: SolanaConfig;
@@ -160,9 +188,31 @@ declare interface CedrosLoginInternalAPI {
 export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element | null;
 
 /**
- * Config accepted by CedrosLoginProvider.
- * Same as CedrosLoginConfig but `features` also accepts `'auto'`
- * to fetch enabled methods from the server at startup.
+ * Config prop type for `<CedrosLoginProvider>`.
+ *
+ * Extends {@link CedrosLoginConfig} with one additional feature:
+ * the `features` field also accepts `'auto'` to fetch enabled
+ * auth methods from the server at startup.
+ *
+ * **`features: 'auto'` discovery contract:**
+ * - Calls `GET {serverUrl}/features` (no auth required, credentials omitted).
+ * - Response shape: `{ email, google, apple, solana, webauthn, instantLink }` (all booleans).
+ * - Timeout: `requestTimeout` or 5 000 ms. 1 retry on failure.
+ * - Fallback: all methods enabled (so the login page is never blank).
+ * - Children are not rendered until discovery completes.
+ * - `walletEnrollment` flag is client-only and is not part of the server response.
+ *
+ * When `features` is omitted or set to a `FeatureFlags` object, no server
+ * call is made and the flags are used as-is.
+ *
+ * @example
+ * ```tsx
+ * // Auto-discover enabled methods from the server:
+ * <CedrosLoginProvider config={{ serverUrl: '...', features: 'auto' }}>
+ *
+ * // Or specify explicitly:
+ * <CedrosLoginProvider config={{ serverUrl: '...', features: { email: true, google: true } }}>
+ * ```
  */
 declare type CedrosLoginProviderConfig = Omit<CedrosLoginConfig, 'features'> & {
     features?: FeatureFlags | 'auto';
@@ -291,6 +341,62 @@ declare interface LoadingSpinnerProps {
     /** If true, announce the loading state to screen readers */
     announce?: boolean;
 }
+
+/**
+ * Mobile Wallet Adapter (MWA) registration for web.
+ *
+ * On Android Chrome, MWA lets users authenticate with their installed Solana
+ * wallet app (e.g., Phantom, Solflare) via Android Intents — no browser
+ * extension needed.
+ *
+ * Once registered, MWA appears as a wallet option in the wallet adapter's
+ * wallet list (alongside browser extension wallets). Users see it as
+ * "Use Installed Wallet" in the wallet selector.
+ *
+ * Requires the optional peer dependency: @solana-mobile/wallet-standard-mobile
+ *
+ * @see https://docs.solanamobile.com/get-started/web/installation
+ */
+export declare interface MobileWalletConfig {
+    /** App name shown in the wallet's authorization dialog */
+    name?: string;
+    /** App URI for identity verification */
+    uri?: string;
+    /** App icon path/URL shown in the wallet dialog */
+    icon?: string;
+    /** Solana cluster(s) to support. Default: ['solana:mainnet'] */
+    chains?: string[];
+}
+
+/**
+ * Register Mobile Wallet Adapter as a wallet-standard wallet.
+ *
+ * Call this once at your application root (before rendering). After registration,
+ * MWA automatically appears as "Use Installed Wallet" for users browsing on
+ * Android Chrome with a Solana wallet app installed.
+ *
+ * Must be called in a non-SSR context (browser only). For Next.js, call in a
+ * Client Component with `'use client'`.
+ *
+ * @example
+ * ```tsx
+ * import { registerMobileWallet, CedrosLoginProvider } from '@cedros/login-react';
+ *
+ * // Register before provider mounts
+ * registerMobileWallet({ name: 'My App', uri: 'https://myapp.com' });
+ *
+ * function App() {
+ *   return (
+ *     <CedrosLoginProvider config={{ serverUrl: '...' }}>
+ *       <LoginForm />
+ *     </CedrosLoginProvider>
+ *   );
+ * }
+ * ```
+ *
+ * @returns true if registration succeeded, false if package not installed or SSR
+ */
+export declare function registerMobileWallet(config?: MobileWalletConfig): boolean;
 
 /**
  * Session handling configuration

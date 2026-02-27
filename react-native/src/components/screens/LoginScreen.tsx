@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  Platform,
   SafeAreaView,
   ScrollView,
   ViewStyle,
@@ -28,7 +29,12 @@ export interface LoginScreenProps {
   onRequestGoogleToken?: () => Promise<{ idToken: string }>;
   /** Callback to trigger native Apple Sign-In and return the ID token. */
   onRequestAppleToken?: () => Promise<{ idToken: string }>;
-  /** Callback to trigger Solana wallet adapter and return credentials. */
+  /**
+   * Optional callback to trigger Solana wallet adapter and return credentials.
+   *
+   * On Android, this is optional — the built-in MWA flow is used when omitted.
+   * On iOS, this must be provided for the Solana button to appear.
+   */
   onRequestSolanaToken?: () => Promise<{
     walletAddress: string;
     signature: string;
@@ -63,7 +69,9 @@ export function LoginScreen({
 
   const showGoogle = enableGoogle && !!onRequestGoogleToken;
   const showApple = enableApple && !!onRequestAppleToken;
-  const showSolana = enableSolana && !!onRequestSolanaToken;
+  // On Android, show Solana button even without onRequestSolanaToken (uses built-in MWA).
+  // On iOS, require the callback since MWA is Android-only.
+  const showSolana = enableSolana && (Platform.OS === "android" || !!onRequestSolanaToken);
   const showSocialDivider = (showGoogle || showApple || showSolana) && enableEmail;
 
   const renderContent = () => {
@@ -132,6 +140,7 @@ export function LoginScreen({
                   onSuccess={onLoginSuccess}
                 />
               )}
+
             </View>
           </View>
         );

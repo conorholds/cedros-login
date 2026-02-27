@@ -48,7 +48,8 @@ pub use org::{
 };
 pub use session::{ListSessionsResponse, RevokeAllSessionsResponse, SessionResponse};
 pub use wallet::{
-    AcknowledgeRecoveryRequest, KdfParamsDto, PendingWalletRecoveryResponse,
+    AcknowledgeRecoveryRequest, AllWalletsListResponse, CreateDerivedWalletRequest,
+    DerivedWalletResponse, DerivedWalletSummary, KdfParamsDto, PendingWalletRecoveryResponse,
     RotateUserSecretRequest, ShareAAuthMethod, ShareCRecoveryRequest, ShareCRecoveryResponse,
     SignTransactionRequest, SignTransactionResponse, UnlockCredential, WalletEnrollRequest,
     WalletListResponse, WalletMaterialResponse, WalletRecoverRequest, WalletRotateRequest,

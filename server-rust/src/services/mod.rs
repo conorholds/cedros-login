@@ -131,6 +131,7 @@ pub use solana_service::SolanaService;
 pub use step_up_service::{StepUpService, DEFAULT_STEP_UP_MAX_AGE_SECS};
 pub use totp_service::TotpService;
 pub use wallet_signing_service::{
+    derive_child_seed_from_bytes, derive_pubkey_at_index,
     UnlockCredential as WalletUnlockCredential, WalletSigningService,
 };
 pub use wallet_unlock_cache::{

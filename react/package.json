@@ -1,6 +1,6 @@
 {
   "name": "@cedros/login-react",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "description": "React component library for authentication with email/password, Google OAuth, and Solana wallet sign-in",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -83,6 +83,9 @@
       "optional": true
     },
     "@solana/web3.js": {
+      "optional": true
+    },
+    "@solana-mobile/wallet-standard-mobile": {
       "optional": true
     }
   },

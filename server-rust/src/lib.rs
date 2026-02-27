@@ -66,11 +66,12 @@ use axum::Router;
 use repositories::{
     ApiKeyRepository, AuditLogRepository, CredentialRepository, CreditHoldRepository,
     CreditRefundRequestRepository, CreditRepository, CustomRoleRepository, DepositRepository,
-    InviteRepository, LoginAttemptConfig, LoginAttemptRepository, MembershipRepository,
-    NonceRepository, OrgRepository, OutboxRepository, PolicyRepository, PrivacyNoteRepository,
+    DerivedWalletRepository, InviteRepository, LoginAttemptConfig, LoginAttemptRepository,
+    MembershipRepository, NonceRepository, OrgRepository, OutboxRepository, PolicyRepository,
+    PrivacyNoteRepository,
     SessionRepository, SystemSettingsRepository, TotpRepository, TreasuryConfigRepository,
     UserRepository, UserWithdrawalLogRepository, VerificationRepository, WalletMaterialRepository,
-    WebAuthnRepository,
+    WalletRotationHistoryRepository, WebAuthnRepository,
 };
 use services::{
     create_wallet_unlock_cache, AppleService, AuditService, CommsService, DepositCreditService,
@@ -152,6 +153,8 @@ pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub outbox_repo: Arc<dyn OutboxRepository>,
     pub api_key_repo: Arc<dyn ApiKeyRepository>,
     pub wallet_material_repo: Arc<dyn WalletMaterialRepository>,
+    pub derived_wallet_repo: Arc<dyn DerivedWalletRepository>,
+    pub wallet_rotation_history_repo: Arc<dyn WalletRotationHistoryRepository>,
     pub credential_repo: Arc<dyn CredentialRepository>,
     pub webauthn_repo: Arc<dyn WebAuthnRepository>,
     pub deposit_repo: Arc<dyn DepositRepository>,
@@ -379,6 +382,8 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         outbox_repo: storage.outbox_repo.clone(),
         api_key_repo: storage.api_key_repo.clone(),
         wallet_material_repo: storage.wallet_material_repo.clone(),
+        derived_wallet_repo: storage.derived_wallet_repo.clone(),
+        wallet_rotation_history_repo: storage.wallet_rotation_history_repo.clone(),
         credential_repo: storage.credential_repo.clone(),
         webauthn_repo: storage.webauthn_repo.clone(),
         deposit_repo: storage.deposit_repo.clone(),

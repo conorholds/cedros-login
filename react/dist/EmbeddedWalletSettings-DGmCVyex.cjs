@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime");require("react");const t=require("./EmbeddedWalletSettings-C7H0E8Uz.cjs");function d(){return e.jsx("div",{className:"cedros-dashboard__section",children:e.jsx(t.EmbeddedWalletSettings,{})})}exports.default=d;

@@ -267,7 +267,7 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
 
     // Get memberships for token context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
     let session_id = Uuid::new_v4();

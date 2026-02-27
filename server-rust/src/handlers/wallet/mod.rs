@@ -6,6 +6,7 @@
 //! - Server combines shares JIT for signing, wipes immediately after
 //! - Server NEVER stores seed or private key at rest
 
+mod derived;
 mod enroll;
 mod info;
 mod recovery;
@@ -14,6 +15,7 @@ mod signing;
 mod validation;
 
 // Re-export all public handlers
+pub use derived::{create_derived_wallet, delete_derived_wallet, list_all_wallets};
 pub use enroll::wallet_enroll;
 pub use info::{get_wallet_material, list_wallets, wallet_lock, wallet_status, wallet_unlock};
 pub use recovery::{

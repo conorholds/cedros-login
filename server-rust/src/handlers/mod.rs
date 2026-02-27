@@ -40,14 +40,14 @@ mod webhook;
 pub use admin::{
     adjust_credits, authorize_treasury, create_sso_provider, delete_sso_provider, delete_user,
     force_password_reset, get_credit_stats, get_dashboard_permissions, get_deposit_stats,
-    get_org as get_admin_org, get_org_audit_logs, get_privacy_status, get_sso_provider,
-    get_system_audit_logs, get_treasury, get_user as get_admin_user, get_user_credits,
-    get_user_deposits, get_user_stats, get_user_withdrawal_history, list_admin_deposits,
-    list_credit_refund_requests, list_in_privacy_period, list_orgs as list_admin_orgs,
-    list_pending_withdrawals, list_settings, list_sso_providers, list_users,
-    process_all_withdrawals, process_credit_refund_request, process_withdrawal,
+    get_disposable_domains, get_org as get_admin_org, get_org_audit_logs, get_privacy_status,
+    get_sso_provider, get_system_audit_logs, get_treasury, get_user as get_admin_user,
+    get_user_credits, get_user_deposits, get_user_stats, get_user_withdrawal_history,
+    list_admin_deposits, list_credit_refund_requests, list_in_privacy_period,
+    list_orgs as list_admin_orgs, list_pending_withdrawals, list_settings, list_sso_providers,
+    list_users, process_all_withdrawals, process_credit_refund_request, process_withdrawal,
     reject_credit_refund_request, revoke_treasury, set_system_admin, update_dashboard_permissions,
-    update_settings, update_sso_provider, update_user,
+    update_disposable_domains, update_settings, update_sso_provider, update_user,
 };
 pub use ai_discovery::{
     agent_json, agent_md, ai_discovery_index, ai_plugin_json, ai_txt, heartbeat_json, heartbeat_md,
@@ -103,9 +103,10 @@ pub use sso::{sso_callback, start_sso};
 pub use user_lookup::{link_stripe_customer, lookup_by_stripe_customer, lookup_by_wallet};
 pub use user_withdrawal::{withdraw_balances, withdraw_history, withdraw_sol, withdraw_spl};
 pub use wallet::{
-    acknowledge_recovery, get_pending_recovery, get_share_b_for_recovery, get_wallet_material,
-    list_wallets, rotate_user_secret, sign_transaction, wallet_enroll, wallet_lock, wallet_recover,
-    wallet_rotate, wallet_status, wallet_unlock,
+    acknowledge_recovery, create_derived_wallet, delete_derived_wallet, get_pending_recovery,
+    get_share_b_for_recovery, get_wallet_material, list_all_wallets, list_wallets,
+    rotate_user_secret, sign_transaction, wallet_enroll, wallet_lock, wallet_recover, wallet_rotate,
+    wallet_status, wallet_unlock,
 };
 pub use webauthn::{
     auth_options as webauthn_auth_options, auth_verify as webauthn_auth_verify,

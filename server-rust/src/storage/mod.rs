@@ -13,19 +13,23 @@ use crate::repositories::{
     CreditRefundRequestRepository, CreditRepository, CustomRoleRepository, DepositRepository,
     InMemoryApiKeyRepository, InMemoryAuditLogRepository, InMemoryCredentialRepository,
     InMemoryCreditHoldRepository, InMemoryCreditRefundRequestRepository, InMemoryCreditRepository,
-    InMemoryCustomRoleRepository, InMemoryDepositRepository, InMemoryInviteRepository,
+    InMemoryCustomRoleRepository, InMemoryDerivedWalletRepository, InMemoryDepositRepository,
+    InMemoryInviteRepository,
     InMemoryLoginAttemptRepository, InMemoryMembershipRepository, InMemoryNonceRepository,
     InMemoryOrgRepository, InMemoryOutboxRepository, InMemoryPendingWalletRecoveryRepository,
     InMemoryPolicyRepository, InMemoryPrivacyNoteRepository, InMemorySessionRepository,
     InMemorySsoRepository, InMemorySystemSettingsRepository, InMemoryTotpRepository,
     InMemoryTreasuryConfigRepository, InMemoryUserRepository, InMemoryUserWithdrawalLogRepository,
     InMemoryVerificationRepository, InMemoryWalletMaterialRepository, InMemoryWebAuthnRepository,
-    InMemoryWithdrawalHistoryRepository, InviteRepository, LoginAttemptRepository,
+    InMemoryWalletRotationHistoryRepository, InMemoryWithdrawalHistoryRepository,
+    InviteRepository, LoginAttemptRepository,
     MembershipRepository, NonceRepository, OrgRepository, OutboxRepository,
-    PendingWalletRecoveryRepository, PolicyRepository, PrivacyNoteRepository, SessionRepository,
-    SsoRepository, SystemSettingsRepository, TotpRepository, TreasuryConfigRepository,
-    UserRepository, UserWithdrawalLogRepository, VerificationRepository, WalletMaterialRepository,
-    WebAuthnRepository, WithdrawalHistoryRepository,
+    DerivedWalletRepository, PendingWalletRecoveryRepository, PolicyRepository,
+    WalletRotationHistoryRepository,
+    PrivacyNoteRepository, SessionRepository, SsoRepository, SystemSettingsRepository,
+    TotpRepository, TreasuryConfigRepository, UserRepository, UserWithdrawalLogRepository,
+    VerificationRepository, WalletMaterialRepository, WebAuthnRepository,
+    WithdrawalHistoryRepository,
 };
 use crate::services::EncryptionService;
 
@@ -33,13 +37,15 @@ use crate::services::EncryptionService;
 use crate::repositories::{
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
-    PostgresCustomRoleRepository, PostgresDepositRepository, PostgresInviteRepository,
+    PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,
+    PostgresInviteRepository,
     PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
     PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
     PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresSessionRepository,
     PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
     PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
-    PostgresVerificationRepository, PostgresWalletMaterialRepository, PostgresWebAuthnRepository,
+    PostgresVerificationRepository, PostgresWalletMaterialRepository,
+    PostgresWalletRotationHistoryRepository, PostgresWebAuthnRepository,
     PostgresWithdrawalHistoryRepository,
 };
 
@@ -78,6 +84,8 @@ pub struct Storage {
     pub treasury_config_repo: Arc<dyn TreasuryConfigRepository>,
     pub withdrawal_history_repo: Arc<dyn WithdrawalHistoryRepository>,
     pub user_withdrawal_log_repo: Arc<dyn UserWithdrawalLogRepository>,
+    pub derived_wallet_repo: Arc<dyn DerivedWalletRepository>,
+    pub wallet_rotation_history_repo: Arc<dyn WalletRotationHistoryRepository>,
     pub pending_wallet_recovery_repo: Arc<dyn PendingWalletRecoveryRepository>,
     #[cfg(feature = "postgres")]
     pub pg_pool: Option<PgPool>,
@@ -137,6 +145,8 @@ impl Storage {
             treasury_config_repo: Arc::new(InMemoryTreasuryConfigRepository::new()),
             withdrawal_history_repo: Arc::new(InMemoryWithdrawalHistoryRepository::new()),
             user_withdrawal_log_repo: Arc::new(InMemoryUserWithdrawalLogRepository::new()),
+            derived_wallet_repo: Arc::new(InMemoryDerivedWalletRepository::new()),
+            wallet_rotation_history_repo: Arc::new(InMemoryWalletRotationHistoryRepository::new()),
             pending_wallet_recovery_repo: Arc::new(InMemoryPendingWalletRecoveryRepository::new()),
             #[cfg(feature = "postgres")]
             pg_pool: None,
@@ -240,6 +250,10 @@ impl Storage {
                 pool.clone(),
             )),
             user_withdrawal_log_repo: Arc::new(PostgresUserWithdrawalLogRepository::new(
+                pool.clone(),
+            )),
+            derived_wallet_repo: Arc::new(PostgresDerivedWalletRepository::new(pool.clone())),
+            wallet_rotation_history_repo: Arc::new(PostgresWalletRotationHistoryRepository::new(
                 pool.clone(),
             )),
             pending_wallet_recovery_repo: Arc::new(PostgresPendingWalletRecoveryRepository::new(

@@ -53,8 +53,16 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
     let started_at = TokioInstant::now();
     const MIN_DURATION: TokioDuration = TokioDuration::from_millis(150);
 
-    if !state.config.email.enabled {
-        return Err(AppError::NotFound("Email auth disabled".into()));
+    // Enabled check: runtime setting > static email config
+    let enabled = state
+        .settings_service
+        .get_bool("auth_instantlink_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("Instant link auth disabled".into()));
     }
 
     // Always return success to prevent email enumeration
@@ -150,8 +158,16 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<VerifyInstantLinkRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.email.enabled {
-        return Err(AppError::NotFound("Email auth disabled".into()));
+    // Enabled check: runtime setting > static email config
+    let enabled = state
+        .settings_service
+        .get_bool("auth_instantlink_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("Instant link auth disabled".into()));
     }
 
     // H-08: Always hash and lookup to prevent timing attacks.
@@ -233,7 +249,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
     let session_id = uuid::Uuid::new_v4();

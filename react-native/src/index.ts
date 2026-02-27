@@ -38,6 +38,7 @@ export {
   useGoogleAuth,
   useAppleAuth,
   useSolanaAuth,
+  useMobileWalletAuth,
   useOrgs,
   useWallet,
 } from "./hooks";
@@ -47,6 +48,8 @@ export type {
   UseGoogleAuthReturn,
   UseAppleAuthReturn,
   UseSolanaAuthReturn,
+  UseMobileWalletAuthReturn,
+  MobileWalletCredentials,
   UseOrgsReturn,
   UseWalletReturn,
 } from "./hooks";

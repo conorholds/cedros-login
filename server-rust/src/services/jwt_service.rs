@@ -36,6 +36,9 @@ pub struct AccessTokenClaims {
     /// Whether user is a system-wide admin
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_system_admin: Option<bool>,
+    /// Whether user's email address has been verified
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email_verified: Option<bool>,
     /// Issued at (Unix timestamp)
     pub iat: i64,
     /// Expiration (Unix timestamp)
@@ -55,6 +58,8 @@ pub struct TokenContext {
     pub role: Option<String>,
     /// Whether user is a system-wide admin
     pub is_system_admin: Option<bool>,
+    /// Whether user's email address has been verified
+    pub email_verified: Option<bool>,
 }
 
 /// JWKS (JSON Web Key Set) response
@@ -308,6 +313,7 @@ impl JwtService {
             org_id: context.org_id,
             role: context.role.clone(),
             is_system_admin: context.is_system_admin,
+            email_verified: context.email_verified,
             iat: now.timestamp(),
             exp: exp.timestamp(),
             iss: self.issuer.clone(),

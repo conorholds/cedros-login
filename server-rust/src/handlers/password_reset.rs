@@ -64,7 +64,15 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Json(req): Json<ForgotPasswordRequest>,
 ) -> Result<(StatusCode, Json<MessageResponse>), AppError> {
-    if !state.config.email.enabled {
+    // Enabled check: runtime setting > static config
+    let email_enabled = state
+        .settings_service
+        .get_bool("auth_email_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !email_enabled {
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
@@ -158,7 +166,15 @@ pub async fn reset_password<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Json(req): Json<ResetPasswordRequest>,
 ) -> Result<(StatusCode, Json<MessageResponse>), AppError> {
-    if !state.config.email.enabled {
+    // Enabled check: runtime setting > static config
+    let email_enabled = state
+        .settings_service
+        .get_bool("auth_email_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !email_enabled {
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 

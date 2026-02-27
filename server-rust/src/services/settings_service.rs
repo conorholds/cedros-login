@@ -400,7 +400,7 @@ mod tests {
         let service = SettingsService::new(repo);
 
         let all = service.get_all_cached().await.unwrap();
-        assert_eq!(all.len(), 19); // All default settings (14 original + 5 server/logging/metrics)
+        assert_eq!(all.len(), 20); // All default settings (14 original + 5 server/logging/metrics + feature_cedros_pay)
         assert_eq!(all.get("privacy_period_secs"), Some(&"604800".to_string()));
     }
 }

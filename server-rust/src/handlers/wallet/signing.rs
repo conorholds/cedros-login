@@ -64,6 +64,18 @@ async fn sign_transaction_inner<C: AuthCallback, E: EmailService>(
 
     let transaction = decode_base64(&req.transaction, "transaction")?;
 
+    // Resolve derivation index and pubkey from wallet_id
+    let (derivation_index, signing_pubkey) = if let Some(wallet_id) = req.wallet_id {
+        let derived = state
+            .derived_wallet_repo
+            .find_by_id(wallet_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Derived wallet not found".into()))?;
+        (derived.derivation_index, derived.solana_pubkey)
+    } else {
+        (0, material.solana_pubkey.clone())
+    };
+
     // For API key auth with api_key auth method, auto-use the raw key as credential
     let effective_credential =
         if material.share_a_auth_method == crate::repositories::ShareAAuthMethod::ApiKey {
@@ -83,10 +95,22 @@ async fn sign_transaction_inner<C: AuthCallback, E: EmailService>(
 
     let signature = match effective_credential {
         Some(credential) => {
-            state
-                .wallet_signing_service
-                .sign_transaction(&material, &credential, &transaction)
-                .await?
+            if derivation_index > 0 {
+                state
+                    .wallet_signing_service
+                    .sign_transaction_with_derived(
+                        &material,
+                        &credential,
+                        &transaction,
+                        derivation_index,
+                    )
+                    .await?
+            } else {
+                state
+                    .wallet_signing_service
+                    .sign_transaction(&material, &credential, &transaction)
+                    .await?
+            }
         }
         None => {
             let session_id = auth.session_id.ok_or_else(|| {
@@ -99,9 +123,20 @@ async fn sign_transaction_inner<C: AuthCallback, E: EmailService>(
                 .await
                 .ok_or_else(|| AppError::Unauthorized("Wallet not unlocked".into()))?;
 
-            state
-                .wallet_signing_service
-                .sign_transaction_with_cached_key(&material, &cached_key, &transaction)?
+            if derivation_index > 0 {
+                state
+                    .wallet_signing_service
+                    .sign_transaction_with_derived_index(
+                        &material,
+                        &cached_key,
+                        &transaction,
+                        derivation_index,
+                    )?
+            } else {
+                state
+                    .wallet_signing_service
+                    .sign_transaction_with_cached_key(&material, &cached_key, &transaction)?
+            }
         }
     };
 
@@ -116,7 +151,7 @@ async fn sign_transaction_inner<C: AuthCallback, E: EmailService>(
 
     Ok(Json(SignTransactionResponse {
         signature: BASE64.encode(&signature),
-        pubkey: material.solana_pubkey,
+        pubkey: signing_pubkey,
     }))
 }
 

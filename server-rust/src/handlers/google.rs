@@ -122,12 +122,34 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<GoogleAuthRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.google.enabled {
+    // Enabled check: runtime setting > static config
+    let enabled = state
+        .settings_service
+        .get_bool("auth_google_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.google.enabled);
+    if !enabled {
         return Err(AppError::NotFound("Google auth disabled".into()));
     }
 
+    // Resolve client_id: runtime setting > static config
+    let client_id = state
+        .settings_service
+        .get("auth_google_client_id")
+        .await
+        .ok()
+        .flatten()
+        .filter(|s| !s.is_empty())
+        .or_else(|| state.config.google.client_id.clone())
+        .ok_or_else(|| AppError::Config("Google client ID not configured".into()))?;
+
     // Verify the Google ID token
-    let claims = state.google_service.verify_id_token(&req.id_token).await?;
+    let claims = state
+        .google_service
+        .verify_id_token(&req.id_token, &client_id)
+        .await?;
 
     let email = claims
         .email
@@ -201,7 +223,7 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();

@@ -30,6 +30,10 @@ export interface SolanaConfig {
   network?: SolanaNetwork;
   /** Auto-reconnect wallet on page load. Default: false */
   autoConnect?: boolean;
+  /** App URI for MWA wallet identity display. Default: serverUrl */
+  appUri?: string;
+  /** App icon URL for MWA wallet identity display */
+  appIcon?: string;
 }
 
 /**

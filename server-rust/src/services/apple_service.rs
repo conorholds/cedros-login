@@ -90,7 +90,9 @@ const APPLE_ISSUER: &str = "https://appleid.apple.com";
 /// Apple Sign-In service for verifying ID tokens
 #[derive(Clone)]
 pub struct AppleService {
+    #[allow(dead_code)] // Kept for backward compat; caller now passes client_id at runtime
     client_id: Option<String>,
+    #[allow(dead_code)] // Kept for backward compat; caller now resolves team_id at runtime
     team_id: Option<String>,
     http_client: reqwest::Client,
     jwks_cache: Arc<RwLock<Option<JwksCache>>>,
@@ -271,17 +273,13 @@ impl AppleService {
     /// Verify an Apple ID token and return the claims
     ///
     /// This verifies JWT signatures locally using Apple's JWKS.
-    pub async fn verify_id_token(&self, id_token: &str) -> Result<AppleTokenClaims, AppError> {
-        let client_id = self
-            .client_id
-            .as_ref()
-            .ok_or_else(|| AppError::Config("Apple client ID not configured".into()))?;
-
-        // team_id is validated at config time, but check here too
-        if self.team_id.is_none() {
-            return Err(AppError::Config("Apple team ID not configured".into()));
-        }
-
+    /// The `client_id` is passed by the caller so it can be resolved at runtime
+    /// from `SettingsService` (with static config fallback).
+    pub async fn verify_id_token(
+        &self,
+        id_token: &str,
+        client_id: &str,
+    ) -> Result<AppleTokenClaims, AppError> {
         let kid = self.extract_kid(id_token)?;
         let jwks = self.get_jwks().await?;
 
@@ -307,7 +305,7 @@ impl AppleService {
         };
 
         let mut validation = Validation::new(Algorithm::RS256);
-        validation.set_audience(&[client_id.as_str()]);
+        validation.set_audience(&[client_id]);
         validation.set_issuer(&[APPLE_ISSUER]);
 
         let token_data =

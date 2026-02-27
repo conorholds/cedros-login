@@ -70,11 +70,11 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .unwrap_or(cfg.webauthn.enabled);
 
     let instant_link = ss
-        .get_bool("auth_instant_link_enabled")
+        .get_bool("auth_instantlink_enabled")
         .await
         .ok()
         .flatten()
-        .unwrap_or(false);
+        .unwrap_or(cfg.email.enabled);
 
     Json(AuthFeaturesResponse {
         email,

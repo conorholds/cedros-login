@@ -19,6 +19,7 @@ use aes_gcm::{
 };
 use argon2::{Algorithm, Argon2, Params, Version};
 use ed25519_dalek::{Signer, SigningKey};
+use hkdf::Hkdf;
 use sha2::Sha256;
 use tokio::task;
 use zeroize::{Zeroize, Zeroizing};
@@ -228,6 +229,95 @@ impl WalletSigningService {
         seed.zeroize();
 
         Ok(signature)
+    }
+
+    /// Sign a transaction using a cached key and a derived wallet index
+    ///
+    /// For index 0 (default wallet), uses master seed directly.
+    /// For index > 0, derives a child seed via HKDF-SHA256.
+    pub fn sign_transaction_with_derived_index(
+        &self,
+        material: &WalletMaterialEntity,
+        cached_key: &[u8; 32],
+        transaction: &[u8],
+        derivation_index: i32,
+    ) -> Result<Vec<u8>, AppError> {
+        // Decrypt Share A using cached key
+        let mut share_a = self.decrypt_aes_gcm(
+            cached_key,
+            &material.share_a_nonce,
+            &material.share_a_ciphertext,
+        )?;
+
+        // Combine shares to reconstruct master seed
+        let mut master_seed = self.combine_shares(&share_a, &material.share_b)?;
+        share_a.zeroize();
+
+        let signature = if derivation_index > 0 {
+            let mut child = derive_child_seed_from_bytes(&master_seed, derivation_index as u32)?;
+            master_seed.zeroize();
+            let sig = self.sign_with_seed(&child, transaction)?;
+            child.zeroize();
+            sig
+        } else {
+            let sig = self.sign_with_seed(&master_seed, transaction)?;
+            master_seed.zeroize();
+            sig
+        };
+
+        Ok(signature)
+    }
+
+    /// Sign a transaction with credential and derived wallet index
+    pub async fn sign_transaction_with_derived(
+        &self,
+        material: &WalletMaterialEntity,
+        credential: &UnlockCredential,
+        transaction: &[u8],
+        derivation_index: i32,
+    ) -> Result<Vec<u8>, AppError> {
+        let mut share_a = self.decrypt_share_a(material, credential).await?;
+        let mut master_seed = self.combine_shares(&share_a, &material.share_b)?;
+        share_a.zeroize();
+
+        let signature = if derivation_index > 0 {
+            let mut child = derive_child_seed_from_bytes(&master_seed, derivation_index as u32)?;
+            master_seed.zeroize();
+            let sig = self.sign_with_seed(&child, transaction)?;
+            child.zeroize();
+            sig
+        } else {
+            let sig = self.sign_with_seed(&master_seed, transaction)?;
+            master_seed.zeroize();
+            sig
+        };
+
+        Ok(signature)
+    }
+
+    /// Derive a child pubkey from the master wallet at a given derivation index.
+    ///
+    /// Requires the cached encryption key (wallet must be unlocked).
+    /// Reconstructs master seed from shares, derives child seed, returns pubkey.
+    pub fn derive_pubkey_for_index(
+        &self,
+        material: &WalletMaterialEntity,
+        cached_key: &[u8; 32],
+        index: u32,
+    ) -> Result<String, AppError> {
+        let mut share_a = self.decrypt_aes_gcm(
+            cached_key,
+            &material.share_a_nonce,
+            &material.share_a_ciphertext,
+        )?;
+
+        let mut master_seed = self.combine_shares(&share_a, &material.share_b)?;
+        share_a.zeroize();
+
+        let pubkey = derive_pubkey_at_index(&master_seed, index)?;
+        master_seed.zeroize();
+
+        Ok(pubkey)
     }
 
     /// Derive the encryption key from a credential
@@ -841,6 +931,37 @@ fn format_share(id: u8, data: &[u8]) -> Vec<u8> {
     share
 }
 
+/// Derive a child seed from a master seed using HKDF-SHA256
+///
+/// Index 0 = master seed directly (backward compatible).
+/// Index > 0 = HKDF-SHA256(ikm=master_seed, salt="cedros-derived-wallet", info=u32_be(index)).
+///
+/// Uses a custom derivation (NOT BIP-44) to keep wallets app-locked.
+pub fn derive_child_seed_from_bytes(master_seed: &[u8], index: u32) -> Result<Vec<u8>, AppError> {
+    if master_seed.len() != 32 {
+        return Err(AppError::Internal(anyhow::anyhow!(
+            "Invalid master seed length: expected 32, got {}",
+            master_seed.len()
+        )));
+    }
+    if index == 0 {
+        return Ok(master_seed.to_vec());
+    }
+    let hk = Hkdf::<Sha256>::new(Some(b"cedros-derived-wallet"), master_seed);
+    let mut child = vec![0u8; 32];
+    hk.expand(&index.to_be_bytes(), &mut child)
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("HKDF expand failed: {}", e)))?;
+    Ok(child)
+}
+
+/// Derive the Solana pubkey (base58) for a given derivation index from a master seed
+pub fn derive_pubkey_at_index(master_seed: &[u8], index: u32) -> Result<String, AppError> {
+    let mut child = derive_child_seed_from_bytes(master_seed, index)?;
+    let pubkey = derive_pubkey_from_seed(&child)?;
+    child.zeroize();
+    Ok(pubkey)
+}
+
 /// Derive Solana public key (base58) from 32-byte seed
 fn derive_pubkey_from_seed(seed: &[u8]) -> Result<String, AppError> {
     if seed.len() != 32 {
@@ -1121,6 +1242,56 @@ mod tests {
             &reencrypted.ciphertext,
         );
         assert!(decrypt_result.is_err());
+    }
+
+    #[test]
+    fn test_derive_child_seed_index_0_returns_master() {
+        let master = [0x42u8; 32];
+        let child = derive_child_seed_from_bytes(&master, 0).unwrap();
+        assert_eq!(child, master.to_vec());
+    }
+
+    #[test]
+    fn test_derive_child_seed_deterministic() {
+        let master = [0x42u8; 32];
+        let c1 = derive_child_seed_from_bytes(&master, 1).unwrap();
+        let c2 = derive_child_seed_from_bytes(&master, 1).unwrap();
+        assert_eq!(c1, c2);
+        assert_eq!(c1.len(), 32);
+    }
+
+    #[test]
+    fn test_derive_child_seed_distinct_per_index() {
+        let master = [0x42u8; 32];
+        let c1 = derive_child_seed_from_bytes(&master, 1).unwrap();
+        let c2 = derive_child_seed_from_bytes(&master, 2).unwrap();
+        assert_ne!(c1, c2);
+        // Neither should equal master
+        assert_ne!(c1, master.to_vec());
+        assert_ne!(c2, master.to_vec());
+    }
+
+    #[test]
+    fn test_derive_child_seed_invalid_length() {
+        let short = [0u8; 16];
+        assert!(derive_child_seed_from_bytes(&short, 1).is_err());
+    }
+
+    #[test]
+    fn test_derive_pubkey_at_index_backward_compat() {
+        let master = [0xABu8; 32];
+        // Index 0 pubkey should match derive_pubkey_from_seed(master)
+        let pk0 = derive_pubkey_at_index(&master, 0).unwrap();
+        let pk_direct = derive_pubkey_from_seed(&master).unwrap();
+        assert_eq!(pk0, pk_direct);
+    }
+
+    #[test]
+    fn test_derive_pubkey_at_index_distinct() {
+        let master = [0xABu8; 32];
+        let pk0 = derive_pubkey_at_index(&master, 0).unwrap();
+        let pk1 = derive_pubkey_at_index(&master, 1).unwrap();
+        assert_ne!(pk0, pk1);
     }
 
     #[tokio::test]

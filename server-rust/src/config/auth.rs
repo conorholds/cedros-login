@@ -16,6 +16,9 @@ pub struct EmailConfig {
     /// Block registrations from disposable/temporary email providers
     #[serde(default)]
     pub block_disposable_emails: bool,
+    /// Additional domains to block beyond the built-in list (embedder-provided)
+    #[serde(default)]
+    pub custom_blocked_domains: Vec<String>,
 }
 
 impl Default for EmailConfig {
@@ -24,6 +27,7 @@ impl Default for EmailConfig {
             enabled: true,
             require_verification: false,
             block_disposable_emails: false,
+            custom_blocked_domains: Vec::new(),
         }
     }
 }

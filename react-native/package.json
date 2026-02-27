@@ -44,7 +44,13 @@
     "@invertase/react-native-apple-authentication": {
       "optional": true
     },
-    "@solana-mobile/mobile-wallet-adapter-protocol": {
+    "@wallet-ui/react-native-web3js": {
+      "optional": true
+    },
+    "@solana-mobile/mobile-wallet-adapter-protocol-web3js": {
+      "optional": true
+    },
+    "react-native-quick-crypto": {
       "optional": true
     },
     "react-native-biometrics": {

@@ -85,6 +85,9 @@ pub enum AppError {
 
     #[error("Step-up authentication required")]
     StepUpRequired,
+
+    #[error("Disposable email addresses are not allowed")]
+    DisposableEmailBlocked,
 }
 
 /// Error code for API responses
@@ -105,6 +108,7 @@ pub enum ErrorCode {
     Forbidden,
     Unauthorized,
     StepUpRequired,
+    DisposableEmailBlocked,
     ServiceUnavailable,
     ServerError,
 }
@@ -191,6 +195,11 @@ impl IntoResponse for AppError {
             AppError::StepUpRequired => (
                 StatusCode::FORBIDDEN,
                 ErrorCode::StepUpRequired,
+                self.to_string(),
+            ),
+            AppError::DisposableEmailBlocked => (
+                StatusCode::BAD_REQUEST,
+                ErrorCode::DisposableEmailBlocked,
                 self.to_string(),
             ),
             AppError::Internal(err) => {
@@ -349,6 +358,7 @@ mod tests {
             ErrorCode::ChallengeExpired,
             ErrorCode::ValidationError,
             ErrorCode::RateLimited,
+            ErrorCode::DisposableEmailBlocked,
             ErrorCode::ServerError,
         ];
 

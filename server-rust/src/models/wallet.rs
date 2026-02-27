@@ -194,11 +194,18 @@ pub struct WalletStatusResponse {
 ///
 /// If wallet is unlocked for session, credential is optional.
 /// If wallet is locked, credential must be provided.
+///
+/// If `wallet_id` is provided, signs with the derived wallet at the corresponding
+/// derivation index. If absent, signs with the default wallet (index 0).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SignTransactionRequest {
     /// Transaction message bytes to sign (base64)
     pub transaction: String,
+
+    /// Derived wallet ID to sign with. If absent, uses default wallet.
+    #[serde(default)]
+    pub wallet_id: Option<Uuid>,
 
     /// Unlock credential - optional if wallet already unlocked for session
     #[serde(flatten)]
@@ -400,6 +407,46 @@ pub struct WalletSummary {
 #[serde(rename_all = "camelCase")]
 pub struct WalletListResponse {
     pub wallets: Vec<WalletSummary>,
+}
+
+// --- Derived wallet types ---
+
+/// Request to create a derived wallet
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateDerivedWalletRequest {
+    /// Human-readable label for the wallet (max 100 chars)
+    pub label: String,
+}
+
+/// Response from creating a derived wallet
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DerivedWalletResponse {
+    pub id: Uuid,
+    pub derivation_index: i32,
+    pub solana_pubkey: String,
+    pub label: String,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Summary of a derived wallet in list responses
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DerivedWalletSummary {
+    pub id: Uuid,
+    pub derivation_index: i32,
+    pub solana_pubkey: String,
+    pub label: String,
+    pub is_default: bool,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Response listing all wallets (default + derived) for a user
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AllWalletsListResponse {
+    pub wallets: Vec<DerivedWalletSummary>,
 }
 
 #[cfg(test)]

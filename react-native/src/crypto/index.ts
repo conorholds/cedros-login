@@ -76,6 +76,7 @@ export {
   getPublicKeyFromSeed,
   publicKeyToBase58,
   base58ToPublicKey,
+  base58Encode,
   isValidSolanaAddress,
   type SolanaKeypair,
 } from "./solanaKeypair";

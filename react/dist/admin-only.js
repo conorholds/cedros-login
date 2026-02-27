@@ -1,8 +1,9 @@
-import { A as n, I as i, c as o, c as a, u as e } from "./plugin-D1NdppqC.js";
+import { A as n, C as a, I as i, c as o, c as e, u as I } from "./plugin-Bhf9zaly.js";
 export {
   n as AdminShell,
+  a as CEDROS_LOGIN_SECTION_IDS,
   i as Icons,
   o as cedrosLoginPlugin,
-  a as loginPlugin,
-  e as useAdminShell
+  e as loginPlugin,
+  I as useAdminShell
 };

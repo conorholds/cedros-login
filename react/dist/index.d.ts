@@ -177,13 +177,22 @@ export declare interface AdminDepositStatsResponse {
 
 /**
  * Group configuration for sidebar organization.
+ *
+ * **Ordering rules:**
+ * - Groups are keyed by `label` (not `id`) when merging across plugins.
+ * - The first plugin to declare a given label wins the `order` number.
+ * - Later plugins adding sections with `group: 'Same Label'` merge into
+ *   the existing group without overriding the order.
+ * - Groups without an explicit config default to `order: 99` (sink to bottom).
+ * - cedros-login declares `Users` at order 0 and `Configuration` at order 2,
+ *   leaving order 1 available for other plugins to insert between them.
  */
 export declare interface AdminGroupConfig {
     /** Group identifier */
     id: string;
-    /** Display label */
+    /** Display label — used as the merge key across plugins */
     label: string;
-    /** Sort order (lower = higher in sidebar) */
+    /** Sort order (lower = higher in sidebar). First plugin to declare a label wins. */
     order: number;
     /** Icon for the group header */
     icon?: ReactNode;
@@ -194,7 +203,23 @@ export declare interface AdminGroupConfig {
 export declare const AdminIcons: Record<string, ReactNode>;
 
 /**
- * Plugin definition - the main export from each admin module.
+ * Plugin definition — the main export from each admin module.
+ *
+ * **Plugin merge order:** Plugins are iterated in registration order (insertion
+ * order of the registry `Map`). Sections from later plugins are appended after
+ * sections from earlier plugins. There is no cross-plugin section dedup — each
+ * plugin's section IDs are namespaced via `qualifiedId` (`pluginId:sectionId`).
+ *
+ * **Section visibility:** Each section passes two filters:
+ * 1. `checkPermission(section.requiredPermission, hostContext)` — role-based.
+ * 2. `hostContext.dashboardPermissions?.canAccess(section.id)` — owner RBAC.
+ *
+ * Register at the composition root:
+ * ```tsx
+ * <AdminShell plugins={[cedrosLoginPlugin, cedrosPayPlugin]} hostContext={ctx}>
+ *   {children}
+ * </AdminShell>
+ * ```
  */
 export declare interface AdminPlugin {
     /** Unique plugin identifier */
@@ -249,6 +274,10 @@ export declare interface AdminPrivacyPeriodDepositsProps {
 
 /**
  * Section configuration for sidebar navigation.
+ *
+ * **Ordering:** Sections within a group are sorted by `order` (ascending).
+ * Sections with the same order are shown in plugin registration order.
+ * Sections without a `group` fall into the implicit `'Menu'` group.
  */
 export declare interface AdminSectionConfig {
     /** Section ID unique within the plugin */
@@ -257,9 +286,9 @@ export declare interface AdminSectionConfig {
     label: string;
     /** React node for the icon (SVG or component) */
     icon: ReactNode;
-    /** Sidebar group name for visual organization */
+    /** Sidebar group name — must match an {@link AdminGroupConfig.label} to merge into that group */
     group?: string;
-    /** Sort order within group (lower = higher) */
+    /** Sort order within group (lower = higher). Default: 0 */
     order?: number;
     /** Permission required to see this section */
     requiredPermission?: PluginPermission;
@@ -476,6 +505,11 @@ export declare interface AdminWithdrawalStatsProps {
     onLoad?: (stats: AdminDepositStatsResponse) => void;
 }
 
+/** Response listing all wallets (default + derived) for a user */
+export declare interface AllWalletsListResponse {
+    wallets: DerivedWalletSummary[];
+}
+
 /**
  * Apple Sign In button
  *
@@ -650,6 +684,27 @@ export declare interface CapabilityWarningProps {
 }
 
 /**
+ * All section IDs registered by the cedros-login plugin.
+ *
+ * Use these to reference specific sections when configuring
+ * `dashboardPermissions.canAccess()` or navigating programmatically.
+ *
+ * Qualified IDs (for multi-plugin use) are prefixed: `cedros-login:{id}`.
+ */
+export declare const CEDROS_LOGIN_SECTION_IDS: {
+    readonly users: "users";
+    readonly team: "team";
+    readonly deposits: "deposits";
+    readonly withdrawals: "withdrawals";
+    readonly settingsAuth: "settings-auth";
+    readonly settingsEmail: "settings-email";
+    readonly settingsWebhooks: "settings-webhooks";
+    readonly settingsWallet: "settings-wallet";
+    readonly settingsCredits: "settings-credits";
+    readonly settingsServer: "settings-server";
+};
+
+/**
  * Unified Admin Dashboard
  *
  * Provides a complete admin interface with sidebar navigation.
@@ -679,16 +734,44 @@ export declare interface CedrosAdminDashboardProps {
 }
 
 /**
- * Full configuration for CedrosLoginProvider
+ * Full configuration for the authentication system.
+ *
+ * **Note:** When passing config to `<CedrosLoginProvider>`, use
+ * {@link CedrosLoginProviderConfig} instead — it extends this type
+ * with `features: 'auto'` support. This base type is used internally
+ * after the provider resolves auto-discovery.
+ *
+ * ```
+ * CedrosLoginProviderConfig   (public prop type — accepts features: 'auto')
+ *   └── CedrosLoginConfig     (internal type — features is always FeatureFlags)
+ * ```
  */
 export declare interface CedrosLoginConfig {
     /** Auth server base URL */
     serverUrl: string;
     /** App name for Solana message: "Login to {appName}". Default: window.location.hostname */
     appName?: string;
-    /** Google OAuth client ID. Required if Google auth enabled */
+    /**
+     * Google OAuth client ID. Required if Google auth enabled.
+     *
+     * **CSP requirements** (when using Google One Tap / credential popup):
+     * ```
+     * script-src https://accounts.google.com;
+     * connect-src https://accounts.google.com;
+     * frame-src https://accounts.google.com;
+     * ```
+     */
     googleClientId?: string;
-    /** Apple Sign In client ID (Services ID). Required if Apple auth enabled */
+    /**
+     * Apple Sign In client ID (Services ID). Required if Apple auth enabled.
+     *
+     * **CSP requirements** (when using Apple Sign In popup):
+     * ```
+     * script-src https://appleid.cdn-apple.com;
+     * connect-src https://appleid.apple.com;
+     * frame-src https://appleid.apple.com;
+     * ```
+     */
     appleClientId?: string;
     /** Solana configuration options */
     solana?: SolanaConfig;
@@ -745,9 +828,31 @@ export { cedrosLoginPlugin as loginPlugin }
 export declare function CedrosLoginProvider({ config, children }: CedrosLoginProviderProps): JSX.Element | null;
 
 /**
- * Config accepted by CedrosLoginProvider.
- * Same as CedrosLoginConfig but `features` also accepts `'auto'`
- * to fetch enabled methods from the server at startup.
+ * Config prop type for `<CedrosLoginProvider>`.
+ *
+ * Extends {@link CedrosLoginConfig} with one additional feature:
+ * the `features` field also accepts `'auto'` to fetch enabled
+ * auth methods from the server at startup.
+ *
+ * **`features: 'auto'` discovery contract:**
+ * - Calls `GET {serverUrl}/features` (no auth required, credentials omitted).
+ * - Response shape: `{ email, google, apple, solana, webauthn, instantLink }` (all booleans).
+ * - Timeout: `requestTimeout` or 5 000 ms. 1 retry on failure.
+ * - Fallback: all methods enabled (so the login page is never blank).
+ * - Children are not rendered until discovery completes.
+ * - `walletEnrollment` flag is client-only and is not part of the server response.
+ *
+ * When `features` is omitted or set to a `FeatureFlags` object, no server
+ * call is made and the flags are used as-is.
+ *
+ * @example
+ * ```tsx
+ * // Auto-discover enabled methods from the server:
+ * <CedrosLoginProvider config={{ serverUrl: '...', features: 'auto' }}>
+ *
+ * // Or specify explicitly:
+ * <CedrosLoginProvider config={{ serverUrl: '...', features: { email: true, google: true } }}>
+ * ```
  */
 export declare type CedrosLoginProviderConfig = Omit<CedrosLoginConfig, 'features'> & {
     features?: FeatureFlags | 'auto';
@@ -788,6 +893,12 @@ export declare interface ChangePasswordResponse {
  * Chat message role
  */
 declare type ChatMessageRole = 'user' | 'assistant' | 'system';
+
+/** Request to create a derived wallet */
+export declare interface CreateDerivedWalletRequest {
+    /** Human-readable label for the wallet (1-100 chars) */
+    label: string;
+}
 
 /** Request to create the first admin user */
 export declare interface CreateFirstAdminRequest {
@@ -1209,6 +1320,25 @@ export declare interface DepositStatusResponse {
 /** Deposit tier type for tiered deposits */
 export declare type DepositTier = 'private' | 'public' | 'sol_micro';
 
+/** Response from creating a derived wallet */
+export declare interface DerivedWalletResponse {
+    id: string;
+    derivationIndex: number;
+    solanaPubkey: string;
+    label: string;
+    createdAt: string;
+}
+
+/** Summary of a wallet in list responses (default + derived) */
+export declare interface DerivedWalletSummary {
+    id: string;
+    derivationIndex: number;
+    solanaPubkey: string;
+    label: string;
+    isDefault: boolean;
+    createdAt: string;
+}
+
 /**
  * UI-08: Standardized error prop type for display components.
  *
@@ -1545,42 +1675,87 @@ export declare interface HistoryProps {
 }
 
 /**
- * Host context provided by AdminShell to plugins.
- * Aggregates auth/context from all available sources.
+ * Host context provided by the application to `<AdminShell>`.
+ *
+ * Each field is optional — omit fields your app doesn't use.
+ * Plugins read the fields they need and degrade gracefully when absent.
+ *
+ * **Which plugin reads what:**
+ * - `cedros-login` plugin: requires `cedrosLogin` (throws if missing).
+ *   Uses `user`, `getAccessToken`, `serverUrl` for all API calls.
+ *   Reads `org` for role-based section filtering.
+ * - `cedros-pay` plugin: requires `cedrosPay`. Uses `walletAddress`,
+ *   `jwtToken`, `serverUrl`.
+ * - Both plugins: respect `dashboardPermissions` for section-level RBAC.
+ *
+ * **Missing field behavior:**
+ * - `cedrosLogin` missing → cedros-login plugin throws at `createPluginContext()`.
+ * - `cedrosPay` missing → cedros-pay plugin throws at `createPluginContext()`.
+ * - `org` missing → all authenticated users are treated as global admins
+ *   (all permission checks pass).
+ * - `dashboardPermissions` missing → all sections visible (no owner-level filtering).
+ * - `custom` → pass-through bag, not read by built-in plugins.
  */
 export declare interface HostContext {
-    /** cedros-login context */
+    /**
+     * Cedros Login auth context.
+     *
+     * **Required by:** `cedros-login` plugin.
+     * **Missing behavior:** plugin throws `'cedros-login plugin requires cedrosLogin in hostContext'`.
+     */
     cedrosLogin?: {
+        /** Authenticated user, or null if not signed in */
         user: {
             id: string;
             email?: string;
             name?: string;
             picture?: string;
         } | null;
+        /** Returns current JWT access token, or null */
         getAccessToken: () => string | null;
+        /** Base URL of the cedros-login server (e.g., `https://api.example.com`) */
         serverUrl: string;
     };
-    /** cedros-pay context */
+    /**
+     * Cedros Pay context.
+     *
+     * **Required by:** `cedros-pay` plugin.
+     * **Missing behavior:** pay plugin throws at context creation.
+     */
     cedrosPay?: {
+        /** Connected wallet public key */
         walletAddress?: string;
+        /** JWT for cedros-pay API */
         jwtToken?: string;
+        /** Base URL of the cedros-pay server */
         serverUrl: string;
     };
-    /** Organization context */
+    /**
+     * Organization context for multi-tenant role-based access.
+     *
+     * **Missing behavior:** all permission checks pass (global admin assumed).
+     */
     org?: {
+        /** Current organization ID */
         orgId: string;
+        /** User's role in this org (e.g., 'owner', 'admin', 'member') */
         role: string;
+        /** Granular permission strings (e.g., 'member:read', 'invite:create') */
         permissions: string[];
     };
     /**
-     * Dashboard section permissions (configured by org owner).
-     * Provides role-based access control for individual dashboard sections.
+     * Owner-configured section-level access control.
+     *
+     * Applied *after* plugin permission checks — a section must pass both
+     * `plugin.checkPermission()` and `canAccess()` to be visible.
+     *
+     * **Missing behavior:** all sections visible (no owner-level filtering).
      */
     dashboardPermissions?: {
-        /** Check if current user can access a section by ID */
+        /** Check if current user can access a section by its `SectionId` */
         canAccess: (sectionId: string) => boolean;
     };
-    /** Generic extension point */
+    /** Generic extension point for custom plugins. Not read by built-in plugins. */
     custom?: Record<string, unknown>;
 }
 
@@ -1951,6 +2126,32 @@ export declare interface MicroDepositRequest {
     txSignature: string;
     amountLamports: number;
     walletAddress: string;
+}
+
+/**
+ * Mobile Wallet Adapter (MWA) registration for web.
+ *
+ * On Android Chrome, MWA lets users authenticate with their installed Solana
+ * wallet app (e.g., Phantom, Solflare) via Android Intents — no browser
+ * extension needed.
+ *
+ * Once registered, MWA appears as a wallet option in the wallet adapter's
+ * wallet list (alongside browser extension wallets). Users see it as
+ * "Use Installed Wallet" in the wallet selector.
+ *
+ * Requires the optional peer dependency: @solana-mobile/wallet-standard-mobile
+ *
+ * @see https://docs.solanamobile.com/get-started/web/installation
+ */
+export declare interface MobileWalletConfig {
+    /** App name shown in the wallet's authorization dialog */
+    name?: string;
+    /** App URI for identity verification */
+    uri?: string;
+    /** App icon path/URL shown in the wallet dialog */
+    icon?: string;
+    /** Solana cluster(s) to support. Default: ['solana:mainnet'] */
+    chains?: string[];
 }
 
 /**
@@ -2420,6 +2621,36 @@ export declare interface RecoveryState {
 declare type RecoveryStep = 'idle' | 'entering_phrase' | 'validating' | 'prompting_password' | 'registering_passkey' | 'encrypting' | 'uploading' | 'complete' | 'error';
 
 /**
+ * Register Mobile Wallet Adapter as a wallet-standard wallet.
+ *
+ * Call this once at your application root (before rendering). After registration,
+ * MWA automatically appears as "Use Installed Wallet" for users browsing on
+ * Android Chrome with a Solana wallet app installed.
+ *
+ * Must be called in a non-SSR context (browser only). For Next.js, call in a
+ * Client Component with `'use client'`.
+ *
+ * @example
+ * ```tsx
+ * import { registerMobileWallet, CedrosLoginProvider } from '@cedros/login-react';
+ *
+ * // Register before provider mounts
+ * registerMobileWallet({ name: 'My App', uri: 'https://myapp.com' });
+ *
+ * function App() {
+ *   return (
+ *     <CedrosLoginProvider config={{ serverUrl: '...' }}>
+ *       <LoginForm />
+ *     </CedrosLoginProvider>
+ *   );
+ * }
+ * ```
+ *
+ * @returns true if registration succeeded, false if package not installed or SSR
+ */
+export declare function registerMobileWallet(config?: MobileWalletConfig): boolean;
+
+/**
  * Form for resetting password using a reset token.
  *
  * @example
@@ -2492,21 +2723,56 @@ export declare interface SecuritySettingsProps {
  * These control which features are available in the application.
  * Unlike client-side FeatureFlags (passed to CedrosLoginProvider),
  * these can be toggled at runtime via the admin dashboard.
+ *
+ * **Cosmetic vs enforced:**
+ * Some flags only affect UI visibility (cosmetic) while others are
+ * enforced server-side. See per-field docs below.
+ *
+ * Settings that are enforced per-request by the server (hard 403 if disabled):
+ * `auth_email_enabled`, `auth_google_enabled`, `auth_apple_enabled`,
+ * `auth_instantlink_enabled`, `feature_user_withdrawals`, `privacy_period_secs`,
+ * withdrawal worker settings, and deposit fee settings.
+ *
+ * Settings applied at server startup (take effect after restart):
+ * `security_cors_origins`, `rate_limit_*`, `auth_webauthn_*`, `webhook_*`.
  */
 export declare interface ServerFeatures {
-    /** Enable multi-tenant organizations. Controls: Team, Invites sections */
+    /**
+     * Enable multi-tenant organizations. Controls: Team, Invites sections.
+     *
+     * **Cosmetic** — org endpoints are always reachable server-side.
+     * This flag only controls admin dashboard section visibility.
+     */
     organizations: boolean;
-    /** Enable Enterprise SSO for organizations */
+    /** Enable Enterprise SSO for organizations. Startup-config enforced. */
     sso: boolean;
-    /** Enable two-factor authentication (TOTP) */
+    /**
+     * Enable two-factor authentication (TOTP).
+     *
+     * **Cosmetic** — MFA is actually gated by whether the user has TOTP
+     * enrolled (`has_mfa_enabled()`), not by this flag. This controls
+     * admin dashboard visibility only.
+     */
     mfa: boolean;
-    /** Enable embedded wallet for transaction signing */
+    /** Enable embedded wallet for transaction signing. Startup-config enforced. */
     walletSigning: boolean;
-    /** Enable deposits and credits system. Controls: Deposits, Withdrawals, Credit System sections */
+    /**
+     * Enable deposits and credits system.
+     * Controls: Deposits, Withdrawals, Credit System admin sections.
+     * Deposit/withdrawal endpoints are enforced server-side.
+     */
     credits: boolean;
-    /** Enable user withdrawals from embedded wallet to external addresses */
+    /**
+     * Enable user withdrawals from embedded wallet to external addresses.
+     * **Enforced** — server returns 403 on withdrawal endpoints when disabled.
+     */
     userWithdrawals: boolean;
-    /** Enable Cedros Pay integration. Controls: Products, Transactions, Refunds, etc. */
+    /**
+     * Enable Cedros Pay integration.
+     * Controls: Products, Transactions, Refunds admin sections.
+     *
+     * **Cosmetic** — only controls admin dashboard tab visibility.
+     */
     cedrosPay: boolean;
 }
 
@@ -2739,6 +3005,8 @@ export declare type SigningMethod = 'external' | 'sss' | 'none';
 export declare interface SignTransactionRequest {
     /** Transaction bytes (base64) */
     transaction: string;
+    /** Derived wallet ID to sign with. If absent, uses default wallet. */
+    walletId?: string;
     /** Unlock credential */
     credential?: UnlockCredentialRequest;
 }
@@ -2881,13 +3149,7 @@ export declare interface SystemSetting {
 
 /**
  * System settings management component for administrators.
- *
- * Features:
- * - Duration inputs with human-readable display
- * - Percentage sliders
- * - Preset dropdown selectors
- * - Warning indicators for extreme values
- * - Rich descriptions for each setting
+ * Uses manual save/reset flow (not autosave).
  */
 export declare function SystemSettings({ showDescriptions, className, onSave, }: SystemSettingsProps): JSX.Element;
 
@@ -4561,6 +4823,12 @@ export declare interface UseWalletMaterialReturn {
     lock: () => Promise<void>;
     /** Get Share B for Share C recovery mode (proves ownership via Share C) */
     getShareBForRecovery: (request: ShareCRecoveryRequest) => Promise<ShareCRecoveryResponse>;
+    /** Create a derived wallet (requires wallet to be unlocked) */
+    createDerivedWallet: (request: CreateDerivedWalletRequest) => Promise<DerivedWalletResponse>;
+    /** List all wallets (default + derived) */
+    listAllWallets: () => Promise<AllWalletsListResponse>;
+    /** Delete a derived wallet */
+    deleteDerivedWallet: (walletId: string) => Promise<void>;
     /** Whether request is in progress */
     isLoading: boolean;
     /** Error from last request */
@@ -4591,6 +4859,16 @@ export declare interface UseWalletRecoveryReturn {
 }
 
 /**
+ * Hook for multi-wallet management (default + derived wallets).
+ *
+ * Usage:
+ * ```tsx
+ * const { wallets, createWallet, deleteWallet, refresh } = useWallets();
+ * ```
+ */
+export declare function useWallets(): UseWalletsReturn;
+
+/**
  * Hook for wallet transaction signing
  *
  * Usage:
@@ -4619,6 +4897,24 @@ export declare interface UseWalletSigningReturn {
     /** Whether signing is in progress */
     isSigning: boolean;
     /** Error from last signing attempt */
+    error: string | null;
+    /** Clear error */
+    clearError: () => void;
+}
+
+/** Hook return value for multi-wallet management */
+export declare interface UseWalletsReturn {
+    /** All wallets (default + derived) */
+    wallets: DerivedWalletSummary[];
+    /** Whether wallet list is loading */
+    isLoading: boolean;
+    /** Create a new derived wallet */
+    createWallet: (label: string) => Promise<DerivedWalletResponse>;
+    /** Delete a derived wallet by ID */
+    deleteWallet: (walletId: string) => Promise<void>;
+    /** Refresh the wallet list */
+    refresh: () => Promise<void>;
+    /** Error from last operation */
     error: string | null;
     /** Clear error */
     clearError: () => void;

@@ -146,7 +146,8 @@ export function isValidSolanaAddress(address: string): boolean {
 
 // --- Base58 implementation ---
 
-function base58Encode(bytes: Uint8Array): string {
+/** Encode bytes as Base58 (Solana-standard alphabet) */
+export function base58Encode(bytes: Uint8Array): string {
   // Count leading zeros
   let zeros = 0;
   for (let i = 0; i < bytes.length && bytes[i] === 0; i++) {

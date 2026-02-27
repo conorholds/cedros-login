@@ -122,12 +122,45 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<AppleAuthRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.apple.enabled {
+    // Enabled check: runtime setting > static config
+    let enabled = state
+        .settings_service
+        .get_bool("auth_apple_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.apple.enabled);
+    if !enabled {
         return Err(AppError::NotFound("Apple auth disabled".into()));
     }
 
+    // Resolve client_id: runtime setting > static config
+    let client_id = state
+        .settings_service
+        .get("auth_apple_client_id")
+        .await
+        .ok()
+        .flatten()
+        .filter(|s| !s.is_empty())
+        .or_else(|| state.config.apple.client_id.clone())
+        .ok_or_else(|| AppError::Config("Apple client ID not configured".into()))?;
+
+    // Resolve team_id: runtime setting > static config
+    let _team_id = state
+        .settings_service
+        .get("auth_apple_team_id")
+        .await
+        .ok()
+        .flatten()
+        .filter(|s| !s.is_empty())
+        .or_else(|| state.config.apple.team_id.clone())
+        .ok_or_else(|| AppError::Config("Apple team ID not configured".into()))?;
+
     // Verify the Apple ID token
-    let claims = state.apple_service.verify_id_token(&req.id_token).await?;
+    let claims = state
+        .apple_service
+        .verify_id_token(&req.id_token, &client_id)
+        .await?;
 
     // Check if user exists by Apple ID
     let existing_user = state.user_repo.find_by_apple_id(&claims.sub).await?;
@@ -220,7 +253,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();

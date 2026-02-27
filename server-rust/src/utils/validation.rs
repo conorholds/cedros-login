@@ -2,246 +2,46 @@
 
 use crate::errors::AppError;
 use serde_json::Value;
+use std::collections::HashSet;
 use std::net::Ipv4Addr;
+use std::sync::OnceLock;
 
-/// Common disposable/temporary email domains.
-/// This list is compiled from various sources and covers the most popular
-/// disposable email providers. Domains are lowercase for case-insensitive matching.
-const DISPOSABLE_EMAIL_DOMAINS: &[&str] = &[
-    // Popular disposable email services
-    "10minutemail.com",
-    "10minutemail.net",
-    "20minutemail.com",
-    "33mail.com",
-    "anonymbox.com",
-    "binkmail.com",
-    "bobmail.info",
-    "burnmymail.com",
-    "burnermail.io",
-    "crazymailing.com",
-    "deadaddress.com",
-    "discard.email",
-    "discardmail.com",
-    "disposable.com",
-    "disposableaddress.com",
-    "disposableemail.net",
-    "disposableemailaddresses.com",
-    "disposableinbox.com",
-    "dispostable.com",
-    "dodgeit.com",
-    "dropmail.me",
-    "dumpmail.de",
-    "e4ward.com",
-    "emaildrop.io",
-    "emailsensei.com",
-    "emailtemporaire.fr",
-    "eyepaste.com",
-    "fakeinbox.com",
-    "fakemailgenerator.com",
-    "fakemail.net",
-    "fastmail.fm",
-    "filzmail.com",
-    "fizmail.com",
-    "freemail.ms",
-    "getnada.com",
-    "getonemail.com",
-    "gishpuppy.com",
-    "guerrillamail.com",
-    "guerrillamail.net",
-    "guerrillamail.org",
-    "guerrillamail.info",
-    "guerrillamail.biz",
-    "guerrillamailblock.com",
-    "harakirimail.com",
-    "hmamail.com",
-    "imails.info",
-    "inboxalias.com",
-    "incognitomail.com",
-    "jetable.com",
-    "jetable.org",
-    "jetable.net",
-    "kasmail.com",
-    "klzlv.com",
-    "koszmail.pl",
-    "lortemail.dk",
-    "lr78.com",
-    "maildrop.cc",
-    "mailexpire.com",
-    "mailforspam.com",
-    "mailin8r.com",
-    "mailinator.com",
-    "mailinator.net",
-    "mailinator2.com",
-    "mailincubator.com",
-    "mailnesia.com",
-    "mailnull.com",
-    "mailsac.com",
-    "mailslite.com",
-    "mailzilla.com",
-    "meltmail.com",
-    "mintemail.com",
-    "moakt.com",
-    "mohmal.com",
-    "mytempemail.com",
-    "mytrashmail.com",
-    "nervmich.net",
-    "nobulk.com",
-    "nospam.ze.tc",
-    "nospamfor.us",
-    "nowmymail.com",
-    "obobbo.com",
-    "odnorazovoe.ru",
-    "one-time.email",
-    "onetimeemail.org",
-    "owlpic.com",
-    "pjjkp.com",
-    "pokemail.net",
-    "proxymail.eu",
-    "putthisinyourspamdatabase.com",
-    "quickinbox.com",
-    "rcpt.at",
-    "reallymymail.com",
-    "rppkn.com",
-    "safe-mail.net",
-    "safetymail.info",
-    "sendspamhere.com",
-    "sharklasers.com",
-    "shieldemail.com",
-    "shortmail.net",
-    "smellfear.com",
-    "smashmail.de",
-    "soodonims.com",
-    "spam4.me",
-    "spamavert.com",
-    "spambog.com",
-    "spambog.de",
-    "spambog.net",
-    "spambog.ru",
-    "spambox.info",
-    "spambox.irishspringrealty.com",
-    "spambox.us",
-    "spamcannon.com",
-    "spamcannon.net",
-    "spamcero.com",
-    "spamcon.org",
-    "spamcorptastic.com",
-    "spamday.com",
-    "spamex.com",
-    "spamfree24.com",
-    "spamfree24.de",
-    "spamfree24.eu",
-    "spamfree24.info",
-    "spamfree24.net",
-    "spamgoes.in",
-    "spamgourmet.com",
-    "spamgourmet.net",
-    "spamgourmet.org",
-    "spamherelots.com",
-    "spamhereplease.com",
-    "spamhole.com",
-    "spamify.com",
-    "spaminator.de",
-    "spamkill.info",
-    "spaml.com",
-    "spaml.de",
-    "spammote.com",
-    "spammotel.com",
-    "spamobox.com",
-    "spamspot.com",
-    "spamthis.co.uk",
-    "spamtroll.net",
-    "speed.1s.fr",
-    "superrito.com",
-    "suremail.info",
-    "temp-mail.org",
-    "temp-mail.ru",
-    "tempail.com",
-    "tempemail.biz",
-    "tempemail.com",
-    "tempinbox.com",
-    "tempmail.it",
-    "tempmail.net",
-    "tempomail.fr",
-    "temporaryemail.net",
-    "temporaryemail.us",
-    "temporaryforwarding.com",
-    "temporaryinbox.com",
-    "thanksnospam.info",
-    "thisisnotmyrealemail.com",
-    "throwam.com",
-    "throwawayemailaddress.com",
-    "throwawaymail.com",
-    "tilien.com",
-    "tmpmail.net",
-    "tmpmail.org",
-    "tradermail.info",
-    "trash-mail.at",
-    "trash-mail.com",
-    "trash-mail.de",
-    "trash2009.com",
-    "trashbox.eu",
-    "trashdevil.com",
-    "trashdevil.de",
-    "trashemail.de",
-    "trashmail.at",
-    "trashmail.com",
-    "trashmail.de",
-    "trashmail.me",
-    "trashmail.net",
-    "trashmail.org",
-    "trashmail.ws",
-    "trashmailer.com",
-    "trashymail.com",
-    "trashymail.net",
-    "trbvm.com",
-    "turual.com",
-    "twinmail.de",
-    "tyldd.com",
-    "uggsrock.com",
-    "upliftnow.com",
-    "venompen.com",
-    "veryrealemail.com",
-    "viditag.com",
-    "viewcastmedia.com",
-    "viewcastmedia.net",
-    "viewcastmedia.org",
-    "wegwerfadresse.de",
-    "wegwerfemail.de",
-    "wetrainbayarea.com",
-    "wetrainbayarea.org",
-    "whatpaas.com",
-    "whyspam.me",
-    "wilemail.com",
-    "willselfdestruct.com",
-    "xagloo.com",
-    "xemaps.com",
-    "xents.com",
-    "xmaily.com",
-    "xoxy.net",
-    "yep.it",
-    "yogamaven.com",
-    "yopmail.com",
-    "yopmail.fr",
-    "yopmail.net",
-    "you-spam.com",
-    "ypmail.webarnak.fr.eu.org",
-    "yuurok.com",
-    "zehnminuten.de",
-    "zehnminutenmail.de",
-    "zippymail.info",
-    "zoaxe.com",
-    "zoemail.org",
-];
+/// Built-in disposable email domain blocklist, loaded once from the vendored
+/// data file (~5,000 domains, MIT-licensed from disposable-email-domains).
+static DISPOSABLE_DOMAINS: OnceLock<HashSet<&str>> = OnceLock::new();
 
-/// Check if an email domain is a known disposable email provider
-pub fn is_disposable_email(email: &str) -> bool {
-    // Extract domain from email
+fn disposable_domains() -> &'static HashSet<&'static str> {
+    DISPOSABLE_DOMAINS.get_or_init(|| {
+        include_str!("../data/disposable_domains.txt")
+            .lines()
+            .filter(|l| !l.is_empty() && !l.starts_with('#'))
+            .collect()
+    })
+}
+
+/// Number of built-in disposable domains (for admin info endpoint).
+pub fn disposable_domain_count() -> usize {
+    disposable_domains().len()
+}
+
+/// Check if an email domain is a known disposable email provider.
+///
+/// Checks the built-in blocklist first, then the optional custom domain set.
+pub fn is_disposable_email(email: &str, custom_domains: Option<&HashSet<String>>) -> bool {
     let domain = match email.rsplit_once('@') {
         Some((_, domain)) => domain.to_lowercase(),
         None => return false,
     };
 
-    DISPOSABLE_EMAIL_DOMAINS.contains(&domain.as_str())
+    if disposable_domains().contains(domain.as_str()) {
+        return true;
+    }
+
+    if let Some(custom) = custom_domains {
+        return custom.contains(&domain);
+    }
+
+    false
 }
 
 /// S-11: Common typo TLDs that are likely user errors, not intentional.
@@ -860,35 +660,47 @@ mod tests {
 
     #[test]
     fn test_disposable_email_detected() {
-        assert!(is_disposable_email("test@mailinator.com"));
-        assert!(is_disposable_email("user@guerrillamail.com"));
-        assert!(is_disposable_email("temp@10minutemail.com"));
-        assert!(is_disposable_email("spam@yopmail.com"));
-        assert!(is_disposable_email("throwaway@tempmail.net"));
+        assert!(is_disposable_email("test@mailinator.com", None));
+        assert!(is_disposable_email("user@guerrillamail.com", None));
+        assert!(is_disposable_email("temp@10minutemail.com", None));
+        assert!(is_disposable_email("spam@yopmail.com", None));
+        assert!(is_disposable_email("throwaway@tempmail.it", None));
     }
 
     #[test]
     fn test_disposable_email_case_insensitive() {
-        assert!(is_disposable_email("test@MAILINATOR.COM"));
-        assert!(is_disposable_email("test@Mailinator.Com"));
-        assert!(is_disposable_email("test@MailInator.COM"));
+        assert!(is_disposable_email("test@MAILINATOR.COM", None));
+        assert!(is_disposable_email("test@Mailinator.Com", None));
+        assert!(is_disposable_email("test@MailInator.COM", None));
     }
 
     #[test]
     fn test_legitimate_email_allowed() {
-        assert!(!is_disposable_email("user@gmail.com"));
-        assert!(!is_disposable_email("user@outlook.com"));
-        assert!(!is_disposable_email("user@yahoo.com"));
-        assert!(!is_disposable_email("user@company.com"));
-        assert!(!is_disposable_email("user@university.edu"));
+        assert!(!is_disposable_email("user@gmail.com", None));
+        assert!(!is_disposable_email("user@outlook.com", None));
+        assert!(!is_disposable_email("user@yahoo.com", None));
+        assert!(!is_disposable_email("user@company.com", None));
+        assert!(!is_disposable_email("user@university.edu", None));
     }
 
     #[test]
     fn test_disposable_email_invalid_input() {
         // Invalid emails should return false (not disposable)
-        assert!(!is_disposable_email("notanemail"));
-        assert!(!is_disposable_email(""));
-        assert!(!is_disposable_email("@"));
+        assert!(!is_disposable_email("notanemail", None));
+        assert!(!is_disposable_email("", None));
+        assert!(!is_disposable_email("@", None));
+    }
+
+    #[test]
+    fn test_disposable_email_custom_domains() {
+        let custom = HashSet::from(["blocked.example.com".to_string()]);
+        assert!(is_disposable_email("user@blocked.example.com", Some(&custom)));
+        assert!(!is_disposable_email("user@allowed.example.com", Some(&custom)));
+    }
+
+    #[test]
+    fn test_disposable_domain_count() {
+        assert!(disposable_domain_count() > 3000);
     }
 
     // =========================================================================

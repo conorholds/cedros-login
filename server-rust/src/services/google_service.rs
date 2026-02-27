@@ -71,6 +71,7 @@ const GOOGLE_JWKS_CACHE_TTL_SECS: u64 = 3600;
 /// Google OAuth service for verifying ID tokens
 #[derive(Clone)]
 pub struct GoogleService {
+    #[allow(dead_code)] // Kept for backward compat; caller now passes client_id at runtime
     client_id: Option<String>,
     http_client: reqwest::Client,
     jwks_cache: Arc<RwLock<Option<JwksCache>>>,
@@ -252,12 +253,13 @@ impl GoogleService {
     /// Verify a Google ID token and return the claims
     ///
     /// This verifies JWT signatures locally using Google's JWKS.
-    pub async fn verify_id_token(&self, id_token: &str) -> Result<GoogleTokenClaims, AppError> {
-        let client_id = self
-            .client_id
-            .as_ref()
-            .ok_or_else(|| AppError::Config("Google client ID not configured".into()))?;
-
+    /// The `client_id` is passed by the caller so it can be resolved at runtime
+    /// from `SettingsService` (with static config fallback).
+    pub async fn verify_id_token(
+        &self,
+        id_token: &str,
+        client_id: &str,
+    ) -> Result<GoogleTokenClaims, AppError> {
         let kid = self.extract_kid(id_token)?;
         let jwks = self.get_jwks().await?;
         let decoding_key = if let Some(jwk) = self.select_jwk(&jwks, &kid) {
@@ -282,7 +284,7 @@ impl GoogleService {
         };
 
         let mut validation = Validation::new(Algorithm::RS256);
-        validation.set_audience(&[client_id.as_str()]);
+        validation.set_audience(&[client_id]);
         validation.set_issuer(&["accounts.google.com", "https://accounts.google.com"]);
 
         let token_data = decode::<GoogleTokenClaims>(id_token, &decoding_key, &validation)

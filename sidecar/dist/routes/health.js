@@ -13,7 +13,17 @@ function createHealthRoutes(solana, privacyCash) {
         try {
             // SC-07: Timeout health probes to prevent /health from hanging
             const HEALTH_TIMEOUT_MS = 5_000;
-            const withTimeout = (p, fallback) => Promise.race([p, new Promise((resolve) => setTimeout(() => resolve(fallback), HEALTH_TIMEOUT_MS))]);
+            const withTimeout = (p, fallback) => {
+                let timeoutId = null;
+                const timeoutPromise = new Promise((resolve) => {
+                    timeoutId = setTimeout(() => resolve(fallback), HEALTH_TIMEOUT_MS);
+                });
+                return Promise.race([p, timeoutPromise]).finally(() => {
+                    if (timeoutId !== null) {
+                        clearTimeout(timeoutId);
+                    }
+                });
+            };
             const rpcConnected = await withTimeout(solana.isConnected(), false);
             const sdkLoaded = await withTimeout(privacyCash.isLoaded(), false);
             const status = rpcConnected && sdkLoaded ? 'healthy' : 'degraded';

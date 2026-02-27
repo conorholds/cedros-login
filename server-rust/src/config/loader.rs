@@ -73,6 +73,15 @@ pub fn load_email_config() -> EmailConfig {
             email_require_verification_default(),
         ),
         block_disposable_emails: parse_bool("EMAIL_BLOCK_DISPOSABLE", false),
+        custom_blocked_domains: std::env::var("EMAIL_CUSTOM_BLOCKED_DOMAINS")
+            .ok()
+            .map(|v| {
+                v.split(',')
+                    .map(|s| s.trim().to_lowercase())
+                    .filter(|s| !s.is_empty())
+                    .collect()
+            })
+            .unwrap_or_default(),
     }
 }
 

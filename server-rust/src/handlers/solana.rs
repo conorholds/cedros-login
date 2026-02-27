@@ -115,14 +115,29 @@ async fn create_user_with_membership_and_api_key_tx(
     Ok(())
 }
 
+/// Check whether Solana auth is enabled via runtime setting or static config.
+async fn check_solana_enabled<C: AuthCallback, E: EmailService>(
+    state: &Arc<AppState<C, E>>,
+) -> Result<(), AppError> {
+    let enabled = state
+        .settings_service
+        .get_bool("auth_solana_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.solana.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("Solana auth disabled".into()));
+    }
+    Ok(())
+}
+
 /// POST /auth/solana/challenge - Generate a challenge for Solana wallet sign-in
 pub async fn solana_challenge<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     Json(req): Json<SolanaChallengeRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.solana.enabled {
-        return Err(AppError::NotFound("Solana auth disabled".into()));
-    }
+    check_solana_enabled(&state).await?;
 
     // Validate public key by attempting to decode it
     // A valid Solana public key is exactly 32 bytes when decoded from base58
@@ -156,9 +171,7 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<SolanaAuthRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.solana.enabled {
-        return Err(AppError::NotFound("Solana auth disabled".into()));
-    }
+    check_solana_enabled(&state).await?;
 
     // Extract nonce from message
     let nonce = SolanaService::extract_nonce(&req.message)
@@ -250,7 +263,7 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin);
+    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();

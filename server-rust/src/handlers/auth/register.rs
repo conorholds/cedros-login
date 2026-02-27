@@ -155,7 +155,15 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<RegisterRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    if !state.config.email.enabled {
+    // Enabled check: runtime setting > static config
+    let email_enabled = state
+        .settings_service
+        .get_bool("auth_email_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.enabled);
+    if !email_enabled {
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
@@ -164,12 +172,37 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         return Err(AppError::Validation("Invalid email format".to_string()));
     }
 
-    // SEC-29: Block disposable email addresses if configured
-    if state.config.email.block_disposable_emails && is_disposable_email(&req.email) {
-        return Err(AppError::Validation(
-            "Disposable email addresses are not allowed. Please use a permanent email address."
-                .to_string(),
-        ));
+    // SEC-29: Block disposable email addresses if configured (runtime toggle with config fallback)
+    let block_disposable = state
+        .settings_service
+        .get_bool("auth_email_block_disposable")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.email.block_disposable_emails);
+
+    if block_disposable {
+        // Build custom blocked domains set from config + DB setting
+        let mut custom_domains: std::collections::HashSet<String> = state
+            .config
+            .email
+            .custom_blocked_domains
+            .iter()
+            .cloned()
+            .collect();
+        if let Ok(Some(db_domains)) = state.settings_service.get("custom_blocked_domains").await {
+            if let Ok(domains) = serde_json::from_str::<Vec<String>>(&db_domains) {
+                custom_domains.extend(domains.into_iter().map(|d| d.to_lowercase()));
+            }
+        }
+        let custom_ref = if custom_domains.is_empty() {
+            None
+        } else {
+            Some(&custom_domains)
+        };
+        if is_disposable_email(&req.email, custom_ref) {
+            return Err(AppError::DisposableEmailBlocked);
+        }
     }
 
     // SRV-10: Reject non-ASCII local parts to prevent homograph attacks
@@ -224,6 +257,7 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         org_id: Some(org_assignment.org_id),
         role: Some(org_assignment.role.as_str().to_string()),
         is_system_admin: None,
+        email_verified: Some(user.email_verified),
     };
     let token_pair =
         state

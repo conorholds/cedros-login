@@ -93,6 +93,7 @@ pub async fn switch_org<C: AuthCallback, E: EmailService>(
         } else {
             None
         },
+        email_verified: Some(user.email_verified),
     };
     let token_pair = state.jwt_service.generate_token_pair_with_context(
         claims.sub,

@@ -4,13 +4,22 @@ import { ReactNode } from 'react';
 
 /**
  * Group configuration for sidebar organization.
+ *
+ * **Ordering rules:**
+ * - Groups are keyed by `label` (not `id`) when merging across plugins.
+ * - The first plugin to declare a given label wins the `order` number.
+ * - Later plugins adding sections with `group: 'Same Label'` merge into
+ *   the existing group without overriding the order.
+ * - Groups without an explicit config default to `order: 99` (sink to bottom).
+ * - cedros-login declares `Users` at order 0 and `Configuration` at order 2,
+ *   leaving order 1 available for other plugins to insert between them.
  */
 export declare interface AdminGroupConfig {
     /** Group identifier */
     id: string;
-    /** Display label */
+    /** Display label — used as the merge key across plugins */
     label: string;
-    /** Sort order (lower = higher in sidebar) */
+    /** Sort order (lower = higher in sidebar). First plugin to declare a label wins. */
     order: number;
     /** Icon for the group header */
     icon?: ReactNode;
@@ -19,7 +28,23 @@ export declare interface AdminGroupConfig {
 }
 
 /**
- * Plugin definition - the main export from each admin module.
+ * Plugin definition — the main export from each admin module.
+ *
+ * **Plugin merge order:** Plugins are iterated in registration order (insertion
+ * order of the registry `Map`). Sections from later plugins are appended after
+ * sections from earlier plugins. There is no cross-plugin section dedup — each
+ * plugin's section IDs are namespaced via `qualifiedId` (`pluginId:sectionId`).
+ *
+ * **Section visibility:** Each section passes two filters:
+ * 1. `checkPermission(section.requiredPermission, hostContext)` — role-based.
+ * 2. `hostContext.dashboardPermissions?.canAccess(section.id)` — owner RBAC.
+ *
+ * Register at the composition root:
+ * ```tsx
+ * <AdminShell plugins={[cedrosLoginPlugin, cedrosPayPlugin]} hostContext={ctx}>
+ *   {children}
+ * </AdminShell>
+ * ```
  */
 export declare interface AdminPlugin {
     /** Unique plugin identifier */
@@ -52,6 +77,10 @@ export declare interface AdminPlugin {
 
 /**
  * Section configuration for sidebar navigation.
+ *
+ * **Ordering:** Sections within a group are sorted by `order` (ascending).
+ * Sections with the same order are shown in plugin registration order.
+ * Sections without a `group` fall into the implicit `'Menu'` group.
  */
 export declare interface AdminSectionConfig {
     /** Section ID unique within the plugin */
@@ -60,9 +89,9 @@ export declare interface AdminSectionConfig {
     label: string;
     /** React node for the icon (SVG or component) */
     icon: ReactNode;
-    /** Sidebar group name for visual organization */
+    /** Sidebar group name — must match an {@link AdminGroupConfig.label} to merge into that group */
     group?: string;
-    /** Sort order within group (lower = higher) */
+    /** Sort order within group (lower = higher). Default: 0 */
     order?: number;
     /** Permission required to see this section */
     requiredPermission?: PluginPermission;
@@ -119,47 +148,113 @@ export declare interface AdminShellProps {
     className?: string;
 }
 
+/**
+ * All section IDs registered by the cedros-login plugin.
+ *
+ * Use these to reference specific sections when configuring
+ * `dashboardPermissions.canAccess()` or navigating programmatically.
+ *
+ * Qualified IDs (for multi-plugin use) are prefixed: `cedros-login:{id}`.
+ */
+export declare const CEDROS_LOGIN_SECTION_IDS: {
+    readonly users: "users";
+    readonly team: "team";
+    readonly deposits: "deposits";
+    readonly withdrawals: "withdrawals";
+    readonly settingsAuth: "settings-auth";
+    readonly settingsEmail: "settings-email";
+    readonly settingsWebhooks: "settings-webhooks";
+    readonly settingsWallet: "settings-wallet";
+    readonly settingsCredits: "settings-credits";
+    readonly settingsServer: "settings-server";
+};
+
 declare const cedrosLoginPlugin: AdminPlugin;
 export { cedrosLoginPlugin }
 export { cedrosLoginPlugin as loginPlugin }
 
 /**
- * Host context provided by AdminShell to plugins.
- * Aggregates auth/context from all available sources.
+ * Host context provided by the application to `<AdminShell>`.
+ *
+ * Each field is optional — omit fields your app doesn't use.
+ * Plugins read the fields they need and degrade gracefully when absent.
+ *
+ * **Which plugin reads what:**
+ * - `cedros-login` plugin: requires `cedrosLogin` (throws if missing).
+ *   Uses `user`, `getAccessToken`, `serverUrl` for all API calls.
+ *   Reads `org` for role-based section filtering.
+ * - `cedros-pay` plugin: requires `cedrosPay`. Uses `walletAddress`,
+ *   `jwtToken`, `serverUrl`.
+ * - Both plugins: respect `dashboardPermissions` for section-level RBAC.
+ *
+ * **Missing field behavior:**
+ * - `cedrosLogin` missing → cedros-login plugin throws at `createPluginContext()`.
+ * - `cedrosPay` missing → cedros-pay plugin throws at `createPluginContext()`.
+ * - `org` missing → all authenticated users are treated as global admins
+ *   (all permission checks pass).
+ * - `dashboardPermissions` missing → all sections visible (no owner-level filtering).
+ * - `custom` → pass-through bag, not read by built-in plugins.
  */
 export declare interface HostContext {
-    /** cedros-login context */
+    /**
+     * Cedros Login auth context.
+     *
+     * **Required by:** `cedros-login` plugin.
+     * **Missing behavior:** plugin throws `'cedros-login plugin requires cedrosLogin in hostContext'`.
+     */
     cedrosLogin?: {
+        /** Authenticated user, or null if not signed in */
         user: {
             id: string;
             email?: string;
             name?: string;
             picture?: string;
         } | null;
+        /** Returns current JWT access token, or null */
         getAccessToken: () => string | null;
+        /** Base URL of the cedros-login server (e.g., `https://api.example.com`) */
         serverUrl: string;
     };
-    /** cedros-pay context */
+    /**
+     * Cedros Pay context.
+     *
+     * **Required by:** `cedros-pay` plugin.
+     * **Missing behavior:** pay plugin throws at context creation.
+     */
     cedrosPay?: {
+        /** Connected wallet public key */
         walletAddress?: string;
+        /** JWT for cedros-pay API */
         jwtToken?: string;
+        /** Base URL of the cedros-pay server */
         serverUrl: string;
     };
-    /** Organization context */
+    /**
+     * Organization context for multi-tenant role-based access.
+     *
+     * **Missing behavior:** all permission checks pass (global admin assumed).
+     */
     org?: {
+        /** Current organization ID */
         orgId: string;
+        /** User's role in this org (e.g., 'owner', 'admin', 'member') */
         role: string;
+        /** Granular permission strings (e.g., 'member:read', 'invite:create') */
         permissions: string[];
     };
     /**
-     * Dashboard section permissions (configured by org owner).
-     * Provides role-based access control for individual dashboard sections.
+     * Owner-configured section-level access control.
+     *
+     * Applied *after* plugin permission checks — a section must pass both
+     * `plugin.checkPermission()` and `canAccess()` to be visible.
+     *
+     * **Missing behavior:** all sections visible (no owner-level filtering).
      */
     dashboardPermissions?: {
-        /** Check if current user can access a section by ID */
+        /** Check if current user can access a section by its `SectionId` */
         canAccess: (sectionId: string) => boolean;
     };
-    /** Generic extension point */
+    /** Generic extension point for custom plugins. Not read by built-in plugins. */
     custom?: Record<string, unknown>;
 }
 

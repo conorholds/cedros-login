@@ -48,13 +48,25 @@ Configure in your app:
 
 See: https://github.com/invertase/react-native-apple-authentication
 
-#### Solana Mobile Wallet
+#### Solana Mobile Wallet (Android only)
+
+The built-in `useMobileWalletAuth` hook handles the full MWA challenge-sign flow automatically. Install one of the supported MWA packages:
 
 ```bash
-npm install @solana-mobile/mobile-wallet-adapter-protocol @solana-mobile/mobile-wallet-adapter-protocol-web3js @solana/web3.js
+# Recommended (newer API):
+npm install @wallet-ui/react-native-web3js
+
+# Or the legacy package:
+npm install @solana-mobile/mobile-wallet-adapter-protocol-web3js
 ```
 
-See: https://github.com/solana-mobile/mobile-wallet-adapter
+Both are optional peer dependencies — if neither is installed, the Solana button simply won't appear on Android.
+
+**Platform constraints:**
+- **Android**: MWA uses Android Intents to communicate with installed wallet apps (Phantom, Solflare, etc.). Works on physical devices and emulators with a wallet app installed.
+- **iOS**: MWA is not available. The Solana button is hidden unless you provide a custom `onRequestToken` callback.
+
+See: https://docs.solanamobile.com
 
 ## Usage
 
@@ -179,50 +191,80 @@ function AppleAuthScreen() {
 
 ### Solana Wallet Authentication
 
+#### Built-in MWA flow (recommended, Android only)
+
+On Android, `SolanaLoginButton` handles the entire wallet interaction automatically via the built-in `useMobileWalletAuth` hook. No custom callback needed:
+
 ```tsx
-import { SolanaLoginButton, useSolanaAuth } from "@cedros/login-react-native";
-import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
+import { SolanaLoginButton } from "@cedros/login-react-native";
 
 function SolanaAuthScreen() {
-  const { signIn: cedrosSignIn, isLoading, error } = useSolanaAuth();
+  // No onRequestToken needed — built-in MWA flow handles everything
+  return <SolanaLoginButton />;
+}
+```
 
-  const handleSolanaSignIn = async () => {
-    try {
-      // Connect to mobile wallet
-      const authResult = await transact(async (wallet) => {
-        const { authToken } = await wallet.authorize({
-          cluster: "mainnet-beta",
-          identity: {
-            name: "Your App Name",
-            uri: "https://yourapp.com",
-            iconRelativeUri: "/icon.png",
-          },
-        });
-        return authToken;
-      });
+The button renders as "Use Installed Wallet" and triggers the three-step challenge flow:
 
-      // Get wallet address and sign message
-      // (Implementation depends on your wallet adapter setup)
-      const walletAddress = "..."; // From wallet
-      const signature = "..."; // Signed message
-      const nonce = "..."; // From server challenge
+1. **Authorize** — Opens the user's installed Solana wallet app via Android Intent, requests authorization, and receives the wallet address.
+2. **Challenge** — Calls `POST {serverUrl}/auth/solana/challenge` with `{ publicKey }`. Server returns `{ nonce, message, expiresAt }`.
+3. **Sign** — The wallet signs the challenge `message`. The base58-encoded signature + wallet address + nonce are passed to `useSolanaAuth().signIn()` to complete authentication.
 
-      // Pass to Cedros
-      const response = await cedrosSignIn(walletAddress, signature, nonce);
-      console.log("Solana auth success:", response.user);
-    } catch (err) {
-      console.error("Solana auth failed:", err);
-    }
+All three steps happen inside a single MWA `transact()` session (one wallet popup).
+
+#### Custom flow (cross-platform)
+
+For custom wallet integrations or iOS, provide an `onRequestToken` callback:
+
+```tsx
+import { SolanaLoginButton } from "@cedros/login-react-native";
+
+function SolanaAuthScreen() {
+  const handleRequestToken = async () => {
+    // Your custom wallet interaction logic here.
+    // Must return { walletAddress, signature, nonce }.
+    const walletAddress = "..."; // From wallet
+    const signature = "..."; // Base58-encoded Ed25519 signature
+    const nonce = "..."; // From POST /auth/solana/challenge
+
+    return { walletAddress, signature, nonce };
   };
 
-  return (
-    <SolanaLoginButton
-      onPress={handleSolanaSignIn}
-      isLoading={isLoading}
-      error={error?.message}
-    />
-  );
+  return <SolanaLoginButton onRequestToken={handleRequestToken} />;
 }
+```
+
+#### Solana auth challenge flow
+
+The three-step challenge flow used by both the built-in MWA hook and custom implementations:
+
+```
+┌─────────┐     ┌──────────┐     ┌──────────┐
+│  Client  │     │  Wallet  │     │  Server  │
+└────┬─────┘     └────┬─────┘     └────┬─────┘
+     │ 1. authorize()  │               │
+     │────────────────>│               │
+     │  walletAddress  │               │
+     │<────────────────│               │
+     │                 │               │
+     │ 2. POST /auth/solana/challenge  │
+     │ { publicKey: walletAddress }    │
+     │────────────────────────────────>│
+     │ { nonce, message, expiresAt }   │
+     │<────────────────────────────────│
+     │                 │               │
+     │ 3. signMessages │               │
+     │   (message)     │               │
+     │────────────────>│               │
+     │   signature     │               │
+     │<────────────────│               │
+     │                 │               │
+     │ 4. POST /auth/solana/sign-in    │
+     │ { walletAddress, signature,     │
+     │   nonce }                       │
+     │────────────────────────────────>│
+     │ { user, tokens }                │
+     │<────────────────────────────────│
 ```
 
 ## Architecture
@@ -250,15 +292,16 @@ UI Components → Hooks → API Services → Backend
 
 ### Hooks
 
-| Hook              | Purpose                              |
-| ----------------- | ------------------------------------ |
-| `useAuth()`       | Session management (logout, refresh) |
-| `useEmailAuth()`  | Email/password authentication        |
-| `useGoogleAuth()` | Google Sign-In                       |
-| `useAppleAuth()`  | Apple Sign-In                        |
-| `useSolanaAuth()` | Solana wallet authentication         |
-| `useOrgs()`       | Organization management              |
-| `useWallet()`     | Wallet operations                    |
+| Hook                    | Purpose                                          |
+| ----------------------- | ------------------------------------------------ |
+| `useAuth()`             | Session management (logout, refresh)             |
+| `useEmailAuth()`        | Email/password authentication                    |
+| `useGoogleAuth()`       | Google Sign-In                                   |
+| `useAppleAuth()`        | Apple Sign-In                                    |
+| `useSolanaAuth()`       | Solana wallet authentication (sign-in call)      |
+| `useMobileWalletAuth()` | MWA challenge-sign flow (Android, built-in)      |
+| `useOrgs()`             | Organization management                          |
+| `useWallet()`           | Wallet operations                                |
 
 ### Context
 
@@ -404,6 +447,22 @@ export type { AuthUser, TokenPair, OrgWithMembership, ... };
 
 // Crypto (advanced)
 export { deriveKeypairFromSeed, splitSecret, combineShares, ... };
+```
+
+## Server (Rust crate)
+
+The authentication server is published as `cedros-login-server` on crates.io.
+Due to Rust naming conventions, the import name uses underscores:
+
+```toml
+# Cargo.toml
+[dependencies]
+cedros-login-server = "0.0.18"
+```
+
+```rust
+// Import uses underscores (Rust convention)
+use cedros_login::prelude::*;
 ```
 
 ## Contributing
