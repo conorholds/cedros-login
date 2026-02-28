@@ -1,10 +1,10 @@
 import { jsx as ne, jsxs as Ke } from "react/jsx-runtime";
-import { useEffect as Y, useState as K, useRef as N, useCallback as E, useMemo as V } from "react";
+import { useEffect as x, useState as K, useRef as Y, useCallback as E, useMemo as P } from "react";
 import { A as He, a as Je, C as Me } from "./LoadingSpinner-6vml-zwr.js";
-import { A as Ee, g as oe, a as pe, h as J, u as ye } from "./useCedrosLogin-_94MmGGq.js";
+import { A as Ee, g as oe, a as pe, h as V, u as ye } from "./useCedrosLogin-_94MmGGq.js";
 let Z = 0;
 function Ve({ theme: e, themeOverrides: t }) {
-  Y(() => {
+  x(() => {
     if (typeof document > "u" || typeof window > "u")
       return;
     const A = document.documentElement;
@@ -13,14 +13,14 @@ function Ve({ theme: e, themeOverrides: t }) {
     let r = !1;
     i ? (Z++, r = !0, A.classList.add("cedros-dark")) : Z === 0 && A.classList.remove("cedros-dark");
     const n = /* @__PURE__ */ new Map();
-    return t && Object.entries(t).forEach(([s, a]) => {
+    return t && Object.entries(t).forEach(([o, a]) => {
       if (a) {
-        const c = A.style.getPropertyValue(s);
-        n.set(s, c), A.style.setProperty(s, a);
+        const c = A.style.getPropertyValue(o);
+        n.set(o, c), A.style.setProperty(o, a);
       }
     }), () => {
-      r && (Z--, Z === 0 && A.classList.remove("cedros-dark")), n.forEach((s, a) => {
-        s ? A.style.setProperty(a, s) : A.style.removeProperty(a);
+      r && (Z--, Z === 0 && A.classList.remove("cedros-dark")), n.forEach((o, a) => {
+        o ? A.style.setProperty(a, o) : A.style.removeProperty(a);
       });
     };
   }, [e, t]);
@@ -34,28 +34,28 @@ const Pe = {
   instantLink: !0
 };
 function Ne(e, t, A) {
-  const [i, r] = K(null), [n, s] = K(t), a = N(!1);
-  return Y(() => {
-    if (!t || a.current) return;
-    a.current = !0, new Ee({
+  const [i, r] = K(null), [n, o] = K(), [a, c] = K(), [s, y] = K(t), p = Y(!1);
+  return x(() => {
+    if (!t || p.current) return;
+    p.current = !0, new Ee({
       baseUrl: e,
       timeoutMs: A ?? 5e3,
       retryAttempts: 1
-    }).get("/features", { credentials: "omit" }).then((o) => {
+    }).get("/features", { credentials: "omit" }).then((h) => {
       r({
-        email: o.email,
-        google: o.google,
-        apple: o.apple,
-        solana: o.solana,
-        webauthn: o.webauthn,
-        instantLink: o.instantLink
-      });
+        email: h.email,
+        google: h.google,
+        apple: h.apple,
+        solana: h.solana,
+        webauthn: h.webauthn,
+        instantLink: h.instantLink
+      }), o(h.googleClientId), c(h.appleClientId);
     }).catch(() => {
       r(Pe);
     }).finally(() => {
-      s(!1);
+      y(!1);
     });
-  }, [t, e, A]), { features: i, isLoading: n };
+  }, [t, e, A]), { features: i, googleClientId: n, appleClientId: a, isLoading: s };
 }
 const Ye = "cedros_tokens", xe = 6e4;
 class Oe {
@@ -310,18 +310,18 @@ function Le({
   callbacks: A,
   requestTimeoutMs: i
 }) {
-  const [r, n] = K(null), [s, a] = K("idle"), c = N(null), o = N(null), S = N(A), u = N(!0), B = N(null), G = N(() => Promise.resolve()), U = N(() => {
+  const [r, n] = K(null), [o, a] = K("idle"), c = Y(null), s = Y(null), y = Y(A), p = Y(!0), w = Y(null), h = Y(() => Promise.resolve()), m = Y(() => {
   });
-  Y(() => {
-    S.current = A;
-  }, [A]), Y(() => (u.current = !0, () => {
-    u.current = !1;
+  x(() => {
+    y.current = A;
+  }, [A]), x(() => (p.current = !0, () => {
+    p.current = !1;
   }), []);
   const Q = E((C) => {
-    u.current && n(C);
-  }, []), h = E((C) => {
-    u.current && a(C);
-  }, []), f = V(
+    p.current && n(C);
+  }, []), B = E((C) => {
+    p.current && a(C);
+  }, []), f = P(
     () => ({
       storage: t?.storage ?? "cookie",
       autoRefresh: t?.autoRefresh ?? !0,
@@ -337,12 +337,12 @@ function Le({
       t?.allowWebStorage
     ]
   );
-  Y(() => {
+  x(() => {
     const C = new Oe(f.storage, f.persistKey, {
       allowWebStorage: f.allowWebStorage
     });
-    return c.current = C, f.autoRefresh && C.setRefreshCallback(() => G.current()), C.setSessionExpiredCallback(() => U.current()), f.syncTabs && (o.current = new Te()), () => {
-      C.destroy(), c.current = null, o.current?.close();
+    return c.current = C, f.autoRefresh && C.setRefreshCallback(() => h.current()), C.setSessionExpiredCallback(() => m.current()), f.syncTabs && (s.current = new Te()), () => {
+      C.destroy(), c.current = null, s.current?.close();
     };
   }, [
     f.storage,
@@ -351,23 +351,23 @@ function Le({
     f.allowWebStorage,
     f.autoRefresh
   ]);
-  const b = E(async () => {
-    if (B.current)
-      return B.current;
-    const C = c.current?.getRefreshToken(), p = !!C, m = oe(), H = {};
-    p && (H["Content-Type"] = "application/json"), m && (H["X-CSRF-Token"] = m);
-    let F, M;
-    const v = new Promise((j, ie) => {
-      F = j, M = ie;
+  const F = E(async () => {
+    if (w.current)
+      return w.current;
+    const C = c.current?.getRefreshToken(), S = !!C, G = oe(), H = {};
+    S && (H["Content-Type"] = "application/json"), G && (H["X-CSRF-Token"] = G);
+    let b, M;
+    const J = new Promise((j, ie) => {
+      b = j, M = ie;
     });
-    B.current = v, (async () => {
+    w.current = J, (async () => {
       const j = new AbortController(), ie = i ?? 1e4, Ge = window.setTimeout(() => j.abort(), ie);
       try {
         const L = await fetch(`${e}/refresh`, {
           method: "POST",
           headers: Object.keys(H).length > 0 ? H : void 0,
           credentials: "include",
-          body: p ? JSON.stringify({ refreshToken: C }) : void 0,
+          body: S ? JSON.stringify({ refreshToken: C }) : void 0,
           signal: j.signal
         });
         if (!L.ok)
@@ -379,7 +379,7 @@ function Le({
           c.current?.setTokens(re.tokens);
         } else if (f.storage !== "cookie")
           throw new Error("Token refresh failed");
-        o.current?.broadcastRefresh(), F();
+        s.current?.broadcastRefresh(), b();
       } catch (L) {
         throw M(L), L;
       } finally {
@@ -388,89 +388,89 @@ function Le({
     })().catch(() => {
     });
     try {
-      await v;
+      await J;
     } finally {
-      B.current = null;
+      w.current = null;
     }
-  }, [e, f.storage, i]), y = E(() => {
+  }, [e, f.storage, i]), k = E(() => {
     if (f.storage === "cookie") return;
     const C = c.current?.getAccessToken();
     if (C)
       return { Authorization: `Bearer ${C}` };
-  }, [f.storage]), D = E(() => {
-    c.current?.clear(), Q(null), h("unauthenticated"), S.current?.onSessionExpired?.();
-  }, [h, Q]);
-  G.current = b, U.current = D;
+  }, [f.storage]), U = E(() => {
+    c.current?.clear(), Q(null), B("unauthenticated"), y.current?.onSessionExpired?.();
+  }, [B, Q]);
+  h.current = F, m.current = U;
   const d = E(
     (C) => {
-      const p = new AbortController(), m = i ?? 1e4, H = window.setTimeout(() => p.abort(), m), F = {}, M = y();
-      M && Object.assign(F, M);
-      const v = oe();
-      return v && (F["X-CSRF-Token"] = v), {
+      const S = new AbortController(), G = i ?? 1e4, H = window.setTimeout(() => S.abort(), G), b = {}, M = k();
+      M && Object.assign(b, M);
+      const J = oe();
+      return J && (b["X-CSRF-Token"] = J), {
         promise: fetch(C, {
           credentials: "include",
-          headers: Object.keys(F).length > 0 ? F : void 0,
-          signal: p.signal
+          headers: Object.keys(b).length > 0 ? b : void 0,
+          signal: S.signal
         }),
         cleanup: () => window.clearTimeout(H)
       };
     },
-    [y, i]
+    [k, i]
   ), g = E(async () => {
     const C = d(`${e}/user`);
     try {
-      const p = await C.promise;
-      if (p.ok) {
-        const m = await p.json();
-        if (q(m)) {
-          Q(m.user), h("authenticated");
+      const S = await C.promise;
+      if (S.ok) {
+        const G = await S.json();
+        if (q(G)) {
+          Q(G.user), B("authenticated");
           return;
         }
       }
-      if (p.status === 401 && f.autoRefresh) {
+      if (S.status === 401 && f.autoRefresh) {
         try {
-          await b();
+          await F();
         } catch {
-          D();
+          U();
           return;
         }
-        const m = d(`${e}/user`);
+        const G = d(`${e}/user`);
         try {
-          const H = await m.promise;
+          const H = await G.promise;
           if (H.ok) {
-            const F = await H.json();
-            if (q(F)) {
-              Q(F.user), h("authenticated");
+            const b = await H.json();
+            if (q(b)) {
+              Q(b.user), B("authenticated");
               return;
             }
           }
         } finally {
-          m.cleanup();
+          G.cleanup();
         }
       }
-      Q(null), h("unauthenticated");
+      Q(null), B("unauthenticated");
     } catch {
-      Q(null), h("unauthenticated");
+      Q(null), B("unauthenticated");
     } finally {
       C.cleanup();
     }
   }, [
     e,
     f.autoRefresh,
-    b,
+    F,
     d,
-    D,
-    h,
+    U,
+    B,
     Q
   ]);
-  Y(() => {
-    !o.current || !f.syncTabs || o.current.setCallback((C) => {
+  x(() => {
+    !s.current || !f.syncTabs || s.current.setCallback((C) => {
       switch (C.type) {
         case "login":
-          Q(C.user), h("authenticated");
+          Q(C.user), B("authenticated");
           break;
         case "logout":
-          Q(null), h("unauthenticated"), c.current?.clear();
+          Q(null), B("unauthenticated"), c.current?.clear();
           break;
         case "refresh":
           g();
@@ -479,89 +479,89 @@ function Le({
           console.warn("[Cedros Login] Unhandled tab sync event:", C);
       }
     });
-  }, [f.syncTabs, g, h, Q]), Y(() => {
-    const C = new AbortController(), p = i ?? 1e4, m = window.setTimeout(() => C.abort(), p);
+  }, [f.syncTabs, g, B, Q]), x(() => {
+    const C = new AbortController(), S = i ?? 1e4, G = window.setTimeout(() => C.abort(), S);
     return (async () => {
-      h("loading");
+      B("loading");
       try {
-        const F = await fetch(`${e}/user`, {
+        const b = await fetch(`${e}/user`, {
           credentials: "include",
-          headers: y(),
+          headers: k(),
           signal: C.signal
         });
-        if (F.ok) {
-          const M = await F.json();
+        if (b.ok) {
+          const M = await b.json();
           if (q(M)) {
-            Q(M.user), h("authenticated");
+            Q(M.user), B("authenticated");
             return;
           }
         }
-        if (F.status === 401 && f.autoRefresh) {
+        if (b.status === 401 && f.autoRefresh) {
           try {
-            await b();
+            await F();
           } catch {
-            D();
+            U();
             return;
           }
           const M = await fetch(`${e}/user`, {
             credentials: "include",
-            headers: y(),
+            headers: k(),
             signal: C.signal
           });
           if (M.ok) {
-            const v = await M.json();
-            if (q(v)) {
-              Q(v.user), h("authenticated");
+            const J = await M.json();
+            if (q(J)) {
+              Q(J.user), B("authenticated");
               return;
             }
           }
         }
-        Q(null), h("unauthenticated");
+        Q(null), B("unauthenticated");
       } catch {
-        Q(null), h("unauthenticated");
+        Q(null), B("unauthenticated");
       }
     })(), () => {
-      window.clearTimeout(m), C.abort();
+      window.clearTimeout(G), C.abort();
     };
   }, [
     e,
     f.autoRefresh,
-    b,
-    y,
-    D,
-    h,
+    F,
+    k,
+    U,
+    B,
     Q,
     i
   ]);
   const I = E(
-    (C, p) => {
-      Q(C), h("authenticated"), p && c.current?.setTokens(p), u.current && o.current?.broadcastLogin(C);
+    (C, S) => {
+      Q(C), B("authenticated"), S && c.current?.setTokens(S), p.current && s.current?.broadcastLogin(C);
     },
-    [Q, h]
+    [Q, B]
   ), l = E(async () => {
-    const C = oe(), p = new AbortController(), m = i ?? 1e4, H = window.setTimeout(() => p.abort(), m);
+    const C = oe(), S = new AbortController(), G = i ?? 1e4, H = window.setTimeout(() => S.abort(), G);
     try {
       await fetch(`${e}/logout`, {
         method: "POST",
         headers: {
           ...C ? { "X-CSRF-Token": C } : {},
-          ...y() ?? {}
+          ...k() ?? {}
         },
         credentials: "include",
-        signal: p.signal
+        signal: S.signal
       });
     } catch {
     } finally {
-      window.clearTimeout(H), Q(null), h("unauthenticated"), c.current?.clear(), o.current?.broadcastLogout(), S.current?.onLogout?.();
+      window.clearTimeout(H), Q(null), B("unauthenticated"), c.current?.clear(), s.current?.broadcastLogout(), y.current?.onLogout?.();
     }
-  }, [e, y, Q, h, i]), w = E(() => c.current?.getAccessToken() ?? null, []);
+  }, [e, k, Q, B, i]), u = E(() => c.current?.getAccessToken() ?? null, []);
   return {
     user: r,
-    authState: s,
+    authState: o,
     handleLoginSuccess: I,
     logout: l,
     refreshUser: g,
-    getAccessToken: w
+    getAccessToken: u
   };
 }
 const Xe = {
@@ -713,7 +713,7 @@ async function It(e, t, A, i = 32) {
     "HKDF",
     !1,
     ["deriveBits"]
-  ), n = new TextEncoder().encode(A), s = await crypto.subtle.deriveBits(
+  ), n = new TextEncoder().encode(A), o = await crypto.subtle.deriveBits(
     {
       name: "HKDF",
       hash: "SHA-256",
@@ -725,7 +725,7 @@ async function It(e, t, A, i = 32) {
     i * 8
     // bits
   );
-  return new Uint8Array(s);
+  return new Uint8Array(o);
 }
 async function AA(e, t) {
   const A = await It(e, t, "cedros-wallet-share-b-encryption", 32);
@@ -752,32 +752,32 @@ async function at() {
 }
 function R(e, t, A, i) {
   function r(n) {
-    return n instanceof A ? n : new A(function(s) {
-      s(n);
+    return n instanceof A ? n : new A(function(o) {
+      o(n);
     });
   }
-  return new (A || (A = Promise))(function(n, s) {
-    function a(S) {
+  return new (A || (A = Promise))(function(n, o) {
+    function a(y) {
       try {
-        o(i.next(S));
-      } catch (u) {
-        s(u);
+        s(i.next(y));
+      } catch (p) {
+        o(p);
       }
     }
-    function c(S) {
+    function c(y) {
       try {
-        o(i.throw(S));
-      } catch (u) {
-        s(u);
+        s(i.throw(y));
+      } catch (p) {
+        o(p);
       }
     }
-    function o(S) {
-      S.done ? n(S.value) : r(S.value).then(a, c);
+    function s(y) {
+      y.done ? n(y.value) : r(y.value).then(a, c);
     }
-    o((i = i.apply(e, [])).next());
+    s((i = i.apply(e, [])).next());
   });
 }
-class k {
+class D {
   constructor() {
     this.mutex = Promise.resolve();
   }
@@ -833,7 +833,7 @@ function he(e, t, A) {
   }
   return String.fromCharCode.apply(null, e);
 }
-const O = Ie !== null ? (e) => {
+const v = Ie !== null ? (e) => {
   if (typeof e == "string") {
     const t = Ie.from(e, "utf8");
     return new Uint8Array(t.buffer, t.byteOffset, t.length);
@@ -849,21 +849,21 @@ const O = Ie !== null ? (e) => {
   if (ArrayBuffer.isView(e))
     return new Uint8Array(e.buffer, e.byteOffset, e.byteLength);
   throw new Error("Invalid data type!");
-}, P = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", W = new Uint8Array(256);
-for (let e = 0; e < P.length; e++)
-  W[P.charCodeAt(e)] = e;
+}, N = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", W = new Uint8Array(256);
+for (let e = 0; e < N.length; e++)
+  W[N.charCodeAt(e)] = e;
 function Qe(e, t = !0) {
   const A = e.length, i = A % 3, r = [], n = A - i;
-  for (let s = 0; s < n; s += 3) {
-    const a = (e[s] << 16 & 16711680) + (e[s + 1] << 8 & 65280) + (e[s + 2] & 255), c = P.charAt(a >> 18 & 63) + P.charAt(a >> 12 & 63) + P.charAt(a >> 6 & 63) + P.charAt(a & 63);
+  for (let o = 0; o < n; o += 3) {
+    const a = (e[o] << 16 & 16711680) + (e[o + 1] << 8 & 65280) + (e[o + 2] & 255), c = N.charAt(a >> 18 & 63) + N.charAt(a >> 12 & 63) + N.charAt(a >> 6 & 63) + N.charAt(a & 63);
     r.push(c);
   }
   if (i === 1) {
-    const s = e[A - 1], a = P.charAt(s >> 2), c = P.charAt(s << 4 & 63);
+    const o = e[A - 1], a = N.charAt(o >> 2), c = N.charAt(o << 4 & 63);
     r.push(`${a}${c}`), t && r.push("==");
   } else if (i === 2) {
-    const s = (e[A - 2] << 8) + e[A - 1], a = P.charAt(s >> 10), c = P.charAt(s >> 4 & 63), o = P.charAt(s << 2 & 63);
-    r.push(`${a}${c}${o}`), t && r.push("=");
+    const o = (e[A - 2] << 8) + e[A - 1], a = N.charAt(o >> 10), c = N.charAt(o >> 4 & 63), s = N.charAt(o << 2 & 63);
+    r.push(`${a}${c}${s}`), t && r.push("=");
   }
   return r.join("");
 }
@@ -876,12 +876,12 @@ function ht(e) {
   const t = Ct(e), A = e.length, i = new Uint8Array(t);
   let r = 0;
   for (let n = 0; n < A; n += 4) {
-    const s = W[e.charCodeAt(n)], a = W[e.charCodeAt(n + 1)], c = W[e.charCodeAt(n + 2)], o = W[e.charCodeAt(n + 3)];
-    i[r] = s << 2 | a >> 4, r += 1, i[r] = (a & 15) << 4 | c >> 2, r += 1, i[r] = (c & 3) << 6 | o & 63, r += 1;
+    const o = W[e.charCodeAt(n)], a = W[e.charCodeAt(n + 1)], c = W[e.charCodeAt(n + 2)], s = W[e.charCodeAt(n + 3)];
+    i[r] = o << 2 | a >> 4, r += 1, i[r] = (a & 15) << 4 | c >> 2, r += 1, i[r] = (c & 3) << 6 | s & 63, r += 1;
   }
   return i;
 }
-const _ = 16 * 1024, X = 4, ft = new k(), ae = /* @__PURE__ */ new Map();
+const _ = 16 * 1024, X = 4, ft = new D(), ae = /* @__PURE__ */ new Map();
 function Ue(e, t) {
   return R(this, void 0, void 0, function* () {
     let A = null, i = null, r = !1;
@@ -889,11 +889,11 @@ function Ue(e, t) {
       throw new Error("WebAssembly is not supported in this environment!");
     const n = (g, I = 0) => {
       i.set(g, I);
-    }, s = () => i, a = () => A.exports, c = (g) => {
+    }, o = () => i, a = () => A.exports, c = (g) => {
       A.exports.Hash_SetMemorySize(g);
       const I = A.exports.Hash_GetBuffer(), l = A.exports.memory.buffer;
       i = new Uint8Array(l, I, g);
-    }, o = () => new DataView(A.exports.memory.buffer).getUint32(A.exports.STATE_SIZE, !0), S = ft.dispatch(() => R(this, void 0, void 0, function* () {
+    }, s = () => new DataView(A.exports.memory.buffer).getUint32(A.exports.STATE_SIZE, !0), y = ft.dispatch(() => R(this, void 0, void 0, function* () {
       if (!ae.has(e.name)) {
         const I = ht(e.data), l = WebAssembly.compile(I);
         ae.set(e.name, l);
@@ -913,86 +913,86 @@ function Ue(e, t) {
         //   },
         // },
       });
-    })), u = () => R(this, void 0, void 0, function* () {
-      A || (yield S);
+    })), p = () => R(this, void 0, void 0, function* () {
+      A || (yield y);
       const g = A.exports.Hash_GetBuffer(), I = A.exports.memory.buffer;
       i = new Uint8Array(I, g, _);
-    }), B = (g = null) => {
+    }), w = (g = null) => {
       r = !0, A.exports.Hash_Init(g);
-    }, G = (g) => {
+    }, h = (g) => {
       let I = 0;
       for (; I < g.length; ) {
         const l = g.subarray(I, I + _);
         I += l.length, i.set(l), A.exports.Hash_Update(l.length);
       }
-    }, U = (g) => {
+    }, m = (g) => {
       if (!r)
         throw new Error("update() called before init()");
-      const I = O(g);
-      G(I);
-    }, Q = new Uint8Array(t * 2), h = (g, I = null) => {
+      const I = v(g);
+      h(I);
+    }, Q = new Uint8Array(t * 2), B = (g, I = null) => {
       if (!r)
         throw new Error("digest() called before init()");
       return r = !1, A.exports.Hash_Final(I), g === "binary" ? i.slice(0, t) : he(Q, i, t);
     }, f = () => {
       if (!r)
         throw new Error("save() can only be called after init() and before digest()");
-      const g = A.exports.Hash_GetState(), I = o(), l = A.exports.memory.buffer, w = new Uint8Array(l, g, I), C = new Uint8Array(X + I);
-      return Fe(C, e.hash), C.set(w, X), C;
-    }, b = (g) => {
+      const g = A.exports.Hash_GetState(), I = s(), l = A.exports.memory.buffer, u = new Uint8Array(l, g, I), C = new Uint8Array(X + I);
+      return Fe(C, e.hash), C.set(u, X), C;
+    }, F = (g) => {
       if (!(g instanceof Uint8Array))
         throw new Error("load() expects an Uint8Array generated by save()");
-      const I = A.exports.Hash_GetState(), l = o(), w = X + l, C = A.exports.memory.buffer;
-      if (g.length !== w)
-        throw new Error(`Bad state length (expected ${w} bytes, got ${g.length})`);
+      const I = A.exports.Hash_GetState(), l = s(), u = X + l, C = A.exports.memory.buffer;
+      if (g.length !== u)
+        throw new Error(`Bad state length (expected ${u} bytes, got ${g.length})`);
       if (!ct(e.hash, g.subarray(0, X)))
         throw new Error("This state was written by an incompatible hash implementation");
-      const p = g.subarray(X);
-      new Uint8Array(C, I, l).set(p), r = !0;
-    }, y = (g) => typeof g == "string" ? g.length < _ / 4 : g.byteLength < _;
-    let D = y;
+      const S = g.subarray(X);
+      new Uint8Array(C, I, l).set(S), r = !0;
+    }, k = (g) => typeof g == "string" ? g.length < _ / 4 : g.byteLength < _;
+    let U = k;
     switch (e.name) {
       case "argon2":
       case "scrypt":
-        D = () => !0;
+        U = () => !0;
         break;
       case "blake2b":
       case "blake2s":
-        D = (g, I) => I <= 512 && y(g);
+        U = (g, I) => I <= 512 && k(g);
         break;
       case "blake3":
-        D = (g, I) => I === 0 && y(g);
+        U = (g, I) => I === 0 && k(g);
         break;
       case "xxhash64":
       // cannot simplify
       case "xxhash3":
       case "xxhash128":
       case "crc64":
-        D = () => !1;
+        U = () => !1;
         break;
     }
     const d = (g, I = null, l = null) => {
-      if (!D(g, I))
-        return B(I), U(g), h("hex", l);
-      const w = O(g);
-      return i.set(w), A.exports.Hash_Calculate(w.length, I, l), he(Q, i, t);
+      if (!U(g, I))
+        return w(I), m(g), B("hex", l);
+      const u = v(g);
+      return i.set(u), A.exports.Hash_Calculate(u.length, I, l), he(Q, i, t);
     };
-    return yield u(), {
-      getMemory: s,
+    return yield p(), {
+      getMemory: o,
       writeMemory: n,
       getExports: a,
       setMemorySize: c,
-      init: B,
-      update: U,
-      digest: h,
+      init: w,
+      update: m,
+      digest: B,
       save: f,
-      load: b,
+      load: F,
       calculate: d,
       hashLength: t
     };
   });
 }
-new k();
+new D();
 var ut = "argon2", wt = "AGFzbQEAAAABKQVgAX8Bf2AAAX9gEH9/f39/f39/f39/f39/f38AYAR/f39/AGACf38AAwYFAAECAwQFBgEBAoCAAgYIAX8BQZCoBAsHQQQGbWVtb3J5AgASSGFzaF9TZXRNZW1vcnlTaXplAAAOSGFzaF9HZXRCdWZmZXIAAQ5IYXNoX0NhbGN1bGF0ZQAECvEyBVgBAn9BACEBAkAgAEEAKAKICCICRg0AAkAgACACayIAQRB2IABBgIB8cSAASWoiAEAAQX9HDQBB/wHADwtBACEBQQBBACkDiAggAEEQdK18NwOICAsgAcALcAECfwJAQQAoAoAIIgANAEEAPwBBEHQiADYCgAhBACgCiAgiAUGAgCBGDQACQEGAgCAgAWsiAEEQdiAAQYCAfHEgAElqIgBAAEF/Rw0AQQAPC0EAQQApA4gIIABBEHStfDcDiAhBACgCgAghAAsgAAvcDgECfiAAIAQpAwAiECAAKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAMIBAgDCkDAIVCIIkiEDcDACAIIBAgCCkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgBCAQIAQpAwCFQiiJIhA3AwAgACAQIAApAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIAwgECAMKQMAhUIwiSIQNwMAIAggECAIKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAEIBAgBCkDAIVCAYk3AwAgASAFKQMAIhAgASkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgDSAQIA0pAwCFQiCJIhA3AwAgCSAQIAkpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAUgECAFKQMAhUIoiSIQNwMAIAEgECABKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACANIBAgDSkDAIVCMIkiEDcDACAJIBAgCSkDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgBSAQIAUpAwCFQgGJNwMAIAIgBikDACIQIAIpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIA4gECAOKQMAhUIgiSIQNwMAIAogECAKKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAGIBAgBikDAIVCKIkiEDcDACACIBAgAikDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgDiAQIA4pAwCFQjCJIhA3AwAgCiAQIAopAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIAYgECAGKQMAhUIBiTcDACADIAcpAwAiECADKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAPIBAgDykDAIVCIIkiEDcDACALIBAgCykDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgByAQIAcpAwCFQiiJIhA3AwAgAyAQIAMpAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIA8gECAPKQMAhUIwiSIQNwMAIAsgECALKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAHIBAgBykDAIVCAYk3AwAgACAFKQMAIhAgACkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgDyAQIA8pAwCFQiCJIhA3AwAgCiAQIAopAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAUgECAFKQMAhUIoiSIQNwMAIAAgECAAKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAPIBAgDykDAIVCMIkiEDcDACAKIBAgCikDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgBSAQIAUpAwCFQgGJNwMAIAEgBikDACIQIAEpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAwgECAMKQMAhUIgiSIQNwMAIAsgECALKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAGIBAgBikDAIVCKIkiEDcDACABIBAgASkDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgDCAQIAwpAwCFQjCJIhA3AwAgCyAQIAspAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIAYgECAGKQMAhUIBiTcDACACIAcpAwAiECACKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACANIBAgDSkDAIVCIIkiEDcDACAIIBAgCCkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgByAQIAcpAwCFQiiJIhA3AwAgAiAQIAIpAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIA0gECANKQMAhUIwiSIQNwMAIAggECAIKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAHIBAgBykDAIVCAYk3AwAgAyAEKQMAIhAgAykDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgDiAQIA4pAwCFQiCJIhA3AwAgCSAQIAkpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAQgECAEKQMAhUIoiSIQNwMAIAMgECADKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAOIBAgDikDAIVCMIkiEDcDACAJIBAgCSkDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgBCAQIAQpAwCFQgGJNwMAC98aAQN/QQAhBEEAIAIpAwAgASkDAIU3A5AIQQAgAikDCCABKQMIhTcDmAhBACACKQMQIAEpAxCFNwOgCEEAIAIpAxggASkDGIU3A6gIQQAgAikDICABKQMghTcDsAhBACACKQMoIAEpAyiFNwO4CEEAIAIpAzAgASkDMIU3A8AIQQAgAikDOCABKQM4hTcDyAhBACACKQNAIAEpA0CFNwPQCEEAIAIpA0ggASkDSIU3A9gIQQAgAikDUCABKQNQhTcD4AhBACACKQNYIAEpA1iFNwPoCEEAIAIpA2AgASkDYIU3A/AIQQAgAikDaCABKQNohTcD+AhBACACKQNwIAEpA3CFNwOACUEAIAIpA3ggASkDeIU3A4gJQQAgAikDgAEgASkDgAGFNwOQCUEAIAIpA4gBIAEpA4gBhTcDmAlBACACKQOQASABKQOQAYU3A6AJQQAgAikDmAEgASkDmAGFNwOoCUEAIAIpA6ABIAEpA6ABhTcDsAlBACACKQOoASABKQOoAYU3A7gJQQAgAikDsAEgASkDsAGFNwPACUEAIAIpA7gBIAEpA7gBhTcDyAlBACACKQPAASABKQPAAYU3A9AJQQAgAikDyAEgASkD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", Qt = "e4cdc523", Bt = {
   name: ut,
   data: wt,
@@ -1002,7 +1002,7 @@ var ut = "argon2", wt = "AGFzbQEAAAABKQVgAX8Bf2AAAX9gEH9/f39/f39/f39/f39/f38AYAR
   data: Et,
   hash: pt
 };
-new k();
+new D();
 function Be(e) {
   return !Number.isInteger(e) || e < 8 || e > 512 || e % 8 !== 0 ? new Error("Invalid variant! Valid values: 8, 16, ..., 512") : null;
 }
@@ -1014,24 +1014,24 @@ function fe(e = 512, t = null) {
     return Promise.reject(Be(e));
   let A = null, i = e;
   if (t !== null) {
-    if (A = O(t), A.length > 64)
+    if (A = v(t), A.length > 64)
       return Promise.reject(new Error("Max key length is 64 bytes"));
     i = kt(e, A.length);
   }
   const r = e / 8;
   return Ue(yt, r).then((n) => {
     i > 512 && n.writeMemory(A), n.init(i);
-    const s = {
-      init: i > 512 ? () => (n.writeMemory(A), n.init(i), s) : () => (n.init(i), s),
-      update: (a) => (n.update(a), s),
+    const o = {
+      init: i > 512 ? () => (n.writeMemory(A), n.init(i), o) : () => (n.init(i), o),
+      update: (a) => (n.update(a), o),
       // biome-ignore lint/suspicious/noExplicitAny: Conflict with IHasher type
       digest: (a) => n.digest(a),
       save: () => n.save(),
-      load: (a) => (n.load(a), s),
+      load: (a) => (n.load(a), o),
       blockSize: 128,
       digestSize: r
     };
-    return s;
+    return o;
   });
 }
 function St(e, t, A) {
@@ -1043,24 +1043,24 @@ function St(e, t, A) {
   return `$argon2${t.hashType}$v=19$${i}$${Qe(e, !1)}$${Qe(A, !1)}`;
 }
 const de = new DataView(new ArrayBuffer(4));
-function x(e) {
+function O(e) {
   return de.setInt32(0, e, !0), new Uint8Array(de.buffer);
 }
 function ge(e, t, A) {
   return R(this, void 0, void 0, function* () {
     if (A <= 64) {
       const c = yield fe(A * 8);
-      return c.update(x(A)), c.update(t), c.digest("binary");
+      return c.update(O(A)), c.update(t), c.digest("binary");
     }
     const i = Math.ceil(A / 32) - 2, r = new Uint8Array(A);
-    e.init(), e.update(x(A)), e.update(t);
+    e.init(), e.update(O(A)), e.update(t);
     let n = e.digest("binary");
     r.set(n.subarray(0, 32), 0);
     for (let c = 1; c < i; c++)
       e.init(), e.update(n), n = e.digest("binary"), r.set(n.subarray(0, 32), c * 32);
-    const s = A - 32 * i;
+    const o = A - 32 * i;
     let a;
-    return s === 64 ? (a = e, a.init()) : a = yield fe(s * 8), a.update(n), n = a.digest("binary"), r.set(n.subarray(0, s), i * 32), r;
+    return o === 64 ? (a = e, a.init()) : a = yield fe(o * 8), a.update(n), n = a.digest("binary"), r.set(n.subarray(0, o), i * 32), r;
   });
 }
 function Dt(e) {
@@ -1076,28 +1076,28 @@ function Dt(e) {
 function Ft(e) {
   return R(this, void 0, void 0, function* () {
     var t;
-    const { parallelism: A, iterations: i, hashLength: r } = e, n = O(e.password), s = O(e.salt), a = 19, c = Dt(e.hashType), { memorySize: o } = e, S = O((t = e.secret) !== null && t !== void 0 ? t : ""), [u, B] = yield Promise.all([
+    const { parallelism: A, iterations: i, hashLength: r } = e, n = v(e.password), o = v(e.salt), a = 19, c = Dt(e.hashType), { memorySize: s } = e, y = v((t = e.secret) !== null && t !== void 0 ? t : ""), [p, w] = yield Promise.all([
       Ue(Bt, 1024),
       fe(512)
     ]);
-    u.setMemorySize(o * 1024 + 1024);
-    const G = new Uint8Array(24), U = new DataView(G.buffer);
-    U.setInt32(0, A, !0), U.setInt32(4, r, !0), U.setInt32(8, o, !0), U.setInt32(12, i, !0), U.setInt32(16, a, !0), U.setInt32(20, c, !0), u.writeMemory(G, o * 1024), B.init(), B.update(G), B.update(x(n.length)), B.update(n), B.update(x(s.length)), B.update(s), B.update(x(S.length)), B.update(S), B.update(x(0));
-    const h = Math.floor(o / (A * 4)) * 4, f = new Uint8Array(72), b = B.digest("binary");
-    f.set(b);
+    p.setMemorySize(s * 1024 + 1024);
+    const h = new Uint8Array(24), m = new DataView(h.buffer);
+    m.setInt32(0, A, !0), m.setInt32(4, r, !0), m.setInt32(8, s, !0), m.setInt32(12, i, !0), m.setInt32(16, a, !0), m.setInt32(20, c, !0), p.writeMemory(h, s * 1024), w.init(), w.update(h), w.update(O(n.length)), w.update(n), w.update(O(o.length)), w.update(o), w.update(O(y.length)), w.update(y), w.update(O(0));
+    const B = Math.floor(s / (A * 4)) * 4, f = new Uint8Array(72), F = w.digest("binary");
+    f.set(F);
     for (let d = 0; d < A; d++) {
-      f.set(x(0), 64), f.set(x(d), 68);
-      let g = d * h, I = yield ge(B, f, 1024);
-      u.writeMemory(I, g * 1024), g += 1, f.set(x(1), 64), I = yield ge(B, f, 1024), u.writeMemory(I, g * 1024);
+      f.set(O(0), 64), f.set(O(d), 68);
+      let g = d * B, I = yield ge(w, f, 1024);
+      p.writeMemory(I, g * 1024), g += 1, f.set(O(1), 64), I = yield ge(w, f, 1024), p.writeMemory(I, g * 1024);
     }
-    const y = new Uint8Array(1024);
-    Fe(y, u.calculate(new Uint8Array([]), o));
-    const D = yield ge(B, y, r);
+    const k = new Uint8Array(1024);
+    Fe(k, p.calculate(new Uint8Array([]), s));
+    const U = yield ge(w, k, r);
     if (e.outputType === "hex") {
       const d = new Uint8Array(r * 2);
-      return he(d, D, r);
+      return he(d, U, r);
     }
-    return e.outputType === "encoded" ? St(s, e, D) : D;
+    return e.outputType === "encoded" ? St(o, e, U) : U;
   });
 }
 const Ut = (e) => {
@@ -1106,13 +1106,13 @@ const Ut = (e) => {
     throw new Error("Invalid options parameter. It requires an object.");
   if (!e.password)
     throw new Error("Password must be specified");
-  if (e.password = O(e.password), e.password.length < 1)
+  if (e.password = v(e.password), e.password.length < 1)
     throw new Error("Password must be specified");
   if (!e.salt)
     throw new Error("Salt must be specified");
-  if (e.salt = O(e.salt), e.salt.length < 8)
+  if (e.salt = v(e.salt), e.salt.length < 8)
     throw new Error("Salt should be at least 8 bytes long");
-  if (e.secret = O((t = e.secret) !== null && t !== void 0 ? t : ""), !Number.isInteger(e.iterations) || e.iterations < 1)
+  if (e.secret = v((t = e.secret) !== null && t !== void 0 ? t : ""), !Number.isInteger(e.iterations) || e.iterations < 1)
     throw new Error("Iterations should be a positive number");
   if (!Number.isInteger(e.parallelism) || e.parallelism < 1)
     throw new Error("Parallelism should be a positive number");
@@ -1130,26 +1130,26 @@ function me(e) {
     return Ut(e), Ft(Object.assign(Object.assign({}, e), { hashType: "id" }));
   });
 }
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
-new k();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
+new D();
 const mt = 32;
 async function iA(e, t, A = Xe) {
   bt(A);
@@ -1234,7 +1234,7 @@ async function rA(e, t, A, i, r) {
   if (!te())
     throw new Error("WebAuthn is not available in this browser");
   be();
-  const n = i ?? rt(), s = await navigator.credentials.create({
+  const n = i ?? rt(), o = await navigator.credentials.create({
     publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: {
@@ -1268,9 +1268,9 @@ async function rA(e, t, A, i, r) {
       }
     }
   });
-  if (!s)
+  if (!o)
     throw new Error("Passkey registration was cancelled");
-  const a = s.getClientExtensionResults();
+  const a = o.getClientExtensionResults();
   if (!a.prf?.enabled || !a.prf?.results?.first)
     throw new Error(
       "PRF extension is not supported by this authenticator. Please use a device with a compatible platform authenticator."
@@ -1278,15 +1278,15 @@ async function rA(e, t, A, i, r) {
   const c = a.prf?.results?.first;
   if (!c)
     throw new Error("PRF extension did not return a result");
-  const o = new Uint8Array(c);
-  if (o.length !== 32)
+  const s = new Uint8Array(c);
+  if (s.length !== 32)
     throw new Error(
-      `Unexpected PRF output length: expected 32 bytes, got ${o.length}. The authenticator may not be compatible.`
+      `Unexpected PRF output length: expected 32 bytes, got ${s.length}. The authenticator may not be compatible.`
     );
   return {
-    credentialId: z(new Uint8Array(s.rawId)),
+    credentialId: z(new Uint8Array(o.rawId)),
     prfSalt: z(n),
-    prfOutput: o
+    prfOutput: s
   };
 }
 async function nA(e, t) {
@@ -1315,15 +1315,15 @@ async function nA(e, t) {
   const n = i.getClientExtensionResults().prf?.results?.first;
   if (!n)
     throw new Error("PRF extension did not return a result during authentication");
-  const s = new Uint8Array(n);
-  if (s.length !== 32)
+  const o = new Uint8Array(n);
+  if (o.length !== 32)
     throw new Error(
-      `Unexpected PRF output length: expected 32 bytes, got ${s.length}. The authenticator may not be compatible.`
+      `Unexpected PRF output length: expected 32 bytes, got ${o.length}. The authenticator may not be compatible.`
     );
-  return { prfOutput: s };
+  return { prfOutput: o };
 }
 async function Jt() {
-  const [e, t, A, i, r, n, s] = await Promise.all([
+  const [e, t, A, i, r, n, o] = await Promise.all([
     Mt(),
     Vt(),
     at(),
@@ -1339,8 +1339,8 @@ async function Jt() {
     ed25519: i,
     webAuthn: r,
     webAuthnPrf: n,
-    argon2: s,
-    allSupported: e && t && A && r && n && s
+    argon2: o,
+    allSupported: e && t && A && r && n && o
   };
 }
 async function Mt() {
@@ -1356,7 +1356,7 @@ async function Vt() {
       "encrypt",
       "decrypt"
     ]), t = new Uint8Array([1, 2, 3, 4]), A = crypto.getRandomValues(new Uint8Array(12)), i = await crypto.subtle.encrypt({ name: "AES-GCM", iv: A }, e, t), r = await crypto.subtle.decrypt({ name: "AES-GCM", iv: A }, e, i), n = new Uint8Array(r);
-    return n.length === t.length && n.every((s, a) => s === t[a]);
+    return n.length === t.length && n.every((o, a) => o === t[a]);
   } catch {
     return !1;
   }
@@ -1431,197 +1431,197 @@ function xt(e) {
   }
 }
 function Ot() {
-  const e = pe(), [t, A] = K(!1), [i, r] = K(null), n = e?.config.serverUrl, s = e?.config.requestTimeout, a = e?.config.retryAttempts, c = e?._internal?.getAccessToken, o = V(() => e ? new Ee({
+  const e = pe(), [t, A] = K(!1), [i, r] = K(null), n = e?.config.serverUrl, o = e?.config.requestTimeout, a = e?.config.retryAttempts, c = e?._internal?.getAccessToken, s = P(() => e ? new Ee({
     baseUrl: n,
-    timeoutMs: s,
+    timeoutMs: o,
     retryAttempts: a,
     getAccessToken: c
-  }) : null, [e, n, s, a, c]), S = E(async () => {
-    if (!o)
+  }) : null, [e, n, o, a, c]), y = E(async () => {
+    if (!s)
       throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
     A(!0), r(null);
     try {
-      return await o.get("/wallet/status");
+      return await s.get("/wallet/status");
     } catch (I) {
-      const l = J(I, "Failed to fetch wallet status");
+      const l = V(I, "Failed to fetch wallet status");
       throw r(l.message), l;
     } finally {
       A(!1);
     }
-  }, [o]), u = E(async () => {
-    if (!o)
+  }, [s]), p = E(async () => {
+    if (!s)
       throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
     A(!0), r(null);
     try {
-      return await o.get("/wallet/material");
+      return await s.get("/wallet/material");
     } catch (I) {
-      const l = J(I, "Failed to fetch wallet material");
+      const l = V(I, "Failed to fetch wallet material");
       if (l.code === "NOT_FOUND")
         return null;
       throw r(l.message), l;
     } finally {
       A(!1);
     }
-  }, [o]), B = E(
+  }, [s]), w = E(
     async (I) => {
-      if (!o)
+      if (!s)
         throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
       A(!0), r(null);
       try {
-        await o.post("/wallet/enroll", I);
+        await s.post("/wallet/enroll", I);
       } catch (l) {
-        const w = J(l, "Failed to enroll wallet");
-        throw r(w.message), w;
+        const u = V(l, "Failed to enroll wallet");
+        throw r(u.message), u;
       } finally {
         A(!1);
       }
     },
-    [o]
-  ), G = E(
-    async (I) => {
-      if (!o)
-        throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
-      A(!0), r(null);
-      try {
-        await o.post("/wallet/recover", I);
-      } catch (l) {
-        const w = J(l, "Failed to recover wallet");
-        throw r(w.message), w;
-      } finally {
-        A(!1);
-      }
-    },
-    [o]
-  ), U = E(
-    async (I) => {
-      if (!o)
-        throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
-      A(!0), r(null);
-      try {
-        return await o.post("/wallet/sign", I);
-      } catch (l) {
-        const w = J(l, "Failed to sign transaction");
-        throw r(w.message), w;
-      } finally {
-        A(!1);
-      }
-    },
-    [o]
-  ), Q = E(
-    async (I) => {
-      if (!o)
-        throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
-      A(!0), r(null);
-      try {
-        await o.post("/wallet/rotate-user-secret", I);
-      } catch (l) {
-        const w = J(l, "Failed to rotate user secret");
-        throw r(w.message), w;
-      } finally {
-        A(!1);
-      }
-    },
-    [o]
+    [s]
   ), h = E(
     async (I) => {
-      if (!o)
+      if (!s)
         throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
       A(!0), r(null);
       try {
-        return await o.post(
+        await s.post("/wallet/recover", I);
+      } catch (l) {
+        const u = V(l, "Failed to recover wallet");
+        throw r(u.message), u;
+      } finally {
+        A(!1);
+      }
+    },
+    [s]
+  ), m = E(
+    async (I) => {
+      if (!s)
+        throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
+      A(!0), r(null);
+      try {
+        return await s.post("/wallet/sign", I);
+      } catch (l) {
+        const u = V(l, "Failed to sign transaction");
+        throw r(u.message), u;
+      } finally {
+        A(!1);
+      }
+    },
+    [s]
+  ), Q = E(
+    async (I) => {
+      if (!s)
+        throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
+      A(!0), r(null);
+      try {
+        await s.post("/wallet/rotate-user-secret", I);
+      } catch (l) {
+        const u = V(l, "Failed to rotate user secret");
+        throw r(u.message), u;
+      } finally {
+        A(!1);
+      }
+    },
+    [s]
+  ), B = E(
+    async (I) => {
+      if (!s)
+        throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
+      A(!0), r(null);
+      try {
+        return await s.post(
           "/wallet/unlock",
           xt(I)
         );
       } catch (l) {
-        const w = J(l, "Failed to unlock wallet");
-        throw r(w.message), w;
+        const u = V(l, "Failed to unlock wallet");
+        throw r(u.message), u;
       } finally {
         A(!1);
       }
     },
-    [o]
+    [s]
   ), f = E(async () => {
-    if (!o)
+    if (!s)
       throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
     A(!0), r(null);
     try {
-      await o.post("/wallet/lock", {});
+      await s.post("/wallet/lock", {});
     } catch (I) {
-      const l = J(I, "Failed to lock wallet");
+      const l = V(I, "Failed to lock wallet");
       throw r(l.message), l;
     } finally {
       A(!1);
     }
-  }, [o]), b = E(
+  }, [s]), F = E(
     async (I) => {
-      if (!o)
+      if (!s)
         throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
       A(!0), r(null);
       try {
-        return await o.post("/wallet/share-b", I);
+        return await s.post("/wallet/share-b", I);
       } catch (l) {
-        const w = J(l, "Failed to get Share B for recovery");
-        throw r(w.message), w;
+        const u = V(l, "Failed to get Share B for recovery");
+        throw r(u.message), u;
       } finally {
         A(!1);
       }
     },
-    [o]
-  ), y = E(
+    [s]
+  ), k = E(
     async (I) => {
-      if (!o)
+      if (!s)
         throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
       A(!0), r(null);
       try {
-        return await o.post("/wallet/derived", I);
+        return await s.post("/wallet/derived", I);
       } catch (l) {
-        const w = J(l, "Failed to create derived wallet");
-        throw r(w.message), w;
+        const u = V(l, "Failed to create derived wallet");
+        throw r(u.message), u;
       } finally {
         A(!1);
       }
     },
-    [o]
-  ), D = E(async () => {
-    if (!o)
+    [s]
+  ), U = E(async () => {
+    if (!s)
       throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
     A(!0), r(null);
     try {
-      return await o.get("/wallet/derived");
+      return await s.get("/wallet/derived");
     } catch (I) {
-      const l = J(I, "Failed to list wallets");
+      const l = V(I, "Failed to list wallets");
       throw r(l.message), l;
     } finally {
       A(!1);
     }
-  }, [o]), d = E(
+  }, [s]), d = E(
     async (I) => {
-      if (!o)
+      if (!s)
         throw new Error("useWalletMaterial must be used within a CedrosLoginProvider");
       A(!0), r(null);
       try {
-        await o.delete(`/wallet/derived/${I}`);
+        await s.delete(`/wallet/derived/${I}`);
       } catch (l) {
-        const w = J(l, "Failed to delete derived wallet");
-        throw r(w.message), w;
+        const u = V(l, "Failed to delete derived wallet");
+        throw r(u.message), u;
       } finally {
         A(!1);
       }
     },
-    [o]
+    [s]
   ), g = E(() => r(null), []);
   return {
-    getStatus: S,
-    getMaterial: u,
-    enroll: B,
-    recover: G,
-    signTransaction: U,
+    getStatus: y,
+    getMaterial: p,
+    enroll: w,
+    recover: h,
+    signTransaction: m,
     rotateUserSecret: Q,
-    unlock: h,
+    unlock: B,
     lock: f,
-    getShareBForRecovery: b,
-    createDerivedWallet: y,
-    listAllWallets: D,
+    getShareBForRecovery: F,
+    createDerivedWallet: k,
+    listAllWallets: U,
     deleteDerivedWallet: d,
     isLoading: t,
     error: i,
@@ -1643,51 +1643,51 @@ const vt = {
   }
 };
 function Tt() {
-  const t = pe() !== null, [A, i] = K("loading"), [r, n] = K(null), [s, a] = K(null), [c, o] = K(!1), [S, u] = K(!1), [B, G] = K(null), [U, Q] = K(null), { getStatus: h, isLoading: f } = Ot(), b = N(!1);
-  Y(() => {
+  const t = pe() !== null, [A, i] = K("loading"), [r, n] = K(null), [o, a] = K(null), [c, s] = K(!1), [y, p] = K(!1), [w, h] = K(null), [m, Q] = K(null), { getStatus: B, isLoading: f } = Ot(), F = Y(!1);
+  x(() => {
     if (!t) return;
     let d = !1;
     return (async () => {
       try {
         const I = await Yt();
         if (d) return;
-        G(I), I.allSupported || (i("error"), Q(
+        h(I), I.allSupported || (i("error"), Q(
           "Your browser or device does not support all required features. Please use a modern browser with a platform authenticator."
         ));
       } catch {
         if (d) return;
-        G(null), i("error"), Q("Failed to check crypto capabilities");
+        h(null), i("error"), Q("Failed to check crypto capabilities");
       }
     })(), () => {
       d = !0;
     };
   }, [t]);
-  const y = E(async () => {
-    if (!(!t || !B?.allSupported)) {
+  const k = E(async () => {
+    if (!(!t || !w?.allSupported)) {
       i("loading"), Q(null);
       try {
-        const d = await h();
-        n(d.solanaPubkey ?? null), a(d.authMethod ?? null), o(d.hasExternalWallet), u(d.unlocked), d.hasExternalWallet ? i("enrolled_unlocked") : d.enrolled ? i(d.unlocked ? "enrolled_unlocked" : "enrolled_locked") : i("not_enrolled");
+        const d = await B();
+        n(d.solanaPubkey ?? null), a(d.authMethod ?? null), s(d.hasExternalWallet), p(d.unlocked), d.hasExternalWallet ? i("enrolled_unlocked") : d.enrolled ? i(d.unlocked ? "enrolled_unlocked" : "enrolled_locked") : i("not_enrolled");
       } catch (d) {
         i("error"), Q(d instanceof Error ? d.message : "Failed to fetch wallet status");
       }
     }
-  }, [t, B?.allSupported, h]);
-  Y(() => {
-    t && B?.allSupported && !f && !b.current && (b.current = !0, y());
-  }, [t, B?.allSupported, f, y]);
-  const D = E(() => Q(null), []);
+  }, [t, w?.allSupported, B]);
+  x(() => {
+    t && w?.allSupported && !f && !F.current && (F.current = !0, k());
+  }, [t, w?.allSupported, f, k]);
+  const U = E(() => Q(null), []);
   return t ? {
     status: A,
     solanaPubkey: r,
-    authMethod: s,
+    authMethod: o,
     hasExternalWallet: c,
-    isUnlocked: S,
-    capabilities: B,
-    isSupported: B?.allSupported ?? !1,
-    error: U,
-    refresh: y,
-    clearError: D
+    isUnlocked: y,
+    capabilities: w,
+    isSupported: w?.allSupported ?? !1,
+    error: m,
+    refresh: k,
+    clearError: U
   } : vt;
 }
 const Ae = "__CEDROS_EMBEDDED_WALLET__";
@@ -1704,8 +1704,8 @@ function aA() {
   return typeof window > "u" ? null : window[Ae] ?? null;
 }
 function Lt() {
-  const { config: e, user: t } = ye(), { status: A, solanaPubkey: i, hasExternalWallet: r } = Tt(), n = e.wallet?.exposeAvailability ?? !1, s = e.wallet?.exposePublicKey ?? !1;
-  return Y(() => {
+  const { config: e, user: t } = ye(), { status: A, solanaPubkey: i, hasExternalWallet: r } = Tt(), n = e.wallet?.exposeAvailability ?? !1, o = e.wallet?.exposePublicKey ?? !1;
+  return x(() => {
     if (!n || !t) {
       ce();
       return;
@@ -1719,97 +1719,108 @@ function Lt() {
     const a = A === "enrolled_locked" || A === "enrolled_unlocked";
     return Rt({
       available: a,
-      publicKey: s && a ? i : null
+      publicKey: o && a ? i : null
     }), () => {
       ce();
     };
-  }, [n, s, t, A, i, r]), null;
+  }, [n, o, t, A, i, r]), null;
 }
 function gA({ config: e, children: t }) {
-  const [A, i] = K(null), [r, n] = K(!1), s = N(e.callbacks);
-  s.current = e.callbacks;
-  const a = N({
-    onLoginSuccess: (...F) => s.current?.onLoginSuccess?.(...F),
-    onLoginError: (...F) => s.current?.onLoginError?.(...F),
-    onLogout: () => s.current?.onLogout?.(),
-    onSessionExpired: () => s.current?.onSessionExpired?.()
-  }), c = e.features === "auto", { features: o, isLoading: S } = Ne(
+  const [A, i] = K(null), [r, n] = K(!1), o = Y(e.callbacks);
+  o.current = e.callbacks;
+  const a = Y({
+    onLoginSuccess: (...J) => o.current?.onLoginSuccess?.(...J),
+    onLoginError: (...J) => o.current?.onLoginError?.(...J),
+    onLogout: () => o.current?.onLogout?.(),
+    onSessionExpired: () => o.current?.onSessionExpired?.()
+  }), c = e.features === "auto", {
+    features: s,
+    googleClientId: y,
+    appleClientId: p,
+    isLoading: w
+  } = Ne(
     e.serverUrl,
     c,
     e.requestTimeout
-  ), u = V(() => !c || !o ? e : { ...e, features: o }, [e, c, o]), B = V(
-    () => JSON.stringify(u.themeOverrides ?? null),
-    [u.themeOverrides]
-  ), G = V(() => JSON.stringify(u.session ?? null), [u.session]), U = V(() => JSON.stringify(u.features ?? null), [u.features]), Q = V(() => JSON.stringify(u.forms ?? null), [u.forms]), h = V(
-    () => u,
+  ), h = P(() => !c || !s ? e : {
+    ...e,
+    features: s,
+    googleClientId: e.googleClientId ?? y,
+    appleClientId: e.appleClientId ?? p
+  }, [e, c, s, y, p]), m = P(
+    () => JSON.stringify(h.themeOverrides ?? null),
+    [h.themeOverrides]
+  ), Q = P(() => JSON.stringify(h.session ?? null), [h.session]), B = P(() => JSON.stringify(h.features ?? null), [h.features]), f = P(() => JSON.stringify(h.forms ?? null), [h.forms]), F = P(
+    () => h,
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Using serialized keys for deep comparison; callbacks excluded (see UI-06)
     [
-      u.serverUrl,
-      u.googleClientId,
-      u.requestTimeout,
-      u.retryAttempts,
-      u.theme,
+      h.serverUrl,
+      h.googleClientId,
+      h.appleClientId,
+      h.requestTimeout,
+      h.retryAttempts,
+      h.theme,
+      m,
+      Q,
       B,
-      G,
-      U,
-      Q
+      f
     ]
   );
   Ve({
-    theme: h.theme,
-    themeOverrides: h.themeOverrides
+    theme: F.theme,
+    themeOverrides: F.themeOverrides
   });
   const {
-    user: f,
-    authState: b,
-    handleLoginSuccess: y,
-    logout: D,
-    refreshUser: d,
-    getAccessToken: g
+    user: k,
+    authState: U,
+    handleLoginSuccess: d,
+    logout: g,
+    refreshUser: I,
+    getAccessToken: l
   } = Le({
-    serverUrl: h.serverUrl,
-    session: h.session,
+    serverUrl: F.serverUrl,
+    session: F.session,
     callbacks: a.current,
-    requestTimeoutMs: h.requestTimeout
-  }), I = E(async () => {
-    i(null), await D();
-  }, [D]), l = E(
-    (...F) => {
-      i(null), y(...F);
+    requestTimeoutMs: F.requestTimeout
+  }), u = E(async () => {
+    i(null), await g();
+  }, [g]), C = E(
+    (...J) => {
+      i(null), d(...J);
     },
-    [y]
-  ), w = E(() => n(!0), []), C = E(() => n(!1), []), p = V(
+    [d]
+  ), S = E(() => n(!0), []), G = E(() => n(!1), []), H = P(
     () => ({
-      config: h,
-      user: f,
-      authState: b,
-      logout: I,
-      refreshUser: d,
+      config: F,
+      user: k,
+      authState: U,
+      logout: u,
+      refreshUser: I,
       _internal: {
-        handleLoginSuccess: l,
-        getAccessToken: g
+        handleLoginSuccess: C,
+        getAccessToken: l
       }
     }),
-    [h, f, b, I, d, l, g]
-  ), m = V(
+    [F, k, U, u, I, C, l]
+  ), b = P(
     () => ({
       error: A,
       isModalOpen: r,
-      openModal: w,
-      closeModal: C
+      openModal: S,
+      closeModal: G
     }),
-    [A, r, w, C]
-  ), H = V(
-    () => ({ ...p, ...m }),
-    [p, m]
+    [A, r, S, G]
+  ), M = P(
+    () => ({ ...H, ...b }),
+    [H, b]
   );
-  return c && S ? null : /* @__PURE__ */ ne(He.Provider, { value: p, children: /* @__PURE__ */ ne(Je.Provider, { value: m, children: /* @__PURE__ */ Ke(Me.Provider, { value: H, children: [
+  return c && w ? null : /* @__PURE__ */ ne(He.Provider, { value: H, children: /* @__PURE__ */ ne(Je.Provider, { value: b, children: /* @__PURE__ */ Ke(Me.Provider, { value: M, children: [
     /* @__PURE__ */ ne(Lt, {}),
     t
   ] }) }) });
 }
 function lA() {
-  const { user: e, authState: t, error: A, logout: i, refreshUser: r, openModal: n, closeModal: s } = ye();
+  const { user: e, authState: t, error: A, logout: i, refreshUser: r, openModal: n, closeModal: o } = ye();
   return {
     user: e,
     authState: t,
@@ -1819,7 +1830,7 @@ function lA() {
     logout: i,
     refreshUser: r,
     openLoginModal: n,
-    closeLoginModal: s
+    closeLoginModal: o
   };
 }
 export {

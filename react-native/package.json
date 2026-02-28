@@ -1,6 +1,6 @@
 {
   "name": "@cedros/login-react-native",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "React Native authentication library for Cedros with email/password, social login, and crypto wallet support",
   "type": "module",
   "main": "./src/index.ts",

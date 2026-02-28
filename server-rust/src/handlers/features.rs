@@ -13,6 +13,11 @@ use crate::services::EmailService;
 use crate::AppState;
 
 /// Response for `GET /features` — which auth methods the server allows.
+///
+/// Optional `google_client_id` and `apple_client_id` are included when the
+/// respective provider is enabled, so the frontend can auto-configure OAuth
+/// buttons without the embedder duplicating credentials in UI config.
+/// These are public values (embedded in HTML by Google/Apple SDKs).
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthFeaturesResponse {
@@ -22,6 +27,10 @@ pub struct AuthFeaturesResponse {
     pub solana: bool,
     pub webauthn: bool,
     pub instant_link: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_client_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub apple_client_id: Option<String>,
 }
 
 /// GET /features — lightweight public endpoint for UI feature discovery.
@@ -76,6 +85,30 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .flatten()
         .unwrap_or(cfg.email.enabled);
 
+    // Resolve client IDs only when the provider is enabled.
+    // Pattern matches google.rs:140 / apple.rs:140 — runtime setting > static config.
+    let google_client_id = if google {
+        ss.get("auth_google_client_id")
+            .await
+            .ok()
+            .flatten()
+            .filter(|s| !s.is_empty())
+            .or_else(|| cfg.google.client_id.clone())
+    } else {
+        None
+    };
+
+    let apple_client_id = if apple {
+        ss.get("auth_apple_client_id")
+            .await
+            .ok()
+            .flatten()
+            .filter(|s| !s.is_empty())
+            .or_else(|| cfg.apple.client_id.clone())
+    } else {
+        None
+    };
+
     Json(AuthFeaturesResponse {
         email,
         google,
@@ -83,6 +116,8 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         solana,
         webauthn,
         instant_link,
+        google_client_id,
+        apple_client_id,
     })
 }
 
@@ -99,11 +134,34 @@ mod tests {
             solana: false,
             webauthn: true,
             instant_link: false,
+            google_client_id: None,
+            apple_client_id: None,
         };
 
         let json = serde_json::to_string(&resp).unwrap();
         assert!(json.contains("\"instantLink\":false"));
         assert!(json.contains("\"webauthn\":true"));
         assert!(!json.contains("instant_link"));
+        // None values are omitted via skip_serializing_if
+        assert!(!json.contains("googleClientId"));
+        assert!(!json.contains("appleClientId"));
+    }
+
+    #[test]
+    fn response_includes_client_ids_when_present() {
+        let resp = AuthFeaturesResponse {
+            email: true,
+            google: true,
+            apple: true,
+            solana: false,
+            webauthn: false,
+            instant_link: false,
+            google_client_id: Some("goog-123.apps.googleusercontent.com".into()),
+            apple_client_id: Some("com.example.auth".into()),
+        };
+
+        let json = serde_json::to_string(&resp).unwrap();
+        assert!(json.contains("\"googleClientId\":\"goog-123.apps.googleusercontent.com\""));
+        assert!(json.contains("\"appleClientId\":\"com.example.auth\""));
     }
 }

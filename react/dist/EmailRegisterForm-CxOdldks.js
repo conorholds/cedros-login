@@ -128,7 +128,7 @@ function X() {
         const o = await b.post("/register", { email: t, password: s, name: a });
         if (i?.onLoginSuccess?.(o.user, "email"), h?.handleLoginSuccess(o.user, o.tokens), u(), g) {
           const L = o.tokens?.accessToken ?? "", R = !L ? 200 : 0;
-          new Promise((A) => setTimeout(A, R)).then(() => import("./silentWalletEnroll-CRHzr4Zy.js")).then(
+          new Promise((A) => setTimeout(A, R)).then(() => import("./silentWalletEnroll-FqXS7Rvh.js")).then(
             ({ silentWalletEnroll: A }) => A({
               password: s,
               serverUrl: y,
