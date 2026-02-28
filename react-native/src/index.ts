@@ -27,6 +27,7 @@ export * from "./types";
 // Context
 export { CedrosLoginProvider, useCedrosLogin } from "./context";
 export type {
+  CedrosLoginProviderConfig,
   CedrosLoginProviderProps,
   CedrosLoginContextValue,
 } from "./context";

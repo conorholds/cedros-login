@@ -8,12 +8,14 @@ import React, {
 } from "react";
 import type {
   CedrosLoginConfig,
+  FeatureFlags,
   AuthUser,
   AuthError,
   TokenPair,
 } from "../types";
 import { initializeApiServices, getAuthApi } from "../services/api";
 import { TokenManager } from "../utils/tokenManager";
+import { useAutoFeatures } from "../hooks/useAutoFeatures";
 
 export const AUTH_USER_ENDPOINT = "/auth/user";
 
@@ -35,8 +37,18 @@ export interface CedrosLoginContextValue {
 
 const CedrosLoginContext = createContext<CedrosLoginContextValue | null>(null);
 
+/**
+ * Config prop type for `<CedrosLoginProvider>`.
+ *
+ * The `features` field also accepts `'auto'` to fetch enabled auth methods
+ * and client IDs from the server at startup.
+ */
+export type CedrosLoginProviderConfig = Omit<CedrosLoginConfig, "features"> & {
+  features?: FeatureFlags | "auto";
+};
+
 export interface CedrosLoginProviderProps {
-  config: CedrosLoginConfig;
+  config: CedrosLoginProviderConfig;
   children: React.ReactNode;
 }
 
@@ -48,16 +60,44 @@ export function CedrosLoginProvider({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
+  // Resolve features: 'auto' by fetching enabled methods from the server
+  const isAutoFeatures = config.features === "auto";
+  const {
+    features: serverFeatures,
+    googleClientId: serverGoogleClientId,
+    appleClientId: serverAppleClientId,
+    isLoading: featuresLoading,
+  } = useAutoFeatures(config.serverUrl, isAutoFeatures, config.requestTimeout);
+
+  // Build resolved config — replace 'auto' with fetched FeatureFlags,
+  // and merge server-provided client IDs (explicit frontend config wins via ??).
+  const resolvedConfig = useMemo((): CedrosLoginConfig => {
+    if (!isAutoFeatures) return config as CedrosLoginConfig;
+    if (!serverFeatures) return config as CedrosLoginConfig;
+    return {
+      ...config,
+      features: serverFeatures,
+      googleClientId: config.googleClientId ?? serverGoogleClientId,
+      appleClientId: config.appleClientId ?? serverAppleClientId,
+    } as CedrosLoginConfig;
+  }, [
+    config,
+    isAutoFeatures,
+    serverFeatures,
+    serverGoogleClientId,
+    serverAppleClientId,
+  ]);
+
   useEffect(() => {
     const tokenManager = new TokenManager();
     initializeApiServices({
-      config,
+      config: resolvedConfig,
       tokenManager,
     });
     return () => {
       tokenManager.destroy();
     };
-  }, [config]);
+  }, [resolvedConfig]);
 
   const login = useCallback(async (newUser: AuthUser, tokens?: TokenPair) => {
     setUser(newUser);
@@ -130,7 +170,7 @@ export function CedrosLoginProvider({
 
   const value = useMemo(
     () => ({
-      config,
+      config: resolvedConfig,
       user,
       isAuthenticated: !!user,
       isLoading,
@@ -142,7 +182,7 @@ export function CedrosLoginProvider({
       clearError,
     }),
     [
-      config,
+      resolvedConfig,
       user,
       isLoading,
       error,
@@ -153,6 +193,9 @@ export function CedrosLoginProvider({
       clearError,
     ],
   );
+
+  // Wait for server feature discovery before rendering children.
+  if (isAutoFeatures && featuresLoading) return <>{null}</>;
 
   return (
     <CedrosLoginContext.Provider value={value}>

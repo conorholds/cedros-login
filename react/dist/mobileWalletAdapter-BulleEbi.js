@@ -168,8 +168,8 @@ function le({
     md: "cedros-button-md",
     lg: "cedros-button-lg"
   }, R = {
-    default: "cedros-button-solana",
-    outline: "cedros-button-solana-outline"
+    default: "cedros-button-social",
+    outline: "cedros-button-social-outline"
   }, P = f || k || o && !g;
   return /* @__PURE__ */ w($, { children: [
     /* @__PURE__ */ w(

@@ -10,10 +10,10 @@ import { b as Hs, E as Qs, a as Ys, P as we, O as Hr } from "./EmailRegisterForm
 import { T as _c, u as Wc, c as Oc, d as qc } from "./EmailRegisterForm-CxOdldks.js";
 import { b as Ks, v as Ut } from "./validation-B8kMV3BL.js";
 import { E as ee } from "./ErrorMessage-CcEK0pYO.js";
-import { G as Gs } from "./GoogleLoginButton-CXwp4LsQ.js";
-import { u as zc } from "./GoogleLoginButton-CXwp4LsQ.js";
-import { d as Jt, S as $s } from "./mobileWalletAdapter-coZRD4Yx.js";
-import { r as Hc, u as Qc } from "./mobileWalletAdapter-coZRD4Yx.js";
+import { G as Gs } from "./GoogleLoginButton-CwKEUISj.js";
+import { u as zc } from "./GoogleLoginButton-CwKEUISj.js";
+import { d as Jt, S as $s } from "./mobileWalletAdapter-BulleEbi.js";
+import { r as Hc, u as Qc } from "./mobileWalletAdapter-BulleEbi.js";
 import { c as Js, d as Xs, u as Zs, a as eo, M as to, I as ro, b as so, P as oo } from "./PermissionsSection-CighC1p6.js";
 import { u as no } from "./useSystemSettings-DBlAMjFi.js";
 import { C as ao, S as Qr, a as io, u as co, A as lo } from "./AutosaveStatus-BKc7T2Tw.js";
@@ -2864,8 +2864,8 @@ function sn({
     {
       type: "button",
       className: `cedros-button ${{
-        default: "cedros-button-apple",
-        outline: "cedros-button-apple-outline"
+        default: "cedros-button-social",
+        outline: "cedros-button-social-outline"
       }[a]} ${u[s]} ${o}`,
       onClick: f,
       disabled: n || !h || d,

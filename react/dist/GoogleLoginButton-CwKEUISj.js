@@ -51,16 +51,16 @@ function _() {
   }, [e]);
   const R = I(
     async (o) => {
-      const r = a.current;
-      if (r)
+      const i = a.current;
+      if (i)
         try {
-          const i = await p.post("/google", {
+          const r = await p.post("/google", {
             idToken: o.credential
           });
-          h.current.callbacks?.onLoginSuccess?.(i.user, "google"), c?.handleLoginSuccess(i.user, i.tokens), s(!1), r.resolve(i);
-        } catch (i) {
-          const l = v(i, "Google sign-in failed");
-          n(l), s(!1), r.reject(l);
+          h.current.callbacks?.onLoginSuccess?.(r.user, "google"), c?.handleLoginSuccess(r.user, r.tokens), s(!1), i.resolve(r);
+        } catch (r) {
+          const l = v(r, "Google sign-in failed");
+          n(l), s(!1), i.reject(l);
         } finally {
           a.current = null;
         }
@@ -71,7 +71,7 @@ function _() {
     if (!e.googleClientId)
       return;
     let o = !0;
-    const r = () => {
+    const i = () => {
       o && (window.google?.accounts?.id?.initialize({
         client_id: e.googleClientId,
         callback: R,
@@ -80,7 +80,7 @@ function _() {
       }), o && g(!0));
     };
     return L.load().then(() => {
-      o && r();
+      o && i();
     }).catch(() => {
       o && n({
         code: "SERVER_ERROR",
@@ -112,26 +112,26 @@ function _() {
       };
       throw n(o), o;
     }
-    return s(!0), n(null), new Promise((o, r) => {
-      a.current = { resolve: o, reject: r }, window.google?.accounts?.id?.prompt((i) => {
-        if (i.isNotDisplayed()) {
+    return s(!0), n(null), new Promise((o, i) => {
+      a.current = { resolve: o, reject: i }, window.google?.accounts?.id?.prompt((r) => {
+        if (r.isNotDisplayed()) {
           const l = {
             code: "SERVER_ERROR",
             message: "Google Sign-In popup was blocked. Please allow popups or try again."
           };
-          n(l), s(!1), a.current = null, r(l);
-        } else if (i.isSkippedMoment()) {
+          n(l), s(!1), a.current = null, i(l);
+        } else if (r.isSkippedMoment()) {
           const l = {
             code: "SERVER_ERROR",
             message: "Google Sign-In was cancelled"
           };
-          n(l), s(!1), a.current = null, r(l);
-        } else if (i.isDismissedMoment()) {
+          n(l), s(!1), a.current = null, i(l);
+        } else if (r.isDismissedMoment()) {
           const l = {
             code: "SERVER_ERROR",
             message: "Google Sign-In was cancelled"
           };
-          n(l), s(!1), a.current = null, r(l);
+          n(l), s(!1), a.current = null, i(l);
         }
       });
     });
@@ -169,8 +169,8 @@ function D({
     {
       type: "button",
       className: `cedros-button ${{
-        default: "cedros-button-google",
-        outline: "cedros-button-google-outline"
+        default: "cedros-button-social",
+        outline: "cedros-button-social-outline"
       }[s]} ${p[t]} ${d}`,
       onClick: h,
       disabled: g || !a || n,
