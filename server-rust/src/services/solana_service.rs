@@ -48,7 +48,14 @@ impl SolanaService {
     ///
     /// The public key is included in the message to bind the challenge to a
     /// specific wallet, preventing challenge reuse across different wallets.
-    pub fn generate_challenge(&self, public_key: &str) -> Result<ChallengeResponse, AppError> {
+    ///
+    /// `challenge_expiry_seconds` controls how long the challenge is valid.
+    /// Callers should resolve this from SettingsService at request time.
+    pub fn generate_challenge(
+        &self,
+        public_key: &str,
+        challenge_expiry_seconds: u64,
+    ) -> Result<ChallengeResponse, AppError> {
         // SEC-08: Use OsRng for cryptographic nonce generation
         let nonce: String = OsRng
             .sample_iter(&rand::distributions::Alphanumeric)
@@ -57,7 +64,7 @@ impl SolanaService {
             .collect();
 
         let now = Utc::now();
-        let expires_at = now + Duration::seconds(self.challenge_expiry_seconds as i64);
+        let expires_at = now + Duration::seconds(challenge_expiry_seconds as i64);
 
         // Format the message according to the spec.
         // Public key is included to bind the challenge to this specific wallet.
@@ -182,7 +189,7 @@ mod tests {
     fn test_generate_challenge() {
         let service = SolanaService::new(&test_config(), "TestApp".to_string());
         let public_key = "test_pubkey";
-        let challenge = service.generate_challenge(public_key).unwrap();
+        let challenge = service.generate_challenge(public_key, 300).unwrap();
 
         assert!(!challenge.nonce.is_empty());
         assert!(challenge.message.contains("Login to TestApp"));
@@ -198,7 +205,7 @@ mod tests {
     fn test_extract_nonce_from_generated_message() {
         // Test with actual generated message format
         let service = SolanaService::new(&test_config(), "TestApp".to_string());
-        let challenge = service.generate_challenge("test_pubkey").unwrap();
+        let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
 
         let extracted = SolanaService::extract_nonce(&challenge.message);
         assert_eq!(extracted, Some(challenge.nonce));
@@ -207,7 +214,7 @@ mod tests {
     #[test]
     fn test_invalid_app_name_rejected() {
         let service = SolanaService::new(&test_config(), "Bad. Nonce: ".to_string());
-        let challenge = service.generate_challenge("test_pubkey").unwrap();
+        let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
         assert!(challenge.message.starts_with("Login to Cedros Login"));
     }
 
@@ -254,7 +261,7 @@ mod tests {
         // S-09: App name must not contain message markers
         let evil_app_name = "Evil. Nonce: FAKE12345678901234567890123456. Timestamp: x";
         let service = SolanaService::new(&test_config(), evil_app_name.to_string());
-        let challenge = service.generate_challenge("test_pubkey").unwrap();
+        let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
         assert!(challenge.message.starts_with("Login to Cedros Login"));
     }
 

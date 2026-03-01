@@ -183,10 +183,10 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             ));
         }
 
-        // H-06: Security check - prevent account takeover via Apple OAuth.
+        // H-06: Security check - prevent automatic account linking via Apple OAuth.
         // If email already exists with another auth method (email/password),
-        // reject the login. Automatic account linking is intentionally NOT
-        // implemented. Users should use their original auth method.
+        // return AccountLinkRequired so the client can prompt the user to
+        // prove ownership via password before linking. See POST /auth/link-oauth.
         //
         // NEW-03: Note on hidden emails - When users choose "Hide My Email",
         // Apple provides a unique relay address (e.g., xyz@privaterelay.appleid.com).
@@ -196,7 +196,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         let normalized_email = claims.email.as_deref().map(normalize_email);
         if let Some(ref email) = normalized_email {
             if state.user_repo.email_exists(email).await? {
-                return Err(AppError::EmailExists);
+                return Err(AppError::AccountLinkRequired { provider: "apple".into() });
             }
         }
 

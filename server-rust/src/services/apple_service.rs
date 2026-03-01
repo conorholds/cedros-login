@@ -34,10 +34,30 @@ use crate::errors::AppError;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::jwk::{Jwk, JwkSet};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
+
+/// Deserialize a value that may be a JSON boolean or a string "true"/"false" into `Option<bool>`.
+///
+/// Apple's `email_verified` claim has been observed as both types across token versions.
+/// Uses `serde_json::Value` as a catch-all so that any unexpected type (number, array, etc.)
+/// gracefully becomes `None` rather than failing the entire token deserialization.
+fn deserialize_bool_or_string_opt<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    match Option::<serde_json::Value>::deserialize(deserializer)? {
+        None | Some(serde_json::Value::Null) => Ok(None),
+        Some(serde_json::Value::Bool(b)) => Ok(Some(b)),
+        Some(serde_json::Value::String(s)) => Ok(Some(s.eq_ignore_ascii_case("true"))),
+        Some(other) => {
+            tracing::warn!(value = %other, "Unexpected type for Apple email_verified claim; treating as unverified");
+            Ok(None)
+        }
+    }
+}
 
 /// Apple ID token claims
 #[derive(Debug, Clone, Deserialize)]
@@ -46,8 +66,11 @@ pub struct AppleTokenClaims {
     pub sub: String,
     /// Email address (may be nil if user hides it)
     pub email: Option<String>,
-    /// Email verified flag
-    pub email_verified: Option<String>, // Apple returns "true"/"false" as string
+    /// Email verified flag.
+    /// Apple has sent this as both a JSON boolean (`true`) and a string (`"true"`)
+    /// across different token versions. The custom deserializer accepts either.
+    #[serde(default, deserialize_with = "deserialize_bool_or_string_opt")]
+    pub email_verified: Option<bool>,
     /// Audience (should match our client ID)
     pub aud: String,
     /// Issuer
@@ -59,9 +82,9 @@ pub struct AppleTokenClaims {
 }
 
 impl AppleTokenClaims {
-    /// Check if email is verified (handles Apple's string-based boolean)
+    /// Check if email is verified
     pub fn is_email_verified(&self) -> bool {
-        self.email_verified.as_deref() == Some("true")
+        self.email_verified == Some(true)
     }
 
     /// Check if the user is likely a real person based on Apple's anti-fraud analysis.
@@ -310,6 +333,7 @@ impl AppleService {
 
         let token_data =
             decode::<AppleTokenClaims>(id_token, &decoding_key, &validation).map_err(|err| {
+                tracing::warn!(error = %err, kind = ?err.kind(), "Apple ID token verification failed");
                 match err.kind() {
                     ErrorKind::ExpiredSignature => AppError::TokenExpired,
                     _ => AppError::InvalidToken,
@@ -353,7 +377,7 @@ mod tests {
         let claims = AppleTokenClaims {
             sub: "001234.abc".to_string(),
             email: Some("test@example.com".to_string()),
-            email_verified: Some("true".to_string()),
+            email_verified: Some(true),
             aud: "com.example.app".to_string(),
             iss: "https://appleid.apple.com".to_string(),
             exp: 9999999999,
@@ -362,7 +386,7 @@ mod tests {
         assert!(claims.is_email_verified());
 
         let claims_not_verified = AppleTokenClaims {
-            email_verified: Some("false".to_string()),
+            email_verified: Some(false),
             ..claims.clone()
         };
         assert!(!claims_not_verified.is_email_verified());
@@ -379,7 +403,7 @@ mod tests {
         let base_claims = AppleTokenClaims {
             sub: "001234.abc".to_string(),
             email: Some("test@example.com".to_string()),
-            email_verified: Some("true".to_string()),
+            email_verified: Some(true),
             aud: "com.example.app".to_string(),
             iss: "https://appleid.apple.com".to_string(),
             exp: 9999999999,
@@ -454,5 +478,67 @@ mod tests {
         let jwks: JwkSet = serde_json::from_str(jwks_json).unwrap();
         let jwk = service.select_jwk(&jwks, "test-kid");
         assert!(jwk.is_some());
+    }
+
+    #[test]
+    fn test_email_verified_deserializes_from_bool() {
+        let json = r#"{
+            "sub": "001234.abc",
+            "email": "test@example.com",
+            "email_verified": true,
+            "aud": "com.example.app",
+            "iss": "https://appleid.apple.com",
+            "exp": 9999999999
+        }"#;
+        let claims: AppleTokenClaims = serde_json::from_str(json).unwrap();
+        assert_eq!(claims.email_verified, Some(true));
+        assert!(claims.is_email_verified());
+    }
+
+    #[test]
+    fn test_email_verified_deserializes_from_string() {
+        let json = r#"{
+            "sub": "001234.abc",
+            "email": "test@example.com",
+            "email_verified": "true",
+            "aud": "com.example.app",
+            "iss": "https://appleid.apple.com",
+            "exp": 9999999999
+        }"#;
+        let claims: AppleTokenClaims = serde_json::from_str(json).unwrap();
+        assert_eq!(claims.email_verified, Some(true));
+
+        let json_false = json.replace("\"true\"", "\"false\"");
+        let claims_false: AppleTokenClaims = serde_json::from_str(&json_false).unwrap();
+        assert_eq!(claims_false.email_verified, Some(false));
+    }
+
+    #[test]
+    fn test_email_verified_deserializes_from_missing() {
+        let json = r#"{
+            "sub": "001234.abc",
+            "aud": "com.example.app",
+            "iss": "https://appleid.apple.com",
+            "exp": 9999999999
+        }"#;
+        let claims: AppleTokenClaims = serde_json::from_str(json).unwrap();
+        assert_eq!(claims.email_verified, None);
+        assert!(!claims.is_email_verified());
+    }
+
+    #[test]
+    fn test_email_verified_unexpected_type_does_not_fail() {
+        // If Apple ever sends an integer or other unexpected type,
+        // the token should still parse — email_verified becomes None.
+        let json = r#"{
+            "sub": "001234.abc",
+            "email_verified": 1,
+            "aud": "com.example.app",
+            "iss": "https://appleid.apple.com",
+            "exp": 9999999999
+        }"#;
+        let claims: AppleTokenClaims = serde_json::from_str(json).unwrap();
+        assert_eq!(claims.email_verified, None);
+        assert!(!claims.is_email_verified());
     }
 }

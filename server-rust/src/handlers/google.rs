@@ -162,16 +162,12 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
     let (user, is_new_user, api_key) = if let Some(user) = existing_user {
         (user, false, None)
     } else {
-        // H-06: Security check - prevent account takeover via Google OAuth.
+        // H-06: Security check - prevent automatic account linking via Google OAuth.
         // If email already exists with another auth method (email/password),
-        // reject the login. Automatic account linking is intentionally NOT
-        // implemented because:
-        // 1. Attacker could create Google account with victim's email
-        // 2. Google email verification != domain ownership proof
-        // 3. Users should explicitly link accounts through a secure flow
-        // Users seeing EmailExists should use their original auth method.
+        // return AccountLinkRequired so the client can prompt the user to
+        // prove ownership via password before linking. See POST /auth/link-oauth.
         if state.user_repo.email_exists(&normalized_email).await? {
-            return Err(AppError::EmailExists);
+            return Err(AppError::AccountLinkRequired { provider: "google".into() });
         }
 
         // Create new user

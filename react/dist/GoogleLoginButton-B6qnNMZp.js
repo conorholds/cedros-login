@@ -1,8 +1,8 @@
-import { jsxs as w, jsx as u } from "react/jsx-runtime";
-import { useState as b, useRef as k, useMemo as C, useEffect as S, useCallback as I } from "react";
-import { u as A, A as y, h as v } from "./useCedrosLogin-_94MmGGq.js";
-import { L as G } from "./LoadingSpinner-6vml-zwr.js";
-const L = {
+import { jsxs as k, jsx as g } from "react/jsx-runtime";
+import { useState as m, useRef as w, useMemo as y, useEffect as C, useCallback as R } from "react";
+import { u as v, A as G, h as _ } from "./useCedrosLogin-_94MmGGq.js";
+import { L as z } from "./LoadingSpinner-6vml-zwr.js";
+const O = {
   loading: !1,
   loaded: !1,
   error: null,
@@ -25,7 +25,7 @@ const L = {
       }, s.onerror = () => {
         this.loading = !1, s.remove();
         const t = new Error("Failed to load Google Sign-In script");
-        this.callbacks.forEach((g) => g.reject(t)), this.callbacks = [];
+        this.callbacks.forEach((f) => f.reject(t)), this.callbacks = [];
       }, document.head.appendChild(s);
     }));
   },
@@ -37,49 +37,49 @@ const L = {
     this.loading = !1, this.loaded = !1, this.error = null, this.callbacks = [];
   }
 };
-function _() {
-  const { config: e, _internal: c } = A(), [d, s] = b(!1), [t, g] = b(!1), [m, n] = b(null), a = k(null), h = k(e), p = C(
-    () => new y({
+function M() {
+  const { config: e, _internal: c } = v(), [d, s] = m(!1), [t, f] = m(!1), [E, n] = m(null), [I, h] = m(null), a = w(null), b = w(e), u = y(
+    () => new G({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts
     }),
     [e.serverUrl, e.requestTimeout, e.retryAttempts]
   );
-  S(() => {
-    h.current = e;
+  C(() => {
+    b.current = e;
   }, [e]);
-  const R = I(
+  const p = R(
     async (o) => {
       const i = a.current;
       if (i)
         try {
-          const r = await p.post("/google", {
+          const r = await u.post("/google", {
             idToken: o.credential
           });
-          h.current.callbacks?.onLoginSuccess?.(r.user, "google"), c?.handleLoginSuccess(r.user, r.tokens), s(!1), i.resolve(r);
+          b.current.callbacks?.onLoginSuccess?.(r.user, "google"), c?.handleLoginSuccess(r.user, r.tokens), s(!1), i.resolve(r);
         } catch (r) {
-          const l = v(r, "Google sign-in failed");
-          n(l), s(!1), i.reject(l);
+          const l = _(r, "Google sign-in failed");
+          l.code === "ACCOUNT_LINK_REQUIRED" && h(o.credential), n(l), s(!1), i.reject(l);
         } finally {
           a.current = null;
         }
     },
-    [p, c]
+    [u, c]
   );
-  S(() => {
+  C(() => {
     if (!e.googleClientId)
       return;
     let o = !0;
     const i = () => {
       o && (window.google?.accounts?.id?.initialize({
         client_id: e.googleClientId,
-        callback: R,
+        callback: p,
         auto_select: !1,
         cancel_on_tap_outside: !0
-      }), o && g(!0));
+      }), o && f(!0));
     };
-    return L.load().then(() => {
+    return O.load().then(() => {
       o && i();
     }).catch(() => {
       o && n({
@@ -89,8 +89,8 @@ function _() {
     }), () => {
       o = !1;
     };
-  }, [e.googleClientId, R]);
-  const f = I(async () => {
+  }, [e.googleClientId, p]);
+  const S = R(async () => {
     if (!e.googleClientId) {
       const o = {
         code: "VALIDATION_ERROR",
@@ -135,13 +135,15 @@ function _() {
         }
       });
     });
-  }, [e.googleClientId, t]), E = I(() => n(null), []);
+  }, [e.googleClientId, t]), A = R(() => n(null), []), L = R(() => h(null), []);
   return {
-    signIn: f,
+    signIn: S,
     isLoading: d,
     isInitialized: t,
-    error: m,
-    clearError: E
+    error: E,
+    clearError: A,
+    pendingLinkIdToken: I,
+    clearPendingLink: L
   };
 }
 function D({
@@ -150,33 +152,33 @@ function D({
   className: d = "",
   variant: s = "default",
   size: t = "md",
-  disabled: g = !1
+  disabled: f = !1
 }) {
-  const { signIn: m, isLoading: n, isInitialized: a } = _(), h = async () => {
+  const { signIn: E, isLoading: n, isInitialized: I } = M(), h = async () => {
     try {
-      await m(), e?.();
-    } catch (f) {
-      const E = f instanceof Error ? f : new Error(String(f));
-      c?.(E);
+      await E(), e?.();
+    } catch (u) {
+      const p = u instanceof Error ? u : new Error(String(u));
+      c?.(p);
     }
-  }, p = {
+  }, a = {
     sm: "cedros-button-sm",
     md: "cedros-button-md",
     lg: "cedros-button-lg"
   };
-  return /* @__PURE__ */ w(
+  return /* @__PURE__ */ k(
     "button",
     {
       type: "button",
       className: `cedros-button ${{
         default: "cedros-button-social",
         outline: "cedros-button-social-outline"
-      }[s]} ${p[t]} ${d}`,
+      }[s]} ${a[t]} ${d}`,
       onClick: h,
-      disabled: g || !a || n,
+      disabled: f || !I || n,
       "aria-label": "Sign in with Google",
       children: [
-        n ? /* @__PURE__ */ u(G, { size: "sm" }) : /* @__PURE__ */ w(
+        n ? /* @__PURE__ */ g(z, { size: "sm" }) : /* @__PURE__ */ k(
           "svg",
           {
             className: "cedros-button-icon",
@@ -186,28 +188,28 @@ function D({
             fill: "none",
             "aria-hidden": "true",
             children: [
-              /* @__PURE__ */ u(
+              /* @__PURE__ */ g(
                 "path",
                 {
                   d: "M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z",
                   fill: "#4285F4"
                 }
               ),
-              /* @__PURE__ */ u(
+              /* @__PURE__ */ g(
                 "path",
                 {
                   d: "M9.003 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.26c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332A8.997 8.997 0 0 0 9.003 18z",
                   fill: "#34A853"
                 }
               ),
-              /* @__PURE__ */ u(
+              /* @__PURE__ */ g(
                 "path",
                 {
                   d: "M3.964 10.712A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.96A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.96 4.042l3.004-2.33z",
                   fill: "#FBBC05"
                 }
               ),
-              /* @__PURE__ */ u(
+              /* @__PURE__ */ g(
                 "path",
                 {
                   d: "M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.002 0A8.997 8.997 0 0 0 .96 4.958l3.005 2.332c.708-2.127 2.692-3.71 5.036-3.71z",
@@ -217,12 +219,12 @@ function D({
             ]
           }
         ),
-        /* @__PURE__ */ u("span", { children: "Continue with Google" })
+        /* @__PURE__ */ g("span", { children: "Continue with Google" })
       ]
     }
   );
 }
 export {
   D as G,
-  _ as u
+  M as u
 };

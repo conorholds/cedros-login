@@ -149,8 +149,19 @@ pub async fn solana_challenge<C: AuthCallback, E: EmailService>(
         return Err(AppError::Validation("Invalid public key length".into()));
     }
 
+    // Resolve challenge expiry from runtime settings, falling back to static config
+    let challenge_expiry = state
+        .settings_service
+        .get_u64("auth_solana_challenge_expiry")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.solana.challenge_expiry_seconds);
+
     // Generate challenge
-    let challenge = state.solana_service.generate_challenge(&req.public_key)?;
+    let challenge = state
+        .solana_service
+        .generate_challenge(&req.public_key, challenge_expiry)?;
 
     // Store nonce for replay protection
     let nonce_entity = NonceEntity::new(

@@ -7,6 +7,7 @@ use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 use uuid::Uuid;
 use webauthn_rs::prelude::{
     AuthenticatorAttachment, CreationChallengeResponse, CredentialID, DiscoverableAuthentication,
@@ -18,11 +19,21 @@ use webauthn_rs_proto::UserVerificationPolicy;
 use crate::config::WebAuthnConfig;
 use crate::errors::AppError;
 use crate::repositories::{WebAuthnChallenge, WebAuthnCredential, WebAuthnRepository};
+use crate::services::SettingsService;
+
+/// Cached Webauthn instance with the RP config it was built from
+struct CachedWebauthn {
+    webauthn: Option<Arc<Webauthn>>,
+    rp_id: String,
+    rp_origin: String,
+    rp_name: String,
+}
 
 /// WebAuthn service for managing passkeys and security keys
 pub struct WebAuthnService {
-    webauthn: Option<Webauthn>,
+    cached_webauthn: RwLock<CachedWebauthn>,
     config: WebAuthnConfig,
+    settings_service: Arc<SettingsService>,
 }
 
 /// Options returned to client for starting registration
@@ -60,10 +71,17 @@ pub struct VerifyAuthenticationRequest {
 
 impl WebAuthnService {
     /// Create a new WebAuthn service
-    pub fn new(config: &WebAuthnConfig) -> Self {
+    pub fn new(config: &WebAuthnConfig, settings_service: Arc<SettingsService>) -> Self {
+        let rp_id = config.rp_id.clone().unwrap_or_default();
+        let rp_origin = config.rp_origin.clone().unwrap_or_default();
+        let rp_name = config
+            .rp_name
+            .clone()
+            .unwrap_or_else(|| "Cedros Login".to_string());
+
         let webauthn = if config.enabled {
-            match Self::build_webauthn(config) {
-                Ok(w) => Some(w),
+            match Self::build_webauthn(&rp_id, &rp_origin, &rp_name) {
+                Ok(w) => Some(Arc::new(w)),
                 Err(e) => {
                     tracing::error!("Failed to initialize WebAuthn: {}", e);
                     None
@@ -74,21 +92,28 @@ impl WebAuthnService {
         };
 
         Self {
-            webauthn,
+            cached_webauthn: RwLock::new(CachedWebauthn {
+                webauthn,
+                rp_id,
+                rp_origin,
+                rp_name,
+            }),
             config: config.clone(),
+            settings_service,
         }
     }
 
-    fn build_webauthn(config: &WebAuthnConfig) -> Result<Webauthn, AppError> {
-        let rp_id = config.rp_id.as_ref().ok_or_else(|| {
-            AppError::Config("WEBAUTHN_RP_ID is required when WebAuthn is enabled".into())
-        })?;
-
-        let rp_origin = config.rp_origin.as_ref().ok_or_else(|| {
-            AppError::Config("WEBAUTHN_RP_ORIGIN is required when WebAuthn is enabled".into())
-        })?;
-
-        let rp_name = config.rp_name.as_deref().unwrap_or("Cedros Login");
+    fn build_webauthn(rp_id: &str, rp_origin: &str, rp_name: &str) -> Result<Webauthn, AppError> {
+        if rp_id.is_empty() {
+            return Err(AppError::Config(
+                "WEBAUTHN_RP_ID is required when WebAuthn is enabled".into(),
+            ));
+        }
+        if rp_origin.is_empty() {
+            return Err(AppError::Config(
+                "WEBAUTHN_RP_ORIGIN is required when WebAuthn is enabled".into(),
+            ));
+        }
 
         let rp_origin_url = url::Url::parse(rp_origin)
             .map_err(|e| AppError::Config(format!("Invalid WEBAUTHN_RP_ORIGIN: {}", e)))?;
@@ -102,10 +127,70 @@ impl WebAuthnService {
             .map_err(|e| AppError::Config(format!("Failed to build WebAuthn instance: {:?}", e)))
     }
 
-    fn get_webauthn(&self) -> Result<&Webauthn, AppError> {
-        self.webauthn
-            .as_ref()
-            .ok_or_else(|| AppError::ServiceUnavailable("WebAuthn is not configured".into()))
+    /// Resolve current RP config from SettingsService, falling back to static config
+    async fn resolve_rp_config(&self) -> (String, String, String) {
+        let rp_id = self
+            .settings_service
+            .get("auth_webauthn_rp_id")
+            .await
+            .ok()
+            .flatten()
+            .or_else(|| self.config.rp_id.clone())
+            .unwrap_or_default();
+
+        let rp_origin = self
+            .settings_service
+            .get("auth_webauthn_rp_origin")
+            .await
+            .ok()
+            .flatten()
+            .or_else(|| self.config.rp_origin.clone())
+            .unwrap_or_default();
+
+        let rp_name = self
+            .settings_service
+            .get("auth_webauthn_rp_name")
+            .await
+            .ok()
+            .flatten()
+            .or_else(|| self.config.rp_name.clone())
+            .unwrap_or_else(|| "Cedros Login".to_string());
+
+        (rp_id, rp_origin, rp_name)
+    }
+
+    /// Get or rebuild the cached Webauthn instance if RP config has changed
+    async fn get_webauthn(&self) -> Result<Arc<Webauthn>, AppError> {
+        let (rp_id, rp_origin, rp_name) = self.resolve_rp_config().await;
+
+        // Fast path: read lock, check if cached instance matches
+        {
+            let cache = self.cached_webauthn.read().await;
+            if cache.rp_id == rp_id
+                && cache.rp_origin == rp_origin
+                && cache.rp_name == rp_name
+            {
+                if let Some(ref w) = cache.webauthn {
+                    return Ok(Arc::clone(w));
+                }
+            }
+        }
+
+        // Slow path: write lock, rebuild
+        let mut cache = self.cached_webauthn.write().await;
+        // Double-check after acquiring write lock
+        if cache.rp_id == rp_id && cache.rp_origin == rp_origin && cache.rp_name == rp_name {
+            if let Some(ref w) = cache.webauthn {
+                return Ok(Arc::clone(w));
+            }
+        }
+
+        let webauthn = Arc::new(Self::build_webauthn(&rp_id, &rp_origin, &rp_name)?);
+        cache.webauthn = Some(Arc::clone(&webauthn));
+        cache.rp_id = rp_id;
+        cache.rp_origin = rp_origin;
+        cache.rp_name = rp_name;
+        Ok(webauthn)
     }
 
     fn user_verification_policy(&self) -> UserVerificationPolicy {
@@ -233,7 +318,7 @@ impl WebAuthnService {
         existing_credentials: &[WebAuthnCredential],
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<RegistrationOptionsResponse, AppError> {
-        let webauthn = self.get_webauthn()?;
+        let webauthn = self.get_webauthn().await?;
         let attachment = self.authenticator_attachment()?;
         let policy = self.user_verification_policy();
 
@@ -297,7 +382,7 @@ impl WebAuthnService {
         request: VerifyRegistrationRequest,
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<WebAuthnCredential, AppError> {
-        let webauthn = self.get_webauthn()?;
+        let webauthn = self.get_webauthn().await?;
 
         // Retrieve and consume the challenge
         let challenge = repo
@@ -354,7 +439,7 @@ impl WebAuthnService {
         credentials: &[WebAuthnCredential],
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<AuthenticationOptionsResponse, AppError> {
-        let webauthn = self.get_webauthn()?;
+        let webauthn = self.get_webauthn().await?;
         let policy = self.user_verification_policy();
 
         // Convert stored credentials to Passkey objects
@@ -409,7 +494,7 @@ impl WebAuthnService {
         &self,
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<AuthenticationOptionsResponse, AppError> {
-        let webauthn = self.get_webauthn()?;
+        let webauthn = self.get_webauthn().await?;
         let policy = self.user_verification_policy();
 
         // Start discoverable authentication (no allowCredentials list)
@@ -451,7 +536,7 @@ impl WebAuthnService {
         request: VerifyAuthenticationRequest,
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<(Uuid, WebAuthnCredential), AppError> {
-        let webauthn = self.get_webauthn()?;
+        let webauthn = self.get_webauthn().await?;
 
         // Retrieve and consume the challenge
         let challenge = repo
@@ -518,7 +603,7 @@ impl WebAuthnService {
         credentials: &[WebAuthnCredential],
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<(Uuid, WebAuthnCredential), AppError> {
-        let webauthn = self.get_webauthn()?;
+        let webauthn = self.get_webauthn().await?;
 
         // Retrieve and consume the challenge
         let challenge = repo
@@ -573,9 +658,9 @@ impl WebAuthnService {
         Ok((credential.user_id, credential.clone()))
     }
 
-    /// Check if WebAuthn is enabled
+    /// Check if WebAuthn is enabled (based on static config)
     pub fn is_enabled(&self) -> bool {
-        self.webauthn.is_some()
+        self.config.enabled
     }
 }
 
@@ -583,16 +668,22 @@ impl WebAuthnService {
 mod tests {
     use super::*;
     use crate::repositories::{InMemoryWebAuthnRepository, WebAuthnRepository};
+    use crate::storage::Storage;
+
+    fn test_settings_service() -> Arc<SettingsService> {
+        let storage = Storage::in_memory();
+        Arc::new(SettingsService::new(storage.system_settings_repo))
+    }
 
     #[test]
     fn test_webauthn_service_disabled() {
         let config = WebAuthnConfig::default();
-        let service = WebAuthnService::new(&config);
+        let service = WebAuthnService::new(&config, test_settings_service());
         assert!(!service.is_enabled());
     }
 
-    #[test]
-    fn test_webauthn_service_enabled_requires_config() {
+    #[tokio::test]
+    async fn test_webauthn_service_enabled_requires_config() {
         let config = WebAuthnConfig {
             enabled: true,
             rp_id: None, // Missing required config
@@ -600,9 +691,9 @@ mod tests {
             rp_origin: None,
             ..Default::default()
         };
-        let service = WebAuthnService::new(&config);
-        // Should fail gracefully
-        assert!(!service.is_enabled());
+        let service = WebAuthnService::new(&config, test_settings_service());
+        // Should fail when trying to get webauthn instance
+        assert!(service.get_webauthn().await.is_err());
     }
 
     #[tokio::test]
@@ -617,7 +708,7 @@ mod tests {
             require_user_verification: false,
             ..Default::default()
         };
-        let service = WebAuthnService::new(&config);
+        let service = WebAuthnService::new(&config, test_settings_service());
         let repo: Arc<dyn WebAuthnRepository> = Arc::new(InMemoryWebAuthnRepository::new());
         let user_id = Uuid::new_v4();
 
@@ -661,7 +752,7 @@ mod tests {
             require_user_verification: false,
             ..Default::default()
         };
-        let service = WebAuthnService::new(&config);
+        let service = WebAuthnService::new(&config, test_settings_service());
         let repo: Arc<dyn WebAuthnRepository> = Arc::new(InMemoryWebAuthnRepository::new());
 
         let response = service

@@ -221,13 +221,20 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
     callback: Arc<C>,
     storage: Storage,
 ) -> Router {
+    // Create SettingsService for runtime configuration (created early so other services can use it)
+    // Note: The cache starts empty. Sync cache accessors used during router setup
+    // (e.g., rate limit configuration) will return None and fall back to config defaults.
+    // The cache is populated on first async access (e.g., deposit handler, withdrawal worker).
+    let settings_service = Arc::new(SettingsService::new(storage.system_settings_repo.clone()));
+    preload_settings_cache(&settings_service);
+
     let jwt_service = JwtService::new(&config.jwt);
     let password_service = PasswordService::default();
     let google_service = GoogleService::new(&config.google);
     let apple_service = AppleService::new(&config.apple);
     let solana_service = SolanaService::new(&config.solana, "Cedros Login".to_string());
     let totp_service = TotpService::new("Cedros");
-    let webauthn_service = WebAuthnService::new(&config.webauthn);
+    let webauthn_service = WebAuthnService::new(&config.webauthn, settings_service.clone());
     let audit_service = AuditService::new(storage.audit_repo.clone(), config.server.trust_proxy);
     let step_up_service = StepUpService::new(storage.session_repo.clone());
 
@@ -261,13 +268,6 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         .unwrap_or_else(|| "http://localhost:3000".to_string());
     let token_cipher = TokenCipher::new(&config.jwt.secret);
     let comms_service = CommsService::new(storage.outbox_repo.clone(), base_url, token_cipher);
-
-    // Create SettingsService for runtime configuration
-    // Note: The cache starts empty. Sync cache accessors used during router setup
-    // (e.g., rate limit configuration) will return None and fall back to config defaults.
-    // The cache is populated on first async access (e.g., deposit handler, withdrawal worker).
-    let settings_service = Arc::new(SettingsService::new(storage.system_settings_repo.clone()));
-    preload_settings_cache(&settings_service);
 
     // Create privacy services if enabled
     let (privacy_sidecar_client, note_encryption_service) = if config.privacy.enabled {

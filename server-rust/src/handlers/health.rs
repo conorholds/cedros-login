@@ -117,13 +117,16 @@ mod tests {
 
     fn build_state(config: Config) -> Arc<AppState<NoopCallback, LogEmailService>> {
         let storage = Storage::in_memory();
+        let settings_service = std::sync::Arc::new(crate::services::SettingsService::new(
+            storage.system_settings_repo.clone(),
+        ));
         let jwt_service = JwtService::new(&config.jwt);
         let password_service = PasswordService::default();
         let google_service = GoogleService::new(&config.google);
         let apple_service = AppleService::new(&config.apple);
         let solana_service = SolanaService::new(&config.solana, "Cedros Login".to_string());
         let totp_service = TotpService::new("Cedros");
-        let webauthn_service = WebAuthnService::new(&config.webauthn);
+        let webauthn_service = WebAuthnService::new(&config.webauthn, settings_service.clone());
         let oidc_service = crate::services::OidcService::new(
             "http://localhost:8080/auth/sso/callback".to_string(),
         );
@@ -179,9 +182,7 @@ mod tests {
             credit_refund_request_repo: storage.credit_refund_request_repo.clone(),
             privacy_note_repo: storage.privacy_note_repo.clone(),
             system_settings_repo: storage.system_settings_repo.clone(),
-            settings_service: std::sync::Arc::new(crate::services::SettingsService::new(
-                storage.system_settings_repo.clone(),
-            )),
+            settings_service: settings_service.clone(),
             mfa_attempt_service: MfaAttemptService::new(),
             step_up_service,
             wallet_signing_service: WalletSigningService::new(),

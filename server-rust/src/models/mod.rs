@@ -215,6 +215,24 @@ pub struct AppleAuthRequest {
     pub name: Option<String>,
 }
 
+/// Link OAuth account request
+///
+/// Used when a user with an existing email/password account wants to link
+/// a Google or Apple OAuth account. Requires password proof.
+///
+/// # Security Note (SEC-06)
+///
+/// Password is zeroized on drop. See RegisterRequest for limitations.
+#[derive(Debug, Clone, Deserialize, Zeroize, ZeroizeOnDrop)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkOAuthRequest {
+    #[zeroize(skip)]
+    pub id_token: String,
+    #[zeroize(skip)]
+    pub provider: String,
+    pub password: String,
+}
+
 /// Solana challenge request
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]

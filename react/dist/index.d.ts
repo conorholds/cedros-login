@@ -573,7 +573,7 @@ export declare interface AuthError {
 /**
  * Standard error codes
  */
-export declare type AuthErrorCode = 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'EMAIL_EXISTS' | 'WALLET_EXISTS' | 'INVALID_TOKEN' | 'TOKEN_EXPIRED' | 'INVALID_SIGNATURE' | 'INVALID_PUBLIC_KEY' | 'CHALLENGE_EXPIRED' | 'VALIDATION_ERROR' | 'RATE_LIMITED' | 'NOT_FOUND' | 'FORBIDDEN' | 'UNAUTHORIZED' | 'STEP_UP_REQUIRED' | 'TOTP_REQUIRED' | 'INVALID_TOTP_CODE' | 'SERVICE_UNAVAILABLE' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN_ERROR';
+export declare type AuthErrorCode = 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'EMAIL_EXISTS' | 'ACCOUNT_LINK_REQUIRED' | 'WALLET_EXISTS' | 'INVALID_TOKEN' | 'TOKEN_EXPIRED' | 'INVALID_SIGNATURE' | 'INVALID_PUBLIC_KEY' | 'CHALLENGE_EXPIRED' | 'VALIDATION_ERROR' | 'RATE_LIMITED' | 'NOT_FOUND' | 'FORBIDDEN' | 'UNAUTHORIZED' | 'STEP_UP_REQUIRED' | 'TOTP_REQUIRED' | 'INVALID_TOTP_CODE' | 'SERVICE_UNAVAILABLE' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN_ERROR';
 
 /**
  * Authentication method used for login/registration
@@ -3744,6 +3744,10 @@ export declare interface UseAppleAuthReturn {
     isInitialized: boolean;
     error: AuthError | null;
     clearError: () => void;
+    /** ID token saved when ACCOUNT_LINK_REQUIRED is returned. Pass to POST /auth/link-oauth with the user's password. */
+    pendingLinkIdToken: string | null;
+    /** Clear the pending link state */
+    clearPendingLink: () => void;
 }
 
 /**
@@ -4010,6 +4014,10 @@ export declare interface UseGoogleAuthReturn {
     isInitialized: boolean;
     error: AuthError | null;
     clearError: () => void;
+    /** ID token saved when ACCOUNT_LINK_REQUIRED is returned. Pass to POST /auth/link-oauth with the user's password. */
+    pendingLinkIdToken: string | null;
+    /** Clear the pending link state */
+    clearPendingLink: () => void;
 }
 
 /**

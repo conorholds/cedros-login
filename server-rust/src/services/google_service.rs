@@ -288,9 +288,12 @@ impl GoogleService {
         validation.set_issuer(&["accounts.google.com", "https://accounts.google.com"]);
 
         let token_data = decode::<GoogleTokenClaims>(id_token, &decoding_key, &validation)
-            .map_err(|err| match err.kind() {
-                ErrorKind::ExpiredSignature => AppError::TokenExpired,
-                _ => AppError::InvalidToken,
+            .map_err(|err| {
+                tracing::warn!(error = %err, kind = ?err.kind(), "Google ID token verification failed");
+                match err.kind() {
+                    ErrorKind::ExpiredSignature => AppError::TokenExpired,
+                    _ => AppError::InvalidToken,
+                }
             })?;
         let claims = token_data.claims;
 

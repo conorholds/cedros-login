@@ -37,6 +37,9 @@ pub enum AppError {
     #[error("Email already exists")]
     EmailExists,
 
+    #[error("Account linking required")]
+    AccountLinkRequired { provider: String },
+
     #[error("Wallet already exists")]
     WalletExists,
 
@@ -97,6 +100,7 @@ pub enum ErrorCode {
     InvalidCredentials,
     AccountLocked,
     EmailExists,
+    AccountLinkRequired,
     WalletExists,
     InvalidToken,
     TokenExpired,
@@ -140,6 +144,18 @@ impl IntoResponse for AppError {
                 ErrorCode::EmailExists,
                 self.to_string(),
             ),
+            AppError::AccountLinkRequired { .. } => {
+                let provider = match &self {
+                    AppError::AccountLinkRequired { provider } => provider.clone(),
+                    _ => unreachable!(),
+                };
+                let body = ErrorResponse {
+                    code: ErrorCode::AccountLinkRequired,
+                    message: self.to_string(),
+                    details: Some(serde_json::json!({ "provider": provider })),
+                };
+                return (StatusCode::CONFLICT, Json(body)).into_response();
+            }
             AppError::WalletExists => (
                 StatusCode::CONFLICT,
                 ErrorCode::WalletExists,
