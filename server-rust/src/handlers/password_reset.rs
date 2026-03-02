@@ -110,12 +110,7 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
         }
     };
 
-    // User must have a password (email auth method)
-    if user.password_hash.is_none() {
-        // SEC-003: Add delay to prevent timing-based email enumeration
-        add_timing_normalization_delay().await;
-        return Ok(response); // Don't reveal if user has no password
-    }
+    let has_password = user.password_hash.is_some();
 
     // Delete any existing reset tokens for this user
     state
@@ -123,7 +118,7 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
         .delete_for_user(user.id, TokenType::PasswordReset)
         .await?;
 
-    // Generate and store token
+    // Generate and store password reset token
     let token = generate_verification_token();
     let token_hash = hash_verification_token(&token);
 
@@ -138,10 +133,37 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
         .await
         .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to create token: {}", e)))?;
 
+    // Generate instant link token so the email can include a "just sign in" option
+    let il_token = generate_verification_token();
+    let il_token_hash = hash_verification_token(&il_token);
+    state
+        .verification_repo
+        .delete_for_user(user.id, TokenType::InstantLink)
+        .await?;
+    state
+        .verification_repo
+        .create(
+            user.id,
+            &il_token_hash,
+            TokenType::InstantLink,
+            default_expiry(TokenType::InstantLink),
+        )
+        .await
+        .map_err(|e| {
+            AppError::Internal(anyhow::anyhow!("Failed to create IL token: {}", e))
+        })?;
+
     // Queue password reset email via outbox for async delivery
     state
         .comms_service
-        .queue_password_reset_email(&email, user.name.as_deref(), &token, Some(user.id))
+        .queue_password_reset_email(
+            &email,
+            user.name.as_deref(),
+            &token,
+            Some(user.id),
+            Some(&il_token),
+            has_password,
+        )
         .await?;
 
     // REL-001: Log audit event with warning on failure (security-critical event)

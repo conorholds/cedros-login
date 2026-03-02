@@ -2,8 +2,6 @@
 
 use axum::{extract::State, http::HeaderMap, response::IntoResponse, Json};
 use chrono::{Duration, Utc};
-#[cfg(feature = "postgres")]
-use sqlx::PgPool;
 use std::sync::Arc;
 
 use crate::callback::{AuthCallback, AuthCallbackPayload};
@@ -14,7 +12,7 @@ use crate::handlers::auth::{
 use crate::models::{AuthMethod, AuthResponse, SolanaAuthRequest, SolanaChallengeRequest};
 use crate::repositories::{
     generate_api_key, ApiKeyEntity, AuditEventType, MembershipEntity, NonceEntity, SessionEntity,
-    UserEntity,
+    TransactionalOps, UserEntity,
 };
 use crate::services::{EmailService, SolanaService};
 use crate::utils::{
@@ -22,98 +20,6 @@ use crate::utils::{
     hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user, PeerIp,
 };
 use crate::AppState;
-
-#[cfg(feature = "postgres")]
-fn auth_methods_to_strings(methods: &[AuthMethod]) -> Vec<String> {
-    methods
-        .iter()
-        .map(|m| match m {
-            AuthMethod::Email => "email".to_string(),
-            AuthMethod::Google => "google".to_string(),
-            AuthMethod::Apple => "apple".to_string(),
-            AuthMethod::Solana => "solana".to_string(),
-            AuthMethod::WebAuthn => "webauthn".to_string(),
-            AuthMethod::Sso => "sso".to_string(),
-        })
-        .collect()
-}
-
-#[cfg(feature = "postgres")]
-async fn create_user_with_membership_and_api_key_tx(
-    pool: &PgPool,
-    user: &UserEntity,
-    membership: &MembershipEntity,
-    api_key: &ApiKeyEntity,
-) -> Result<(), AppError> {
-    let mut tx = pool
-        .begin()
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
-
-    let auth_methods = auth_methods_to_strings(&user.auth_methods);
-
-    sqlx::query(
-        r#"
-        INSERT INTO users (id, email, email_verified, password_hash, name, picture,
-                           wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                           created_at, updated_at, last_login_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-        "#,
-    )
-    .bind(user.id)
-    .bind(&user.email)
-    .bind(user.email_verified)
-    .bind(&user.password_hash)
-    .bind(&user.name)
-    .bind(&user.picture)
-    .bind(&user.wallet_address)
-    .bind(&user.google_id)
-    .bind(&user.apple_id)
-    .bind(&user.stripe_customer_id)
-    .bind(&auth_methods)
-    .bind(user.is_system_admin)
-    .bind(user.created_at)
-    .bind(user.updated_at)
-    .bind(user.last_login_at)
-    .execute(&mut *tx)
-    .await
-    .map_err(|e| AppError::Internal(e.into()))?;
-
-    sqlx::query(
-        r#"
-        INSERT INTO memberships (id, user_id, org_id, role)
-        VALUES ($1, $2, $3, $4)
-        "#,
-    )
-    .bind(membership.id)
-    .bind(membership.user_id)
-    .bind(membership.org_id)
-    .bind(membership.role.as_str())
-    .execute(&mut *tx)
-    .await
-    .map_err(|e| AppError::Internal(e.into()))?;
-
-    sqlx::query(
-        r#"
-        INSERT INTO api_keys (id, user_id, key_hash, key_prefix, created_at, last_used_at)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        "#,
-    )
-    .bind(api_key.id)
-    .bind(api_key.user_id)
-    .bind(&api_key.key_hash)
-    .bind(&api_key.key_prefix)
-    .bind(api_key.created_at)
-    .bind(api_key.last_used_at)
-    .execute(&mut *tx)
-    .await
-    .map_err(|e| AppError::Internal(e.into()))?;
-
-    tx.commit()
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
-    Ok(())
-}
 
 /// Check whether Solana auth is enabled via runtime setting or static config.
 async fn check_solana_enabled<C: AuthCallback, E: EmailService>(
@@ -251,8 +157,10 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
 
         #[cfg(feature = "postgres")]
         let user = if let Some(pool) = state.postgres_pool.as_ref() {
-            create_user_with_membership_and_api_key_tx(pool, &user, &membership, &api_key_entity)
-                .await?;
+            TransactionalOps::create_user_with_membership_and_api_key(
+                pool, &user, &membership, &api_key_entity,
+            )
+            .await?;
             user
         } else {
             let created = state.user_repo.create(user).await?;

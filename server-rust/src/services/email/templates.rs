@@ -54,33 +54,74 @@ pub fn verification_email(to: &str, data: VerificationEmailData) -> Email {
 }
 
 /// Generate password reset email
+///
+/// Adapts heading and CTAs based on `has_password` and `instant_link_url`:
+/// - has_password=true  → "Reset your password" heading + reset CTA
+/// - has_password=false → "Access your account" heading + reset CTA (to set a password)
+/// - instant_link_url   → secondary "Or just sign in" CTA
 pub fn password_reset_email(to: &str, data: PasswordResetEmailData) -> Email {
     let name = escape_html(data.user_name.as_deref().unwrap_or("there"));
+
+    let (heading, subject, intro, cta_label) = if data.has_password {
+        (
+            "Reset your password",
+            "Reset your password",
+            "We received a request to reset your password. Click the button below to choose a new password:",
+            "Reset Password",
+        )
+    } else {
+        (
+            "Access your account",
+            "Access your account",
+            "We received a request to access your account. Click the button below to set a password:",
+            "Set Password",
+        )
+    };
+
+    let instant_link_html = if let Some(ref il_url) = data.instant_link_url {
+        format!(
+            r#"<p style="text-align: center; margin-top: 16px;">
+<a href="{il_url}" rel="noreferrer noopener" referrerpolicy="no-referrer" style="display: inline-block; background-color: #6B7280; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">Or just sign in</a>
+</p>"#
+        )
+    } else {
+        String::new()
+    };
+
+    let instant_link_text = if let Some(ref il_url) = data.instant_link_url {
+        format!("\n\nOr just sign in (no password needed): {}", il_url)
+    } else {
+        String::new()
+    };
+
     Email {
         to: to.to_string(),
-        subject: "Reset your password".to_string(),
+        subject: subject.to_string(),
         html_body: format!(
             r#"<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-<h1 style="color: #333;">Reset your password</h1>
+<h1 style="color: #333;">{heading}</h1>
 <p>Hi {name},</p>
-<p>We received a request to reset your password. Click the button below to choose a new password:</p>
+<p>{intro}</p>
 <p style="text-align: center;">
-<a href="{}" rel="noreferrer noopener" referrerpolicy="no-referrer" style="display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
+<a href="{reset_url}" rel="noreferrer noopener" referrerpolicy="no-referrer" style="display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">{cta_label}</a>
 </p>
 <p>Or copy and paste this link into your browser:</p>
-<p style="word-break: break-all; color: #666;">{}</p>
-<p style="color: #666; font-size: 14px;">This link expires in {} minutes.</p>
-<p style="color: #999; font-size: 12px;">If you didn't request a password reset, you can safely ignore this email.</p>
+<p style="word-break: break-all; color: #666;">{reset_url}</p>
+{instant_link_html}
+<p style="color: #666; font-size: 14px;">This link expires in {expires} minutes.</p>
+<p style="color: #999; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
 </body>
 </html>"#,
-            data.reset_url, data.reset_url, data.expires_in_minutes
+            reset_url = data.reset_url,
+            expires = data.expires_in_minutes,
         ),
         text_body: format!(
-            "Hi {},\n\nWe received a request to reset your password.\n\nReset your password: {}\n\nThis link expires in {} minutes.\n\nIf you didn't request this, you can safely ignore this email.",
-            name, data.reset_url, data.expires_in_minutes
+            "Hi {name},\n\n{intro}\n\n{cta_label}: {reset_url}\n\nThis link expires in {expires} minutes.{instant_link_text}\n\nIf you didn't request this, you can safely ignore this email.",
+            reset_url = data.reset_url,
+            expires = data.expires_in_minutes,
         ),
         email_type: EmailType::PasswordReset,
     }

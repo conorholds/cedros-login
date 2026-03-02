@@ -383,7 +383,7 @@ pub async fn force_password_reset<C: AuthCallback, E: EmailService>(
     // Queue password reset email via comms service
     state
         .comms_service
-        .queue_password_reset_email(&email, user.name.as_deref(), &token, Some(user_id))
+        .queue_password_reset_email(&email, user.name.as_deref(), &token, Some(user_id), None, user.password_hash.is_some())
         .await?;
 
     Ok(Json(MessageResponse {

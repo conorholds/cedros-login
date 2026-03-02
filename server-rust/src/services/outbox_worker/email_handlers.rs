@@ -89,10 +89,20 @@ async fn process_password_reset_email(
         )));
     };
 
+    let instant_link_url = event.payload["instant_link_token_enc"]
+        .as_str()
+        .map(|enc| token_cipher.decrypt(enc))
+        .transpose()?
+        .map(|token| format!("{}/instant-link/verify?token={}", base_url, token));
+
+    let has_password = event.payload["has_password"].as_bool().unwrap_or(true);
+
     let data = PasswordResetEmailData {
         user_name: event.payload["user_name"].as_str().map(String::from),
         reset_url,
         expires_in_minutes: event.payload["expires_in_minutes"].as_u64().unwrap_or(60) as u32,
+        instant_link_url,
+        has_password,
     };
 
     email_service.send_password_reset(to, data).await

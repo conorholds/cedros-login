@@ -9,8 +9,11 @@
 //! implementations for the critical operations:
 //! - Invite acceptance (invite + membership)
 //! - User registration with org membership (user + membership)
+//! - OAuth/passkey signup (user + membership + api_key [+ webauthn credential])
 //!
 //! These operations use raw SQL within a transaction to ensure atomicity.
+
+mod signup;
 
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -104,7 +107,6 @@ impl TransactionalOps {
 
         match row_result {
             Ok(Some(row)) => {
-                // Commit the transaction
                 tx.commit()
                     .await
                     .map_err(|e| AppError::Database(format!("Failed to commit: {}", e)))?;
@@ -118,7 +120,6 @@ impl TransactionalOps {
                 })
             }
             Ok(None) => {
-                // Membership already exists (conflict) - rollback
                 if let Err(e) = tx.rollback().await {
                     tracing::error!(
                         error = %e,
@@ -135,8 +136,6 @@ impl TransactionalOps {
                 ))
             }
             Err(e) => {
-                // Membership creation failed - invite is already marked accepted
-                // This creates an inconsistency that cleanup jobs will handle
                 if let Err(rollback_err) = tx.rollback().await {
                     tracing::error!(
                         error = %rollback_err,
@@ -195,12 +194,12 @@ impl TransactionalOps {
         let user_result = sqlx::query_as::<_, UserRow>(
             r#"
             INSERT INTO users (id, email, email_verified, password_hash, name, picture,
-                              wallet_address, google_id, apple_id, stripe_customer_id, 
+                              wallet_address, google_id, apple_id, stripe_customer_id,
                               auth_methods, is_system_admin, created_at, updated_at, last_login_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14)
             ON CONFLICT (email) DO NOTHING
             RETURNING id, email, email_verified, password_hash, name, picture,
-                      wallet_address, google_id, apple_id, stripe_customer_id, 
+                      wallet_address, google_id, apple_id, stripe_customer_id,
                       auth_methods, is_system_admin, created_at, updated_at, last_login_at
             "#,
         )
@@ -249,16 +248,13 @@ impl TransactionalOps {
                         "Failed to rollback transaction after user creation failure"
                     );
                 }
-                // R-01: Check for specific unique constraint violations instead of
-                // returning generic Database error for all failures.
+                // R-01: Check for specific unique constraint violations
                 if let sqlx::Error::Database(ref db_err) = e {
                     if db_err.is_unique_violation() {
                         let constraint = db_err.constraint().unwrap_or("");
                         if constraint.contains("wallet") {
                             return Err(AppError::WalletExists);
                         }
-                        // Other unique violations (google_id, apple_id) — return EmailExists
-                        // as the most likely user-facing scenario; callers handle both variants.
                         return Err(AppError::EmailExists);
                     }
                 }
@@ -302,7 +298,6 @@ impl TransactionalOps {
             }
         };
 
-        // Commit transaction
         tx.commit()
             .await
             .map_err(|e| AppError::Database(format!("Failed to commit: {}", e)))?;

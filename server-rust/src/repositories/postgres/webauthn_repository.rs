@@ -324,7 +324,7 @@ impl WebAuthnRepository for PostgresWebAuthnRepository {
         .bind(challenge.expires_at)
         .execute(&self.pool)
         .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        .map_err(|e| AppError::Database(e.to_string()))?;
 
         Ok(())
     }
@@ -343,7 +343,7 @@ impl WebAuthnRepository for PostgresWebAuthnRepository {
         .bind(challenge_id)
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        .map_err(|e| AppError::Database(e.to_string()))?;
 
         Ok(row.map(Into::into))
     }
@@ -365,7 +365,7 @@ impl WebAuthnRepository for PostgresWebAuthnRepository {
         .bind(challenge_id)
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        .map_err(|e| AppError::Database(e.to_string()))?;
 
         Ok(row.map(Into::into))
     }

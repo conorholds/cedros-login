@@ -47,6 +47,10 @@ pub struct PasswordResetEmailData {
     pub user_name: Option<String>,
     pub reset_url: String,
     pub expires_in_minutes: u32,
+    /// If set, a "just sign in" link is included as a secondary CTA
+    pub instant_link_url: Option<String>,
+    /// Controls heading: "Reset your password" vs "Access your account"
+    pub has_password: bool,
 }
 
 /// Email template data for invite emails

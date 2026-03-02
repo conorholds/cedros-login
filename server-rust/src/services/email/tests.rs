@@ -70,6 +70,8 @@ async fn test_log_email_service_password_reset() {
         user_name: None,
         reset_url: "https://example.com/reset?token=xyz".to_string(),
         expires_in_minutes: 60,
+        instant_link_url: None,
+        has_password: true,
     };
 
     service

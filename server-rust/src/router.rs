@@ -315,6 +315,15 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/webauthn/register/verify",
             post(handlers::webauthn_register_verify::<C, E>),
         )
+        // WebAuthn standalone signup (unauthenticated passkey account creation)
+        .route(
+            "/webauthn/signup/options",
+            post(handlers::webauthn_signup_options::<C, E>),
+        )
+        .route(
+            "/webauthn/signup/verify",
+            post(handlers::webauthn_signup_verify::<C, E>),
+        )
         // Wallet signing, unlock, and rotation need strict rate limiting to prevent abuse
         .route("/wallet/sign", post(handlers::sign_transaction::<C, E>))
         .route("/wallet/unlock", post(handlers::wallet_unlock::<C, E>))

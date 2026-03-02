@@ -61,14 +61,23 @@ impl CommsService {
     }
 
     /// Queue a password reset email
+    ///
+    /// `instant_link_token`: if provided, the email includes a "just sign in" link.
+    /// `has_password`: controls heading ("Reset your password" vs "Access your account").
+    #[allow(clippy::too_many_arguments)]
     pub async fn queue_password_reset_email(
         &self,
         to: &str,
         user_name: Option<&str>,
         token: &str,
         user_id: Option<Uuid>,
+        instant_link_token: Option<&str>,
+        has_password: bool,
     ) -> Result<Uuid, AppError> {
         let token_enc = self.token_cipher.encrypt(token)?;
+        let il_token_enc = instant_link_token
+            .map(|t| self.token_cipher.encrypt(t))
+            .transpose()?;
 
         let event = OutboxEvent::new(
             OutboxEventType::EmailPasswordReset,
@@ -76,6 +85,8 @@ impl CommsService {
                 "to": to,
                 "user_name": user_name,
                 "token_enc": token_enc,
+                "instant_link_token_enc": il_token_enc,
+                "has_password": has_password,
                 "expires_in_minutes": 60
             }),
         );
@@ -694,6 +705,8 @@ mod tests {
                 Some("Test User"),
                 "reset-token-123",
                 Some(user_id),
+                Some("il-token-456"),
+                true,
             )
             .await
             .unwrap();
@@ -702,6 +715,9 @@ mod tests {
         assert_eq!(event.event_type, OutboxEventType::EmailPasswordReset);
         let token_enc = event.payload["token_enc"].as_str().unwrap();
         assert_eq!(cipher.decrypt(token_enc).unwrap(), "reset-token-123");
+        let il_enc = event.payload["instant_link_token_enc"].as_str().unwrap();
+        assert_eq!(cipher.decrypt(il_enc).unwrap(), "il-token-456");
+        assert_eq!(event.payload["has_password"].as_bool(), Some(true));
     }
 
     #[tokio::test]

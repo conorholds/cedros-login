@@ -12,18 +12,23 @@ use std::sync::Arc;
 
 use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
-use crate::handlers::auth::call_authenticated_callback_with_timeout;
+use crate::handlers::auth::{
+    call_authenticated_callback_with_timeout, call_registered_callback_with_timeout,
+};
 use crate::models::{AuthMethod, AuthResponse, MessageResponse};
 use crate::repositories::{
-    default_expiry, generate_verification_token, hash_verification_token, normalize_email,
-    AuditEventType, SessionEntity, TokenType,
+    default_expiry, generate_api_key, generate_verification_token, hash_verification_token,
+    normalize_email, ApiKeyEntity, AuditEventType, MembershipEntity, SessionEntity, TokenType,
+    UserEntity,
 };
 use crate::services::EmailService;
 use crate::utils::{
     build_json_response_with_cookies, extract_client_ip_with_fallback, get_default_org_context,
-    hash_refresh_token, is_new_device, user_entity_to_auth_user, DeviceInfo, PeerIp,
+    hash_refresh_token, is_new_device, resolve_org_assignment, user_entity_to_auth_user,
+    DeviceInfo, PeerIp,
 };
 use crate::AppState;
+use uuid::Uuid;
 use serde_json::json;
 use tokio::time::{Duration as TokioDuration, Instant as TokioInstant};
 
@@ -65,11 +70,10 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Instant link auth disabled".into()));
     }
 
-    // Always return success to prevent email enumeration
     let response = (
         axum::http::StatusCode::OK,
         Json(MessageResponse {
-            message: "If an account exists, a sign-in link has been sent".to_string(),
+            message: "A sign-in link has been sent to your email".to_string(),
         }),
     );
 
@@ -95,15 +99,47 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
         return Err(AppError::RateLimited);
     }
 
-    // Find user by email
+    // Find or create user by email
     let user = match state.user_repo.find_by_email(&email).await? {
         Some(u) => u,
         None => {
-            let elapsed = started_at.elapsed();
-            if elapsed < MIN_DURATION {
-                tokio::time::sleep(MIN_DURATION - elapsed).await;
+            // Create provisional user for instant link signup.
+            // The user must exist for verification_tokens.user_id FK.
+            // Membership + API key are created later in verify_instant_link.
+            let now = Utc::now();
+            let new_user = UserEntity {
+                id: Uuid::new_v4(),
+                email: Some(email.clone()),
+                email_verified: false,
+                password_hash: None,
+                name: None,
+                picture: None,
+                wallet_address: None,
+                google_id: None,
+                apple_id: None,
+                stripe_customer_id: None,
+                auth_methods: vec![AuthMethod::Email],
+                is_system_admin: false,
+                created_at: now,
+                updated_at: now,
+                last_login_at: None,
+            };
+            match state.user_repo.create(new_user).await {
+                Ok(created) => created,
+                Err(AppError::EmailExists) => {
+                    // Race: user created between find and create
+                    state
+                        .user_repo
+                        .find_by_email(&email)
+                        .await?
+                        .ok_or_else(|| {
+                            AppError::Internal(anyhow::anyhow!(
+                                "User vanished after EmailExists"
+                            ))
+                        })?
+                }
+                Err(e) => return Err(e),
             }
-            return Ok(response);
         }
     };
 
@@ -247,8 +283,29 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         .into_response());
     }
 
-    // Get user's memberships to find default org
+    // Get user's memberships to find default org and detect new users
     let memberships = state.membership_repo.find_by_user(user.id).await?;
+
+    // New-user detection: if no memberships, this user was created by send_instant_link
+    // and needs signup completion (membership + API key).
+    let (is_new_user, raw_api_key) = if memberships.is_empty() {
+        let org_assignment = resolve_org_assignment(&state, user.id).await?;
+        let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
+        state.membership_repo.create(membership).await?;
+        let raw = generate_api_key();
+        let api_key_entity = ApiKeyEntity::new(user.id, &raw, "default");
+        state.api_key_repo.create(api_key_entity).await?;
+        (true, Some(raw))
+    } else {
+        (false, None)
+    };
+
+    // Re-fetch memberships if new user (needed for token context)
+    let memberships = if is_new_user {
+        state.membership_repo.find_by_user(user.id).await?
+    } else {
+        memberships
+    };
     let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
@@ -314,22 +371,31 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         }
     }
 
-    // Fire callback
+    // Fire callback (registered for new users, authenticated for existing)
     let auth_user = user_entity_to_auth_user(&user);
     let payload = AuthCallbackPayload {
         user: auth_user.clone(),
         method: AuthMethod::Email, // Instant link is email-based
-        is_new_user: false,
+        is_new_user,
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
     };
-    let callback_data = call_authenticated_callback_with_timeout(&state.callback, &payload).await;
+    let callback_data = if is_new_user {
+        call_registered_callback_with_timeout(&state.callback, &payload).await
+    } else {
+        call_authenticated_callback_with_timeout(&state.callback, &payload).await
+    };
 
     // Log audit event (fire-and-forget)
+    let audit_event = if is_new_user {
+        AuditEventType::UserRegister
+    } else {
+        AuditEventType::UserLogin
+    };
     let _ = state
         .audit_service
-        .log_user_event(AuditEventType::UserLogin, user.id, Some(&headers))
+        .log_user_event(audit_event, user.id, Some(&headers))
         .await;
 
     let response_tokens = if state.config.cookie.enabled {
@@ -341,9 +407,9 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
     let response = AuthResponse {
         user: auth_user,
         tokens: response_tokens,
-        is_new_user: false,
+        is_new_user,
         callback_data,
-        api_key: None,
+        api_key: raw_api_key,
         email_queued: None,
     };
 
