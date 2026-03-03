@@ -124,7 +124,7 @@ mod tests {
         let password_service = PasswordService::default();
         let google_service = GoogleService::new(&config.google);
         let apple_service = AppleService::new(&config.apple);
-        let solana_service = SolanaService::new(&config.solana, "Cedros Login".to_string());
+        let solana_service = SolanaService::new(&config.solana);
         let totp_service = TotpService::new("Cedros");
         let webauthn_service = WebAuthnService::new(&config.webauthn, settings_service.clone());
         let oidc_service = crate::services::OidcService::new(

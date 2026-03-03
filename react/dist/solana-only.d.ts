@@ -476,6 +476,8 @@ declare interface SolanaLoginButtonProps {
      * @default true
      */
     hideIfNoWallet?: boolean;
+    /** Called when the button's loading state changes (connecting, signing, etc.). */
+    onLoadingChange?: (loading: boolean) => void;
     /**
      * Solana wallet adapter context. Pass this from @solana/wallet-adapter-react's useWallet().
      * When provided, the component assumes a WalletProvider exists in the React tree and

@@ -12,8 +12,8 @@ import { b as $s, v as Wt } from "./validation-B8kMV3BL.js";
 import { E as ee } from "./ErrorMessage-CcEK0pYO.js";
 import { G as Js } from "./GoogleLoginButton-B6qnNMZp.js";
 import { u as Qc } from "./GoogleLoginButton-B6qnNMZp.js";
-import { S as Xs } from "./mobileWalletAdapter-CDpfbU1R.js";
-import { r as Kc, u as Gc } from "./mobileWalletAdapter-CDpfbU1R.js";
+import { S as Xs } from "./mobileWalletAdapter-orQcBp-b.js";
+import { r as Kc, u as Gc } from "./mobileWalletAdapter-orQcBp-b.js";
 import { c as Zs, d as eo, u as to, a as ro, M as so, I as oo, b as no, P as ao } from "./PermissionsSection-CighC1p6.js";
 import { u as io } from "./useSystemSettings-DBlAMjFi.js";
 import { C as co, S as Kr, a as lo, u as uo, A as ho } from "./AutosaveStatus-vkJxtuEw.js";
@@ -2410,13 +2410,13 @@ function oc({
   );
   _(() => {
     if (!m) return;
-    const A = (L) => {
-      u.current && !u.current.contains(L.target) && (f(!1), g(-1));
-    }, E = (L) => {
-      L.key === "Escape" && (f(!1), g(-1), y.current?.focus());
+    const A = (x) => {
+      u.current && !u.current.contains(x.target) && (f(!1), g(-1));
+    }, C = (x) => {
+      x.key === "Escape" && (f(!1), g(-1), y.current?.focus());
     };
-    return document.addEventListener("mousedown", A), document.addEventListener("keydown", E), () => {
-      document.removeEventListener("mousedown", A), document.removeEventListener("keydown", E);
+    return document.addEventListener("mousedown", A), document.addEventListener("keydown", C), () => {
+      document.removeEventListener("mousedown", A), document.removeEventListener("keydown", C);
     };
   }, [m]);
   const b = P(
@@ -2424,10 +2424,10 @@ function oc({
       if (!(!m || v.length === 0))
         switch (A.key) {
           case "ArrowDown":
-            A.preventDefault(), g((E) => (E + 1) % v.length);
+            A.preventDefault(), g((C) => (C + 1) % v.length);
             break;
           case "ArrowUp":
-            A.preventDefault(), g((E) => (E - 1 + v.length) % v.length);
+            A.preventDefault(), g((C) => (C - 1 + v.length) % v.length);
             break;
           case "Home":
             A.preventDefault(), g(0);
@@ -2442,13 +2442,13 @@ function oc({
         }
     },
     [m, w, v]
-  ), C = P(() => {
+  ), N = P(() => {
     v.length !== 0 && (f((A) => !A), g(-1));
-  }, [v.length]), N = {
+  }, [v.length]), E = {
     sm: "cedros-button-sm",
     md: "cedros-button-md",
     lg: "cedros-button-lg"
-  }, x = {
+  }, L = {
     default: "cedros-button-primary",
     outline: "cedros-button-outline",
     ghost: "cedros-button-ghost"
@@ -2458,13 +2458,13 @@ function oc({
       "button",
       {
         type: "button",
-        className: `cedros-button ${x[r]} ${N[o]} ${t}`,
+        className: `cedros-button ${L[r]} ${E[o]} ${t}`,
         disabled: !0,
         children: /* @__PURE__ */ e(K, { size: "sm" })
       }
     );
   if (c && l) {
-    const A = l.name || l.email || "User", E = Qr(l.picture);
+    const A = l.name || l.email || "User", C = Qr(l.picture);
     return (
       // L-08: Added keyboard handler and ref for accessibility
       /* @__PURE__ */ i("div", { className: "cedros-user-menu", ref: u, onKeyDown: b, children: [
@@ -2473,16 +2473,16 @@ function oc({
           {
             ref: y,
             type: "button",
-            className: `cedros-button cedros-user-button ${N[o]} ${t}`,
+            className: `cedros-button cedros-user-button ${E[o]} ${t}`,
             "aria-haspopup": "menu",
             "aria-expanded": m,
             "aria-label": `User menu for ${A}`,
-            onClick: C,
+            onClick: N,
             children: [
-              E ? /* @__PURE__ */ e(
+              C ? /* @__PURE__ */ e(
                 "img",
                 {
-                  src: E,
+                  src: C,
                   alt: A,
                   className: "cedros-user-avatar",
                   referrerPolicy: "no-referrer",
@@ -2494,7 +2494,7 @@ function oc({
           }
         ),
         m && /* @__PURE__ */ i("div", { className: "cedros-dropdown cedros-dropdown-open", role: "menu", children: [
-          s.map((L, S) => /* @__PURE__ */ i(
+          s.map((x, S) => /* @__PURE__ */ i(
             "button",
             {
               type: "button",
@@ -2502,11 +2502,11 @@ function oc({
               role: "menuitem",
               tabIndex: w === S ? 0 : -1,
               onClick: () => {
-                L.onClick(), f(!1);
+                x.onClick(), f(!1);
               },
               children: [
-                L.icon && /* @__PURE__ */ e("span", { className: "cedros-dropdown-icon", children: L.icon }),
-                L.label
+                x.icon && /* @__PURE__ */ e("span", { className: "cedros-dropdown-icon", children: x.icon }),
+                x.label
               ]
             },
             S
@@ -2533,7 +2533,7 @@ function oc({
     "button",
     {
       type: "button",
-      className: `cedros-button ${x[r]} ${N[o]} ${t}`,
+      className: `cedros-button ${L[r]} ${E[o]} ${t}`,
       onClick: h,
       children: a || "Sign in"
     }
@@ -2812,11 +2812,11 @@ function on() {
       return p.current.callbacks?.onLoginSuccess?.(b.user, "apple"), r?.handleLoginSuccess(b.user, b.tokens), a(!1), b;
     } catch (y) {
       if (y.error === "popup_closed_by_user") {
-        const C = {
+        const N = {
           code: "SERVER_ERROR",
           message: "Apple Sign In was cancelled"
         };
-        throw c(C), a(!1), C;
+        throw c(N), a(!1), N;
       }
       const b = O(y, "Apple sign-in failed");
       throw b.code === "ACCOUNT_LINK_REQUIRED" && u && h(u), c(b), a(!1), b;
@@ -3219,56 +3219,59 @@ function tr() {
 }
 const Te = ["login", "register"];
 function jt({ onSuccess: t, className: r = "", defaultTab: o = "login" }) {
-  const { config: a } = ne(), [s, n] = k(o), [l, c] = k("form"), [d, h] = k(() => tr()), [p] = k(() => cs());
+  const { config: a } = ne(), [s, n] = k(o), [l, c] = k("form"), [d, h] = k(() => tr()), [p] = k(() => cs()), [m, f] = k(!1);
   _(() => {
-    const N = () => h(tr());
-    return N(), window.addEventListener("load", N), window.addEventListener("focus", N), () => {
-      window.removeEventListener("load", N), window.removeEventListener("focus", N);
+    const A = () => h(tr());
+    return A(), window.addEventListener("load", A), window.addEventListener("focus", A), () => {
+      window.removeEventListener("load", A), window.removeEventListener("focus", A);
     };
   }, []);
-  const m = a.forms?.forgotPassword?.mode ?? (a.features?.instantLink ? "instantLink" : "reset"), f = P(
-    (N) => {
-      const x = Te.indexOf(s);
-      let A = x;
-      switch (N.key) {
+  const w = a.forms?.forgotPassword?.mode ?? (a.features?.instantLink ? "instantLink" : "reset"), g = P(
+    (A) => {
+      const C = Te.indexOf(s);
+      let x = C;
+      switch (A.key) {
         case "ArrowLeft":
         case "ArrowUp":
-          A = x === 0 ? Te.length - 1 : x - 1;
+          x = C === 0 ? Te.length - 1 : C - 1;
           break;
         case "ArrowRight":
         case "ArrowDown":
-          A = x === Te.length - 1 ? 0 : x + 1;
+          x = C === Te.length - 1 ? 0 : C + 1;
           break;
         case "Home":
-          A = 0;
+          x = 0;
           break;
         case "End":
-          A = Te.length - 1;
+          x = Te.length - 1;
           break;
         default:
           return;
       }
-      N.preventDefault();
-      const E = Te[A];
-      n(E), document.getElementById(`cedros-tab-${E}`)?.focus();
+      A.preventDefault();
+      const S = Te[x];
+      n(S), document.getElementById(`cedros-tab-${S}`)?.focus();
     },
     [s]
-  ), w = a.features ?? {
+  ), u = a.features ?? {
     email: !0,
     google: !0,
     apple: !0,
     solana: !0,
     webauthn: !0
-  }, g = w.email !== !1, u = w.google !== !1 && a.googleClientId, y = w.apple !== !1 && a.appleClientId && p, v = w.solana !== !1 && d, b = w.webauthn !== !1, C = g && (u || y || v || b);
-  return l === "forgotPassword" ? /* @__PURE__ */ e("div", { className: `cedros-login-form ${r}`, children: /* @__PURE__ */ e(rn, { onCancel: () => c("form") }) }) : /* @__PURE__ */ i("div", { className: `cedros-login-form ${r}`, children: [
-    (b || u || y || v) && /* @__PURE__ */ i("div", { className: "cedros-social-buttons", children: [
-      b && /* @__PURE__ */ e(un, { onSuccess: t, mode: s === "register" ? "register" : "login" }),
-      u && /* @__PURE__ */ e(Js, { onSuccess: t }),
-      y && /* @__PURE__ */ e(nn, { onSuccess: t }),
-      v && /* @__PURE__ */ e(Xs, { onSuccess: t })
+  }, y = u.email !== !1, v = u.google !== !1 && a.googleClientId, b = u.apple !== !1 && a.appleClientId && p, N = u.solana !== !1 && d, E = u.webauthn !== !1, L = y && (v || b || N || E);
+  return l === "forgotPassword" ? /* @__PURE__ */ e("div", { className: `cedros-login-form ${r}`, children: /* @__PURE__ */ e(rn, { onCancel: () => c("form") }) }) : /* @__PURE__ */ i("div", { className: `cedros-login-form ${m ? "cedros-login-form--connecting" : ""} ${r}`, children: [
+    (E || v || b || N) && /* @__PURE__ */ i("div", { className: "cedros-social-buttons", children: [
+      E && /* @__PURE__ */ e(un, { onSuccess: t, mode: s === "register" ? "register" : "login" }),
+      v && /* @__PURE__ */ e(Js, { onSuccess: t }),
+      b && /* @__PURE__ */ e(nn, { onSuccess: t }),
+      N && /* @__PURE__ */ i(X, { children: [
+        /* @__PURE__ */ e(Xs, { onSuccess: t, onLoadingChange: f }),
+        m && /* @__PURE__ */ e("p", { className: "cedros-solana-status", children: "Connecting to Solana wallet…" })
+      ] })
     ] }),
-    C && /* @__PURE__ */ e("div", { className: "cedros-divider", children: /* @__PURE__ */ e("span", { children: "Or continue with" }) }),
-    g && /* @__PURE__ */ i(X, { children: [
+    L && /* @__PURE__ */ e("div", { className: "cedros-divider", children: /* @__PURE__ */ e("span", { children: "Or continue with" }) }),
+    y && /* @__PURE__ */ i(X, { children: [
       /* @__PURE__ */ i("div", { className: "cedros-tabs", role: "tablist", "aria-label": "Authentication method", children: [
         /* @__PURE__ */ e(
           "button",
@@ -3278,7 +3281,7 @@ function jt({ onSuccess: t, className: r = "", defaultTab: o = "login" }) {
             id: "cedros-tab-login",
             className: `cedros-tab ${s === "login" ? "cedros-tab-active" : ""}`,
             onClick: () => n("login"),
-            onKeyDown: f,
+            onKeyDown: g,
             "aria-selected": s === "login",
             "aria-controls": "cedros-tabpanel-login",
             tabIndex: s === "login" ? 0 : -1,
@@ -3293,7 +3296,7 @@ function jt({ onSuccess: t, className: r = "", defaultTab: o = "login" }) {
             id: "cedros-tab-register",
             className: `cedros-tab ${s === "register" ? "cedros-tab-active" : ""}`,
             onClick: () => n("register"),
-            onKeyDown: f,
+            onKeyDown: g,
             "aria-selected": s === "register",
             "aria-controls": "cedros-tabpanel-register",
             tabIndex: s === "register" ? 0 : -1,
@@ -3312,7 +3315,7 @@ function jt({ onSuccess: t, className: r = "", defaultTab: o = "login" }) {
             {
               onSuccess: t,
               onSwitchToRegister: () => n("register"),
-              onForgotPassword: m === "reset" ? () => c("forgotPassword") : void 0
+              onForgotPassword: w === "reset" ? () => c("forgotPassword") : void 0
             }
           ) : /* @__PURE__ */ e(
             Gs,
@@ -3967,8 +3970,8 @@ function Cn({
       if (y.key === "Tab" && p.current) {
         const v = p.current.querySelectorAll(
           'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        ), b = v[0], C = v[v.length - 1];
-        y.shiftKey ? document.activeElement === b && (y.preventDefault(), C?.focus()) : document.activeElement === C && (y.preventDefault(), b?.focus());
+        ), b = v[0], N = v[v.length - 1];
+        y.shiftKey ? document.activeElement === b && (y.preventDefault(), N?.focus()) : document.activeElement === N && (y.preventDefault(), b?.focus());
       }
     };
     return document.addEventListener("keydown", u), () => document.removeEventListener("keydown", u);
@@ -4283,10 +4286,10 @@ function Bn({
   className: s = ""
 }) {
   const [n, l] = k(Array(ce).fill("")), [c, d] = k(null), [h, p] = k([]), [m, f] = k(null), w = Vr(), g = $(null), u = P(
-    (A, E) => {
-      const L = [...n];
-      if (L[A] = E.toLowerCase().trim(), l(L), E.length > 0) {
-        const S = Zo(E, 5);
+    (A, C) => {
+      const x = [...n];
+      if (x[A] = C.toLowerCase().trim(), l(x), C.length > 0) {
+        const S = Zo(C, 5);
         p(S);
       } else
         p([]);
@@ -4297,8 +4300,8 @@ function Bn({
     d(A), p([]);
   }, []), v = P(
     (A) => {
-      const E = n[A];
-      E && !We(E) && f(`Word ${A + 1} is not in the wordlist`), g.current !== null && window.clearTimeout(g.current), g.current = window.setTimeout(() => {
+      const C = n[A];
+      C && !We(C) && f(`Word ${A + 1} is not in the wordlist`), g.current !== null && window.clearTimeout(g.current), g.current = window.setTimeout(() => {
         c === A && p([]);
       }, 200);
     },
@@ -4310,25 +4313,25 @@ function Bn({
   const b = P(
     (A) => {
       if (c !== null) {
-        const E = [...n];
-        E[c] = A, l(E), p([]), document.querySelector(
+        const C = [...n];
+        C[c] = A, l(C), p([]), document.querySelector(
           `[data-word-index="${c + 1}"]`
         )?.focus();
       }
     },
     [c, n]
-  ), C = P((A) => {
-    const E = A.clipboardData.getData("text"), L = tn(E);
-    L.length === ce && (A.preventDefault(), l(L), f(null));
-  }, []), N = P(
+  ), N = P((A) => {
+    const C = A.clipboardData.getData("text"), x = tn(C);
+    x.length === ce && (A.preventDefault(), l(x), f(null));
+  }, []), E = P(
     (A) => {
       if (A.preventDefault(), n.filter((S) => !S).length > 0) {
         f(`Please enter all ${ce} words`);
         return;
       }
-      const L = n.map((S, B) => ({ word: S, index: B + 1 })).filter(({ word: S }) => !We(S));
-      if (L.length > 0) {
-        f(`Invalid words: ${L.map((S) => `#${S.index}`).join(", ")}`);
+      const x = n.map((S, B) => ({ word: S, index: B + 1 })).filter(({ word: S }) => !We(S));
+      if (x.length > 0) {
+        f(`Invalid words: ${x.map((S) => `#${S.index}`).join(", ")}`);
         return;
       }
       if (!as(n)) {
@@ -4338,41 +4341,41 @@ function Bn({
       t(n);
     },
     [n, t]
-  ), x = a || m;
+  ), L = a || m;
   return /* @__PURE__ */ i(
     "form",
     {
       className: `cedros-recovery-phrase-input ${s}`,
-      onSubmit: N,
-      onPaste: C,
+      onSubmit: E,
+      onPaste: N,
       children: [
         /* @__PURE__ */ i("div", { className: "cedros-recovery-input-header", children: [
           /* @__PURE__ */ e("h3", { className: "cedros-recovery-input-title", children: "Enter Recovery Phrase" }),
           /* @__PURE__ */ e("p", { className: "cedros-recovery-input-description", children: "Enter your 12-word recovery phrase. You can paste the entire phrase at once." })
         ] }),
-        /* @__PURE__ */ e("div", { className: "cedros-word-inputs", children: Array.from({ length: ce }, (A, E) => /* @__PURE__ */ i("div", { className: "cedros-word-input-wrapper", children: [
+        /* @__PURE__ */ e("div", { className: "cedros-word-inputs", children: Array.from({ length: ce }, (A, C) => /* @__PURE__ */ i("div", { className: "cedros-word-input-wrapper", children: [
           /* @__PURE__ */ i("label", { className: "cedros-word-label", children: [
-            E + 1,
+            C + 1,
             "."
           ] }),
           /* @__PURE__ */ e(
             "input",
             {
               type: "text",
-              className: `cedros-word-input ${n[E] && !We(n[E]) ? "cedros-word-invalid" : n[E] && We(n[E]) ? "cedros-word-valid" : ""}`,
-              value: n[E],
-              onChange: (L) => u(E, L.target.value),
-              onFocus: () => y(E),
-              onBlur: () => v(E),
-              "data-word-index": E,
+              className: `cedros-word-input ${n[C] && !We(n[C]) ? "cedros-word-invalid" : n[C] && We(n[C]) ? "cedros-word-valid" : ""}`,
+              value: n[C],
+              onChange: (x) => u(C, x.target.value),
+              onFocus: () => y(C),
+              onBlur: () => v(C),
+              "data-word-index": C,
               autoComplete: "off",
               autoCapitalize: "none",
               spellCheck: !1,
               disabled: o,
-              "aria-label": `Word ${E + 1}`
+              "aria-label": `Word ${C + 1}`
             }
           )
-        ] }, E)) }),
+        ] }, C)) }),
         c !== null && h.length > 0 && /* @__PURE__ */ e("div", { className: "cedros-suggestions", role: "listbox", id: `${w}-suggestions`, children: h.map((A) => /* @__PURE__ */ e(
           "button",
           {
@@ -4384,7 +4387,7 @@ function Bn({
           },
           A
         )) }),
-        x && /* @__PURE__ */ e("p", { className: "cedros-input-error", role: "alert", children: x }),
+        L && /* @__PURE__ */ e("p", { className: "cedros-input-error", role: "alert", children: L }),
         /* @__PURE__ */ i("div", { className: "cedros-recovery-input-actions", children: [
           r && /* @__PURE__ */ e(
             "button",
@@ -4554,17 +4557,17 @@ function Fn() {
       s({ step: "generating_seed" });
       const b = qs();
       c.current.push(b), s({ step: "splitting_shares" });
-      const { shareA: C, shareB: N, shareC: x } = $r(b);
-      c.current.push(C, N, x), s({ step: "encrypting_shares" });
-      const A = await _r(C, Wr(u)), E = Jr(b), L = Xr(E);
+      const { shareA: N, shareB: E, shareC: L } = $r(b);
+      c.current.push(N, E, L), s({ step: "encrypting_shares" });
+      const A = await _r(N, Wr(u)), C = Jr(b), x = Xr(C);
       s({ step: "uploading" });
       const S = {
-        solanaPubkey: L,
+        solanaPubkey: x,
         shareAAuthMethod: g,
         shareACiphertext: A.ciphertext,
         shareANonce: A.nonce,
         // Share B is now plaintext (SSS math protects it)
-        shareB: ge(N)
+        shareB: ge(E)
       };
       if (g === "password") {
         if (!y) throw new Error("KDF salt required for password method");
@@ -4573,14 +4576,14 @@ function Fn() {
       if (g === "passkey" && v && (S.prfSalt = v), await r(S), o === "none")
         d(), s({
           step: "complete",
-          solanaPubkey: L
+          solanaPubkey: x
         });
       else {
-        const B = o === "full_seed" ? Jo(b) : Go(ze(x));
+        const B = o === "full_seed" ? Jo(b) : Go(ze(L));
         s({
           step: "showing_recovery",
           recoveryPhrase: B,
-          solanaPubkey: L
+          solanaPubkey: x
         });
       }
     },
@@ -4616,11 +4619,11 @@ function Fn() {
       s({ step: "registering_passkey" });
       let y;
       try {
-        const b = new TextEncoder().encode(t.id), C = t.name ?? t.email ?? "User", N = t.email ?? t.id;
+        const b = new TextEncoder().encode(t.id), N = t.name ?? t.email ?? "User", E = t.email ?? t.id;
         y = (await js(
           b,
+          E,
           N,
-          C,
           g
         )).prfOutput;
       } catch (b) {
@@ -4670,30 +4673,30 @@ function Un({
     confirmRecoveryPhrase: d,
     cancel: h,
     isEnrolling: p
-  } = Fn(), m = () => a || "password", [f, w] = k(m), [g, u] = k(""), [y, v] = k(""), [b, C] = k(null);
+  } = Fn(), m = () => a || "password", [f, w] = k(m), [g, u] = k(""), [y, v] = k(""), [b, N] = k(null);
   _(() => {
     w(m());
   }, [s?.id, a]);
-  const N = P(
-    async (L) => {
-      if (L.preventDefault(), g !== y) {
-        C("Passwords do not match");
+  const E = P(
+    async (x) => {
+      if (x.preventDefault(), g !== y) {
+        N("Passwords do not match");
         return;
       }
       const S = Wt(g);
       if (!S.isValid) {
         const B = Object.values(S.errors)[0];
-        C(B ?? "Password does not meet requirements");
+        N(B ?? "Password does not meet requirements");
         return;
       }
-      C(null), await l(g);
+      N(null), await l(g);
     },
     [g, y, l]
-  ), x = P(async () => {
+  ), L = P(async () => {
     await c();
   }, [c]), A = P(() => {
     d(), n.solanaPubkey && t?.(n.solanaPubkey);
-  }, [d, n.solanaPubkey, t]), E = P(() => {
+  }, [d, n.solanaPubkey, t]), C = P(() => {
     h(), r?.();
   }, [h, r]);
   return n.step === "generating_seed" || n.step === "splitting_shares" ? /* @__PURE__ */ e("div", { className: `cedros-wallet-enrollment ${o}`, "aria-busy": "true", children: /* @__PURE__ */ i("div", { className: "cedros-enrollment-progress", role: "status", "aria-live": "polite", children: [
@@ -4799,7 +4802,7 @@ function Un({
         {
           type: "button",
           className: "cedros-button cedros-button-secondary",
-          onClick: E,
+          onClick: C,
           children: "Cancel"
         }
       ),
@@ -4852,13 +4855,13 @@ function Un({
         /* @__PURE__ */ e("span", { children: "Passkey" })
       ] })
     ] }),
-    f === "password" && /* @__PURE__ */ i("form", { onSubmit: N, className: "cedros-enrollment-form", children: [
+    f === "password" && /* @__PURE__ */ i("form", { onSubmit: E, className: "cedros-enrollment-form", children: [
       /* @__PURE__ */ e(
         we,
         {
           label: "Password",
           value: g,
-          onChange: (L) => u(L.target.value),
+          onChange: (x) => u(x.target.value),
           showStrengthMeter: !0,
           disabled: p,
           required: !0,
@@ -4871,7 +4874,7 @@ function Un({
         {
           label: "Confirm Password",
           value: y,
-          onChange: (L) => v(L.target.value),
+          onChange: (x) => v(x.target.value),
           error: b ?? void 0,
           disabled: p,
           required: !0,
@@ -4886,7 +4889,7 @@ function Un({
           {
             type: "button",
             className: "cedros-button cedros-button-secondary",
-            onClick: E,
+            onClick: C,
             disabled: p,
             children: "Cancel"
           }
@@ -4940,7 +4943,7 @@ function Un({
           {
             type: "button",
             className: "cedros-button cedros-button-secondary",
-            onClick: E,
+            onClick: C,
             disabled: p,
             children: "Cancel"
           }
@@ -4950,7 +4953,7 @@ function Un({
           {
             type: "button",
             className: "cedros-button cedros-button-primary",
-            onClick: x,
+            onClick: L,
             disabled: p,
             children: p ? "Creating..." : "Use Passkey"
           }
@@ -5155,7 +5158,7 @@ function Vn({
   _(() => {
     a !== void 0 && w(a);
   }, [a]);
-  const b = f === "password", C = f === "passkey", N = P(async () => {
+  const b = f === "password", N = f === "passkey", E = P(async () => {
     if (m("credential"), v(null), !f)
       try {
         const T = await l();
@@ -5163,7 +5166,7 @@ function Vn({
       } catch (T) {
         v(T instanceof Error ? T.message : "Failed to get wallet info"), m("error");
       }
-  }, [f, l]), x = P(
+  }, [f, l]), L = P(
     async (T) => {
       T.preventDefault(), v(null), m("unlocking");
       try {
@@ -5190,9 +5193,9 @@ function Vn({
     } catch (T) {
       v(T instanceof Error ? T.message : "Failed to unlock wallet"), m("error");
     }
-  }, [d, n, t]), E = P(() => {
+  }, [d, n, t]), C = P(() => {
     u(""), m("idle"), v(null), r?.();
-  }, [r]), L = P(() => {
+  }, [r]), x = P(() => {
     u(""), m("credential"), v(null);
   }, []), S = c || h, B = () => {
     switch (p) {
@@ -5206,13 +5209,13 @@ function Vn({
             {
               type: "button",
               className: "cedros-button cedros-button-primary",
-              onClick: N,
+              onClick: E,
               children: "Unlock Wallet"
             }
           )
         ] });
       case "credential":
-        return b ? /* @__PURE__ */ i("form", { className: "cedros-wallet-unlock-form", onSubmit: x, children: [
+        return b ? /* @__PURE__ */ i("form", { className: "cedros-wallet-unlock-form", onSubmit: L, children: [
           /* @__PURE__ */ e("h3", { className: "cedros-wallet-unlock-title", children: "Enter Password" }),
           /* @__PURE__ */ e("p", { className: "cedros-wallet-unlock-description", children: "Enter your wallet password to unlock." }),
           /* @__PURE__ */ e(
@@ -5241,13 +5244,13 @@ function Vn({
               {
                 type: "button",
                 className: "cedros-button cedros-button-secondary",
-                onClick: E,
+                onClick: C,
                 disabled: S,
                 children: "Cancel"
               }
             )
           ] })
-        ] }) : C ? /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-passkey", children: [
+        ] }) : N ? /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-passkey", children: [
           /* @__PURE__ */ e("h3", { className: "cedros-wallet-unlock-title", children: "Verify with Passkey" }),
           /* @__PURE__ */ e("p", { className: "cedros-wallet-unlock-description", children: "Use your passkey to unlock your wallet." }),
           /* @__PURE__ */ e(
@@ -5258,7 +5261,7 @@ function Vn({
               error: y ?? void 0,
               onPrompt: A,
               onRetry: A,
-              onCancel: o ? E : void 0
+              onCancel: o ? C : void 0
             }
           )
         ] }) : /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-loading", children: [
@@ -5288,7 +5291,7 @@ function Vn({
               {
                 type: "button",
                 className: "cedros-button cedros-button-primary",
-                onClick: L,
+                onClick: x,
                 children: "Try Again"
               }
             ),
@@ -5297,7 +5300,7 @@ function Vn({
               {
                 type: "button",
                 className: "cedros-button cedros-button-secondary",
-                onClick: E,
+                onClick: C,
                 children: "Cancel"
               }
             )
@@ -5391,32 +5394,32 @@ function Kn() {
           throw new Error("Invalid recovery phrase. Please check your words.");
         let g;
         if (o === "share_c_only") {
-          const L = $o(m);
-          c.current.push(L);
-          const S = ge(L), B = await r({ shareC: S }), T = zr(B.shareB);
-          c.current.push(T), g = Do(ze(T), ze(L)), c.current.push(g);
+          const x = $o(m);
+          c.current.push(x);
+          const S = ge(x), B = await r({ shareC: S }), T = zr(B.shareB);
+          c.current.push(T), g = Do(ze(T), ze(x)), c.current.push(g);
         } else
           g = Xo(m), c.current.push(g);
         const u = Jr(g), y = Xr(u), { shareA: v, shareB: b } = $r(g);
         c.current.push(v, b), s({ step: "encrypting" });
-        let C, N, x;
+        let N, E, L;
         if (f === "passkey") {
-          const L = qr();
-          x = ge(L);
-          const S = await _t(x);
-          c.current.push(S.prfOutput), C = await jr(S.prfOutput, L), c.current.push(C);
+          const x = qr();
+          L = ge(x);
+          const S = await _t(L);
+          c.current.push(S.prfOutput), N = await jr(S.prfOutput, x), c.current.push(N);
         } else
-          N = Or(), C = await Zr(w, N, Ve), c.current.push(C);
-        const A = await _r(v, Wr(C));
+          E = Or(), N = await Zr(w, E, Ve), c.current.push(N);
+        const A = await _r(v, Wr(N));
         s({ step: "uploading" });
-        const E = {
+        const C = {
           solanaPubkey: y,
           shareAAuthMethod: f,
           shareACiphertext: A.ciphertext,
           shareANonce: A.nonce,
           shareB: ge(b)
         };
-        f === "password" && (E.shareAKdfSalt = ge(N), E.shareAKdfParams = Ve), f === "passkey" && (E.prfSalt = x), await t(E), d(), s({ step: "complete" });
+        f === "password" && (C.shareAKdfSalt = ge(E), C.shareAKdfParams = Ve), f === "passkey" && (C.prfSalt = L), await t(C), d(), s({ step: "complete" });
       } catch (g) {
         d(), s({
           step: "error",
@@ -5443,17 +5446,17 @@ function Gn({
   className: o = "",
   defaultAuthMethod: a = "password"
 }) {
-  const { state: s, startRecovery: n, cancel: l, isRecovering: c } = Kn(), [d, h] = k([]), [p, m] = k(!1), [f, w] = k(a), [g, u] = k(""), [y, v] = k(""), [b, C] = k(null), N = P((S) => {
+  const { state: s, startRecovery: n, cancel: l, isRecovering: c } = Kn(), [d, h] = k([]), [p, m] = k(!1), [f, w] = k(a), [g, u] = k(""), [y, v] = k(""), [b, N] = k(null), E = P((S) => {
     h(S), m(!0);
-  }, []), x = P(
+  }, []), L = P(
     async (S) => {
-      if (S.preventDefault(), C(null), f !== "passkey") {
+      if (S.preventDefault(), N(null), f !== "passkey") {
         if (g !== y) {
-          C("Passwords do not match");
+          N("Passwords do not match");
           return;
         }
         if (f === "password" && g.length < 8) {
-          C("Password must be at least 8 characters");
+          N("Password must be at least 8 characters");
           return;
         }
       }
@@ -5462,9 +5465,9 @@ function Gn({
     [d, f, g, y, n]
   ), A = P(() => {
     l(), h([]), m(!1), u(""), v(""), r?.();
-  }, [l, r]), E = P(() => {
+  }, [l, r]), C = P(() => {
     m(!1), u(""), v("");
-  }, []), L = P(() => {
+  }, []), x = P(() => {
     t?.();
   }, [t]);
   return s.step === "validating" || s.step === "encrypting" || s.step === "uploading" ? /* @__PURE__ */ e("div", { className: `cedros-wallet-recovery ${o}`, children: /* @__PURE__ */ i("div", { className: "cedros-wallet-recovery-progress", children: [
@@ -5493,7 +5496,7 @@ function Gn({
       {
         type: "button",
         className: "cedros-button cedros-button-primary",
-        onClick: L,
+        onClick: x,
         children: "Done"
       }
     ) })
@@ -5510,7 +5513,7 @@ function Gn({
         children: "Start Over"
       }
     ) })
-  ] }) }) : p ? /* @__PURE__ */ e("div", { className: `cedros-wallet-recovery ${o}`, children: /* @__PURE__ */ i("form", { className: "cedros-wallet-recovery-credential", onSubmit: x, children: [
+  ] }) }) : p ? /* @__PURE__ */ e("div", { className: `cedros-wallet-recovery ${o}`, children: /* @__PURE__ */ i("form", { className: "cedros-wallet-recovery-credential", onSubmit: L, children: [
     /* @__PURE__ */ i("div", { className: "cedros-wallet-recovery-header", children: [
       /* @__PURE__ */ e("h3", { className: "cedros-wallet-recovery-title", children: "Set New Security" }),
       /* @__PURE__ */ e("p", { className: "cedros-wallet-recovery-description", children: "Choose how to secure your recovered wallet." })
@@ -5590,7 +5593,7 @@ function Gn({
         {
           type: "button",
           className: "cedros-button cedros-button-secondary",
-          onClick: E,
+          onClick: C,
           disabled: c,
           children: "Back"
         }
@@ -5613,7 +5616,7 @@ function Gn({
     /* @__PURE__ */ e(
       Bn,
       {
-        onSubmit: N,
+        onSubmit: E,
         onCancel: A,
         isSubmitting: !1
       }
@@ -5733,15 +5736,15 @@ function ea({
   className: n = ""
 }) {
   const l = ve(), [c, d] = k(!1), [h, p] = k(null), [m, f] = k(!1), w = $(null), g = l?.config.solana?.network ?? "mainnet-beta", u = q(() => {
-    const C = `https://explorer.solana.com/address/${t}`;
-    return g === "mainnet-beta" ? C : `${C}?cluster=${encodeURIComponent(g)}`;
+    const N = `https://explorer.solana.com/address/${t}`;
+    return g === "mainnet-beta" ? N : `${N}?cluster=${encodeURIComponent(g)}`;
   }, [t, g]), y = s && t.length > 18, v = q(() => !y || m ? t : `${t.slice(0, 8)}...${t.slice(-8)}`, [t, y, m]), b = P(async () => {
     try {
       p(null), await navigator.clipboard.writeText(t), d(!0), w.current !== null && window.clearTimeout(w.current), w.current = window.setTimeout(() => {
         d(!1), w.current = null;
       }, 2e3);
-    } catch (C) {
-      d(!1), p(C instanceof Error ? C.message : "Copy failed");
+    } catch (N) {
+      d(!1), p(N instanceof Error ? N.message : "Copy failed");
     }
   }, [t]);
   return _(() => () => {
@@ -5755,7 +5758,7 @@ function ea({
           {
             type: "button",
             className: "cedros-button cedros-button-sm cedros-button-ghost",
-            onClick: () => f((C) => !C),
+            onClick: () => f((N) => !N),
             "aria-label": m ? "Hide full wallet address" : "Show full wallet address",
             children: m ? /* @__PURE__ */ i("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
               /* @__PURE__ */ e(
@@ -6184,26 +6187,26 @@ function hc({
     c();
   }, [c]), _(() => {
     if (w) {
-      const x = setTimeout(() => g(!1), 3e3);
-      return () => clearTimeout(x);
+      const L = setTimeout(() => g(!1), 3e3);
+      return () => clearTimeout(L);
     }
   }, [w]);
-  const u = P((x, A) => {
-    p((E) => ({ ...E, [x]: A })), f(null), g(!1);
+  const u = P((L, A) => {
+    p((C) => ({ ...C, [L]: A })), f(null), g(!1);
   }, []), y = P(async () => {
-    const x = Object.entries(h).map(([A, E]) => ({
+    const L = Object.entries(h).map(([A, C]) => ({
       key: A,
-      value: E
+      value: C
     }));
-    if (x.length !== 0)
+    if (L.length !== 0)
       try {
-        await d(x), p({}), f(null), g(!0), o?.();
+        await d(L), p({}), f(null), g(!0), o?.();
       } catch (A) {
         f(A instanceof Error ? A.message : "Failed to save settings");
       }
   }, [h, d, o]), v = P(() => {
     p({}), f(null), g(!1);
-  }, []), b = Object.keys(h).length > 0, C = Object.keys(h).length;
+  }, []), b = Object.keys(h).length > 0, N = Object.keys(h).length;
   if (s && Object.keys(a).length === 0)
     return /* @__PURE__ */ i("div", { className: `cedros-system-settings cedros-system-settings-loading ${r}`, children: [
       /* @__PURE__ */ e(K, {}),
@@ -6211,26 +6214,26 @@ function hc({
     ] });
   if (l)
     return /* @__PURE__ */ e("div", { className: `cedros-system-settings ${r}`, children: /* @__PURE__ */ e(ee, { error: l.message }) });
-  const N = Object.keys(a).sort();
-  return N.length === 0 ? /* @__PURE__ */ e("div", { className: `cedros-system-settings cedros-system-settings-empty ${r}`, children: /* @__PURE__ */ e("p", { children: "No system settings found." }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${r}`, children: [
+  const E = Object.keys(a).sort();
+  return E.length === 0 ? /* @__PURE__ */ e("div", { className: `cedros-system-settings cedros-system-settings-empty ${r}`, children: /* @__PURE__ */ e("p", { children: "No system settings found." }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${r}`, children: [
     m && /* @__PURE__ */ e(ee, { error: m }),
     w && /* @__PURE__ */ e("div", { className: "cedros-settings-success", children: "Settings saved successfully." }),
-    N.map((x) => /* @__PURE__ */ e(
+    E.map((L) => /* @__PURE__ */ e(
       na,
       {
-        category: x,
-        settings: a[x],
+        category: L,
+        settings: a[L],
         edits: h,
         showDescription: t,
         onChange: u
       },
-      x
+      L
     )),
     /* @__PURE__ */ i("div", { className: "cedros-system-settings-actions", children: [
       b && /* @__PURE__ */ i("span", { className: "cedros-settings-change-count", children: [
-        C,
+        N,
         " unsaved change",
-        C !== 1 ? "s" : ""
+        N !== 1 ? "s" : ""
       ] }),
       /* @__PURE__ */ e(
         "button",
@@ -6598,14 +6601,14 @@ function ua({ className: t }) {
   _(() => {
     c();
   }, [c]);
-  const f = nr.find((N) => N.id === p), w = f?.category ?? "", u = (h("email_provider") || "custom") === "custom", y = h("email_smtp_host"), v = !u || y != null && y !== "", b = q(() => {
-    const N = r[w] ?? [];
-    if (p !== "email") return N;
-    const x = u ? xo : Po;
-    return N.filter((A) => x.includes(A.key)).sort((A, E) => x.indexOf(A.key) - x.indexOf(E.key));
-  }, [r, w, p, u]), C = (N, x) => {
-    if (d(N, x), N === "email_provider" && x !== "custom") {
-      const A = Lo[x];
+  const f = nr.find((E) => E.id === p), w = f?.category ?? "", u = (h("email_provider") || "custom") === "custom", y = h("email_smtp_host"), v = !u || y != null && y !== "", b = q(() => {
+    const E = r[w] ?? [];
+    if (p !== "email") return E;
+    const L = u ? xo : Po;
+    return E.filter((A) => L.includes(A.key)).sort((A, C) => L.indexOf(A.key) - L.indexOf(C.key));
+  }, [r, w, p, u]), N = (E, L) => {
+    if (d(E, L), E === "email_provider" && L !== "custom") {
+      const A = Lo[L];
       A && (d("email_smtp_host", A), d("email_smtp_port", "587"), d("email_smtp_tls", "true"));
     }
   };
@@ -6621,17 +6624,17 @@ function ua({ className: t }) {
       /* @__PURE__ */ e(ho, { status: s, error: n })
     ] }),
     p === "email" && !v && /* @__PURE__ */ e("div", { className: "cedros-settings-warning-banner", children: "Email features (verification, password reset, instant link) are disabled until SMTP is configured. Select a provider or enter custom SMTP settings below." }),
-    /* @__PURE__ */ e("div", { className: "cedros-admin-tabs cedros-admin-tabs--line", children: nr.map((N) => /* @__PURE__ */ e(
+    /* @__PURE__ */ e("div", { className: "cedros-admin-tabs cedros-admin-tabs--line", children: nr.map((E) => /* @__PURE__ */ e(
       "button",
       {
         type: "button",
-        className: `cedros-admin-tab ${p === N.id ? "cedros-admin-tab-active" : ""}`,
-        onClick: () => m(N.id),
-        "aria-selected": p === N.id,
+        className: `cedros-admin-tab ${p === E.id ? "cedros-admin-tab-active" : ""}`,
+        onClick: () => m(E.id),
+        "aria-selected": p === E.id,
         role: "tab",
-        children: N.label
+        children: E.label
       },
-      N.id
+      E.id
     )) }),
     /* @__PURE__ */ e("div", { className: "cedros-admin-tab-content", role: "tabpanel", children: b.length === 0 ? /* @__PURE__ */ e("div", { className: "cedros-system-settings-empty", children: /* @__PURE__ */ i("p", { children: [
       "No settings found for ",
@@ -6642,7 +6645,7 @@ function ua({ className: t }) {
       {
         settings: b,
         edits: o,
-        onChange: p === "email" ? C : d
+        onChange: p === "email" ? N : d
       }
     ) })
   ] });
@@ -6871,17 +6874,17 @@ function mc({
   onLogoutClick: c,
   className: d = ""
 }) {
-  const [h, p] = k(o), [m, f] = k(!0), { user: w, logout: g } = ne(), { activeOrg: u, role: y, isLoading: v, fetchOrgs: b, hasPermission: C } = po(), { status: N, isLoading: x, checkStatus: A } = us(), { features: E, isLoading: L } = Zs(), { canAccess: S } = eo(), B = P(
+  const [h, p] = k(o), [m, f] = k(!0), { user: w, logout: g } = ne(), { activeOrg: u, role: y, isLoading: v, fetchOrgs: b, hasPermission: N } = po(), { status: E, isLoading: L, checkStatus: A } = us(), { features: C, isLoading: x } = Zs(), { canAccess: S } = eo(), B = P(
     (F) => {
       p(F), n?.(F);
     },
     [n]
-  ), T = ha.filter((F) => !(!r.includes(F.id) || F.requiredFeature && !E[F.requiredFeature] || !S(F.id))), M = T.find((F) => F.id === h), R = !M && !L;
+  ), T = ha.filter((F) => !(!r.includes(F.id) || F.requiredFeature && !C[F.requiredFeature] || !S(F.id))), M = T.find((F) => F.id === h), R = !M && !x;
   return _(() => {
     b(), A();
   }, [b, A]), _(() => {
     R && T.length > 0 && p("users");
-  }, [R, T.length]), !x && N?.needsSetup ? /* @__PURE__ */ e("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--setup ${d}`, children: /* @__PURE__ */ e(la, { onComplete: () => A() }) }) : (v || x || L) && !u ? /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--loading ${d}`, children: [
+  }, [R, T.length]), !L && E?.needsSetup ? /* @__PURE__ */ e("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--setup ${d}`, children: /* @__PURE__ */ e(la, { onComplete: () => A() }) }) : (v || L || x) && !u ? /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--loading ${d}`, children: [
     /* @__PURE__ */ e(K, {}),
     /* @__PURE__ */ e("span", { className: "cedros-dashboard__loading-text", children: "Loading..." })
   ] }) : h === "team" && !u ? /* @__PURE__ */ e("div", { className: `cedros-admin cedros-dashboard ${d}`, children: /* @__PURE__ */ e(ee, { error: "No organization selected. Please select an organization first." }) }) : /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard ${d}`, children: [
@@ -6968,7 +6971,7 @@ function mc({
           {
             orgId: u.id,
             currentUserId: w?.id,
-            hasPermission: C,
+            hasPermission: N,
             role: y
           }
         ),
@@ -7025,19 +7028,19 @@ function ma({ orgId: t, currentUserId: r, hasPermission: o, role: a }) {
   _(() => {
     h(), u();
   }, [h, u]);
-  const C = o("invite:create"), N = o("invite:cancel"), x = f.length, A = l.reduce(
+  const N = o("invite:create"), E = o("invite:cancel"), L = f.length, A = l.reduce(
     (B, T) => (B[T.role] = (B[T.role] ?? 0) + 1, B),
     {}
-  ), E = A.owner ?? 0, L = A.admin ?? 0, S = A.member ?? 0;
+  ), C = A.owner ?? 0, x = A.admin ?? 0, S = A.member ?? 0;
   return /* @__PURE__ */ i("div", { className: "cedros-dashboard__team", children: [
     /* @__PURE__ */ e(
       Gr,
       {
         stats: [
-          { label: "Owners", value: E },
-          { label: "Admins", value: L },
+          { label: "Owners", value: C },
+          { label: "Admins", value: x },
           { label: "Members", value: S },
-          { label: "Pending Invites", value: x }
+          { label: "Pending Invites", value: L }
         ]
       }
     ),
@@ -7063,7 +7066,7 @@ function ma({ orgId: t, currentUserId: r, hasPermission: o, role: a }) {
           role: "tab",
           children: [
             "Pending Invites",
-            x > 0 && ` (${x})`
+            L > 0 && ` (${L})`
           ]
         }
       ),
@@ -7094,7 +7097,7 @@ function ma({ orgId: t, currentUserId: r, hasPermission: o, role: a }) {
         }
       ),
       s === "invites" && /* @__PURE__ */ i("div", { className: "cedros-dashboard__invites", children: [
-        C && /* @__PURE__ */ i("div", { className: "cedros-dashboard__section", children: [
+        N && /* @__PURE__ */ i("div", { className: "cedros-dashboard__section", children: [
           /* @__PURE__ */ e("div", { className: "cedros-dashboard__section-header", children: /* @__PURE__ */ e("h3", { className: "cedros-dashboard__section-title", children: "Send Invitation" }) }),
           /* @__PURE__ */ e(
             oo,
@@ -7111,9 +7114,9 @@ function ma({ orgId: t, currentUserId: r, hasPermission: o, role: a }) {
             invites: f,
             isLoading: w,
             error: g?.message,
-            canManage: N || C,
-            onCancel: N ? v : void 0,
-            onResend: C ? b : void 0
+            canManage: E || N,
+            onCancel: E ? v : void 0,
+            onResend: N ? b : void 0
           }
         ) })
       ] }),
@@ -8012,17 +8015,17 @@ function Sa() {
       typeof u > "u" && (u = s.BYTE);
       const y = r.getSymbolTotalCodewords(w), v = o.getTotalCodewordsCount(w, g), b = (y - v) * 8;
       if (u === s.MIXED) return b;
-      const C = b - h(u, w);
+      const N = b - h(u, w);
       switch (u) {
         case s.NUMERIC:
-          return Math.floor(C / 10 * 3);
+          return Math.floor(N / 10 * 3);
         case s.ALPHANUMERIC:
-          return Math.floor(C / 11 * 2);
+          return Math.floor(N / 11 * 2);
         case s.KANJI:
-          return Math.floor(C / 13);
+          return Math.floor(N / 13);
         case s.BYTE:
         default:
-          return Math.floor(C / 8);
+          return Math.floor(N / 8);
       }
     }, t.getBestVersionForData = function(w, g) {
       let u;
@@ -8275,28 +8278,28 @@ function Ra() {
     function h(v) {
       return unescape(encodeURIComponent(v)).length;
     }
-    function p(v, b, C) {
-      const N = [];
-      let x;
-      for (; (x = v.exec(C)) !== null; )
-        N.push({
-          data: x[0],
-          index: x.index,
+    function p(v, b, N) {
+      const E = [];
+      let L;
+      for (; (L = v.exec(N)) !== null; )
+        E.push({
+          data: L[0],
+          index: L.index,
           mode: b,
-          length: x[0].length
+          length: L[0].length
         });
-      return N;
+      return E;
     }
     function m(v) {
-      const b = p(l.NUMERIC, r.NUMERIC, v), C = p(l.ALPHANUMERIC, r.ALPHANUMERIC, v);
-      let N, x;
-      return c.isKanjiModeEnabled() ? (N = p(l.BYTE, r.BYTE, v), x = p(l.KANJI, r.KANJI, v)) : (N = p(l.BYTE_KANJI, r.BYTE, v), x = []), b.concat(C, N, x).sort(function(E, L) {
-        return E.index - L.index;
-      }).map(function(E) {
+      const b = p(l.NUMERIC, r.NUMERIC, v), N = p(l.ALPHANUMERIC, r.ALPHANUMERIC, v);
+      let E, L;
+      return c.isKanjiModeEnabled() ? (E = p(l.BYTE, r.BYTE, v), L = p(l.KANJI, r.KANJI, v)) : (E = p(l.BYTE_KANJI, r.BYTE, v), L = []), b.concat(N, E, L).sort(function(C, x) {
+        return C.index - x.index;
+      }).map(function(C) {
         return {
-          data: E.data,
-          mode: E.mode,
-          length: E.length
+          data: C.data,
+          mode: C.mode,
+          length: C.length
         };
       });
     }
@@ -8313,69 +8316,69 @@ function Ra() {
       }
     }
     function w(v) {
-      return v.reduce(function(b, C) {
-        const N = b.length - 1 >= 0 ? b[b.length - 1] : null;
-        return N && N.mode === C.mode ? (b[b.length - 1].data += C.data, b) : (b.push(C), b);
+      return v.reduce(function(b, N) {
+        const E = b.length - 1 >= 0 ? b[b.length - 1] : null;
+        return E && E.mode === N.mode ? (b[b.length - 1].data += N.data, b) : (b.push(N), b);
       }, []);
     }
     function g(v) {
       const b = [];
-      for (let C = 0; C < v.length; C++) {
-        const N = v[C];
-        switch (N.mode) {
+      for (let N = 0; N < v.length; N++) {
+        const E = v[N];
+        switch (E.mode) {
           case r.NUMERIC:
             b.push([
-              N,
-              { data: N.data, mode: r.ALPHANUMERIC, length: N.length },
-              { data: N.data, mode: r.BYTE, length: N.length }
+              E,
+              { data: E.data, mode: r.ALPHANUMERIC, length: E.length },
+              { data: E.data, mode: r.BYTE, length: E.length }
             ]);
             break;
           case r.ALPHANUMERIC:
             b.push([
-              N,
-              { data: N.data, mode: r.BYTE, length: N.length }
+              E,
+              { data: E.data, mode: r.BYTE, length: E.length }
             ]);
             break;
           case r.KANJI:
             b.push([
-              N,
-              { data: N.data, mode: r.BYTE, length: h(N.data) }
+              E,
+              { data: E.data, mode: r.BYTE, length: h(E.data) }
             ]);
             break;
           case r.BYTE:
             b.push([
-              { data: N.data, mode: r.BYTE, length: h(N.data) }
+              { data: E.data, mode: r.BYTE, length: h(E.data) }
             ]);
         }
       }
       return b;
     }
     function u(v, b) {
-      const C = {}, N = { start: {} };
-      let x = ["start"];
+      const N = {}, E = { start: {} };
+      let L = ["start"];
       for (let A = 0; A < v.length; A++) {
-        const E = v[A], L = [];
-        for (let S = 0; S < E.length; S++) {
-          const B = E[S], T = "" + A + S;
-          L.push(T), C[T] = { node: B, lastCount: 0 }, N[T] = {};
-          for (let M = 0; M < x.length; M++) {
-            const R = x[M];
-            C[R] && C[R].node.mode === B.mode ? (N[R][T] = f(C[R].lastCount + B.length, B.mode) - f(C[R].lastCount, B.mode), C[R].lastCount += B.length) : (C[R] && (C[R].lastCount = B.length), N[R][T] = f(B.length, B.mode) + 4 + r.getCharCountIndicator(B.mode, b));
+        const C = v[A], x = [];
+        for (let S = 0; S < C.length; S++) {
+          const B = C[S], T = "" + A + S;
+          x.push(T), N[T] = { node: B, lastCount: 0 }, E[T] = {};
+          for (let M = 0; M < L.length; M++) {
+            const R = L[M];
+            N[R] && N[R].node.mode === B.mode ? (E[R][T] = f(N[R].lastCount + B.length, B.mode) - f(N[R].lastCount, B.mode), N[R].lastCount += B.length) : (N[R] && (N[R].lastCount = B.length), E[R][T] = f(B.length, B.mode) + 4 + r.getCharCountIndicator(B.mode, b));
           }
         }
-        x = L;
+        L = x;
       }
-      for (let A = 0; A < x.length; A++)
-        N[x[A]].end = 0;
-      return { map: N, table: C };
+      for (let A = 0; A < L.length; A++)
+        E[L[A]].end = 0;
+      return { map: E, table: N };
     }
     function y(v, b) {
-      let C;
-      const N = r.getBestModeForData(v);
-      if (C = r.from(b, N), C !== r.BYTE && C.bit < N.bit)
-        throw new Error('"' + v + '" cannot be encoded with mode ' + r.toString(C) + `.
- Suggested mode is: ` + r.toString(N));
-      switch (C === r.KANJI && !c.isKanjiModeEnabled() && (C = r.BYTE), C) {
+      let N;
+      const E = r.getBestModeForData(v);
+      if (N = r.from(b, E), N !== r.BYTE && N.bit < E.bit)
+        throw new Error('"' + v + '" cannot be encoded with mode ' + r.toString(N) + `.
+ Suggested mode is: ` + r.toString(E));
+      switch (N === r.KANJI && !c.isKanjiModeEnabled() && (N = r.BYTE), N) {
         case r.NUMERIC:
           return new o(v);
         case r.ALPHANUMERIC:
@@ -8387,14 +8390,14 @@ function Ra() {
       }
     }
     t.fromArray = function(b) {
-      return b.reduce(function(C, N) {
-        return typeof N == "string" ? C.push(y(N, null)) : N.data && C.push(y(N.data, N.mode)), C;
+      return b.reduce(function(N, E) {
+        return typeof E == "string" ? N.push(y(E, null)) : E.data && N.push(y(E.data, E.mode)), N;
       }, []);
-    }, t.fromString = function(b, C) {
-      const N = m(b, c.isKanjiModeEnabled()), x = g(N), A = u(x, C), E = d.find_path(A.map, "start", "end"), L = [];
-      for (let S = 1; S < E.length - 1; S++)
-        L.push(A.table[E[S]].node);
-      return t.fromArray(w(L));
+    }, t.fromString = function(b, N) {
+      const E = m(b, c.isKanjiModeEnabled()), L = g(E), A = u(L, N), C = d.find_path(A.map, "start", "end"), x = [];
+      for (let S = 1; S < C.length - 1; S++)
+        x.push(A.table[C[S]].node);
+      return t.fromArray(w(x));
     }, t.rawSplit = function(b) {
       return t.fromArray(
         m(b, c.isKanjiModeEnabled())
@@ -8407,76 +8410,76 @@ function Da() {
   if (Lr) return lt;
   Lr = 1;
   const t = ke(), r = zt(), o = ya(), a = ba(), s = Aa(), n = va(), l = ka(), c = hs(), d = Ea(), h = Sa(), p = xa(), m = Ne(), f = Ra();
-  function w(A, E) {
-    const L = A.size, S = n.getPositions(E);
+  function w(A, C) {
+    const x = A.size, S = n.getPositions(C);
     for (let B = 0; B < S.length; B++) {
       const T = S[B][0], M = S[B][1];
       for (let R = -1; R <= 7; R++)
-        if (!(T + R <= -1 || L <= T + R))
+        if (!(T + R <= -1 || x <= T + R))
           for (let D = -1; D <= 7; D++)
-            M + D <= -1 || L <= M + D || (R >= 0 && R <= 6 && (D === 0 || D === 6) || D >= 0 && D <= 6 && (R === 0 || R === 6) || R >= 2 && R <= 4 && D >= 2 && D <= 4 ? A.set(T + R, M + D, !0, !0) : A.set(T + R, M + D, !1, !0));
+            M + D <= -1 || x <= M + D || (R >= 0 && R <= 6 && (D === 0 || D === 6) || D >= 0 && D <= 6 && (R === 0 || R === 6) || R >= 2 && R <= 4 && D >= 2 && D <= 4 ? A.set(T + R, M + D, !0, !0) : A.set(T + R, M + D, !1, !0));
     }
   }
   function g(A) {
-    const E = A.size;
-    for (let L = 8; L < E - 8; L++) {
-      const S = L % 2 === 0;
-      A.set(L, 6, S, !0), A.set(6, L, S, !0);
+    const C = A.size;
+    for (let x = 8; x < C - 8; x++) {
+      const S = x % 2 === 0;
+      A.set(x, 6, S, !0), A.set(6, x, S, !0);
     }
   }
-  function u(A, E) {
-    const L = s.getPositions(E);
-    for (let S = 0; S < L.length; S++) {
-      const B = L[S][0], T = L[S][1];
+  function u(A, C) {
+    const x = s.getPositions(C);
+    for (let S = 0; S < x.length; S++) {
+      const B = x[S][0], T = x[S][1];
       for (let M = -2; M <= 2; M++)
         for (let R = -2; R <= 2; R++)
           M === -2 || M === 2 || R === -2 || R === 2 || M === 0 && R === 0 ? A.set(B + M, T + R, !0, !0) : A.set(B + M, T + R, !1, !0);
     }
   }
-  function y(A, E) {
-    const L = A.size, S = h.getEncodedBits(E);
+  function y(A, C) {
+    const x = A.size, S = h.getEncodedBits(C);
     let B, T, M;
     for (let R = 0; R < 18; R++)
-      B = Math.floor(R / 3), T = R % 3 + L - 8 - 3, M = (S >> R & 1) === 1, A.set(B, T, M, !0), A.set(T, B, M, !0);
+      B = Math.floor(R / 3), T = R % 3 + x - 8 - 3, M = (S >> R & 1) === 1, A.set(B, T, M, !0), A.set(T, B, M, !0);
   }
-  function v(A, E, L) {
-    const S = A.size, B = p.getEncodedBits(E, L);
+  function v(A, C, x) {
+    const S = A.size, B = p.getEncodedBits(C, x);
     let T, M;
     for (T = 0; T < 15; T++)
       M = (B >> T & 1) === 1, T < 6 ? A.set(T, 8, M, !0) : T < 8 ? A.set(T + 1, 8, M, !0) : A.set(S - 15 + T, 8, M, !0), T < 8 ? A.set(8, S - T - 1, M, !0) : T < 9 ? A.set(8, 15 - T - 1 + 1, M, !0) : A.set(8, 15 - T - 1, M, !0);
     A.set(S - 8, 8, 1, !0);
   }
-  function b(A, E) {
-    const L = A.size;
-    let S = -1, B = L - 1, T = 7, M = 0;
-    for (let R = L - 1; R > 0; R -= 2)
+  function b(A, C) {
+    const x = A.size;
+    let S = -1, B = x - 1, T = 7, M = 0;
+    for (let R = x - 1; R > 0; R -= 2)
       for (R === 6 && R--; ; ) {
         for (let D = 0; D < 2; D++)
           if (!A.isReserved(B, R - D)) {
             let F = !1;
-            M < E.length && (F = (E[M] >>> T & 1) === 1), A.set(B, R - D, F), T--, T === -1 && (M++, T = 7);
+            M < C.length && (F = (C[M] >>> T & 1) === 1), A.set(B, R - D, F), T--, T === -1 && (M++, T = 7);
           }
-        if (B += S, B < 0 || L <= B) {
+        if (B += S, B < 0 || x <= B) {
           B -= S, S = -S;
           break;
         }
       }
   }
-  function C(A, E, L) {
+  function N(A, C, x) {
     const S = new o();
-    L.forEach(function(D) {
+    x.forEach(function(D) {
       S.put(D.mode.bit, 4), S.put(D.getLength(), m.getCharCountIndicator(D.mode, A)), D.write(S);
     });
-    const B = t.getSymbolTotalCodewords(A), T = c.getTotalCodewordsCount(A, E), M = (B - T) * 8;
+    const B = t.getSymbolTotalCodewords(A), T = c.getTotalCodewordsCount(A, C), M = (B - T) * 8;
     for (S.getLengthInBits() + 4 <= M && S.put(0, 4); S.getLengthInBits() % 8 !== 0; )
       S.putBit(0);
     const R = (M - S.getLengthInBits()) / 8;
     for (let D = 0; D < R; D++)
       S.put(D % 2 ? 17 : 236, 8);
-    return N(S, A, E);
+    return E(S, A, C);
   }
-  function N(A, E, L) {
-    const S = t.getSymbolTotalCodewords(E), B = c.getTotalCodewordsCount(E, L), T = S - B, M = c.getBlocksCount(E, L), R = S % M, D = M - R, F = Math.floor(S / M), Z = Math.floor(T / M), he = Z + 1, te = F - Z, H = new d(te);
+  function E(A, C, x) {
+    const S = t.getSymbolTotalCodewords(C), B = c.getTotalCodewordsCount(C, x), T = S - B, M = c.getBlocksCount(C, x), R = S % M, D = M - R, F = Math.floor(S / M), Z = Math.floor(T / M), he = Z + 1, te = F - Z, H = new d(te);
     let I = 0;
     const U = new Array(M), Q = new Array(M);
     let re = 0;
@@ -8495,48 +8498,48 @@ function Da() {
         fe[pe++] = Q[j][z];
     return fe;
   }
-  function x(A, E, L, S) {
+  function L(A, C, x, S) {
     let B;
     if (Array.isArray(A))
       B = f.fromArray(A);
     else if (typeof A == "string") {
-      let F = E;
+      let F = C;
       if (!F) {
         const Z = f.rawSplit(A);
-        F = h.getBestVersionForData(Z, L);
+        F = h.getBestVersionForData(Z, x);
       }
       B = f.fromString(A, F || 40);
     } else
       throw new Error("Invalid data");
-    const T = h.getBestVersionForData(B, L);
+    const T = h.getBestVersionForData(B, x);
     if (!T)
       throw new Error("The amount of data is too big to be stored in a QR Code");
-    if (!E)
-      E = T;
-    else if (E < T)
+    if (!C)
+      C = T;
+    else if (C < T)
       throw new Error(
         `
 The chosen QR Code version cannot contain this amount of data.
 Minimum version required to store current data is: ` + T + `.
 `
       );
-    const M = C(E, L, B), R = t.getSymbolSize(E), D = new a(R);
-    return w(D, E), g(D), u(D, E), v(D, L, 0), E >= 7 && y(D, E), b(D, M), isNaN(S) && (S = l.getBestMask(
+    const M = N(C, x, B), R = t.getSymbolSize(C), D = new a(R);
+    return w(D, C), g(D), u(D, C), v(D, x, 0), C >= 7 && y(D, C), b(D, M), isNaN(S) && (S = l.getBestMask(
       D,
-      v.bind(null, D, L)
-    )), l.applyMask(S, D), v(D, L, S), {
+      v.bind(null, D, x)
+    )), l.applyMask(S, D), v(D, x, S), {
       modules: D,
-      version: E,
-      errorCorrectionLevel: L,
+      version: C,
+      errorCorrectionLevel: x,
       maskPattern: S,
       segments: B
     };
   }
-  return lt.create = function(E, L) {
-    if (typeof E > "u" || E === "")
+  return lt.create = function(C, x) {
+    if (typeof C > "u" || C === "")
       throw new Error("No input text");
     let S = r.M, B, T;
-    return typeof L < "u" && (S = r.from(L.errorCorrectionLevel, r.M), B = h.from(L.version), T = l.from(L.maskPattern), L.toSJISFunc && t.setToSJISFunction(L.toSJISFunc)), x(E, B, S, T);
+    return typeof x < "u" && (S = r.from(x.errorCorrectionLevel, r.M), B = h.from(x.version), T = l.from(x.maskPattern), x.toSJISFunc && t.setToSJISFunction(x.toSJISFunc)), L(C, B, S, T);
   }, lt;
 }
 var Pt = {}, Lt = {}, Mr;
@@ -8733,45 +8736,45 @@ function gs() {
   ), w = P(async () => {
     h(!0), m(null);
     try {
-      const N = await f.get("/mfa/status");
-      return a(N), N;
-    } catch (N) {
-      const x = O(N, "Failed to get TOTP status");
-      throw m(x), x;
+      const E = await f.get("/mfa/status");
+      return a(E), E;
+    } catch (E) {
+      const L = O(E, "Failed to get TOTP status");
+      throw m(L), L;
     } finally {
       h(!1);
     }
   }, [f]), g = P(async () => {
     h(!0), m(null), n("loading");
     try {
-      const N = await f.post("/mfa/setup", {});
-      return c(N), n("setup"), N;
-    } catch (N) {
-      const x = O(N, "Failed to start TOTP setup");
-      throw m(x), n("error"), x;
+      const E = await f.post("/mfa/setup", {});
+      return c(E), n("setup"), E;
+    } catch (E) {
+      const L = O(E, "Failed to start TOTP setup");
+      throw m(L), n("error"), L;
     } finally {
       h(!1);
     }
   }, [f]), u = P(
-    async (N) => {
-      if (!/^\d{6}$/.test(N)) {
-        const x = {
+    async (E) => {
+      if (!/^\d{6}$/.test(E)) {
+        const L = {
           code: "VALIDATION_ERROR",
           message: "Please enter a 6-digit code"
         };
-        throw m(x), x;
+        throw m(L), L;
       }
       h(!0), m(null), n("verifying");
       try {
-        await f.post("/mfa/enable", { code: N }), n("success");
+        await f.post("/mfa/enable", { code: E }), n("success");
         try {
-          const x = await f.get("/mfa/status");
-          a(x);
+          const L = await f.get("/mfa/status");
+          a(L);
         } catch {
           a({ enabled: !0, recoveryCodesRemaining: 0 });
         }
-      } catch (x) {
-        const A = O(x, "Invalid verification code");
+      } catch (L) {
+        const A = O(L, "Invalid verification code");
         throw m(A), n("error"), A;
       } finally {
         h(!1);
@@ -8779,19 +8782,19 @@ function gs() {
     },
     [f]
   ), y = P(
-    async (N) => {
-      if (!N) {
-        const x = {
+    async (E) => {
+      if (!E) {
+        const L = {
           code: "VALIDATION_ERROR",
           message: "Please enter your password"
         };
-        throw m(x), x;
+        throw m(L), L;
       }
       h(!0), m(null);
       try {
-        await f.post("/mfa/disable", { password: N }), a({ enabled: !1, recoveryCodesRemaining: 0 }), c(null), n("idle");
-      } catch (x) {
-        const A = O(x, "Failed to disable TOTP");
+        await f.post("/mfa/disable", { password: E }), a({ enabled: !1, recoveryCodesRemaining: 0 }), c(null), n("idle");
+      } catch (L) {
+        const A = O(L, "Failed to disable TOTP");
         throw m(A), A;
       } finally {
         h(!1);
@@ -8799,29 +8802,29 @@ function gs() {
     },
     [f]
   ), v = P(
-    async (N) => {
-      if (!/^\d{6}$/.test(N)) {
-        const x = {
+    async (E) => {
+      if (!/^\d{6}$/.test(E)) {
+        const L = {
           code: "VALIDATION_ERROR",
           message: "Please enter a 6-digit code"
         };
-        throw m(x), x;
+        throw m(L), L;
       }
       h(!0), m(null);
       try {
         return await f.post(
           "/mfa/recovery-codes/regenerate",
-          { code: N }
+          { code: E }
         );
-      } catch (x) {
-        const A = O(x, "Failed to regenerate recovery codes");
+      } catch (L) {
+        const A = O(L, "Failed to regenerate recovery codes");
         throw m(A), A;
       } finally {
         h(!1);
       }
     },
     [f]
-  ), b = P(() => m(null), []), C = P(() => {
+  ), b = P(() => m(null), []), N = P(() => {
     m(null), c(null), n("idle"), h(!1);
   }, []);
   return {
@@ -8836,24 +8839,24 @@ function gs() {
     disableTotp: y,
     regenerateBackupCodes: v,
     clearError: b,
-    reset: C
+    reset: N
   };
 }
 function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
-  const { setupState: a, setupData: s, isLoading: n, error: l, beginSetup: c, enableTotp: d, clearError: h, reset: p } = gs(), [m, f] = k("qr"), [w, g] = k(""), [u, y] = k(!1), [v, b] = k(!1), C = $(null);
+  const { setupState: a, setupData: s, isLoading: n, error: l, beginSetup: c, enableTotp: d, clearError: h, reset: p } = gs(), [m, f] = k("qr"), [w, g] = k(""), [u, y] = k(!1), [v, b] = k(!1), N = $(null);
   _(() => {
     a === "idle" && c().catch(() => {
     });
   }, [a, c]), _(() => {
     a === "success" && t?.();
   }, [a, t]);
-  const N = async () => {
-    s?.secret && (await navigator.clipboard.writeText(s.secret), y(!0), C.current !== null && window.clearTimeout(C.current), C.current = window.setTimeout(() => y(!1), 2e3));
-  }, x = async () => {
+  const E = async () => {
+    s?.secret && (await navigator.clipboard.writeText(s.secret), y(!0), N.current !== null && window.clearTimeout(N.current), N.current = window.setTimeout(() => y(!1), 2e3));
+  }, L = async () => {
     if (s?.recoveryCodes) {
-      const L = s.recoveryCodes.join(`
+      const x = s.recoveryCodes.join(`
 `);
-      await navigator.clipboard.writeText(L);
+      await navigator.clipboard.writeText(x);
     }
   }, A = async () => {
     try {
@@ -8861,11 +8864,11 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
     } catch {
       g("");
     }
-  }, E = () => {
+  }, C = () => {
     p(), r?.();
   };
   return _(() => () => {
-    C.current !== null && (window.clearTimeout(C.current), C.current = null);
+    N.current !== null && (window.clearTimeout(N.current), N.current = null);
   }, []), a === "loading" || a === "idle" && n ? /* @__PURE__ */ e("div", { className: `cedros-totp-setup ${o}`, children: /* @__PURE__ */ e("div", { className: "cedros-totp-loading", children: /* @__PURE__ */ e(K, { size: "lg", label: "Setting up two-factor authentication" }) }) }) : a === "error" && !s ? /* @__PURE__ */ i("div", { className: `cedros-totp-setup ${o}`, children: [
     /* @__PURE__ */ e(ee, { error: l, onDismiss: h }),
     /* @__PURE__ */ i("div", { className: "cedros-totp-actions", children: [
@@ -8874,7 +8877,7 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
         {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
-          onClick: E,
+          onClick: C,
           children: "Cancel"
         }
       ),
@@ -8929,7 +8932,7 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
             {
               type: "button",
               className: "cedros-button cedros-button-ghost cedros-button-sm",
-              onClick: N,
+              onClick: E,
               "aria-label": "Copy secret",
               children: u ? "Copied!" : "Copy"
             }
@@ -8942,7 +8945,7 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-md",
-            onClick: E,
+            onClick: C,
             children: "Cancel"
           }
         ),
@@ -8960,13 +8963,13 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
     m === "backup" && /* @__PURE__ */ i("div", { className: "cedros-totp-step", children: [
       /* @__PURE__ */ e("h3", { className: "cedros-totp-title", children: "Save recovery codes" }),
       /* @__PURE__ */ e("p", { className: "cedros-totp-description", children: "Save these codes in a secure place. You can use them to access your account if you lose your authenticator device." }),
-      /* @__PURE__ */ e("div", { className: "cedros-totp-backup-codes", children: s.recoveryCodes.map((L, S) => /* @__PURE__ */ e("code", { className: "cedros-totp-backup-code", children: L }, S)) }),
+      /* @__PURE__ */ e("div", { className: "cedros-totp-backup-codes", children: s.recoveryCodes.map((x, S) => /* @__PURE__ */ e("code", { className: "cedros-totp-backup-code", children: x }, S)) }),
       /* @__PURE__ */ e(
         "button",
         {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md cedros-button-full",
-          onClick: x,
+          onClick: L,
           children: "Copy all codes"
         }
       ),
@@ -8977,7 +8980,7 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
             type: "checkbox",
             className: "cedros-checkbox",
             checked: v,
-            onChange: (L) => b(L.target.checked)
+            onChange: (x) => b(x.target.checked)
           }
         ),
         /* @__PURE__ */ e("span", { className: "cedros-checkbox-text", children: "I have saved these recovery codes" })
@@ -9047,33 +9050,33 @@ function qa({ onSuccess: t, onCancel: r, className: o = "" }) {
   ] }) : null;
 }
 function fc({ onStatusChange: t, className: r = "" }) {
-  const { status: o, isLoading: a, error: s, getStatus: n, disableTotp: l, regenerateBackupCodes: c, clearError: d } = gs(), [h, p] = k("status"), [m, f] = k(""), [w, g] = k(""), [u, y] = k(null), [v, b] = k(!1), [C, N] = k(null);
+  const { status: o, isLoading: a, error: s, getStatus: n, disableTotp: l, regenerateBackupCodes: c, clearError: d } = gs(), [h, p] = k("status"), [m, f] = k(""), [w, g] = k(""), [u, y] = k(null), [v, b] = k(!1), [N, E] = k(null);
   _(() => {
     n().catch(() => {
     });
   }, [n]);
-  const x = P(() => {
+  const L = P(() => {
     p("status"), t?.(!0);
   }, [t]), A = async () => {
-    b(!0), N(null);
+    b(!0), E(null);
     try {
       await l(m), p("status"), f(""), t?.(!1);
     } catch (S) {
-      N(S instanceof Error ? S.message : "Failed to disable 2FA"), f("");
+      E(S instanceof Error ? S.message : "Failed to disable 2FA"), f("");
     } finally {
       b(!1);
     }
-  }, E = async () => {
-    b(!0), N(null);
+  }, C = async () => {
+    b(!0), E(null);
     try {
       const S = await c(w);
       y(S.recoveryCodes), g("");
     } catch (S) {
-      N(S instanceof Error ? S.message : "Failed to regenerate codes"), g("");
+      E(S instanceof Error ? S.message : "Failed to regenerate codes"), g("");
     } finally {
       b(!1);
     }
-  }, L = async () => {
+  }, x = async () => {
     u && await navigator.clipboard.writeText(u.join(`
 `));
   };
@@ -9088,14 +9091,14 @@ function fc({ onStatusChange: t, className: r = "" }) {
         children: "Retry"
       }
     )
-  ] }) : h === "setup" ? /* @__PURE__ */ e("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ e(qa, { onSuccess: x, onCancel: () => p("status") }) }) : h === "disable" ? /* @__PURE__ */ e("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
+  ] }) : h === "setup" ? /* @__PURE__ */ e("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ e(qa, { onSuccess: L, onCancel: () => p("status") }) }) : h === "disable" ? /* @__PURE__ */ e("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
     /* @__PURE__ */ e("h3", { className: "cedros-totp-title", children: "Disable two-factor authentication" }),
     /* @__PURE__ */ e("p", { className: "cedros-totp-description cedros-totp-warning", children: "This will make your account less secure. Enter your password to confirm." }),
-    C && /* @__PURE__ */ e("div", { className: "cedros-totp-error", children: /* @__PURE__ */ e(
+    N && /* @__PURE__ */ e("div", { className: "cedros-totp-error", children: /* @__PURE__ */ e(
       ee,
       {
-        error: { code: "UNKNOWN_ERROR", message: C },
-        onDismiss: () => N(null)
+        error: { code: "UNKNOWN_ERROR", message: N },
+        onDismiss: () => E(null)
       }
     ) }),
     /* @__PURE__ */ e("div", { className: "cedros-totp-verify-input", children: /* @__PURE__ */ e(
@@ -9116,7 +9119,7 @@ function fc({ onStatusChange: t, className: r = "" }) {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
           onClick: () => {
-            p("status"), f(""), N(null);
+            p("status"), f(""), E(null);
           },
           disabled: v,
           children: "Cancel"
@@ -9145,7 +9148,7 @@ function fc({ onStatusChange: t, className: r = "" }) {
       {
         type: "button",
         className: "cedros-button cedros-button-outline cedros-button-md cedros-button-full",
-        onClick: L,
+        onClick: x,
         children: "Copy all codes"
       }
     ),
@@ -9163,11 +9166,11 @@ function fc({ onStatusChange: t, className: r = "" }) {
   ] }) }) : /* @__PURE__ */ e("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
     /* @__PURE__ */ e("h3", { className: "cedros-totp-title", children: "Regenerate recovery codes" }),
     /* @__PURE__ */ e("p", { className: "cedros-totp-description", children: "This will invalidate all existing recovery codes. Enter your authenticator code to confirm." }),
-    C && /* @__PURE__ */ e("div", { className: "cedros-totp-error", children: /* @__PURE__ */ e(
+    N && /* @__PURE__ */ e("div", { className: "cedros-totp-error", children: /* @__PURE__ */ e(
       ee,
       {
-        error: { code: "UNKNOWN_ERROR", message: C },
-        onDismiss: () => N(null)
+        error: { code: "UNKNOWN_ERROR", message: N },
+        onDismiss: () => E(null)
       }
     ) }),
     /* @__PURE__ */ e("div", { className: "cedros-totp-verify-input", children: /* @__PURE__ */ e(
@@ -9175,7 +9178,7 @@ function fc({ onStatusChange: t, className: r = "" }) {
       {
         value: w,
         onChange: g,
-        onComplete: E,
+        onComplete: C,
         disabled: v,
         autoFocus: !0
       }
@@ -9187,7 +9190,7 @@ function fc({ onStatusChange: t, className: r = "" }) {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
           onClick: () => {
-            p("status"), g(""), N(null);
+            p("status"), g(""), E(null);
           },
           disabled: v,
           children: "Cancel"
@@ -9198,7 +9201,7 @@ function fc({ onStatusChange: t, className: r = "" }) {
         {
           type: "button",
           className: "cedros-button cedros-button-primary cedros-button-md",
-          onClick: E,
+          onClick: C,
           disabled: v || w.length !== 6,
           children: v ? /* @__PURE__ */ i(X, { children: [
             /* @__PURE__ */ e(K, { size: "sm" }),
@@ -9342,21 +9345,21 @@ function gc({
   onClose: r,
   className: o = ""
 }) {
-  const { user: a } = Fr(), { isLoading: s, error: n, changePassword: l, clearError: c } = za(), [d, h] = k("main"), [p, m] = k(""), [f, w] = k(""), [g, u] = k(""), [y, v] = k(null), [b, C] = k(null), N = Wt(f), x = f === g, A = p.length > 0 && f.length > 0 && g.length > 0 && N.isValid && x, E = P(async () => {
+  const { user: a } = Fr(), { isLoading: s, error: n, changePassword: l, clearError: c } = za(), [d, h] = k("main"), [p, m] = k(""), [f, w] = k(""), [g, u] = k(""), [y, v] = k(null), [b, N] = k(null), E = Wt(f), L = f === g, A = p.length > 0 && f.length > 0 && g.length > 0 && E.isValid && L, C = P(async () => {
     if (A) {
-      v(null), C(null);
+      v(null), N(null);
       try {
         await l({
           currentPassword: p,
           newPassword: f
-        }), m(""), w(""), u(""), C("Password changed successfully. Other sessions have been logged out."), t?.(), setTimeout(() => {
-          h("main"), C(null);
+        }), m(""), w(""), u(""), N("Password changed successfully. Other sessions have been logged out."), t?.(), setTimeout(() => {
+          h("main"), N(null);
         }, 2e3);
       } catch (B) {
         v(B instanceof Error ? B.message : "Failed to change password");
       }
     }
-  }, [A, p, f, l, t]), L = P(() => {
+  }, [A, p, f, l, t]), x = P(() => {
     h("main"), m(""), w(""), u(""), v(null), c();
   }, [c]), S = () => a?.name ? a.name.split(" ").map((B) => B[0]).join("").toUpperCase().slice(0, 2) : a?.email ? a.email[0].toUpperCase() : "?";
   return d === "change-password" ? /* @__PURE__ */ e("div", { className: `cedros-profile-settings ${o}`, children: /* @__PURE__ */ i("div", { className: "cedros-profile-panel", children: [
@@ -9406,7 +9409,7 @@ function gc({
           value: g,
           onChange: (B) => u(B.target.value),
           disabled: s,
-          error: g.length > 0 && !x ? "Passwords do not match" : void 0
+          error: g.length > 0 && !L ? "Passwords do not match" : void 0
         }
       ) })
     ] }),
@@ -9416,7 +9419,7 @@ function gc({
         {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
-          onClick: L,
+          onClick: x,
           disabled: s,
           children: "Cancel"
         }
@@ -9426,7 +9429,7 @@ function gc({
         {
           type: "button",
           className: "cedros-button cedros-button-primary cedros-button-md",
-          onClick: E,
+          onClick: C,
           disabled: s || !A,
           children: s ? /* @__PURE__ */ i(X, { children: [
             /* @__PURE__ */ e(K, { size: "sm" }),
@@ -9637,12 +9640,12 @@ function ws({
     if (!p.trim()) return t;
     const b = p.toLowerCase();
     return t.filter(
-      (C) => C.symbol.toLowerCase().includes(b) || C.name.toLowerCase().includes(b) || C.mint.toLowerCase().includes(b)
+      (N) => N.symbol.toLowerCase().includes(b) || N.name.toLowerCase().includes(b) || N.mint.toLowerCase().includes(b)
     );
   }, [t, p]);
   _(() => {
-    const b = (C) => {
-      f.current && !f.current.contains(C.target) && (h(!1), m(""));
+    const b = (N) => {
+      f.current && !f.current.contains(N.target) && (h(!1), m(""));
     };
     if (d)
       return document.addEventListener("mousedown", b), () => document.removeEventListener("mousedown", b);
@@ -9726,8 +9729,8 @@ function ws({
                     src: b.logoUrl,
                     alt: b.symbol,
                     className: "cedros-token-icon",
-                    onError: (C) => {
-                      C.target.style.display = "none";
+                    onError: (N) => {
+                      N.target.style.display = "none";
                     }
                   }
                 ),
@@ -9950,10 +9953,10 @@ function wc({
   demoAutoConfirmMs: y,
   tokenPriceUsd: v,
   showExplainer: b = !1,
-  siteName: C,
-  explainerConfig: N
+  siteName: N,
+  explainerConfig: E
 }) {
-  const { deposit: x, getStatus: A, error: E, clearError: L } = Va(), S = Xe(), B = Ir(t.quickActionTokens), T = Ir(t.customTokenSymbols), M = q(() => {
+  const { deposit: L, getStatus: A, error: C, clearError: x } = Va(), S = Xe(), B = Ir(t.quickActionTokens), T = Ir(t.customTokenSymbols), M = q(() => {
     const W = t.customTokens ?? [];
     if (W.length === 0) return a;
     const V = new Set(a.map((J) => J.symbol)), Y = [...a];
@@ -9973,8 +9976,8 @@ function wc({
     return W.length > 0 ? W : M;
   }, [M, T]), D = t.privateDepositsEnabled, F = o ? o === "sign" && !D ? "receive" : o : D && S.hasExternalWallet ? "sign" : "receive", Z = B[0] ? M.find((W) => W.symbol === B[0]) : void 0, he = r === "sol" ? Se : r === "single-token" ? Z ?? M.find((W) => W.symbol === "USDC") ?? M[0] ?? Se : s ?? Z ?? M.find((W) => W.symbol === "USDC") ?? M.find((W) => W.symbol !== "SOL") ?? M[0] ?? Se, te = P(() => b ? "explainer" : "unlock", [b]), [H, I] = k(te), [U, Q] = k(he), [re, oe] = k(""), [fe, pe] = k(null), [z, j] = k(null), [G, le] = k(null), [be, Kt] = k(null), [et, Me] = k(!1), [Ms, tt] = k(!1), [Re, Gt] = k(null);
   _(() => {
-    I(te()), Q(he), oe(""), pe(null), j(null), le(null), Kt(null), Me(!1), tt(!1), Gt(null), L();
-  }, [r, F, he, L, te]);
+    I(te()), Q(he), oe(""), pe(null), j(null), le(null), Kt(null), Me(!1), tt(!1), Gt(null), x();
+  }, [r, F, he, x, te]);
   const Ts = n ?? t.privateMinSol, Bs = l, De = parseFloat(re), $t = S.status === "enrolled_locked" || S.status === "enrolled_unlocked" || S.status === "unlocked", rt = $t && S.isUnlocked, st = $t && !S.isUnlocked, Jt = P(() => {
     let Y = F === "sign" ? [
       { key: "unlock", label: "Authorize" },
@@ -10010,7 +10013,7 @@ function wc({
     [m, F, De, U]
   ), Is = P(
     async (W, V) => {
-      L(), j(null), I("signing");
+      x(), j(null), I("signing");
       const Y = W ?? De, J = V ?? U;
       if (!u) {
         if (st && p) {
@@ -10044,7 +10047,7 @@ function wc({
           pe(Fe), I("success"), c?.(Fe);
           return;
         }
-        const ae = await x(ie), Ie = {
+        const ae = await L(ie), Ie = {
           token: r === "sol" ? null : J,
           amount: Y,
           amountSmallestUnit: ie,
@@ -10060,7 +10063,7 @@ function wc({
       }
     },
     [
-      x,
+      L,
       De,
       U,
       r,
@@ -10071,7 +10074,7 @@ function wc({
       p,
       c,
       d,
-      L
+      x
     ]
   ), Fs = P(() => {
     I("waiting");
@@ -10161,8 +10164,8 @@ function wc({
     c
   ]);
   const Us = P(() => {
-    I(te()), oe(""), pe(null), j(null), L();
-  }, [te, L]);
+    I(te()), oe(""), pe(null), j(null), x();
+  }, [te, x]);
   return t.enabled ? /* @__PURE__ */ i("div", { className: `cedros-deposit-flow ${f}`, children: [
     w && H !== "error" && /* @__PURE__ */ e("div", { className: "cedros-deposit-flow-steps", children: Jt.map((W, V) => {
       const Y = Rs >= V, J = W.key === H;
@@ -10188,8 +10191,8 @@ function wc({
       H === "explainer" && /* @__PURE__ */ e(
         ti,
         {
-          siteName: C,
-          config: N,
+          siteName: N,
+          config: E,
           depositConfig: t,
           currencyMode: r,
           token: U,
@@ -10272,7 +10275,7 @@ function wc({
       H === "error" && /* @__PURE__ */ e(
         ci,
         {
-          error: z || E || "An error occurred",
+          error: z || C || "An error occurred",
           onRetry: () => I("confirm"),
           onCancel: h
         }
@@ -10426,7 +10429,7 @@ function si({
   onConfirm: y,
   onBack: v
 }) {
-  const [b, C] = k(f.privateMinUsd), [N, x] = k(!1), [A, E] = k(!1), [L, S] = k(0), [B, T] = k(null), R = Vt(b, f) === "sol_micro", D = t.symbol === xe.symbol, F = q(() => {
+  const [b, N] = k(f.privateMinUsd), [E, L] = k(!1), [A, C] = k(!1), [x, S] = k(0), [B, T] = k(null), R = Vt(b, f) === "sol_micro", D = t.symbol === xe.symbol, F = q(() => {
     const z = a.length === 0 ? r : r.filter((le) => a.includes(le.symbol)), j = z.length > 0 ? z : r;
     return j.some((le) => le.symbol === xe.symbol) ? j : [...j, xe];
   }, [r, a]), Z = Ze(f, b), he = Z < 0.01 ? 0.01 : Z, te = D ? "Fees: calculated after deposit" : `Fees: $${he.toFixed(2)} total`, H = D ? "" : ks(f, b, Z), I = Es(R ? Se : t, f), U = I ? b / I : t.symbol === "SOL" && f.solPriceUsd > 0 ? b / f.solPriceUsd : b, Q = U ? Ss(U, R ? "SOL" : t.symbol) : null, oe = b - Z <= 0 && b > 0, fe = !D && b > 0 && !oe && U >= n && U <= l;
@@ -10455,7 +10458,7 @@ function si({
               type: "button",
               className: `cedros-deposit-flow-token-quick-btn ${G ? "is-active" : ""}`,
               onClick: () => {
-                j && (x(!1), g(j));
+                j && (L(!1), g(j));
               },
               disabled: !j,
               children: [
@@ -10477,21 +10480,21 @@ function si({
           "button",
           {
             type: "button",
-            className: `cedros-deposit-flow-token-quick-btn ${N ? "is-active" : ""}`,
+            className: `cedros-deposit-flow-token-quick-btn ${E ? "is-active" : ""}`,
             onClick: () => {
-              x(!0), S((z) => z + 1);
+              L(!0), S((z) => z + 1);
             },
             children: "Custom"
           }
         )
       ] }),
-      N && /* @__PURE__ */ e("div", { className: "cedros-deposit-flow-token-custom", children: /* @__PURE__ */ e(
+      E && /* @__PURE__ */ e("div", { className: "cedros-deposit-flow-token-custom", children: /* @__PURE__ */ e(
         ws,
         {
           tokens: F,
           selectedToken: t,
           onSelect: g,
-          openSignal: L
+          openSignal: x
         }
       ) })
     ] }),
@@ -10500,7 +10503,7 @@ function si({
       {
         config: f,
         valueUsd: b,
-        onChange: C,
+        onChange: N,
         maxUsd: vs
       }
     ) }),
@@ -10555,11 +10558,11 @@ function si({
 `, ", ")}`,
               "aria-expanded": A,
               onClick: (z) => {
-                z.stopPropagation(), E((j) => !j);
+                z.stopPropagation(), C((j) => !j);
               },
-              onBlur: () => E(!1),
+              onBlur: () => C(!1),
               onKeyDown: (z) => {
-                z.key === "Escape" && E(!1);
+                z.key === "Escape" && C(!1);
               },
               children: "i"
             }
@@ -10640,18 +10643,18 @@ function ni({
   onSent: w,
   onBack: g
 }) {
-  const [u, y] = k(h.privateMinUsd), [v, b] = k(!1), [C, N] = k(!1), [x, A] = k(0), [E, L] = k(null), B = Vt(u, h) === "sol_micro", T = t.symbol === xe.symbol, M = q(() => {
+  const [u, y] = k(h.privateMinUsd), [v, b] = k(!1), [N, E] = k(!1), [L, A] = k(0), [C, x] = k(null), B = Vt(u, h) === "sol_micro", T = t.symbol === xe.symbol, M = q(() => {
     const U = a.length === 0 ? r : r.filter((oe) => a.includes(oe.symbol)), Q = U.length > 0 ? U : r;
     return Q.some((oe) => oe.symbol === xe.symbol) ? Q : [...Q, xe];
   }, [r, a]), R = Ze(h, u), D = R < 0.01 ? 0.01 : R, F = T ? "Fees: calculated after deposit" : `Fees: $${D.toFixed(2)} total`, Z = T ? "" : ks(h, u, R), he = T || u > 0, te = Es(B ? Se : t, h, s), H = te ? u / te : null, I = H ? Ss(H, t.symbol) : null;
   return _(() => {
     if (n === "multi-token")
       if (B && t.symbol !== "SOL") {
-        L(t);
+        x(t);
         const U = r.find((Q) => Q.symbol === "SOL");
         U && m(U);
-      } else !B && E && t.symbol === "SOL" && (m(E), L(null));
-  }, [B, t.symbol, n, r, m, E, t]), _(() => {
+      } else !B && C && t.symbol === "SOL" && (m(C), x(null));
+  }, [B, t.symbol, n, r, m, C, t]), _(() => {
     f(u);
   }, [u, f]), l ? /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step", children: [
     /* @__PURE__ */ e("h4", { className: "cedros-deposit-flow-step-title", children: "Send Deposit" }),
@@ -10703,7 +10706,7 @@ function ni({
           tokens: M,
           selectedToken: t,
           onSelect: m,
-          openSignal: x
+          openSignal: L
         }
       ) })
     ] }),
@@ -10750,17 +10753,17 @@ function ni({
             "button",
             {
               type: "button",
-              className: `cedros-deposit-flow-fee-info ${C ? "is-open" : ""}`,
+              className: `cedros-deposit-flow-fee-info ${N ? "is-open" : ""}`,
               "data-tooltip": Z,
               "aria-label": `Fee breakdown: ${Z.replaceAll(`
 `, ", ")}`,
-              "aria-expanded": C,
+              "aria-expanded": N,
               onClick: (U) => {
-                U.stopPropagation(), N((Q) => !Q);
+                U.stopPropagation(), E((Q) => !Q);
               },
-              onBlur: () => N(!1),
+              onBlur: () => E(!1),
               onKeyDown: (U) => {
-                U.key === "Escape" && N(!1);
+                U.key === "Escape" && E(!1);
               },
               children: "i"
             }
@@ -11235,15 +11238,15 @@ function bc({
   onLoad: s,
   onTransactionClick: n
 }) {
-  const { getHistory: l, isLoading: c, error: d, clearError: h } = xs(), [p, m] = k(t), [f, w] = k([]), [g, u] = k(0), [y, v] = k(0), [b, C] = k(null), N = Tt.find((M) => M.key === p) || Tt[0], x = q(() => N.txTypes === null ? f : f.filter((M) => {
+  const { getHistory: l, isLoading: c, error: d, clearError: h } = xs(), [p, m] = k(t), [f, w] = k([]), [g, u] = k(0), [y, v] = k(0), [b, N] = k(null), E = Tt.find((M) => M.key === p) || Tt[0], L = q(() => E.txTypes === null ? f : f.filter((M) => {
     const R = M.txType || "";
-    return N.txTypes.some((D) => R.toLowerCase().includes(D.toLowerCase()));
-  }), [f, N.txTypes]), A = P(async () => {
+    return E.txTypes.some((D) => R.toLowerCase().includes(D.toLowerCase()));
+  }), [f, E.txTypes]), A = P(async () => {
     try {
       const M = await l({ limit: r * 3, offset: y });
-      w(M.transactions), u(M.total), s?.(M), C(null);
+      w(M.transactions), u(M.total), s?.(M), N(null);
     } catch (M) {
-      C(M instanceof Error ? M.message : "Failed to load history");
+      N(M instanceof Error ? M.message : "Failed to load history");
     }
   }, [r, y, l, s]);
   _(() => {
@@ -11255,7 +11258,7 @@ function bc({
     const M = setInterval(A, o);
     return () => clearInterval(M);
   }, [o, A]);
-  const E = Math.ceil(g / r), L = Math.floor(y / r) + 1, S = (M) => {
+  const C = Math.ceil(g / r), x = Math.floor(y / r) + 1, S = (M) => {
     const R = (M - 1) * r;
     v(Math.max(0, Math.min(R, Math.max(0, g - 1))));
   }, B = (M) => {
@@ -11270,7 +11273,7 @@ function bc({
           type: "button",
           className: "cedros-tx-retry",
           onClick: () => {
-            h(), C(null), A();
+            h(), N(null), A();
           },
           children: "Retry"
         }
@@ -11316,11 +11319,11 @@ function bc({
         M.key
       );
     }) }),
-    x.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-tx-empty", children: [
-      /* @__PURE__ */ e("p", { className: "cedros-tx-empty-message", children: p === "all" ? "No transactions yet." : `No ${N.label.toLowerCase()} found.` }),
+    L.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-tx-empty", children: [
+      /* @__PURE__ */ e("p", { className: "cedros-tx-empty-message", children: p === "all" ? "No transactions yet." : `No ${E.label.toLowerCase()} found.` }),
       p === "all" && /* @__PURE__ */ e("p", { className: "cedros-tx-empty-hint", children: "Make a deposit to get started." })
     ] }) : /* @__PURE__ */ i(X, { children: [
-      /* @__PURE__ */ e("div", { className: "cedros-tx-list", children: x.slice(0, r).map((M) => {
+      /* @__PURE__ */ e("div", { className: "cedros-tx-list", children: L.slice(0, r).map((M) => {
         const R = M.amountLamports >= 0;
         return /* @__PURE__ */ i(
           "div",
@@ -11361,30 +11364,30 @@ function bc({
           M.id
         );
       }) }),
-      E > 1 && /* @__PURE__ */ i("div", { className: "cedros-tx-pagination", children: [
+      C > 1 && /* @__PURE__ */ i("div", { className: "cedros-tx-pagination", children: [
         /* @__PURE__ */ e(
           "button",
           {
             type: "button",
             className: "cedros-tx-page-btn",
-            onClick: () => S(L - 1),
-            disabled: L <= 1,
+            onClick: () => S(x - 1),
+            disabled: x <= 1,
             children: "Previous"
           }
         ),
         /* @__PURE__ */ i("span", { className: "cedros-tx-page-info", children: [
           "Page ",
-          L,
+          x,
           " of ",
-          E
+          C
         ] }),
         /* @__PURE__ */ e(
           "button",
           {
             type: "button",
             className: "cedros-tx-page-btn",
-            onClick: () => S(L + 1),
-            disabled: L >= E,
+            onClick: () => S(x + 1),
+            disabled: x >= C,
             children: "Next"
           }
         )
@@ -11507,15 +11510,15 @@ function Ac({
   onCancel: o,
   className: a = ""
 }) {
-  const s = ve(), { withdrawSol: n, withdrawSpl: l, getBalances: c, isSubmitting: d, error: h, clearError: p } = Ps(), [m, f] = k("loading"), [w, g] = k([]), [u, y] = k(null), [v, b] = k(""), [C, N] = k(""), [x, A] = k(null), [E, L] = k(null), [S, B] = k(null), T = s?.config.solana?.network ?? "mainnet-beta", M = q(() => {
-    if (!x?.txSignature) return "";
-    const I = `https://explorer.solana.com/tx/${x.txSignature}`;
+  const s = ve(), { withdrawSol: n, withdrawSpl: l, getBalances: c, isSubmitting: d, error: h, clearError: p } = Ps(), [m, f] = k("loading"), [w, g] = k([]), [u, y] = k(null), [v, b] = k(""), [N, E] = k(""), [L, A] = k(null), [C, x] = k(null), [S, B] = k(null), T = s?.config.solana?.network ?? "mainnet-beta", M = q(() => {
+    if (!L?.txSignature) return "";
+    const I = `https://explorer.solana.com/tx/${L.txSignature}`;
     return T === "mainnet-beta" ? I : `${I}?cluster=${encodeURIComponent(T)}`;
-  }, [x, T]), R = q(() => {
-    if (!u || !C) return "0";
-    const I = parseFloat(C);
+  }, [L, T]), R = q(() => {
+    if (!u || !N) return "0";
+    const I = parseFloat(N);
     return isNaN(I) || I <= 0 ? "0" : Math.floor(I * Math.pow(10, u.decimals)).toString();
-  }, [C, u]);
+  }, [N, u]);
   _(() => {
     if (!s) return;
     let I = !1;
@@ -11551,32 +11554,32 @@ function Ac({
   }, [s, c]);
   const D = P(
     (I) => {
-      y(I), f("form"), p(), L(null), N("");
+      y(I), f("form"), p(), x(null), E("");
     },
     [p]
   ), F = P(() => {
     if (!u) return;
     const I = Number(u.rawBalance) / Math.pow(10, u.decimals);
-    u.mint === Bt ? N(String(Math.max(0, I - 0.01))) : N(String(I));
+    u.mint === Bt ? E(String(Math.max(0, I - 0.01))) : E(String(I));
   }, [u]), Z = P(() => {
-    if (L(null), !v.trim()) {
-      L("Destination address is required");
+    if (x(null), !v.trim()) {
+      x("Destination address is required");
       return;
     }
     if (!Ci(v.trim())) {
-      L("Invalid Solana address");
+      x("Invalid Solana address");
       return;
     }
-    if (!C || parseFloat(C) <= 0 || isNaN(parseFloat(C))) {
-      L("Please enter a valid amount");
+    if (!N || parseFloat(N) <= 0 || isNaN(parseFloat(N))) {
+      x("Please enter a valid amount");
       return;
     }
     if (R === "0") {
-      L("Amount is too small");
+      x("Amount is too small");
       return;
     }
     f("confirm");
-  }, [v, C, R]), he = P(async () => {
+  }, [v, N, R]), he = P(async () => {
     if (u) {
       f("processing"), p();
       try {
@@ -11596,9 +11599,9 @@ function Ac({
     t,
     r
   ]), te = P(() => {
-    p(), L(null), m === "form" ? (f("select"), y(null), N(""), b("")) : m === "confirm" && f("form");
+    p(), x(null), m === "form" ? (f("select"), y(null), E(""), b("")) : m === "confirm" && f("form");
   }, [m, p]), H = P(() => {
-    f("select"), y(null), b(""), N(""), A(null), p(), L(null);
+    f("select"), y(null), b(""), E(""), A(null), p(), x(null);
   }, [p]);
   return s ? /* @__PURE__ */ i("div", { className: `cedros-withdrawal ${a}`, children: [
     m === "loading" && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-processing", children: [
@@ -11687,8 +11690,8 @@ function Ac({
               type: "number",
               className: "cedros-input",
               placeholder: "0.00",
-              value: C,
-              onChange: (I) => N(I.target.value),
+              value: N,
+              onChange: (I) => E(I.target.value),
               min: "0",
               step: "any"
             }
@@ -11704,7 +11707,7 @@ function Ac({
           )
         ] })
       ] }),
-      (E || h) && /* @__PURE__ */ e(ee, { error: E || h || "" }),
+      (C || h) && /* @__PURE__ */ e(ee, { error: C || h || "" }),
       /* @__PURE__ */ e(
         "button",
         {
@@ -11783,7 +11786,7 @@ function Ac({
         "..."
       ] })
     ] }),
-    m === "success" && x && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-success", children: [
+    m === "success" && L && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-success", children: [
       /* @__PURE__ */ e("div", { className: "cedros-withdrawal-success-icon", children: "✓" }),
       /* @__PURE__ */ e("h3", { className: "cedros-withdrawal-title", children: "Withdrawal Complete" }),
       /* @__PURE__ */ i("p", { className: "cedros-withdrawal-subtitle", children: [
@@ -11802,7 +11805,7 @@ function Ac({
             href: M,
             target: "_blank",
             rel: "noreferrer",
-            children: Rt(x.txSignature)
+            children: Rt(L.txSignature)
           }
         )
       ] }),
@@ -11852,10 +11855,10 @@ function vc({
   const { getHistory: s, error: n, clearError: l } = Ps(), [c, d] = k([]), [h, p] = k(0), [m, f] = k(0), [w, g] = k(!1), [u, y] = k(null), v = P(async () => {
     g(!0);
     try {
-      const x = await s(t, m);
-      d(x.items), p(x.total), y(null);
-    } catch (x) {
-      y(x instanceof Error ? x.message : "Failed to load withdrawal history");
+      const L = await s(t, m);
+      d(L.items), p(L.total), y(null);
+    } catch (L) {
+      y(L instanceof Error ? L.message : "Failed to load withdrawal history");
     } finally {
       g(!1);
     }
@@ -11863,8 +11866,8 @@ function vc({
   _(() => {
     v();
   }, [v]);
-  const b = Math.ceil(h / t), C = Math.floor(m / t) + 1, N = (x) => {
-    const A = (x - 1) * t;
+  const b = Math.ceil(h / t), N = Math.floor(m / t) + 1, E = (L) => {
+    const A = (L - 1) * t;
     f(Math.max(0, Math.min(A, Math.max(0, h - 1))));
   };
   return u || n ? /* @__PURE__ */ i("div", { className: `cedros-withdrawal-history cedros-withdrawal-history-error ${r}`, children: [
@@ -11899,15 +11902,15 @@ function vc({
       )
     ] }),
     c.length === 0 ? /* @__PURE__ */ e("div", { className: "cedros-tx-empty", children: /* @__PURE__ */ e("p", { className: "cedros-tx-empty-message", children: "No withdrawal history yet." }) }) : /* @__PURE__ */ i(X, { children: [
-      /* @__PURE__ */ e("div", { className: "cedros-tx-list", children: c.map((x) => {
-        const A = Ei(x.tokenType, x.tokenMint);
+      /* @__PURE__ */ e("div", { className: "cedros-tx-list", children: c.map((L) => {
+        const A = Ei(L.tokenType, L.tokenMint);
         return /* @__PURE__ */ i(
           "div",
           {
             className: "cedros-tx-item cedros-tx-item-negative",
-            onClick: () => o?.(x),
-            onKeyDown: (E) => {
-              (E.key === "Enter" || E.key === " ") && (E.preventDefault(), o?.(x));
+            onClick: () => o?.(L),
+            onKeyDown: (C) => {
+              (C.key === "Enter" || C.key === " ") && (C.preventDefault(), o?.(L));
             },
             role: o ? "button" : void 0,
             tabIndex: o ? 0 : void 0,
@@ -11920,7 +11923,7 @@ function vc({
                     " Withdrawal"
                   ] }),
                   /* @__PURE__ */ i("span", { className: "cedros-tx-amount cedros-tx-amount-negative", children: [
-                    x.amount,
+                    L.amount,
                     " ",
                     A === "SOL" ? "lamports" : ""
                   ] })
@@ -11932,31 +11935,31 @@ function vc({
                     /* @__PURE__ */ e(
                       "a",
                       {
-                        href: `${a}/account/${x.destination}`,
+                        href: `${a}/account/${L.destination}`,
                         target: "_blank",
                         rel: "noopener noreferrer",
-                        onClick: (E) => E.stopPropagation(),
-                        children: Si(x.destination)
+                        onClick: (C) => C.stopPropagation(),
+                        children: Si(L.destination)
                       }
                     ),
                     " · ",
                     /* @__PURE__ */ e(
                       "a",
                       {
-                        href: `${a}/tx/${x.txSignature}`,
+                        href: `${a}/tx/${L.txSignature}`,
                         target: "_blank",
                         rel: "noopener noreferrer",
-                        onClick: (E) => E.stopPropagation(),
+                        onClick: (C) => C.stopPropagation(),
                         children: "tx"
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ e("span", { className: "cedros-tx-date", children: xi(x.createdAt) })
+                  /* @__PURE__ */ e("span", { className: "cedros-tx-date", children: xi(L.createdAt) })
                 ] })
               ] })
             ]
           },
-          x.id
+          L.id
         );
       }) }),
       b > 1 && /* @__PURE__ */ i("div", { className: "cedros-tx-pagination", children: [
@@ -11965,14 +11968,14 @@ function vc({
           {
             type: "button",
             className: "cedros-tx-page-btn",
-            onClick: () => N(C - 1),
-            disabled: C <= 1,
+            onClick: () => E(N - 1),
+            disabled: N <= 1,
             children: "Previous"
           }
         ),
         /* @__PURE__ */ i("span", { className: "cedros-tx-page-info", children: [
           "Page ",
-          C,
+          N,
           " of ",
           b
         ] }),
@@ -11981,8 +11984,8 @@ function vc({
           {
             type: "button",
             className: "cedros-tx-page-btn",
-            onClick: () => N(C + 1),
-            disabled: C >= b,
+            onClick: () => E(N + 1),
+            disabled: N >= b,
             children: "Next"
           }
         )

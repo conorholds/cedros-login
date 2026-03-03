@@ -12,35 +12,17 @@ use crate::models::ChallengeResponse;
 #[derive(Clone)]
 pub struct SolanaService {
     challenge_expiry_seconds: u64,
-    app_name: String,
 }
 
 impl SolanaService {
-    const DEFAULT_APP_NAME: &'static str = "Cedros Login";
-    /// Markers used in challenge messages - app names must not contain these
+    /// Markers used in challenge messages
     const NONCE_MARKER: &'static str = ". Nonce: ";
-    const TIMESTAMP_MARKER: &'static str = ". Timestamp: ";
-    const MESSAGE_PREFIX: &'static str = "Login to ";
+    const MESSAGE_PREFIX: &'static str = "Sign in with wallet ";
 
     /// Create a new Solana service from config
-    ///
-    pub fn new(config: &SolanaConfig, app_name: String) -> Self {
-        // S-09: Validate app_name doesn't contain message markers.
-        // If invalid, fall back to a safe default to avoid panics or injection.
-        let app_name =
-            if app_name.contains(Self::NONCE_MARKER) || app_name.contains(Self::TIMESTAMP_MARKER) {
-                tracing::error!(
-                    app_name = %app_name,
-                    "Invalid Solana app name contains reserved markers; using default"
-                );
-                Self::DEFAULT_APP_NAME.to_string()
-            } else {
-                app_name
-            };
-
+    pub fn new(config: &SolanaConfig) -> Self {
         Self {
             challenge_expiry_seconds: config.challenge_expiry_seconds,
-            app_name,
         }
     }
 
@@ -66,14 +48,19 @@ impl SolanaService {
         let now = Utc::now();
         let expires_at = now + Duration::seconds(challenge_expiry_seconds as i64);
 
-        // Format the message according to the spec.
-        // Public key is included to bind the challenge to this specific wallet.
+        // Truncate pubkey to first6...last6 for readability in wallet popup
+        let pk_display = if public_key.len() > 12 {
+            format!("{}...{}", &public_key[..6], &public_key[public_key.len() - 6..])
+        } else {
+            public_key.to_string()
+        };
+
+        // Format the message for wallet popup — friendly, non-technical
         let message = format!(
-            "Login to {} with wallet {}. Nonce: {}. Timestamp: {}.",
-            self.app_name,
-            public_key,
+            "Sign in with wallet {}. This message confirms ownership of your wallet and costs nothing to sign. Expires: {}. Nonce: {}.",
+            pk_display,
+            expires_at.to_rfc3339(),
             nonce,
-            now.to_rfc3339()
         );
 
         Ok(ChallengeResponse {
@@ -128,12 +115,12 @@ impl SolanaService {
     /// Extract the nonce from a challenge message
     ///
     /// Uses strict parsing to prevent injection attacks. The message must follow
-    /// the exact format: "Login to {app} with wallet {pubkey}. Nonce: {nonce}. Timestamp: {timestamp}."
+    /// the exact format: "Sign in with wallet {pk}. ... Expires: {ts}. Nonce: {nonce}."
     ///
     /// # Security (S-09)
     ///
     /// - Validates message starts with expected prefix
-    /// - Uses `rfind` to find LAST occurrence of markers (prevents prefix injection)
+    /// - Rejects messages with multiple nonce markers (prevents injection)
     /// - Validates nonce format (32 alphanumeric chars)
     /// - Validates message ends with expected suffix
     pub fn extract_nonce(message: &str) -> Option<String> {
@@ -142,26 +129,25 @@ impl SolanaService {
             return None;
         }
 
-        // NEW-09: Reject messages with multiple nonce markers to prevent injection attacks
+        // S-09: Verify message ends with period
+        if !message.ends_with('.') {
+            return None;
+        }
+
+        // Reject messages with multiple nonce markers to prevent injection
         if message.matches(Self::NONCE_MARKER).count() != 1 {
             return None;
         }
 
-        // Find the nonce marker (now guaranteed to be exactly one)
+        // Nonce is now at end: "... Nonce: {nonce}."
         let nonce_start = message.find(Self::NONCE_MARKER)?;
         let after_marker = &message[nonce_start + Self::NONCE_MARKER.len()..];
 
-        // Find the end marker ". Timestamp:" AFTER the nonce
-        let nonce_end = after_marker.find(Self::TIMESTAMP_MARKER)?;
-        let nonce = &after_marker[..nonce_end];
+        // Strip trailing period to get the nonce
+        let nonce = after_marker.strip_suffix('.')?;
 
         // Validate nonce format: alphanumeric only, expected length
         if nonce.len() != 32 || !nonce.chars().all(|c| c.is_ascii_alphanumeric()) {
-            return None;
-        }
-
-        // S-09: Verify message ends with period (expected format)
-        if !message.ends_with('.') {
             return None;
         }
 
@@ -187,24 +173,23 @@ mod tests {
 
     #[test]
     fn test_generate_challenge() {
-        let service = SolanaService::new(&test_config(), "TestApp".to_string());
-        let public_key = "test_pubkey";
+        let service = SolanaService::new(&test_config());
+        let public_key = "ABCDEFghijklmnopqrstuvwxyz123456789abcdef1234";
         let challenge = service.generate_challenge(public_key, 300).unwrap();
 
         assert!(!challenge.nonce.is_empty());
-        assert!(challenge.message.contains("Login to TestApp"));
+        assert!(challenge.message.starts_with("Sign in with wallet "));
         assert!(challenge.message.contains(&challenge.nonce));
-        // B-12: Verify public key is bound to challenge message
-        assert!(
-            challenge.message.contains(public_key),
-            "Challenge message must contain public key for binding"
-        );
+        // Pubkey is truncated: first6...last6
+        assert!(challenge.message.contains("ABCDEF...ef1234"));
+        assert!(challenge.message.contains("costs nothing to sign"));
+        assert!(challenge.message.contains("Expires: "));
     }
 
     #[test]
     fn test_extract_nonce_from_generated_message() {
         // Test with actual generated message format
-        let service = SolanaService::new(&test_config(), "TestApp".to_string());
+        let service = SolanaService::new(&test_config());
         let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
 
         let extracted = SolanaService::extract_nonce(&challenge.message);
@@ -212,64 +197,39 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_app_name_rejected() {
-        let service = SolanaService::new(&test_config(), "Bad. Nonce: ".to_string());
-        let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
-        assert!(challenge.message.starts_with("Login to Cedros Login"));
-    }
-
-    #[test]
     fn test_extract_nonce_rejects_invalid_length() {
-        // Build a message with wrong nonce length
-        let message = "Login to TestApp. Nonce: tooshort. Timestamp: 2024-01-01T00:00:00+00:00.";
+        let message = "Sign in with wallet ABCDEF...f1234. This message confirms ownership of your wallet and costs nothing to sign. Expires: 2024-01-01T00:05:00+00:00. Nonce: tooshort.";
         assert!(SolanaService::extract_nonce(message).is_none());
     }
 
     #[test]
     fn test_extract_nonce_rejects_invalid_chars() {
-        // Build a message with 32-char nonce containing special chars
-        let message =
-            "Login to TestApp. Nonce: abc123!@#$%^&*()_+def456ghi012. Timestamp: 2024-01-01T00:00:00+00:00.";
+        let message = "Sign in with wallet ABCDEF...f1234. This message confirms ownership of your wallet and costs nothing to sign. Expires: 2024-01-01T00:05:00+00:00. Nonce: abc123!@#$%^&*()_+def456ghi012.";
         assert!(SolanaService::extract_nonce(message).is_none());
     }
 
     #[test]
     fn test_invalid_public_key() {
-        let service = SolanaService::new(&test_config(), "TestApp".to_string());
+        let service = SolanaService::new(&test_config());
         let result = service.verify_signature("invalid", "sig", "message");
         assert!(result.is_err());
     }
 
     #[test]
     fn test_extract_nonce_rejects_wrong_prefix() {
-        // S-09: Message must start with "Login to "
-        let message =
-            "Evil to TestApp. Nonce: 12345678901234567890123456789012. Timestamp: 2024-01-01T00:00:00+00:00.";
+        let message = "Evil with wallet ABCDEF...f1234. This message confirms ownership of your wallet and costs nothing to sign. Expires: 2024-01-01T00:05:00+00:00. Nonce: 12345678901234567890123456789012.";
         assert!(SolanaService::extract_nonce(message).is_none());
     }
 
     #[test]
     fn test_extract_nonce_rejects_missing_suffix() {
-        // S-09: Message must end with period
-        let message =
-            "Login to TestApp. Nonce: 12345678901234567890123456789012. Timestamp: 2024-01-01T00:00:00+00:00";
+        let message = "Sign in with wallet ABCDEF...f1234. This message confirms ownership of your wallet and costs nothing to sign. Expires: 2024-01-01T00:05:00+00:00. Nonce: 12345678901234567890123456789012";
         assert!(SolanaService::extract_nonce(message).is_none());
     }
 
     #[test]
-    fn test_app_name_injection_prevented() {
-        // S-09: App name must not contain message markers
-        let evil_app_name = "Evil. Nonce: FAKE12345678901234567890123456. Timestamp: x";
-        let service = SolanaService::new(&test_config(), evil_app_name.to_string());
-        let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
-        assert!(challenge.message.starts_with("Login to Cedros Login"));
-    }
-
-    #[test]
     fn test_extract_nonce_rejects_multiple_markers() {
-        // NEW-09: Message with multiple nonce markers should be rejected
-        let message =
-            "Login to TestApp. Nonce: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA. Nonce: 12345678901234567890123456789012. Timestamp: 2024-01-01T00:00:00+00:00.";
+        let message = "Sign in with wallet ABCDEF...f1234. This message confirms ownership of your wallet and costs nothing to sign. Nonce: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA. Expires: 2024-01-01T00:05:00+00:00. Nonce: 12345678901234567890123456789012.";
         assert!(SolanaService::extract_nonce(message).is_none());
     }
 }

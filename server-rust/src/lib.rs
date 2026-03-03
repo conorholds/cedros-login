@@ -232,7 +232,7 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
     let password_service = PasswordService::default();
     let google_service = GoogleService::new(&config.google);
     let apple_service = AppleService::new(&config.apple);
-    let solana_service = SolanaService::new(&config.solana, "Cedros Login".to_string());
+    let solana_service = SolanaService::new(&config.solana);
     let totp_service = TotpService::new("Cedros");
     let webauthn_service = WebAuthnService::new(&config.webauthn, settings_service.clone());
     let audit_service = AuditService::new(storage.audit_repo.clone(), config.server.trust_proxy);
