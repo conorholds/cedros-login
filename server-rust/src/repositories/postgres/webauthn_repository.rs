@@ -383,4 +383,16 @@ impl WebAuthnRepository for PostgresWebAuthnRepository {
 
         Ok(result.rows_affected())
     }
+
+    async fn find_all_credential_ids(&self, limit: i64) -> Result<Vec<String>, AppError> {
+        let rows: Vec<(String,)> = sqlx::query_as(
+            "SELECT credential_id FROM webauthn_credentials ORDER BY created_at DESC LIMIT $1",
+        )
+        .bind(limit)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(rows.into_iter().map(|r| r.0).collect())
+    }
 }

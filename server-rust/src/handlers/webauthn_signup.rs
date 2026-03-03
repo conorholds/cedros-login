@@ -65,9 +65,23 @@ pub async fn signup_options<C: AuthCallback, E: EmailService>(
 
     let ephemeral_user_id = Uuid::new_v4();
 
+    // Fetch all known credential IDs so the browser can silently detect existing
+    // passkeys (InvalidStateError) and fall back to authentication instead of
+    // creating a duplicate account.
+    let exclude_credential_ids = state
+        .storage
+        .webauthn_repository()
+        .find_all_credential_ids(50_000)
+        .await
+        .unwrap_or_default();
+
     let result = state
         .webauthn_service
-        .start_registration_for_signup(ephemeral_user_id, &state.storage.webauthn_repo)
+        .start_registration_for_signup(
+            ephemeral_user_id,
+            &exclude_credential_ids,
+            &state.storage.webauthn_repo,
+        )
         .await?;
 
     let options_json =

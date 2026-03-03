@@ -125,7 +125,7 @@ async fn test_signup_registration_stores_register_new_challenge() {
     let repo: Arc<dyn WebAuthnRepository> = Arc::new(InMemoryWebAuthnRepository::new());
 
     let response = service
-        .start_registration_for_signup(Uuid::new_v4(), &repo)
+        .start_registration_for_signup(Uuid::new_v4(), &[], &repo)
         .await
         .expect("signup registration start");
 

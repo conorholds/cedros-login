@@ -129,14 +129,36 @@ impl WebAuthnService {
     /// Unlike `start_registration`, this creates a challenge with type `register_new`
     /// and does not require an existing user or credentials. The ephemeral `user_id`
     /// will become the new user's ID after verification.
+    ///
+    /// `exclude_credential_ids` contains base64url-encoded credential IDs of ALL
+    /// known passkeys. The browser checks these against the platform authenticator
+    /// and throws `InvalidStateError` silently (no dialog) if the user already has
+    /// a passkey, allowing the client to fall back to authentication.
     pub async fn start_registration_for_signup(
         &self,
         ephemeral_user_id: Uuid,
+        exclude_credential_ids: &[String],
         repo: &Arc<dyn WebAuthnRepository>,
     ) -> Result<RegistrationOptionsResponse, AppError> {
         let webauthn = self.get_webauthn().await?;
         let attachment = self.authenticator_attachment()?;
         let policy = self.user_verification_policy();
+
+        let exclude_credentials: Vec<CredentialID> = exclude_credential_ids
+            .iter()
+            .filter_map(|id| {
+                URL_SAFE_NO_PAD
+                    .decode(id)
+                    .ok()
+                    .map(CredentialID::from)
+            })
+            .collect();
+
+        let exclude = if exclude_credentials.is_empty() {
+            None
+        } else {
+            Some(exclude_credentials)
+        };
 
         let user_id_string = ephemeral_user_id.to_string();
         let (mut ccr, reg_state) = webauthn
@@ -144,7 +166,7 @@ impl WebAuthnService {
                 Uuid::from_bytes(*ephemeral_user_id.as_bytes()),
                 &user_id_string,
                 "User",
-                None, // no exclude list — new user has no existing credentials
+                exclude,
             )
             .map_err(|e| {
                 AppError::Internal(anyhow::anyhow!(

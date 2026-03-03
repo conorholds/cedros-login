@@ -150,6 +150,10 @@ pub trait WebAuthnRepository: Send + Sync {
 
     /// Delete expired challenges
     async fn delete_expired_challenges(&self) -> Result<u64, AppError>;
+
+    /// Fetch all credential IDs (for excludeCredentials in signup options).
+    /// Returns base64url-encoded credential IDs, capped at `limit`.
+    async fn find_all_credential_ids(&self, limit: i64) -> Result<Vec<String>, AppError>;
 }
 
 /// In-memory WebAuthn repository for development/testing
@@ -343,6 +347,15 @@ impl WebAuthnRepository for InMemoryWebAuthnRepository {
             challenges.remove(&id);
         }
         Ok(count)
+    }
+
+    async fn find_all_credential_ids(&self, limit: i64) -> Result<Vec<String>, AppError> {
+        let credentials = self.credentials.read().await;
+        Ok(credentials
+            .values()
+            .take(limit as usize)
+            .map(|c| c.credential_id.clone())
+            .collect())
     }
 }
 
