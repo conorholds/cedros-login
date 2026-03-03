@@ -1,12 +1,12 @@
 import { jsx as i, jsxs as U } from "react/jsx-runtime";
-import { useState as A, useMemo as J, useCallback as E, useRef as _, useEffect as z } from "react";
+import { useState as A, useMemo as J, useCallback as E, useRef as _, useEffect as P } from "react";
 import { WalletProvider as Q, useWallet as X } from "@solana/wallet-adapter-react";
 import { WalletModalProvider as q, useWalletModal as Z } from "@solana/wallet-adapter-react-ui";
 import { u as x, A as ee, h as F } from "./useCedrosLogin-_94MmGGq.js";
 import { a as H } from "./validation-B8kMV3BL.js";
 import { L as te } from "./LoadingSpinner-6vml-zwr.js";
 function ne() {
-  const { config: e, _internal: t } = x(), [y, r] = A(!1), [I, l] = A(null), h = J(
+  const { config: e, _internal: t } = x(), [y, r] = A(!1), [I, l] = A(null), g = J(
     () => new ee({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
@@ -24,7 +24,7 @@ function ne() {
       }
       r(!0), l(null);
       try {
-        return await h.post(
+        return await g.post(
           "/solana/challenge",
           { publicKey: c },
           { credentials: "omit" }
@@ -36,7 +36,7 @@ function ne() {
         r(!1);
       }
     },
-    [h]
+    [g]
   ), w = E(
     async (c, n, f) => {
       if (!H(c)) {
@@ -48,7 +48,7 @@ function ne() {
       }
       r(!0), l(null);
       try {
-        const o = await h.post("/solana", {
+        const o = await g.post("/solana", {
           publicKey: c,
           signature: n,
           message: f
@@ -61,7 +61,7 @@ function ne() {
         r(!1);
       }
     },
-    [h, e.callbacks, t]
+    [g, e.callbacks, t]
   ), b = E(() => l(null), []);
   return {
     requestChallenge: s,
@@ -82,12 +82,12 @@ function V({
   variant: r = "default",
   size: I = "md",
   disabled: l = !1,
-  hideIfNoWallet: h = !0,
+  hideIfNoWallet: g = !0,
   walletContext: s
 }) {
-  const { requestChallenge: w, signIn: b, isLoading: c } = ne(), n = X(), { visible: f, setVisible: o } = Z(), [u, g] = A(!1), [N, M] = A(!1), S = _(!1), W = _(!1), d = s?.connected ?? n.connected, L = s?.connecting ?? n.connecting, m = s?.publicKey ?? n.publicKey, p = s?.signMessage ?? n.signMessage, v = s?.wallet ?? n.wallet, R = s?.wallets ?? n.wallets, Y = s ? s.select : (a) => n.select(a), B = s?.connect ?? n.connect, D = R.filter(
+  const { requestChallenge: w, signIn: b, isLoading: c } = ne(), n = X(), { visible: f, setVisible: o } = Z(), [u, h] = A(!1), [k, z] = A(!1), S = _(!1), M = _(!1), d = s?.connected ?? n.connected, L = s?.connecting ?? n.connecting, m = s?.publicKey ?? n.publicKey, p = s?.signMessage ?? n.signMessage, N = s?.wallet ?? n.wallet, R = s?.wallets ?? n.wallets, Y = s ? s.select : (a) => n.select(a), B = s?.connect ?? n.connect, W = R.filter(
     (a) => a.adapter.readyState === "Installed" || a.adapter.readyState === "Loadable"
-  ), P = E(async () => {
+  ), v = E(async () => {
     if (!S.current) {
       if (!m || !p) {
         t?.(new Error("Wallet not ready"));
@@ -95,12 +95,12 @@ function V({
       }
       S.current = !0;
       try {
-        const a = m.toBase58(), C = await w(a), G = new TextEncoder().encode(C.message), k = await p(G);
-        if (!(k instanceof Uint8Array) || k.length === 0)
+        const a = m.toBase58(), C = await w(a), G = new TextEncoder().encode(C.message), D = await p(G);
+        if (!(D instanceof Uint8Array) || D.length === 0)
           throw new Error("Wallet returned invalid signature");
         let T;
         try {
-          T = btoa(String.fromCharCode(...k));
+          T = btoa(String.fromCharCode(...D));
         } catch {
           throw new Error("Failed to encode signature");
         }
@@ -109,23 +109,23 @@ function V({
         const C = a instanceof Error ? a : new Error(String(a));
         t?.(C);
       } finally {
-        S.current = !1, g(!1);
+        S.current = !1, h(!1);
       }
     }
   }, [m, p, w, b, e, t]);
-  if (z(() => {
-    N && v && !d && !L && (M(!1), B().catch((a) => {
-      t?.(a instanceof Error ? a : new Error(String(a))), g(!1);
+  if (P(() => {
+    k && N && !d && !L && (z(!1), B().catch((a) => {
+      t?.(a instanceof Error ? a : new Error(String(a))), h(!1);
     }));
-  }, [N, v, d, L, B, t]), z(() => {
-    u && d && m && p && !S.current && P().catch(() => {
+  }, [k, N, d, L, B, t]), P(() => {
+    u && d && m && p && !S.current && v().catch(() => {
     });
-  }, [u, d, m, p, P]), z(() => {
-    f ? W.current = !0 : W.current && (W.current = !1, u && !d && g(!1));
-  }, [f, u, d]), h && D.length === 0)
+  }, [u, d, m, p, v]), P(() => {
+    f ? M.current = !0 : M.current && (M.current = !1, u && !d && h(!1));
+  }, [f, u, d]), g && W.length === 0)
     return null;
   const $ = async () => {
-    l || c || L || (d && m && p ? (g(!0), await P()) : v ? (g(!0), M(!0)) : D.length === 1 ? (Y(D[0].adapter.name), g(!0), M(!0)) : (o(!0), g(!0)));
+    l || c || L || (d && m && p ? (h(!0), await v()) : W.length === 1 ? (Y(W[0].adapter.name), h(!0), z(!0)) : (o(!0), h(!0)));
   }, j = {
     sm: "cedros-button-sm",
     md: "cedros-button-md",

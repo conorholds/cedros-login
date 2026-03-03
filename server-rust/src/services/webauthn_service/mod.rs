@@ -210,8 +210,10 @@ impl WebAuthnService {
         &self,
     ) -> Result<Option<AuthenticatorAttachment>, AppError> {
         match (self.config.allow_platform, self.config.allow_cross_platform) {
-            (true, true) => Ok(None),
-            (true, false) => Ok(Some(AuthenticatorAttachment::Platform)),
+            // When both are allowed, prefer platform (Touch ID / Windows Hello) so the
+            // browser doesn't confuse users by defaulting to cross-device QR scan.
+            // Set allow_cross_platform=false explicitly if you only want platform auth.
+            (true, true) | (true, false) => Ok(Some(AuthenticatorAttachment::Platform)),
             (false, true) => Ok(Some(AuthenticatorAttachment::CrossPlatform)),
             (false, false) => Err(AppError::Config(
                 "WebAuthn requires at least one authenticator type (platform or cross-platform)"
