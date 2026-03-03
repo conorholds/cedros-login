@@ -2331,13 +2331,15 @@ export declare interface OtpInputProps {
     className?: string;
 }
 
-export declare function PasskeyLoginButton({ onSuccess, className, children, disabled, }: PasskeyLoginButtonProps): JSX.Element;
+export declare function PasskeyLoginButton({ onSuccess, className, children, disabled, mode, }: PasskeyLoginButtonProps): JSX.Element;
 
 export declare interface PasskeyLoginButtonProps {
     onSuccess?: () => void;
     className?: string;
     children?: ReactNode;
     disabled?: boolean;
+    /** 'login' authenticates an existing passkey; 'register' creates a new account via passkey. */
+    mode?: 'login' | 'register';
 }
 
 /**
@@ -3032,11 +3034,13 @@ export declare interface SolanaConfig {
 /**
  * Solana wallet login button with one-click authentication.
  *
- * Handles wallet connection and message signing automatically.
- * If wallet is already connected, signs immediately.
- * If not connected, connects first then auto-signs.
+ * Uses the standard wallet adapter modal for wallet selection, which provides
+ * real brand icons and discovers all wallet-standard-compliant wallets.
+ *
+ * When `walletContext` is provided, assumes a WalletProvider exists in the tree.
+ * Otherwise, wraps itself with WalletProvider for self-contained operation.
  */
-export declare function SolanaLoginButton({ onSuccess, onError, className, variant, size, disabled, hideIfNoWallet, walletContext, }: SolanaLoginButtonProps): JSX.Element | null;
+export declare function SolanaLoginButton(props: SolanaLoginButtonProps): JSX.Element;
 
 export declare interface SolanaLoginButtonProps {
     onSuccess?: () => void;
@@ -3054,7 +3058,9 @@ export declare interface SolanaLoginButtonProps {
     hideIfNoWallet?: boolean;
     /**
      * Solana wallet adapter context. Pass this from @solana/wallet-adapter-react's useWallet().
-     * The button will handle connection and signing automatically for a one-click experience.
+     * When provided, the component assumes a WalletProvider exists in the React tree and
+     * uses the consumer's wallet context for wallet discovery and connection.
+     * When omitted, the component provides its own WalletProvider with wallet-standard discovery.
      */
     walletContext?: {
         publicKey: {
@@ -4952,6 +4958,12 @@ export declare interface UseWebAuthnReturn {
         credentialId: string;
         label?: string;
     }>;
+    /** Create a new account using a passkey (unauthenticated signup). */
+    signupWithPasskey: (params?: {
+        email?: string;
+        name?: string;
+        label?: string;
+    }) => Promise<AuthResponse>;
 }
 
 export declare function useWithdrawal(): UseWithdrawalReturn;
