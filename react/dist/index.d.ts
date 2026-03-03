@@ -2331,15 +2331,13 @@ export declare interface OtpInputProps {
     className?: string;
 }
 
-export declare function PasskeyLoginButton({ onSuccess, className, children, disabled, mode, }: PasskeyLoginButtonProps): JSX.Element;
+export declare function PasskeyLoginButton({ onSuccess, className, children, disabled, }: PasskeyLoginButtonProps): JSX.Element;
 
 export declare interface PasskeyLoginButtonProps {
     onSuccess?: () => void;
     className?: string;
     children?: ReactNode;
     disabled?: boolean;
-    /** 'login' authenticates an existing passkey; 'register' creates a new account via passkey. */
-    mode?: 'login' | 'register';
 }
 
 /**
@@ -4949,6 +4947,8 @@ export declare interface UseWebAuthnReturn {
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;
+    /** Unified passkey flow: tries discoverable auth first, falls back to signup if no passkey exists. */
+    continueWithPasskey: () => Promise<AuthResponse>;
     /** Start a server-managed WebAuthn authentication ceremony (login). */
     authenticatePasskey: (params?: {
         email?: string;

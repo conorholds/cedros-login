@@ -1,13 +1,13 @@
-import { jsx as c, jsxs as _ } from "react/jsx-runtime";
-import { useState as v, useMemo as Q, useCallback as W, useRef as q, useEffect as M } from "react";
-import { WalletProvider as X, useWallet as Z } from "@solana/wallet-adapter-react";
-import { WalletModalProvider as F, useWalletModal as x } from "@solana/wallet-adapter-react-ui";
-import { u as ee, A as te, h as H } from "./useCedrosLogin-_94MmGGq.js";
-import { a as V } from "./validation-B8kMV3BL.js";
-import { L as ne } from "./LoadingSpinner-6vml-zwr.js";
-function ae() {
-  const { config: e, _internal: t } = ee(), [w, s] = v(!1), [D, l] = v(null), f = Q(
-    () => new te({
+import { jsx as c, jsxs as F } from "react/jsx-runtime";
+import { useState as v, useMemo as X, useCallback as W, useRef as K, useEffect as M } from "react";
+import { WalletProvider as Z, useWallet as x } from "@solana/wallet-adapter-react";
+import { WalletModalProvider as H, useWalletModal as ee } from "@solana/wallet-adapter-react-ui";
+import { u as te, A as ne, h as V } from "./useCedrosLogin-_94MmGGq.js";
+import { a as O } from "./validation-B8kMV3BL.js";
+import { L as ae } from "./LoadingSpinner-6vml-zwr.js";
+function re() {
+  const { config: e, _internal: n } = te(), [b, s] = v(!1), [D, l] = v(null), f = X(
+    () => new ne({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts
@@ -15,7 +15,7 @@ function ae() {
     [e.serverUrl, e.requestTimeout, e.retryAttempts]
   ), S = W(
     async (d) => {
-      if (!V(d)) {
+      if (!O(d)) {
         const i = {
           code: "INVALID_PUBLIC_KEY",
           message: "Invalid Solana public key format"
@@ -30,7 +30,7 @@ function ae() {
           { credentials: "omit" }
         );
       } catch (i) {
-        const a = H(i, "Failed to get challenge");
+        const a = V(i, "Failed to get challenge");
         throw l(a), a;
       } finally {
         s(!1);
@@ -39,7 +39,7 @@ function ae() {
     [f]
   ), o = W(
     async (d, i, a) => {
-      if (!V(d)) {
+      if (!O(d)) {
         const r = {
           code: "INVALID_PUBLIC_KEY",
           message: "Invalid Solana public key format"
@@ -53,32 +53,32 @@ function ae() {
           signature: i,
           message: a
         });
-        return e.callbacks?.onLoginSuccess?.(r.user, "solana"), t?.handleLoginSuccess(r.user, r.tokens), r;
+        return e.callbacks?.onLoginSuccess?.(r.user, "solana"), n?.handleLoginSuccess(r.user, r.tokens), r;
       } catch (r) {
-        const C = H(r, "Solana sign-in failed");
+        const C = V(r, "Solana sign-in failed");
         throw l(C), C;
       } finally {
         s(!1);
       }
     },
-    [f, e.callbacks, t]
+    [f, e.callbacks, n]
   ), L = W(() => l(null), []);
   return {
     requestChallenge: S,
     signIn: o,
-    isLoading: w,
+    isLoading: b,
     error: D,
     clearError: L
   };
 }
-const re = [];
-function fe(e) {
-  return e.walletContext ? /* @__PURE__ */ c(F, { children: /* @__PURE__ */ c(R, { ...e }) }) : /* @__PURE__ */ c(X, { wallets: re, localStorageKey: "cedros-walletName", children: /* @__PURE__ */ c(F, { children: /* @__PURE__ */ c(R, { ...e }) }) });
+const se = [];
+function ge(e) {
+  return e.walletContext ? /* @__PURE__ */ c(H, { children: /* @__PURE__ */ c(R, { ...e }) }) : /* @__PURE__ */ c(Z, { wallets: se, localStorageKey: "cedros-walletName", children: /* @__PURE__ */ c(H, { children: /* @__PURE__ */ c(R, { ...e }) }) });
 }
 function R({
   onSuccess: e,
-  onError: t,
-  className: w = "",
+  onError: n,
+  className: b = "",
   variant: s = "default",
   size: D = "md",
   disabled: l = !1,
@@ -86,67 +86,73 @@ function R({
   onLoadingChange: S,
   walletContext: o
 }) {
-  const { requestChallenge: L, signIn: d, isLoading: i } = ae(), a = Z(), { visible: r, setVisible: C } = x(), [g, h] = v(!1), [K, P] = v(!1), E = q(!1), k = q(!1), u = o?.connected ?? a.connected, m = o?.connecting ?? a.connecting, p = o?.publicKey ?? a.publicKey, y = o?.signMessage ?? a.signMessage, b = o?.wallet ?? a.wallet, Y = o?.wallets ?? a.wallets, $ = o ? o.select : (n) => a.select(n), T = o?.connect ?? a.connect, z = Y.filter(
-    (n) => n.adapter.readyState === "Installed" || n.adapter.readyState === "Loadable"
+  const { requestChallenge: L, signIn: d, isLoading: i } = re(), a = x(), { visible: r, setVisible: C } = ee(), [g, h] = v(!1), [T, P] = v(!1), E = K(!1), k = K(!1), U = K(null), u = o?.connected ?? a.connected, m = o?.connecting ?? a.connecting, p = o?.publicKey ?? a.publicKey, y = o?.signMessage ?? a.signMessage, w = o?.wallet ?? a.wallet, Y = o?.wallets ?? a.wallets, $ = o ? o.select : (t) => a.select(t), _ = o?.connect ?? a.connect, z = Y.filter(
+    (t) => t.adapter.readyState === "Installed" || t.adapter.readyState === "Loadable"
   ), N = W(async () => {
     if (!E.current) {
       if (!p || !y) {
-        t?.(new Error("Wallet not ready"));
+        n?.(new Error("Wallet not ready"));
         return;
       }
       E.current = !0;
       try {
-        const n = p.toBase58(), I = await L(n), J = new TextEncoder().encode(I.message), B = await y(J);
+        const t = p.toBase58(), I = await L(t), Q = new TextEncoder().encode(I.message), B = await y(Q);
         if (!(B instanceof Uint8Array) || B.length === 0)
           throw new Error("Wallet returned invalid signature");
-        let U;
+        let q;
         try {
-          U = btoa(String.fromCharCode(...B));
+          q = btoa(String.fromCharCode(...B));
         } catch {
           throw new Error("Failed to encode signature");
         }
-        await d(n, U, I.message), e?.();
-      } catch (n) {
-        const I = n instanceof Error ? n : new Error(String(n));
-        t?.(I);
+        await d(t, q, I.message), e?.();
+      } catch (t) {
+        const I = t instanceof Error ? t : new Error(String(t));
+        n?.(I);
       } finally {
         E.current = !1, h(!1);
       }
     }
-  }, [p, y, L, d, e, t]);
+  }, [p, y, L, d, e, n]);
   if (M(() => {
-    K && b && !u && !m && (P(!1), T().catch((n) => {
-      t?.(n instanceof Error ? n : new Error(String(n))), h(!1);
+    T && w && !u && !m && (P(!1), _().catch((t) => {
+      n?.(t instanceof Error ? t : new Error(String(t))), h(!1);
     }));
-  }, [K, b, u, m, T, t]), M(() => {
+  }, [T, w, u, m, _, n]), M(() => {
     g && u && p && y && !E.current && N().catch(() => {
     });
   }, [g, u, p, y, N]), M(() => {
-    r ? k.current = !0 : k.current && (k.current = !1, g && !u && b && !m ? P(!0) : g && !u && !b && h(!1));
-  }, [r, g, u, b, m]), f && z.length === 0)
+    if (r)
+      k.current = !0, U.current = w?.adapter.name ?? null;
+    else if (k.current) {
+      k.current = !1;
+      const t = (w?.adapter.name ?? null) !== U.current;
+      g && !u && w && t && !m ? P(!0) : g && !u && h(!1);
+    }
+  }, [r, g, u, w, m]), f && z.length === 0)
     return null;
   const j = async () => {
     l || i || m || (u && p && y ? (h(!0), await N()) : z.length === 1 ? ($(z[0].adapter.name), h(!0), P(!0)) : (C(!0), h(!0)));
-  }, O = {
+  }, G = {
     sm: "cedros-button-sm",
     md: "cedros-button-md",
     lg: "cedros-button-lg"
-  }, G = {
+  }, J = {
     default: "cedros-button-social",
     outline: "cedros-button-social-outline"
   }, A = i || m || g && !u;
   return M(() => {
     S?.(A);
-  }, [A, S]), /* @__PURE__ */ _(
+  }, [A, S]), /* @__PURE__ */ F(
     "button",
     {
       type: "button",
-      className: `cedros-button ${G[s]} ${O[D]} ${w}`,
+      className: `cedros-button ${J[s]} ${G[D]} ${b}`,
       onClick: j,
       disabled: l || A,
       "aria-label": "Continue with Solana",
       children: [
-        A ? /* @__PURE__ */ c(ne, { size: "sm" }) : /* @__PURE__ */ _(
+        A ? /* @__PURE__ */ c(ae, { size: "sm" }) : /* @__PURE__ */ F(
           "svg",
           {
             className: "cedros-button-icon",
@@ -167,25 +173,25 @@ function R({
     }
   );
 }
-function ge(e) {
+function he(e) {
   if (typeof window > "u")
     return !1;
   try {
-    const t = require("@solana-mobile/wallet-standard-mobile"), w = e?.chains ?? ["solana:mainnet"], s = {
+    const n = require("@solana-mobile/wallet-standard-mobile"), b = e?.chains ?? ["solana:mainnet"], s = {
       appIdentity: {
         name: e?.name,
         uri: e?.uri,
         icon: e?.icon
       },
-      chains: w
+      chains: b
     };
-    return typeof t.createDefaultAuthorizationCache == "function" && (s.authorizationCache = t.createDefaultAuthorizationCache()), typeof t.createDefaultChainSelector == "function" && (s.chainSelector = t.createDefaultChainSelector()), typeof t.createDefaultWalletNotFoundHandler == "function" && (s.onWalletNotFound = t.createDefaultWalletNotFoundHandler()), t.registerMwa(s), !0;
+    return typeof n.createDefaultAuthorizationCache == "function" && (s.authorizationCache = n.createDefaultAuthorizationCache()), typeof n.createDefaultChainSelector == "function" && (s.chainSelector = n.createDefaultChainSelector()), typeof n.createDefaultWalletNotFoundHandler == "function" && (s.onWalletNotFound = n.createDefaultWalletNotFoundHandler()), n.registerMwa(s), !0;
   } catch {
     return !1;
   }
 }
 export {
-  fe as S,
-  ge as r,
-  ae as u
+  ge as S,
+  he as r,
+  re as u
 };
