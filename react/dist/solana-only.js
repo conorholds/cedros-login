@@ -1,6 +1,6 @@
 import { C as e, u as s } from "./useAuth-CVLv2oKA.js";
 import { u as t } from "./useCedrosLogin-CFfID-0i.js";
-import { S as u, r as i, u as g } from "./SolanaLoginButton-DFOoLqoj.js";
+import { S as u, r as i, u as g } from "./SolanaLoginButton-DHsiug1Y.js";
 import { L as f } from "./LoadingSpinner-6vml-zwr.js";
 import { E as m } from "./ErrorMessage-CcEK0pYO.js";
 export {

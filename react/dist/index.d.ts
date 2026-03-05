@@ -2771,9 +2771,9 @@ declare type RecoveryStep = 'idle' | 'entering_phrase' | 'validating' | 'prompti
  * }
  * ```
  *
- * @returns true if registration succeeded, false if package not installed or SSR
+ * @returns Promise resolving to true if registration succeeded, false otherwise
  */
-export declare function registerMobileWallet(config?: MobileWalletConfig): boolean;
+export declare function registerMobileWallet(config?: MobileWalletConfig): Promise<boolean>;
 
 /**
  * Form for resetting password using a reset token.

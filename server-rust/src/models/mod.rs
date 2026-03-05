@@ -212,11 +212,13 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-/// Google auth request
+/// Google auth request — accepts either an ID token (from One Tap) or an
+/// access token (from the OAuth popup flow via `initTokenClient`).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GoogleAuthRequest {
-    pub id_token: String,
+    pub id_token: Option<String>,
+    pub access_token: Option<String>,
 }
 
 /// Apple Sign-In auth request
@@ -467,10 +469,19 @@ mod tests {
     }
 
     #[test]
-    fn test_google_auth_request_deserialization() {
+    fn test_google_auth_request_deserialization_id_token() {
         let json = r#"{"idToken":"google-id-token-123"}"#;
         let request: GoogleAuthRequest = serde_json::from_str(json).unwrap();
-        assert_eq!(request.id_token, "google-id-token-123");
+        assert_eq!(request.id_token.unwrap(), "google-id-token-123");
+        assert!(request.access_token.is_none());
+    }
+
+    #[test]
+    fn test_google_auth_request_deserialization_access_token() {
+        let json = r#"{"accessToken":"google-access-token-456"}"#;
+        let request: GoogleAuthRequest = serde_json::from_str(json).unwrap();
+        assert!(request.id_token.is_none());
+        assert_eq!(request.access_token.unwrap(), "google-access-token-456");
     }
 
     #[test]

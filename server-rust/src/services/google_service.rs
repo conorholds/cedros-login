@@ -310,6 +310,62 @@ impl GoogleService {
 
         Ok(claims)
     }
+
+    /// Verify a Google access token by calling Google's userinfo endpoint.
+    ///
+    /// Used when the client authenticates via the OAuth popup flow
+    /// (`google.accounts.oauth2.initTokenClient`) which returns an access
+    /// token instead of an ID token.
+    pub async fn verify_access_token(
+        &self,
+        access_token: &str,
+    ) -> Result<GoogleTokenClaims, AppError> {
+        let resp = tokio::time::timeout(
+            Duration::from_secs(GOOGLE_API_TIMEOUT_SECS),
+            self.http_client
+                .get("https://www.googleapis.com/oauth2/v3/userinfo")
+                .bearer_auth(access_token)
+                .send(),
+        )
+        .await
+        .map_err(|_| AppError::Internal(anyhow::anyhow!("Google userinfo request timed out")))?
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("Google userinfo request failed: {}", e)))?;
+
+        if !resp.status().is_success() {
+            return Err(AppError::InvalidToken);
+        }
+
+        let info: GoogleUserInfo = resp
+            .json()
+            .await
+            .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to parse userinfo: {}", e)))?;
+
+        if info.email_verified != Some(true) {
+            return Err(AppError::Validation("Email not verified with Google".into()));
+        }
+
+        Ok(GoogleTokenClaims {
+            sub: info.sub,
+            email: info.email,
+            email_verified: info.email_verified,
+            name: info.name,
+            picture: info.picture,
+            // These fields aren't in userinfo but aren't used after verification
+            aud: String::new(),
+            iss: "https://accounts.google.com".into(),
+            exp: 0,
+        })
+    }
+}
+
+/// Response from Google's userinfo endpoint
+#[derive(Debug, Deserialize)]
+struct GoogleUserInfo {
+    sub: String,
+    email: Option<String>,
+    email_verified: Option<bool>,
+    name: Option<String>,
+    picture: Option<String>,
 }
 
 #[cfg(test)]

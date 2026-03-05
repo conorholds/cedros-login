@@ -410,9 +410,9 @@ declare interface PostLoginAction {
  * }
  * ```
  *
- * @returns true if registration succeeded, false if package not installed or SSR
+ * @returns Promise resolving to true if registration succeeded, false otherwise
  */
-export declare function registerMobileWallet(config?: MobileWalletConfig): boolean;
+export declare function registerMobileWallet(config?: MobileWalletConfig): Promise<boolean>;
 
 /**
  * Session handling configuration

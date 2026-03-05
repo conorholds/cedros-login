@@ -53,11 +53,22 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
         .or_else(|| state.config.google.client_id.clone())
         .ok_or_else(|| AppError::Config("Google client ID not configured".into()))?;
 
-    // Verify the Google ID token
-    let claims = state
-        .google_service
-        .verify_id_token(&req.id_token, &client_id)
-        .await?;
+    // Verify the Google token (ID token from One Tap, or access token from popup)
+    let claims = match (&req.id_token, &req.access_token) {
+        (Some(id_token), _) => {
+            state
+                .google_service
+                .verify_id_token(id_token, &client_id)
+                .await?
+        }
+        (_, Some(access_token)) => {
+            state
+                .google_service
+                .verify_access_token(access_token)
+                .await?
+        }
+        _ => return Err(AppError::Validation("Either idToken or accessToken is required".into())),
+    };
 
     let email = claims
         .email
