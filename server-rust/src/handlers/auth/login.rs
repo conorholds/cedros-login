@@ -48,8 +48,9 @@ use crate::repositories::{
 };
 use crate::services::EmailService;
 use crate::utils::{
-    build_json_response_with_cookies, extract_client_ip_with_fallback, get_default_org_context,
-    hash_refresh_token, is_new_device, user_entity_to_auth_user, DeviceInfo, PeerIp,
+    build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
+    get_default_org_context, hash_refresh_token, is_new_device, user_entity_to_auth_user,
+    DeviceInfo, PeerIp,
 };
 use crate::AppState;
 
@@ -289,6 +290,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     // Build response with optional cookies
@@ -469,6 +471,7 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     // Build response with optional cookies

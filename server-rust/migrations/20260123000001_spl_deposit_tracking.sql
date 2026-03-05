@@ -32,8 +32,9 @@ ALTER TABLE credit_transactions ADD COLUMN IF NOT EXISTS hold_id UUID;
 CREATE INDEX IF NOT EXISTS idx_deposit_sessions_input_token ON deposit_sessions(input_token_mint)
     WHERE input_token_mint IS NOT NULL;
 
--- Index for credit transaction idempotency
-CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_transactions_idempotency ON credit_transactions(idempotency_key)
+-- Index for credit transaction idempotency (per-user uniqueness)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_transactions_idempotency
+    ON credit_transactions(user_id, idempotency_key)
     WHERE idempotency_key IS NOT NULL;
 
 -- =============================================================================

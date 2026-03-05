@@ -1,5 +1,5 @@
 -- Add is_system_admin flag to users table
-ALTER TABLE users ADD COLUMN IF NOT EXISTS is_system_admin BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_system_admin BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- Organizations table
 CREATE TABLE IF NOT EXISTS organizations (
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS organizations (
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(100) NOT NULL,
     logo_url TEXT,
-    is_personal BOOLEAN DEFAULT FALSE,
+    is_personal BOOLEAN NOT NULL DEFAULT FALSE,
     owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,

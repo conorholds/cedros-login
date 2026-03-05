@@ -12,17 +12,14 @@ INSERT INTO system_settings (key, value, category, description, is_secret) VALUE
     ('auth_email_require_verification', 'true', 'auth.email', 'Require email verification before login', FALSE),
     ('auth_email_block_disposable', 'false', 'auth.email', 'Block disposable email domains', FALSE),
 
-    -- Google OAuth
+    -- Google OAuth (client-side ID token flow — no client secret needed)
     ('auth_google_enabled', 'false', 'auth.google', 'Enable Google Sign-In', FALSE),
     ('auth_google_client_id', '', 'auth.google', 'Google OAuth client ID', FALSE),
-    ('auth_google_client_secret', '', 'auth.google', 'Google OAuth client secret', TRUE),
 
-    -- Apple OAuth
+    -- Apple OAuth (client-side ID token flow — verified via Apple JWKS, no signing key needed)
     ('auth_apple_enabled', 'false', 'auth.apple', 'Enable Sign in with Apple', FALSE),
     ('auth_apple_client_id', '', 'auth.apple', 'Apple Services ID (client ID)', FALSE),
     ('auth_apple_team_id', '', 'auth.apple', 'Apple Developer Team ID', FALSE),
-    ('auth_apple_key_id', '', 'auth.apple', 'Apple Sign-In private key ID', FALSE),
-    ('auth_apple_private_key', '', 'auth.apple', 'Apple Sign-In private key (PEM)', TRUE),
 
     -- Solana auth
     ('auth_solana_enabled', 'false', 'auth.solana', 'Enable Solana wallet authentication', FALSE),

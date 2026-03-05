@@ -46,6 +46,8 @@ export declare interface AuthResponse {
     tokens?: TokenPair;
     isNewUser: boolean;
     callbackData?: Record<string, unknown>;
+    /** Post-login action (welcome page, profile completion, or redirect) */
+    postLogin?: PostLoginAction;
 }
 
 /**
@@ -65,6 +67,8 @@ declare interface AuthStateContextValue {
     authState: AuthState;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    /** Display order for social login buttons (from server auto-discovery). */
+    socialButtonOrder?: string[];
     _internal?: CedrosLoginInternalAPI;
 }
 
@@ -96,6 +100,8 @@ export declare interface AuthUser {
     totpEnabled?: boolean;
     createdAt: string;
     updatedAt: string;
+    /** When the user completed the one-time welcome flow */
+    welcomeCompletedAt?: string;
 }
 
 /**
@@ -253,7 +259,7 @@ export declare function EmailLoginForm({ onSuccess, onSwitchToRegister, onForgot
 declare interface EmailLoginFormProps {
     onSuccess?: () => void;
     onSwitchToRegister?: () => void;
-    /** Called when user clicks "Forgot password?" (only in 'reset' mode) */
+    /** Called when user clicks "Forgot password?" — navigates to forgot-password screen */
     onForgotPassword?: () => void;
     className?: string;
 }
@@ -402,6 +408,16 @@ export declare interface PasswordValidation {
         special?: string;
     };
     strength: 'weak' | 'fair' | 'good' | 'strong';
+}
+
+/**
+ * Post-login action returned by the server after authentication
+ */
+declare interface PostLoginAction {
+    /** Action type: "welcome", "complete_profile", "redirect", or "setup_mfa" */
+    action: 'welcome' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** URL/route for redirect or welcome page */
+    redirectUrl?: string;
 }
 
 /**

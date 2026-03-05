@@ -28,7 +28,7 @@ ALTER TABLE deposit_sessions
   ADD CONSTRAINT deposit_sessions_wallet_type_check
     CHECK (wallet_type IN ('embedded', 'external'));
 
--- webauthn_challenges.challenge_type: 'register', 'authenticate'
+-- webauthn_challenges.challenge_type: 'register', 'authenticate', 'discoverable', 'register_new'
 ALTER TABLE webauthn_challenges
   ADD CONSTRAINT webauthn_challenges_challenge_type_check
-    CHECK (challenge_type IN ('register', 'authenticate'));
+    CHECK (challenge_type IN ('register', 'authenticate', 'discoverable', 'register_new'));

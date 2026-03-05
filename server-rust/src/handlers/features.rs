@@ -31,6 +31,8 @@ pub struct AuthFeaturesResponse {
     pub google_client_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub apple_client_id: Option<String>,
+    /// Display order for social login buttons (e.g. `["webauthn","google","apple","solana"]`).
+    pub social_button_order: Vec<String>,
 }
 
 /// GET /features — lightweight public endpoint for UI feature discovery.
@@ -109,6 +111,21 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         None
     };
 
+    let default_order: Vec<String> = vec![
+        "webauthn".into(),
+        "google".into(),
+        "apple".into(),
+        "solana".into(),
+    ];
+    let social_button_order = ss
+        .get("ui_social_button_order")
+        .await
+        .ok()
+        .flatten()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.split(',').map(|p| p.trim().to_string()).collect::<Vec<_>>())
+        .unwrap_or(default_order);
+
     Json(AuthFeaturesResponse {
         email,
         google,
@@ -118,6 +135,7 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         instant_link,
         google_client_id,
         apple_client_id,
+        social_button_order,
     })
 }
 
@@ -136,6 +154,7 @@ mod tests {
             instant_link: false,
             google_client_id: None,
             apple_client_id: None,
+            social_button_order: vec!["webauthn".into(), "google".into()],
         };
 
         let json = serde_json::to_string(&resp).unwrap();
@@ -145,6 +164,7 @@ mod tests {
         // None values are omitted via skip_serializing_if
         assert!(!json.contains("googleClientId"));
         assert!(!json.contains("appleClientId"));
+        assert!(json.contains("\"socialButtonOrder\":[\"webauthn\",\"google\"]"));
     }
 
     #[test]
@@ -158,6 +178,12 @@ mod tests {
             instant_link: false,
             google_client_id: Some("goog-123.apps.googleusercontent.com".into()),
             apple_client_id: Some("com.example.auth".into()),
+            social_button_order: vec![
+                "webauthn".into(),
+                "google".into(),
+                "apple".into(),
+                "solana".into(),
+            ],
         };
 
         let json = serde_json::to_string(&resp).unwrap();

@@ -32,8 +32,8 @@ use crate::repositories::{
 };
 use crate::services::{EmailService, TokenContext};
 use crate::utils::{
-    attach_auth_cookies, extract_client_ip_with_fallback, hash_refresh_token, is_disposable_email,
-    is_valid_email, resolve_org_assignment, user_entity_to_auth_user, PeerIp,
+    attach_auth_cookies, compute_post_login, extract_client_ip_with_fallback, hash_refresh_token,
+    is_disposable_email, is_valid_email, resolve_org_assignment, user_entity_to_auth_user, PeerIp,
 };
 use crate::AppState;
 
@@ -374,6 +374,7 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: raw_api_key,
         email_queued,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     // Build response with optional cookies

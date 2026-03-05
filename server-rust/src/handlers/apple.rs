@@ -16,8 +16,9 @@ use crate::repositories::{
 };
 use crate::services::EmailService;
 use crate::utils::{
-    build_json_response_with_cookies, extract_client_ip_with_fallback, get_default_org_context,
-    hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user, PeerIp,
+    build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
+    get_default_org_context, hash_refresh_token, resolve_org_assignment,
+    user_entity_to_auth_user, PeerIp,
 };
 use crate::AppState;
 
@@ -128,6 +129,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             created_at: now,
             updated_at: now,
             last_login_at: Some(now),
+            welcome_completed_at: None,
         };
         let org_assignment = resolve_org_assignment(&state, user.id).await?;
         let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
@@ -231,6 +233,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     Ok(build_json_response_with_cookies(

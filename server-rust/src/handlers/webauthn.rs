@@ -24,7 +24,7 @@ use crate::services::{
     EmailService,
 };
 use crate::utils::{
-    auth::authenticate, build_json_response_with_cookies, extract_client_ip,
+    auth::authenticate, build_json_response_with_cookies, compute_post_login, extract_client_ip,
     get_default_org_context, hash_refresh_token, user_entity_to_auth_user,
 };
 use crate::AppState;
@@ -389,6 +389,7 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     Ok(build_json_response_with_cookies(

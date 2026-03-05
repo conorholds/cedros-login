@@ -47,6 +47,7 @@ mod tests {
             created_at: Utc::now(),
             updated_at: Utc::now(),
             last_login_at: None,
+            welcome_completed_at: None,
         };
 
         let entity: UserEntity = row.into();
@@ -74,6 +75,7 @@ struct UserRow {
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
     last_login_at: Option<chrono::DateTime<chrono::Utc>>,
+    welcome_completed_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 impl From<UserRow> for UserEntity {
@@ -106,6 +108,7 @@ impl From<UserRow> for UserEntity {
             created_at: row.created_at,
             updated_at: row.updated_at,
             last_login_at: row.last_login_at,
+            welcome_completed_at: row.welcome_completed_at,
         }
     }
 }
@@ -131,7 +134,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE id = $1
             "#,
         )
@@ -153,7 +156,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE email = $1
             "#,
         )
@@ -170,7 +173,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE wallet_address = $1
             "#,
         )
@@ -187,7 +190,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE google_id = $1
             "#,
         )
@@ -204,7 +207,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE apple_id = $1
             "#,
         )
@@ -224,7 +227,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE stripe_customer_id = $1
             "#,
         )
@@ -243,11 +246,11 @@ impl UserRepository for PostgresUserRepository {
             r#"
             INSERT INTO users (id, email, email_verified, password_hash, name, picture,
                               wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                              created_at, updated_at, last_login_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                              created_at, updated_at, last_login_at, welcome_completed_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
             RETURNING id, email, email_verified, password_hash, name, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                      created_at, updated_at, last_login_at
+                      created_at, updated_at, last_login_at, welcome_completed_at, welcome_completed_at
             "#,
         )
         .bind(user.id)
@@ -265,6 +268,7 @@ impl UserRepository for PostgresUserRepository {
         .bind(user.created_at)
         .bind(user.updated_at)
         .bind(user.last_login_at)
+        .bind(user.welcome_completed_at)
         .fetch_one(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
@@ -294,7 +298,7 @@ impl UserRepository for PostgresUserRepository {
             WHERE id = $1
             RETURNING id, email, email_verified, password_hash, name, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                      created_at, updated_at, last_login_at
+                      created_at, updated_at, last_login_at, welcome_completed_at
             "#,
         )
         .bind(user.id)
@@ -388,7 +392,7 @@ impl UserRepository for PostgresUserRepository {
             r#"
             SELECT id, email, email_verified, password_hash, name, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                   created_at, updated_at, last_login_at
+                   created_at, updated_at, last_login_at, welcome_completed_at
             FROM users
             ORDER BY created_at DESC
             LIMIT $1 OFFSET $2
@@ -502,6 +506,22 @@ impl UserRepository for PostgresUserRepository {
             .execute(&self.pool)
             .await
             .map_err(|e| AppError::Internal(e.into()))?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::NotFound("User not found".into()));
+        }
+
+        Ok(())
+    }
+
+    async fn set_welcome_completed(&self, id: Uuid) -> Result<(), AppError> {
+        let result = sqlx::query(
+            "UPDATE users SET welcome_completed_at = NOW(), updated_at = NOW() WHERE id = $1",
+        )
+        .bind(id)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
 
         if result.rows_affected() == 0 {
             return Err(AppError::NotFound("User not found".into()));

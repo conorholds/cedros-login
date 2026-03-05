@@ -109,6 +109,9 @@ pub struct AuthUser {
     pub email_verified: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    /// When the user completed the one-time welcome flow (if enabled)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub welcome_completed_at: Option<DateTime<Utc>>,
 }
 
 /// Token pair
@@ -118,6 +121,17 @@ pub struct TokenPair {
     pub access_token: String,
     pub refresh_token: String,
     pub expires_in: u64,
+}
+
+/// Post-login action to perform after successful authentication
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PostLoginAction {
+    /// Action type: "welcome", "complete_profile", or "redirect"
+    pub action: String,
+    /// URL/route for redirect or welcome page
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub redirect_url: Option<String>,
 }
 
 /// Authentication response
@@ -136,6 +150,9 @@ pub struct AuthResponse {
     /// S-05: Whether verification email was successfully queued (only set when require_verification is on)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email_queued: Option<bool>,
+    /// Post-login action (welcome page, profile completion, or redirect)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub post_login: Option<PostLoginAction>,
 }
 
 /// Response when MFA is required to complete login
@@ -406,6 +423,7 @@ mod tests {
             email_verified: true,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            welcome_completed_at: None,
         };
 
         let json = serde_json::to_string(&user).unwrap();
@@ -550,6 +568,7 @@ mod tests {
             email_verified: false,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            welcome_completed_at: None,
         };
 
         let json = serde_json::to_string(&user).unwrap();

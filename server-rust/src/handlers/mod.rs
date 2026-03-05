@@ -64,6 +64,7 @@ pub use api_keys::{
 pub use apple::apple_auth;
 pub use auth::{
     complete_mfa_login, get_user, login, logout, logout_all, refresh, register, update_profile,
+    welcome_completed,
 };
 pub use authorize::{authorize, get_permissions};
 pub use credentials::{list_credentials, unlink_credential, update_credential};

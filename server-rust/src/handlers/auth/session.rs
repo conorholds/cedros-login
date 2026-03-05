@@ -21,6 +21,7 @@ use std::sync::Arc;
 use super::call_logout_callback_with_timeout;
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
+use axum::http::StatusCode;
 use crate::models::{MessageResponse, UserResponse};
 use crate::repositories::AuditEventType;
 use crate::services::EmailService;
@@ -300,4 +301,22 @@ pub async fn update_profile<C: AuthCallback, E: EmailService>(
     Ok(Json(UserResponse {
         user: user_entity_to_auth_user(&updated_user),
     }))
+}
+
+/// POST /auth/welcome-completed - Mark the welcome flow as completed
+///
+/// Sets `welcome_completed_at` on the current user so the one-time welcome
+/// page is not shown again on subsequent logins. Returns 204 No Content.
+pub async fn welcome_completed<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+) -> Result<impl IntoResponse, AppError> {
+    let auth = authenticate(&state, &headers).await?;
+
+    state
+        .user_repo
+        .set_welcome_completed(auth.user_id)
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }

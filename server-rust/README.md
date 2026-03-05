@@ -41,6 +41,7 @@ Production-ready authentication server with multi-tenancy, flexible auth methods
 - **TOTP Replay Protection**: Each code can only be used once (S-14)
 - **Encryption at Rest**: TOTP secrets encrypted with AES-256-GCM (S-22). Uses `TOTP_ENCRYPTION_SECRET` or falls back to `JWT_SECRET`.
 - **Step-Up Required for MFA Enrollment**: MFA setup/enabling requires recent strong authentication
+- **Admin-Enforced MFA**: Admins can require email/password users to set up TOTP via `security_require_mfa` setting. Prompted as a non-skippable post-login action. Does not affect OAuth, passkey, or wallet users.
 - **Production Validation**: Enforces COOKIE_SECURE and CORS_ORIGINS in production
 
 ### Communications
@@ -140,6 +141,8 @@ All endpoints are served under `AUTH_BASE_PATH` (default: `/auth`). Paths below 
 | `POST` | `/instant-link/verify` | Verify instant link and login |
 
 ### MFA (TOTP)
+
+> **Scope:** TOTP 2FA applies to email/password login only (`POST /login` → `POST /login/mfa`). OAuth (Google, Apple), passkey, and Solana wallet logins are not gated by TOTP — those methods rely on their provider's own verification (e.g., Google's MFA, device-bound passkeys).
 
 | Method | Path | Description |
 |--------|------|-------------|

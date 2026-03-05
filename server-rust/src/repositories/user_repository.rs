@@ -111,6 +111,8 @@ pub struct UserEntity {
     pub updated_at: DateTime<Utc>,
     /// Last successful login timestamp
     pub last_login_at: Option<DateTime<Utc>>,
+    /// When the user completed the one-time welcome flow
+    pub welcome_completed_at: Option<DateTime<Utc>>,
 }
 
 impl UserEntity {
@@ -133,6 +135,7 @@ impl UserEntity {
             created_at: now,
             updated_at: now,
             last_login_at: None,
+            welcome_completed_at: None,
         }
     }
 }
@@ -213,6 +216,9 @@ pub trait UserRepository: Send + Sync {
 
     /// Update last login timestamp for a user
     async fn update_last_login(&self, id: Uuid) -> Result<(), AppError>;
+
+    /// Set welcome_completed_at timestamp for a user
+    async fn set_welcome_completed(&self, id: Uuid) -> Result<(), AppError>;
 }
 
 /// In-memory user repository for development/testing
@@ -597,6 +603,15 @@ impl UserRepository for InMemoryUserRepository {
         let mut users = self.users.write().await;
         if let Some(user) = users.get_mut(&id) {
             user.last_login_at = Some(Utc::now());
+        }
+        Ok(())
+    }
+
+    async fn set_welcome_completed(&self, id: Uuid) -> Result<(), AppError> {
+        let mut users = self.users.write().await;
+        if let Some(user) = users.get_mut(&id) {
+            user.welcome_completed_at = Some(Utc::now());
+            user.updated_at = Utc::now();
         }
         Ok(())
     }

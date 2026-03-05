@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS user_withdrawal_log (
     user_id UUID NOT NULL REFERENCES users(id),
     token_type TEXT NOT NULL,        -- 'sol' or 'spl'
     token_mint TEXT,                 -- NULL for SOL, mint address for SPL
-    amount TEXT NOT NULL,            -- Raw amount string (lamports for SOL, smallest unit for SPL)
+    amount BIGINT NOT NULL CHECK (amount > 0), -- Lamports for SOL, smallest unit for SPL
     destination TEXT NOT NULL,       -- Destination address
     tx_signature TEXT NOT NULL,      -- On-chain transaction signature
     fee_lamports BIGINT NOT NULL,   -- Transaction fee

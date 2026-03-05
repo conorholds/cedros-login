@@ -23,9 +23,9 @@ use crate::repositories::{
 };
 use crate::services::EmailService;
 use crate::utils::{
-    build_json_response_with_cookies, extract_client_ip_with_fallback, get_default_org_context,
-    hash_refresh_token, is_new_device, resolve_org_assignment, user_entity_to_auth_user,
-    DeviceInfo, PeerIp,
+    build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
+    get_default_org_context, hash_refresh_token, is_new_device, resolve_org_assignment,
+    user_entity_to_auth_user, DeviceInfo, PeerIp,
 };
 use crate::AppState;
 use uuid::Uuid;
@@ -123,6 +123,7 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
                 created_at: now,
                 updated_at: now,
                 last_login_at: None,
+                welcome_completed_at: None,
             };
             match state.user_repo.create(new_user).await {
                 Ok(created) => created,
@@ -411,6 +412,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: raw_api_key,
         email_queued: None,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     Ok(build_json_response_with_cookies(

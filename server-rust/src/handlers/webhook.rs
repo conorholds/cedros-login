@@ -505,6 +505,7 @@ mod tests {
             created_at: Utc::now(),
             updated_at: Utc::now(),
             last_login_at: None,
+            welcome_completed_at: None,
         };
         let user = storage
             .user_repo

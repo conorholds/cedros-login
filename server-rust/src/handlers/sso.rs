@@ -12,22 +12,25 @@ use axum::{
 };
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
-use std::future::Future;
 use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
-use crate::handlers::auth::call_authenticated_callback_with_timeout;
+use crate::handlers::auth::{
+    call_authenticated_callback_with_timeout, call_registered_callback_with_timeout,
+};
 use crate::models::{AuthMethod, AuthResponse};
 use crate::repositories::{
-    normalize_email, AuditEventType, CredentialEntity, CredentialRepository, CredentialType,
-    SessionEntity,
+    generate_api_key, normalize_email, ApiKeyEntity, AuditEventType, CredentialEntity,
+    CredentialRepository, CredentialType, MembershipEntity, SessionEntity, TransactionalOps,
+    UserEntity,
 };
 use crate::services::EmailService;
 use crate::utils::{
-    attach_auth_cookies, build_json_response_with_cookies, extract_client_ip,
-    get_default_org_context, hash_refresh_token, user_entity_to_auth_user,
+    attach_auth_cookies, build_json_response_with_cookies, compute_post_login,
+    extract_client_ip_with_fallback, get_default_org_context, hash_refresh_token,
+    user_entity_to_auth_user, PeerIp,
 };
 use crate::AppState;
 
@@ -95,20 +98,6 @@ async fn ensure_sso_credential(
     Ok(())
 }
 
-async fn ensure_membership_for_new_user<F, Fut>(
-    is_new_user: bool,
-    create_membership: F,
-) -> Result<(), AppError>
-where
-    F: FnOnce() -> Fut,
-    Fut: Future<Output = Result<(), AppError>>,
-{
-    if !is_new_user {
-        return Ok(());
-    }
-    create_membership().await
-}
-
 /// POST /auth/sso/start
 ///
 /// Start SSO authentication flow for an organization.
@@ -117,6 +106,18 @@ pub async fn start_sso<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     Json(request): Json<StartSsoRequest>,
 ) -> Result<Json<StartSsoResponse>, AppError> {
+    // Enabled check: runtime setting > static config
+    let enabled = state
+        .settings_service
+        .get_bool("feature_sso")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.sso.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("SSO authentication disabled".into()));
+    }
+
     let redirect_uri = request
         .redirect_uri
         .as_deref()
@@ -162,8 +163,21 @@ pub async fn start_sso<C: AuthCallback, E: EmailService>(
 pub async fn sso_callback<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     headers: HeaderMap,
+    PeerIp(peer_ip): PeerIp,
     Query(query): Query<SsoCallbackQuery>,
 ) -> Result<impl IntoResponse, AppError> {
+    // Enabled check: runtime setting > static config
+    let enabled = state
+        .settings_service
+        .get_bool("feature_sso")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(state.config.sso.enabled);
+    if !enabled {
+        return Err(AppError::NotFound("SSO authentication disabled".into()));
+    }
+
     // Check for errors from provider
     if let Some(error) = query.error {
         let description = query.error_description.unwrap_or_default();
@@ -212,8 +226,20 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         .ok_or_else(|| AppError::Validation("Email not provided by identity provider".into()))?;
     let normalized_email = normalize_email(&email);
 
-    let (user, is_new_user) = match state.user_repo.find_by_email(&normalized_email).await? {
-        Some(user) => (user, false),
+    let (user, is_new_user, api_key) = match state
+        .user_repo
+        .find_by_email(&normalized_email)
+        .await?
+    {
+        Some(mut user) => {
+            // Update auth_methods if SSO not already listed
+            if !user.auth_methods.contains(&AuthMethod::Sso) {
+                user.auth_methods.push(AuthMethod::Sso);
+                user.updated_at = Utc::now();
+                user = state.user_repo.update(user).await?;
+            }
+            (user, false, None)
+        }
         None => {
             if !provider.allow_registration {
                 return Err(AppError::Forbidden(
@@ -222,8 +248,8 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
             }
 
             // Create new user (SSO users have no password)
-            let now = chrono::Utc::now();
-            let new_user = crate::repositories::UserEntity {
+            let now = Utc::now();
+            let new_user = UserEntity {
                 id: Uuid::new_v4(),
                 email: Some(normalized_email.clone()),
                 email_verified: claims.email_verified.unwrap_or(false),
@@ -239,10 +265,39 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                 created_at: now,
                 updated_at: now,
                 last_login_at: Some(now),
+                welcome_completed_at: None,
+            };
+            let membership =
+                MembershipEntity::new(new_user.id, provider.org_id, crate::repositories::OrgRole::Member);
+            let raw_api_key = generate_api_key();
+            let api_key_entity = ApiKeyEntity::new(new_user.id, &raw_api_key, "default");
+
+            #[cfg(feature = "postgres")]
+            let user = if let Some(pool) = state.postgres_pool.as_ref() {
+                TransactionalOps::create_user_with_membership_and_api_key(
+                    pool,
+                    &new_user,
+                    &membership,
+                    &api_key_entity,
+                )
+                .await?;
+                new_user
+            } else {
+                let created = state.user_repo.create(new_user).await?;
+                state.membership_repo.create(membership).await?;
+                state.api_key_repo.create(api_key_entity).await?;
+                created
             };
 
-            let created = state.user_repo.create(new_user).await?;
-            (created, true)
+            #[cfg(not(feature = "postgres"))]
+            let user = {
+                let created = state.user_repo.create(new_user).await?;
+                state.membership_repo.create(membership).await?;
+                state.api_key_repo.create(api_key_entity).await?;
+                created
+            };
+
+            (user, true, Some(raw_api_key))
         }
     };
 
@@ -252,17 +307,6 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         user.id,
         &provider.name,
     )
-    .await?;
-
-    ensure_membership_for_new_user(is_new_user, || async {
-        let membership = crate::repositories::MembershipEntity::new(
-            user.id,
-            provider.org_id,
-            crate::repositories::OrgRole::Member,
-        );
-        state.membership_repo.create(membership).await?;
-        Ok(())
-    })
     .await?;
 
     // Get memberships for token context
@@ -278,7 +322,8 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
     let refresh_expiry =
         Utc::now() + Duration::seconds(state.jwt_service.refresh_expiry_secs() as i64);
 
-    let ip_address = extract_client_ip(&headers, state.config.server.trust_proxy);
+    let ip_address =
+        extract_client_ip_with_fallback(&headers, state.config.server.trust_proxy, peer_ip);
     let user_agent = headers
         .get(axum::http::header::USER_AGENT)
         .and_then(|v| v.to_str().ok())
@@ -305,7 +350,11 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         ip_address,
         user_agent,
     };
-    let callback_data = call_authenticated_callback_with_timeout(&state.callback, &payload).await;
+    let callback_data = if is_new_user {
+        call_registered_callback_with_timeout(&state.callback, &payload).await
+    } else {
+        call_authenticated_callback_with_timeout(&state.callback, &payload).await
+    };
 
     // Log audit event
     let event_type = if is_new_user {
@@ -348,8 +397,9 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         tokens: response_tokens,
         is_new_user,
         callback_data,
-        api_key: None,
+        api_key,
         email_queued: None,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
     };
 
     Ok(build_json_response_with_cookies(
@@ -417,7 +467,6 @@ mod tests {
     use async_trait::async_trait;
     use chrono::Utc;
     use serde_json::Value;
-    use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
     use std::time::Duration as StdDuration;
     use uuid::Uuid;
@@ -501,6 +550,7 @@ mod tests {
                 email_verified: true,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
+                welcome_completed_at: None,
             },
             method: AuthMethod::Sso,
             is_new_user: false,
@@ -534,27 +584,4 @@ mod tests {
         assert_eq!(creds[0].credential_type, CredentialType::SsoOidc);
     }
 
-    #[tokio::test]
-    async fn test_ensure_membership_for_new_user_propagates_error() {
-        let result = ensure_membership_for_new_user(true, || async {
-            Err(AppError::Internal(anyhow::anyhow!("membership failed")))
-        })
-        .await;
-        assert!(result.is_err());
-    }
-
-    #[tokio::test]
-    async fn test_ensure_membership_for_existing_user_skips_create() {
-        let called = Arc::new(AtomicBool::new(false));
-        let called_clone = called.clone();
-
-        ensure_membership_for_new_user(false, || async move {
-            called_clone.store(true, Ordering::SeqCst);
-            Ok(())
-        })
-        .await
-        .expect("existing users should skip membership creation");
-
-        assert!(!called.load(Ordering::SeqCst));
-    }
 }

@@ -45,6 +45,8 @@ export declare interface AuthResponse {
     tokens?: TokenPair;
     isNewUser: boolean;
     callbackData?: Record<string, unknown>;
+    /** Post-login action (welcome page, profile completion, or redirect) */
+    postLogin?: PostLoginAction;
 }
 
 /**
@@ -64,6 +66,8 @@ declare interface AuthStateContextValue {
     authState: AuthState;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    /** Display order for social login buttons (from server auto-discovery). */
+    socialButtonOrder?: string[];
     _internal?: CedrosLoginInternalAPI;
 }
 
@@ -95,6 +99,8 @@ export declare interface AuthUser {
     totpEnabled?: boolean;
     createdAt: string;
     updatedAt: string;
+    /** When the user completed the one-time welcome flow */
+    welcomeCompletedAt?: string;
 }
 
 /**
@@ -345,6 +351,16 @@ declare interface LoadingSpinnerProps {
     label?: string;
     /** If true, announce the loading state to screen readers */
     announce?: boolean;
+}
+
+/**
+ * Post-login action returned by the server after authentication
+ */
+declare interface PostLoginAction {
+    /** Action type: "welcome", "complete_profile", "redirect", or "setup_mfa" */
+    action: 'welcome' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** URL/route for redirect or welcome page */
+    redirectUrl?: string;
 }
 
 /**

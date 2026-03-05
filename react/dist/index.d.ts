@@ -24,6 +24,19 @@ export declare interface AcceptInviteResponse {
     role: OrgRole;
 }
 
+export declare function AccountSettings({ defaultTab, onClose, onPasswordChange, onTotpChange, onLinkGoogle, onLinkApple, onAddPasskey, onLinkSolana, className, }: AccountSettingsProps): JSX.Element;
+
+export declare interface AccountSettingsProps extends ProfileTabProps, LinkedAccountsProps {
+    /** Which tab to show initially */
+    defaultTab?: AccountTab;
+    /** Called when user requests to close the settings page */
+    onClose?: () => void;
+    /** Called when 2FA status changes */
+    onTotpChange?: (enabled: boolean) => void;
+}
+
+declare type AccountTab = 'profile' | 'security' | 'linked';
+
 /** Request to acknowledge receipt of recovery phrase */
 export declare interface AcknowledgeRecoveryRequest {
     /** Confirmation that user has saved the recovery phrase */
@@ -614,6 +627,8 @@ export declare interface AuthResponse {
     tokens?: TokenPair;
     isNewUser: boolean;
     callbackData?: Record<string, unknown>;
+    /** Post-login action (welcome page, profile completion, or redirect) */
+    postLogin?: PostLoginAction;
 }
 
 /**
@@ -633,6 +648,8 @@ export declare interface AuthStateContextValue {
     authState: AuthState;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    /** Display order for social login buttons (from server auto-discovery). */
+    socialButtonOrder?: string[];
     _internal?: CedrosLoginInternalAPI;
 }
 
@@ -664,6 +681,8 @@ export declare interface AuthUser {
     totpEnabled?: boolean;
     createdAt: string;
     updatedAt: string;
+    /** When the user completed the one-time welcome flow */
+    welcomeCompletedAt?: string;
 }
 
 /** Multiple balances response */
@@ -894,6 +913,25 @@ export declare interface ChangePasswordResponse {
  */
 declare type ChatMessageRole = 'user' | 'assistant' | 'system';
 
+/**
+ * Prompts the user to fill in their display name.
+ *
+ * Shown when the server returns `postLogin.action === 'complete_profile'`,
+ * indicating the user is missing a name (e.g., passkey-only or Solana-only
+ * signups).
+ *
+ * Uses the existing `useProfile().updateProfile()` to save changes.
+ */
+export declare function CompleteAccountPrompt({ onComplete, onSkip, className, }: CompleteAccountPromptProps): JSX.Element;
+
+export declare interface CompleteAccountPromptProps {
+    /** Called after the user saves their profile info */
+    onComplete?: () => void;
+    /** Called when the user chooses to skip */
+    onSkip?: () => void;
+    className?: string;
+}
+
 /** Request to create a derived wallet */
 export declare interface CreateDerivedWalletRequest {
     /** Human-readable label for the wallet (1-100 chars) */
@@ -937,6 +975,20 @@ export declare interface CreateOrgRequest {
     name: string;
     slug?: string;
 }
+
+/** A single linked credential / sign-in method */
+declare interface Credential_2 {
+    id: string;
+    credentialType: CredentialType;
+    label: string | null;
+    createdAt: string;
+    lastUsedAt: string | null;
+    isPrimary: boolean;
+}
+export { Credential_2 as Credential }
+
+/** Supported credential types matching server enum */
+export declare type CredentialType = 'password' | 'oauth_google' | 'oauth_apple' | 'solana' | 'webauthn_passkey' | 'webauthn_security_key' | 'totp' | 'sso_oidc';
 
 /**
  * Credit balance display
@@ -1368,7 +1420,7 @@ export declare function EmailLoginForm({ onSuccess, onSwitchToRegister, onForgot
 export declare interface EmailLoginFormProps {
     onSuccess?: () => void;
     onSwitchToRegister?: () => void;
-    /** Called when user clicks "Forgot password?" (only in 'reset' mode) */
+    /** Called when user clicks "Forgot password?" — navigates to forgot-password screen */
     onForgotPassword?: () => void;
     className?: string;
 }
@@ -1548,19 +1600,15 @@ export declare interface ForgotPasswordConfig {
 }
 
 /**
- * Form for requesting a password reset email.
+ * Form for requesting a password reset or instant sign-in link.
  *
- * @example
- * ```tsx
- * <ForgotPasswordForm
- *   onSuccess={() => console.log('Email sent!')}
- *   onCancel={() => setShowForgotPassword(false)}
- * />
- * ```
+ * @param mode - `'reset'` sends a password reset email; `'instantLink'` sends a passwordless sign-in link.
  */
-export declare function ForgotPasswordForm({ onSuccess, onCancel, className, }: ForgotPasswordFormProps): JSX.Element;
+export declare function ForgotPasswordForm({ mode, onSuccess, onCancel, className, }: ForgotPasswordFormProps): JSX.Element;
 
 export declare interface ForgotPasswordFormProps {
+    /** Which action to perform: password reset email or instant sign-in link */
+    mode?: 'reset' | 'instantLink';
     onSuccess?: () => void;
     onCancel?: () => void;
     className?: string;
@@ -1903,6 +1951,27 @@ export declare interface KdfParams {
     pCost: number;
 }
 
+export declare function LinkedAccounts({ onLinkGoogle, onLinkApple, onAddPasskey, onLinkSolana, className, }: LinkedAccountsProps): JSX.Element;
+
+/**
+ * LinkedAccounts — displays linked sign-in methods and allows unlinking.
+ *
+ * Each credential row shows an icon, display name, timestamps, and a remove button.
+ * Linking new methods is handled via consumer-provided callbacks.
+ */
+export declare interface LinkedAccountsProps {
+    /** Callback to start Google OAuth linking flow */
+    onLinkGoogle?: () => void;
+    /** Callback to start Apple OAuth linking flow */
+    onLinkApple?: () => void;
+    /** Override for passkey registration. If omitted, uses built-in registerPasskey(). */
+    onAddPasskey?: () => void;
+    /** Callback to start Solana wallet linking flow */
+    onLinkSolana?: () => void;
+    /** Additional CSS class */
+    className?: string;
+}
+
 /**
  * Response for listing users (admin)
  */
@@ -1911,6 +1980,11 @@ export declare interface ListAdminUsersResponse {
     total: number;
     limit: number;
     offset: number;
+}
+
+/** Response from GET /credentials */
+export declare interface ListCredentialsResponse {
+    credentials: Credential_2[];
 }
 
 /**
@@ -2119,6 +2193,26 @@ declare interface MfaRequiredResult {
     mfaToken: string;
     email: string;
     userId: string;
+}
+
+/**
+ * Post-login prompt for admin-enforced MFA setup.
+ *
+ * Shown when the server returns `postLogin.action === 'setup_mfa'`,
+ * indicating the admin requires two-factor authentication and the user
+ * has not yet enrolled. This prompt is **not skippable** — the user
+ * must complete TOTP setup to proceed.
+ *
+ * Only applies to users with password credentials. OAuth, passkey,
+ * and wallet users are not prompted (their providers handle strong auth).
+ */
+export declare function MfaSetupPrompt({ onComplete, className }: MfaSetupPromptProps): JSX.Element;
+
+export declare interface MfaSetupPromptProps {
+    /** Called after TOTP enrollment succeeds */
+    onComplete: () => void;
+    /** Additional CSS class */
+    className?: string;
 }
 
 /** Request for POST /deposit/micro */
@@ -2462,6 +2556,16 @@ export declare interface PluginRegistry {
     subscribe(listener: (plugins: AdminPlugin[]) => void): () => void;
 }
 
+/**
+ * Post-login action returned by the server after authentication
+ */
+export declare interface PostLoginAction {
+    /** Action type: "welcome", "complete_profile", "redirect", or "setup_mfa" */
+    action: 'welcome' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** URL/route for redirect or welcome page */
+    redirectUrl?: string;
+}
+
 /** Privacy Cash system status response */
 declare interface PrivacyStatusResponse {
     enabled: boolean;
@@ -2546,6 +2650,27 @@ export declare interface ProfileDropdownProps {
     onSettings?: () => void;
     /** Callback when Logout is clicked */
     onLogout?: () => void;
+    /** Additional CSS class */
+    className?: string;
+}
+
+export declare function ProfileTab({ onPasswordChange, className }: ProfileTabProps): JSX.Element;
+
+/**
+ * ProfileTab — editable profile view with avatar, name, email, and password.
+ *
+ * Three internal states:
+ * - "view": read-only display with edit pencil on name
+ * - "edit": inline name editing with Save/Cancel
+ * - "change-password": delegates to ChangePasswordForm
+ *
+ * Detects whether the user has a password credential:
+ * - Has password → "Change" button → ChangePasswordForm
+ * - No password → "Add password" button → sends forgot-password email
+ */
+export declare interface ProfileTabProps {
+    /** Called after password is changed successfully */
+    onPasswordChange?: () => void;
     /** Additional CSS class */
     className?: string;
 }
@@ -2754,6 +2879,14 @@ export declare interface ServerFeatures {
      * admin dashboard visibility only.
      */
     mfa: boolean;
+    /**
+     * Require email/password users to set up TOTP two-factor authentication.
+     *
+     * **Enforced** — the server returns a `setup_mfa` post-login action for
+     * password users who haven't enrolled TOTP. Works independently of `mfa`
+     * (which only controls UI visibility).
+     */
+    mfaRequired: boolean;
     /** Enable embedded wallet for transaction signing. Startup-config enforced. */
     walletSigning: boolean;
     /**
@@ -3874,6 +4007,47 @@ export declare function useAuthUI(): AuthUIContextValue;
 export declare function useCedrosLogin(): CedrosLoginContextValue;
 
 /**
+ * Hook for managing user credentials (linked sign-in methods).
+ *
+ * Auto-fetches when authenticated. Provides list, unlink, and refresh operations.
+ *
+ * @example
+ * ```tsx
+ * function LinkedAccountsPage() {
+ *   const { credentials, isLoading, unlinkCredential } = useCredentials();
+ *
+ *   return (
+ *     <ul>
+ *       {credentials.map(cred => (
+ *         <li key={cred.id}>
+ *           {cred.credentialType}
+ *           <button onClick={() => unlinkCredential(cred.id)}>Remove</button>
+ *         </li>
+ *       ))}
+ *     </ul>
+ *   );
+ * }
+ * ```
+ */
+export declare function useCredentials(): UseCredentialsReturn;
+
+/** Return type for useCredentials hook */
+export declare interface UseCredentialsReturn {
+    /** List of linked credentials */
+    credentials: Credential_2[];
+    /** Loading state */
+    isLoading: boolean;
+    /** Error state */
+    error: AuthError | null;
+    /** Fetch/refresh credentials list */
+    fetchCredentials: () => Promise<void>;
+    /** Unlink a credential by ID */
+    unlinkCredential: (id: string) => Promise<void>;
+    /** Clear error state */
+    clearError: () => void;
+}
+
+/**
  * Hook for credit balance and transaction history
  *
  * Credits represent the user's balance from Privacy Cash deposits.
@@ -4315,6 +4489,68 @@ export declare interface UsePendingRecoveryReturn {
     error: string | null;
     /** Clear error */
     clearError: () => void;
+}
+
+/**
+ * Hook for managing post-login flow actions.
+ *
+ * After authentication, the server may return a `postLogin` action indicating
+ * the client should show a welcome page, prompt for profile completion, or
+ * redirect to a specific URL.
+ *
+ * @example
+ * ```tsx
+ * function App() {
+ *   const { postLoginAction, markWelcomeCompleted, clearPostLogin } = usePostLogin();
+ *   const { login } = useEmailAuth();
+ *
+ *   const handleLogin = async () => {
+ *     const response = await login(email, password);
+ *     if (response.postLogin) {
+ *       setPostLoginAction(response.postLogin);
+ *     }
+ *   };
+ *
+ *   // MFA setup (highest priority — not skippable)
+ *   if (postLoginAction?.action === 'setup_mfa') {
+ *     return <MfaSetupPrompt onComplete={clearPostLogin} />;
+ *   }
+ *
+ *   if (postLoginAction?.action === 'welcome') {
+ *     return <WelcomePage onComplete={async () => {
+ *       await markWelcomeCompleted();
+ *       clearPostLogin();
+ *     }} />;
+ *   }
+ *
+ *   if (postLoginAction?.action === 'complete_profile') {
+ *     return <CompleteAccountPrompt onComplete={clearPostLogin} onSkip={clearPostLogin} />;
+ *   }
+ *
+ *   if (postLoginAction?.action === 'redirect' && postLoginAction.redirectUrl) {
+ *     window.location.href = postLoginAction.redirectUrl;
+ *   }
+ * }
+ * ```
+ */
+export declare function usePostLogin(): UsePostLoginReturn;
+
+/**
+ * Return type for the usePostLogin hook
+ */
+export declare interface UsePostLoginReturn {
+    /** The current post-login action from the last auth response, or null */
+    postLoginAction: PostLoginAction | null;
+    /** Set the post-login action (call after receiving an auth response with postLogin) */
+    setPostLoginAction: (action: PostLoginAction | null) => void;
+    /** Mark the welcome flow as completed on the server */
+    markWelcomeCompleted: () => Promise<void>;
+    /** Clear the post-login action (e.g., after handling it) */
+    clearPostLogin: () => void;
+    /** Whether a markWelcomeCompleted call is in progress */
+    isLoading: boolean;
+    /** Error from the last markWelcomeCompleted call */
+    error: Error | null;
 }
 
 /**

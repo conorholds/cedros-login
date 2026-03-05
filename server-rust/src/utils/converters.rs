@@ -15,5 +15,6 @@ pub fn user_entity_to_auth_user(entity: &UserEntity) -> AuthUser {
         email_verified: entity.email_verified,
         created_at: entity.created_at,
         updated_at: entity.updated_at,
+        welcome_completed_at: entity.welcome_completed_at,
     }
 }

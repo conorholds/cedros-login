@@ -1,5 +1,6 @@
 -- DB-03: Ensure user has at least one authentication identifier
 -- Prevents impossible state where user can't log in via any method
+-- Includes WebAuthn (passkey-only accounts have no email/wallet/oauth identifier)
 
 DO $$
 BEGIN
@@ -15,6 +16,7 @@ BEGIN
       OR wallet_address IS NOT NULL
       OR google_id IS NOT NULL
       OR apple_id IS NOT NULL
+      OR 'webauthn' = ANY(auth_methods)
     );
   END IF;
 END $$;

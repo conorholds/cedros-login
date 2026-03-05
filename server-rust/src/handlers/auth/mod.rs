@@ -8,7 +8,7 @@ mod session;
 pub use login::{complete_mfa_login, login};
 pub use refresh::refresh;
 pub use register::register;
-pub use session::{get_user, logout, logout_all, update_profile};
+pub use session::{get_user, logout, logout_all, update_profile, welcome_completed};
 
 use std::sync::Arc;
 use std::time::Duration as StdDuration;
@@ -168,6 +168,7 @@ mod tests {
                 email_verified: true,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
+                welcome_completed_at: None,
             },
             method: crate::models::AuthMethod::Email,
             is_new_user: false,

@@ -146,6 +146,7 @@ pub async fn create_first_admin<C: AuthCallback, E: EmailService>(
         created_at: now,
         updated_at: now,
         last_login_at: Some(now),
+        welcome_completed_at: None,
     };
 
     // Create site organization

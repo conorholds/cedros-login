@@ -903,6 +903,8 @@ function SecuritySettings() {
 
 ### Two-Factor Authentication
 
+> **Scope:** TOTP 2FA applies to **email/password sign-in only**. OAuth providers (Google, Apple) and passkeys handle their own multi-factor verification, so TOTP is not prompted for those methods.
+
 ```tsx
 import { TotpSettings, TotpSetup, TotpVerify } from '@cedros/login-react';
 

@@ -391,6 +391,10 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/user", get(handlers::get_user::<C, E>))
         .route("/me", patch(handlers::update_profile::<C, E>))
         .route(
+            "/welcome-completed",
+            post(handlers::welcome_completed::<C, E>),
+        )
+        .route(
             "/send-verification",
             post(handlers::send_verification::<C, E>),
         )

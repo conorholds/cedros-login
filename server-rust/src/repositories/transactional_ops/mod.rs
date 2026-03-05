@@ -195,12 +195,14 @@ impl TransactionalOps {
             r#"
             INSERT INTO users (id, email, email_verified, password_hash, name, picture,
                               wallet_address, google_id, apple_id, stripe_customer_id,
-                              auth_methods, is_system_admin, created_at, updated_at, last_login_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14)
+                              auth_methods, is_system_admin, created_at, updated_at, last_login_at,
+                              welcome_completed_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14, $15)
             ON CONFLICT (email) DO NOTHING
             RETURNING id, email, email_verified, password_hash, name, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id,
-                      auth_methods, is_system_admin, created_at, updated_at, last_login_at
+                      auth_methods, is_system_admin, created_at, updated_at, last_login_at,
+                      welcome_completed_at
             "#,
         )
         .bind(user.id)
@@ -217,6 +219,7 @@ impl TransactionalOps {
         .bind(user.is_system_admin)
         .bind(now)
         .bind(user.last_login_at)
+        .bind(user.welcome_completed_at)
         .fetch_optional(&mut *tx)
         .await;
 
@@ -318,6 +321,7 @@ impl TransactionalOps {
             created_at: user_row.created_at,
             updated_at: user_row.updated_at,
             last_login_at: user_row.last_login_at,
+            welcome_completed_at: user_row.welcome_completed_at,
         };
 
         let membership = MembershipEntity {
@@ -429,6 +433,7 @@ struct UserRow {
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
     last_login_at: Option<chrono::DateTime<chrono::Utc>>,
+    welcome_completed_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[cfg(test)]

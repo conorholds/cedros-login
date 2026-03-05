@@ -415,6 +415,7 @@ mod tests {
             created_at: now,
             updated_at: now,
             last_login_at: None,
+            welcome_completed_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 
@@ -443,6 +444,7 @@ mod tests {
             created_at: now,
             updated_at: now,
             last_login_at: None,
+            welcome_completed_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         user.id
