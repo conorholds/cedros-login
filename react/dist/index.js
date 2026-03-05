@@ -10,8 +10,8 @@ import { b as Xr, E as io, a as co, P as he, O as Zr } from "./EmailRegisterForm
 import { T as fl, u as gl, c as wl } from "./EmailRegisterForm-CCEuQA-w.js";
 import { b as es, v as rt } from "./validation-B8kMV3BL.js";
 import { E as X } from "./ErrorMessage-CcEK0pYO.js";
-import { G as lo } from "./GoogleLoginButton-CFlqxvU-.js";
-import { u as bl } from "./GoogleLoginButton-CFlqxvU-.js";
+import { G as lo } from "./GoogleLoginButton-6ip-vudk.js";
+import { u as bl } from "./GoogleLoginButton-6ip-vudk.js";
 import { S as uo } from "./SolanaLoginButton-DHsiug1Y.js";
 import { r as vl, u as kl } from "./SolanaLoginButton-DHsiug1Y.js";
 import { c as ho, d as po, u as mo, a as fo, M as go, I as wo, b as yo, P as bo } from "./PermissionsSection-DNzOL1xW.js";
