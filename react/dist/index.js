@@ -3225,39 +3225,39 @@ function fs() {
     a(!0), n(null);
     try {
       const w = await l.post(
-        "/webauthn/signup/options",
+        "/webauthn/auth/options",
         {}
-      ), p = ut(w.options), h = await navigator.credentials.create({
+      ), p = nr(w.options), h = await navigator.credentials.get({
         publicKey: p
       });
       if (!h)
-        throw new Error("Passkey signup returned no credential");
-      const y = await l.post("/webauthn/signup/verify", {
+        throw new Error("Passkey authentication returned no credential");
+      const y = await l.post("/webauthn/auth/verify", {
         challengeId: w.challengeId,
         credential: Te(h)
       });
       return t.callbacks?.onLoginSuccess?.(y.user, "webauthn"), r?.handleLoginSuccess(y.user, y.tokens), y;
     } catch (w) {
-      if (w instanceof Error && (w.name === "InvalidStateError" || w.name === "NotAllowedError"))
+      if (w instanceof Error && (w.name === "NotAllowedError" || w.name === "InvalidStateError"))
         try {
           const b = await l.post(
-            "/webauthn/auth/options",
+            "/webauthn/signup/options",
             {}
-          ), v = nr(b.options), N = await navigator.credentials.get({
+          ), v = ut(b.options), N = await navigator.credentials.create({
             publicKey: v
           });
           if (!N)
-            throw new Error("Passkey authentication returned no credential");
-          const E = await l.post("/webauthn/auth/verify", {
+            throw new Error("Passkey signup returned no credential");
+          const E = await l.post("/webauthn/signup/verify", {
             challengeId: b.challengeId,
             credential: Te(N)
           });
           return t.callbacks?.onLoginSuccess?.(E.user, "webauthn"), r?.handleLoginSuccess(E.user, E.tokens), E;
         } catch (b) {
-          const N = Be(b) ?? W(b, "Unable to sign in with passkey. Please try again.");
+          const N = Be(b) ?? W(b, "Unable to create passkey. Please try again.");
           throw n(N), N;
         }
-      const y = Be(w) ?? W(w, "Passkey sign-up failed");
+      const y = Be(w) ?? W(w, "Unable to sign in with passkey. Please try again.");
       throw n(y), y;
     } finally {
       a(!1);
