@@ -137,11 +137,27 @@ impl WebAuthnService {
         let cred_id_bytes: &[u8] = request.credential.get_credential_id();
         let cred_id = URL_SAFE_NO_PAD.encode(cred_id_bytes);
 
+        tracing::info!(
+            cred_id_lookup = %cred_id,
+            cred_id_from_id_field = %request.credential.id,
+            raw_id_len = cred_id_bytes.len(),
+            "Discoverable auth: looking up credential"
+        );
+
         // Find the credential and user
         let stored_credential = repo
             .find_by_credential_id(&cred_id)
-            .await?
-            .ok_or_else(|| AppError::InvalidCredentials)?;
+            .await?;
+
+        if stored_credential.is_none() {
+            tracing::warn!(
+                cred_id_lookup = %cred_id,
+                cred_id_from_id_field = %request.credential.id,
+                "Discoverable auth: credential NOT found in DB"
+            );
+            return Err(AppError::InvalidCredentials);
+        }
+        let stored_credential = stored_credential.unwrap();
 
         // Deserialize the stored passkey
         let passkey: Passkey = serde_json::from_str(&stored_credential.public_key)
