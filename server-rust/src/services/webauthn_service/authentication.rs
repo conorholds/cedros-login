@@ -131,8 +131,10 @@ impl WebAuthnService {
         let auth_state: DiscoverableAuthentication =
             serde_json::from_str(&challenge.state).map_err(|e| AppError::Internal(e.into()))?;
 
-        // Get the credential ID from the response to look up the user
-        let cred_id_bytes: &[u8] = request.credential.id.as_ref();
+        // Get the credential ID from the response to look up the user.
+        // Use get_credential_id() which returns raw_id bytes, NOT .id which is
+        // already base64url-encoded (encoding that would double-encode).
+        let cred_id_bytes: &[u8] = request.credential.get_credential_id();
         let cred_id = URL_SAFE_NO_PAD.encode(cred_id_bytes);
 
         // Find the credential and user
