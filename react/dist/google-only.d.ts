@@ -91,6 +91,7 @@ export declare interface AuthUser {
     id: string;
     email?: string;
     name?: string;
+    username?: string;
     picture?: string;
     walletAddress?: string;
     authMethods: AuthMethod[];
@@ -357,8 +358,8 @@ declare interface LoadingSpinnerProps {
  * Post-login action returned by the server after authentication
  */
 declare interface PostLoginAction {
-    /** Action type: "welcome", "complete_profile", "redirect", or "setup_mfa" */
-    action: 'welcome' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** Action type: "welcome", "choose_username", "complete_profile", "redirect", or "setup_mfa" */
+    action: 'welcome' | 'choose_username' | 'complete_profile' | 'redirect' | 'setup_mfa';
     /** URL/route for redirect or welcome page */
     redirectUrl?: string;
 }
@@ -562,8 +563,8 @@ declare interface UseGoogleAuthReturn {
     isInitialized: boolean;
     error: AuthError | null;
     clearError: () => void;
-    /** ID token saved when ACCOUNT_LINK_REQUIRED is returned. Pass to POST /auth/link-oauth with the user's password. */
-    pendingLinkIdToken: string | null;
+    /** Access token saved when ACCOUNT_LINK_REQUIRED is returned. Pass to POST /auth/link-oauth with the user's password. */
+    pendingLinkToken: string | null;
     /** Clear the pending link state */
     clearPendingLink: () => void;
 }

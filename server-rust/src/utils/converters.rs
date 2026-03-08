@@ -9,6 +9,7 @@ pub fn user_entity_to_auth_user(entity: &UserEntity) -> AuthUser {
         id: entity.id,
         email: entity.email.clone(),
         name: entity.name.clone(),
+        username: entity.username.clone(),
         picture: entity.picture.clone(),
         wallet_address: entity.wallet_address.clone(),
         auth_methods: entity.auth_methods.clone(),

@@ -179,6 +179,11 @@ impl WebAuthnService {
                 new_counter = new_counter,
                 "M-02: WebAuthn sign count did not increase - possible cloned authenticator"
             );
+            if self.config.reject_cloned_credentials {
+                return Err(AppError::Validation(
+                    "Authentication rejected: possible cloned authenticator detected".into(),
+                ));
+            }
         }
 
         // SEC-05: Atomically update sign count and last_used_at
@@ -237,6 +242,11 @@ impl WebAuthnService {
                 new_counter = new_counter,
                 "M-02: WebAuthn sign count did not increase - possible cloned authenticator"
             );
+            if self.config.reject_cloned_credentials {
+                return Err(AppError::Validation(
+                    "Authentication rejected: possible cloned authenticator detected".into(),
+                ));
+            }
         }
 
         // SEC-05: Atomically update sign count and last_used_at

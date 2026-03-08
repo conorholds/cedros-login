@@ -102,6 +102,8 @@ pub struct AuthUser {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub username: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub picture: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub wallet_address: Option<String>,
@@ -232,6 +234,9 @@ pub struct AppleAuthRequest {
     pub id_token: String,
     /// User's name (only provided on first sign-in, optional thereafter)
     pub name: Option<String>,
+    /// Client-generated nonce (unhashed). Server computes SHA-256 and
+    /// compares with the `nonce` claim in the ID token for replay protection.
+    pub nonce: Option<String>,
 }
 
 /// Link OAuth account request
@@ -246,7 +251,9 @@ pub struct AppleAuthRequest {
 #[serde(rename_all = "camelCase")]
 pub struct LinkOAuthRequest {
     #[zeroize(skip)]
-    pub id_token: String,
+    pub id_token: Option<String>,
+    #[zeroize(skip)]
+    pub access_token: Option<String>,
     #[zeroize(skip)]
     pub provider: String,
     pub password: String,
@@ -419,6 +426,7 @@ mod tests {
             id: Uuid::nil(),
             email: Some("test@example.com".to_string()),
             name: Some("Test User".to_string()),
+            username: None,
             picture: None,
             wallet_address: None,
             auth_methods: vec![AuthMethod::Email],
@@ -573,6 +581,7 @@ mod tests {
             id: Uuid::nil(),
             email: None,
             name: None,
+            username: None,
             picture: None,
             wallet_address: Some("SoLaNaWaLlEt123".to_string()),
             auth_methods: vec![AuthMethod::Solana],

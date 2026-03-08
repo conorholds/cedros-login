@@ -4,6 +4,8 @@ use axum::{extract::State, http::HeaderMap, response::IntoResponse, Json};
 use chrono::{Duration, Utc};
 use std::sync::Arc;
 
+use sha2::{Digest, Sha256};
+
 use crate::callback::{AuthCallback, AuthCallbackPayload};
 use crate::errors::AppError;
 use crate::handlers::auth::{
@@ -69,6 +71,23 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         .verify_id_token(&req.id_token, &client_id)
         .await?;
 
+    // Verify nonce for replay protection. If the client sent a nonce,
+    // Apple embeds SHA-256(nonce) in the token. We recompute and compare.
+    if let Some(ref client_nonce) = req.nonce {
+        let expected_hash = hex::encode(Sha256::digest(client_nonce.as_bytes()));
+        match &claims.nonce {
+            Some(token_nonce) if token_nonce == &expected_hash => { /* OK */ }
+            Some(_) => {
+                tracing::warn!("Apple nonce mismatch: token nonce does not match client nonce hash");
+                return Err(AppError::InvalidToken);
+            }
+            None => {
+                tracing::warn!("Apple nonce missing from token despite client sending nonce");
+                return Err(AppError::InvalidToken);
+            }
+        }
+    }
+
     // Check if user exists by Apple ID
     let existing_user = state.user_repo.find_by_apple_id(&claims.sub).await?;
 
@@ -119,6 +138,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             password_hash: None,
             // Use name from request (Apple only provides on first sign-in)
             name: req.name,
+            username: None,
             picture: None, // Apple doesn't provide profile pictures
             wallet_address: None,
             google_id: None,

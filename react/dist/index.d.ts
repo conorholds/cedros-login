@@ -673,6 +673,7 @@ export declare interface AuthUser {
     id: string;
     email?: string;
     name?: string;
+    username?: string;
     picture?: string;
     walletAddress?: string;
     authMethods: AuthMethod[];
@@ -912,6 +913,29 @@ export declare interface ChangePasswordResponse {
  * Chat message role
  */
 declare type ChatMessageRole = 'user' | 'assistant' | 'system';
+
+declare interface CheckUsernameResponse {
+    available: boolean;
+    suggestion?: string;
+    error?: string;
+}
+
+/**
+ * Prompts the user to choose a unique handle-style username.
+ *
+ * Shown when the server returns `postLogin.action === 'choose_username'`,
+ * indicating the admin has enabled username selection and the user hasn't
+ * chosen one yet.
+ */
+export declare function ChooseUsernamePrompt({ onComplete, onSkip, className, }: ChooseUsernamePromptProps): JSX.Element;
+
+export declare interface ChooseUsernamePromptProps {
+    /** Called after the user saves their username */
+    onComplete?: () => void;
+    /** Called when the user chooses to skip */
+    onSkip?: () => void;
+    className?: string;
+}
 
 /**
  * Prompts the user to fill in their display name.
@@ -2560,8 +2584,8 @@ export declare interface PluginRegistry {
  * Post-login action returned by the server after authentication
  */
 export declare interface PostLoginAction {
-    /** Action type: "welcome", "complete_profile", "redirect", or "setup_mfa" */
-    action: 'welcome' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** Action type: "welcome", "choose_username", "complete_profile", "redirect", or "setup_mfa" */
+    action: 'welcome' | 'choose_username' | 'complete_profile' | 'redirect' | 'setup_mfa';
     /** URL/route for redirect or welcome page */
     redirectUrl?: string;
 }
@@ -3718,6 +3742,8 @@ export declare interface UpdateOrgRequest {
 export declare interface UpdateProfileRequest {
     /** User's display name */
     name?: string;
+    /** Unique handle-style username (3-30 chars, lowercase alphanumeric + underscores) */
+    username?: string;
     /** User's profile picture URL */
     picture?: string;
 }
@@ -3729,6 +3755,7 @@ export declare interface UpdateProfileResponse {
     id: string;
     email?: string;
     name?: string;
+    username?: string;
     picture?: string;
     emailVerified: boolean;
     createdAt: string;
@@ -4194,8 +4221,8 @@ export declare interface UseGoogleAuthReturn {
     isInitialized: boolean;
     error: AuthError | null;
     clearError: () => void;
-    /** ID token saved when ACCOUNT_LINK_REQUIRED is returned. Pass to POST /auth/link-oauth with the user's password. */
-    pendingLinkIdToken: string | null;
+    /** Access token saved when ACCOUNT_LINK_REQUIRED is returned. Pass to POST /auth/link-oauth with the user's password. */
+    pendingLinkToken: string | null;
     /** Clear the pending link state */
     clearPendingLink: () => void;
 }
@@ -4521,6 +4548,10 @@ export declare interface UsePendingRecoveryReturn {
  *       await markWelcomeCompleted();
  *       clearPostLogin();
  *     }} />;
+ *   }
+ *
+ *   if (postLoginAction?.action === 'choose_username') {
+ *     return <ChooseUsernamePrompt onComplete={clearPostLogin} onSkip={clearPostLogin} />;
  *   }
  *
  *   if (postLoginAction?.action === 'complete_profile') {
@@ -5007,6 +5038,41 @@ export declare interface UseTransactionSigningReturn {
  * Hook to access translations
  */
 export declare function useTranslations(): Translations;
+
+/**
+ * Hook for username availability checking and setting.
+ *
+ * @example
+ * ```tsx
+ * const { checkAvailability, getSuggestion, setUsername } = useUsername();
+ *
+ * // Get a random suggestion
+ * const suggestion = await getSuggestion();
+ *
+ * // Check if a username is available
+ * const result = await checkAvailability('swift_falcon_42');
+ * if (result.available) {
+ *   await setUsername('swift_falcon_42');
+ * }
+ * ```
+ */
+export declare function useUsername(): UseUsernameReturn;
+
+/**
+ * Return type for the useUsername hook
+ */
+export declare interface UseUsernameReturn {
+    /** Check if a username is available. Returns availability + optional suggestion. */
+    checkAvailability: (username: string) => Promise<CheckUsernameResponse>;
+    /** Get a random username suggestion from the server. */
+    getSuggestion: () => Promise<string | null>;
+    /** Set the current user's username via PATCH /auth/me. */
+    setUsername: (username: string) => Promise<void>;
+    /** Whether a request is in progress */
+    isLoading: boolean;
+    /** Error from the last operation */
+    error: Error | null;
+}
 
 /**
  * Main wallet hook

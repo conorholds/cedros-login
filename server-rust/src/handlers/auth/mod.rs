@@ -162,6 +162,7 @@ mod tests {
                 id: Uuid::new_v4(),
                 email: Some("test@example.com".to_string()),
                 name: Some("Test User".to_string()),
+                username: None,
                 picture: None,
                 wallet_address: None,
                 auth_methods: vec![crate::models::AuthMethod::Email],

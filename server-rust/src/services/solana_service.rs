@@ -28,15 +28,21 @@ impl SolanaService {
 
     /// Generate a challenge message for the given public key.
     ///
-    /// The public key is included in the message to bind the challenge to a
-    /// specific wallet, preventing challenge reuse across different wallets.
+    /// The public key and domain are included in the message to bind the
+    /// challenge to a specific wallet and origin, preventing challenge reuse
+    /// across different wallets or phishing sites.
     ///
     /// `challenge_expiry_seconds` controls how long the challenge is valid.
     /// Callers should resolve this from SettingsService at request time.
+    ///
+    /// `domain` is the frontend URL (e.g. "https://example.com") included in
+    /// the message to prevent cross-site reuse. If `None`, falls back to a
+    /// generic message without domain binding.
     pub fn generate_challenge(
         &self,
         public_key: &str,
         challenge_expiry_seconds: u64,
+        domain: Option<&str>,
     ) -> Result<ChallengeResponse, AppError> {
         // SEC-08: Use OsRng for cryptographic nonce generation
         let nonce: String = OsRng
@@ -55,12 +61,16 @@ impl SolanaService {
             public_key.to_string()
         };
 
-        // Format the message for wallet popup — friendly, non-technical
+        // Format the message for wallet popup — friendly, non-technical.
+        // Domain binding prevents phishing sites from tricking users into
+        // signing a message that could be replayed on the real site.
+        let domain_clause = domain
+            .map(|d| format!(" on {d}"))
+            .unwrap_or_default();
+
         let message = format!(
-            "Sign in with wallet {}. This message confirms ownership of your wallet and costs nothing to sign. Expires: {}. Nonce: {}.",
-            pk_display,
+            "Sign in with wallet {pk_display}{domain_clause}. This message confirms ownership of your wallet and costs nothing to sign. Expires: {}. Nonce: {nonce}.",
             expires_at.to_rfc3339(),
-            nonce,
         );
 
         Ok(ChallengeResponse {
@@ -172,26 +182,44 @@ mod tests {
     }
 
     #[test]
-    fn test_generate_challenge() {
+    fn test_generate_challenge_without_domain() {
         let service = SolanaService::new(&test_config());
         let public_key = "ABCDEFghijklmnopqrstuvwxyz123456789abcdef1234";
-        let challenge = service.generate_challenge(public_key, 300).unwrap();
+        let challenge = service.generate_challenge(public_key, 300, None).unwrap();
 
         assert!(!challenge.nonce.is_empty());
         assert!(challenge.message.starts_with("Sign in with wallet "));
         assert!(challenge.message.contains(&challenge.nonce));
-        // Pubkey is truncated: first6...last6
         assert!(challenge.message.contains("ABCDEF...ef1234"));
         assert!(challenge.message.contains("costs nothing to sign"));
-        assert!(challenge.message.contains("Expires: "));
+        assert!(!challenge.message.contains(" on "));
+    }
+
+    #[test]
+    fn test_generate_challenge_with_domain() {
+        let service = SolanaService::new(&test_config());
+        let public_key = "ABCDEFghijklmnopqrstuvwxyz123456789abcdef1234";
+        let challenge = service
+            .generate_challenge(public_key, 300, Some("https://example.com"))
+            .unwrap();
+
+        assert!(challenge.message.contains("on https://example.com"));
+        assert!(challenge.message.starts_with("Sign in with wallet "));
+        assert!(challenge.message.contains(&challenge.nonce));
     }
 
     #[test]
     fn test_extract_nonce_from_generated_message() {
-        // Test with actual generated message format
         let service = SolanaService::new(&test_config());
-        let challenge = service.generate_challenge("test_pubkey", 300).unwrap();
+        // Without domain
+        let challenge = service.generate_challenge("test_pubkey", 300, None).unwrap();
+        let extracted = SolanaService::extract_nonce(&challenge.message);
+        assert_eq!(extracted, Some(challenge.nonce));
 
+        // With domain
+        let challenge = service
+            .generate_challenge("test_pubkey", 300, Some("https://example.com"))
+            .unwrap();
         let extracted = SolanaService::extract_nonce(&challenge.message);
         assert_eq!(extracted, Some(challenge.nonce));
     }

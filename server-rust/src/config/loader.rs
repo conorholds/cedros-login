@@ -216,6 +216,7 @@ pub fn load_webauthn_config() -> WebAuthnConfig {
         allow_platform: parse_bool("WEBAUTHN_ALLOW_PLATFORM", true),
         allow_cross_platform: parse_bool("WEBAUTHN_ALLOW_CROSS_PLATFORM", true),
         require_user_verification: parse_bool("WEBAUTHN_REQUIRE_UV", true),
+        reject_cloned_credentials: parse_bool("WEBAUTHN_REJECT_CLONED", false),
     }
 }
 

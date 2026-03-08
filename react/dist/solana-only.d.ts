@@ -91,6 +91,7 @@ export declare interface AuthUser {
     id: string;
     email?: string;
     name?: string;
+    username?: string;
     picture?: string;
     walletAddress?: string;
     authMethods: AuthMethod[];
@@ -378,8 +379,8 @@ export declare interface MobileWalletConfig {
  * Post-login action returned by the server after authentication
  */
 declare interface PostLoginAction {
-    /** Action type: "welcome", "complete_profile", "redirect", or "setup_mfa" */
-    action: 'welcome' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** Action type: "welcome", "choose_username", "complete_profile", "redirect", or "setup_mfa" */
+    action: 'welcome' | 'choose_username' | 'complete_profile' | 'redirect' | 'setup_mfa';
     /** URL/route for redirect or welcome page */
     redirectUrl?: string;
 }

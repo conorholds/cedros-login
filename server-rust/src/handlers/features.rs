@@ -31,6 +31,8 @@ pub struct AuthFeaturesResponse {
     pub google_client_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub apple_client_id: Option<String>,
+    /// Whether post-login username selection is enabled.
+    pub username_enabled: bool,
     /// Display order for social login buttons (e.g. `["webauthn","google","apple","solana"]`).
     pub social_button_order: Vec<String>,
 }
@@ -111,6 +113,13 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         None
     };
 
+    let username_enabled = ss
+        .get_bool("postlogin_username_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
     let default_order: Vec<String> = vec![
         "webauthn".into(),
         "google".into(),
@@ -135,6 +144,7 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         instant_link,
         google_client_id,
         apple_client_id,
+        username_enabled,
         social_button_order,
     })
 }
@@ -154,6 +164,7 @@ mod tests {
             instant_link: false,
             google_client_id: None,
             apple_client_id: None,
+            username_enabled: false,
             social_button_order: vec!["webauthn".into(), "google".into()],
         };
 
@@ -178,6 +189,7 @@ mod tests {
             instant_link: false,
             google_client_id: Some("goog-123.apps.googleusercontent.com".into()),
             apple_client_id: Some("com.example.auth".into()),
+            username_enabled: false,
             social_button_order: vec![
                 "webauthn".into(),
                 "google".into(),

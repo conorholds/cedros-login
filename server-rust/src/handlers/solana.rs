@@ -65,10 +65,11 @@ pub async fn solana_challenge<C: AuthCallback, E: EmailService>(
         .flatten()
         .unwrap_or(state.config.solana.challenge_expiry_seconds);
 
-    // Generate challenge
+    // Generate challenge with domain binding to prevent cross-site phishing
+    let domain = state.config.server.frontend_url.as_deref();
     let challenge = state
         .solana_service
-        .generate_challenge(&req.public_key, challenge_expiry)?;
+        .generate_challenge(&req.public_key, challenge_expiry, domain)?;
 
     // Store nonce for replay protection
     let nonce_entity = NonceEntity::new(
@@ -140,6 +141,7 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
             email_verified: false,
             password_hash: None,
             name: None,
+            username: None,
             picture: None,
             wallet_address: Some(req.public_key.clone()),
             google_id: None,

@@ -29,24 +29,43 @@ pub async fn link_oauth<C: AuthCallback, E: EmailService>(
     PeerIp(peer_ip): PeerIp,
     Json(req): Json<LinkOAuthRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    // Validate provider
+    // Validate provider — accept either id_token or access_token (Google popup
+    // flow only returns access_token via initTokenClient).
     let (auth_method, oauth_sub, oauth_email) = match req.provider.as_str() {
         "google" => {
             let client_id = resolve_google_client_id(&state).await?;
-            let claims = state
-                .google_service
-                .verify_id_token(&req.id_token, &client_id)
-                .await?;
+            let claims = match (&req.id_token, &req.access_token) {
+                (Some(id_token), _) => {
+                    state
+                        .google_service
+                        .verify_id_token(id_token, &client_id)
+                        .await?
+                }
+                (_, Some(access_token)) => {
+                    state
+                        .google_service
+                        .verify_access_token(access_token)
+                        .await?
+                }
+                _ => {
+                    return Err(AppError::Validation(
+                        "Either idToken or accessToken is required".into(),
+                    ))
+                }
+            };
             let email = claims
                 .email
                 .ok_or(AppError::Validation("Email not provided by Google".into()))?;
             (AuthMethod::Google, claims.sub, normalize_email(&email))
         }
         "apple" => {
+            let id_token = req.id_token.as_ref().ok_or(AppError::Validation(
+                "idToken is required for Apple".into(),
+            ))?;
             let client_id = resolve_apple_client_id(&state).await?;
             let claims = state
                 .apple_service
-                .verify_id_token(&req.id_token, &client_id)
+                .verify_id_token(id_token, &client_id)
                 .await?;
             let email = claims
                 .email

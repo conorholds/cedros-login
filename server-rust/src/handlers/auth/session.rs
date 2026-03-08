@@ -229,6 +229,8 @@ pub async fn get_user<C: AuthCallback, E: EmailService>(
 pub struct UpdateProfileRequest {
     /// User's display name
     pub name: Option<String>,
+    /// Unique handle-style username (3-30 chars, lowercase alphanumeric + underscores)
+    pub username: Option<String>,
     /// User's profile picture URL
     pub picture: Option<String>,
 }
@@ -266,6 +268,16 @@ pub async fn update_profile<C: AuthCallback, E: EmailService>(
         user.name = Some(trimmed.to_string());
     }
 
+    if let Some(username) = req.username {
+        let trimmed = username.trim().to_lowercase();
+        validate_username(&trimmed)?;
+        // Check uniqueness
+        if state.user_repo.username_exists(&trimmed).await? {
+            return Err(AppError::Validation("Username is already taken".into()));
+        }
+        user.username = Some(trimmed);
+    }
+
     if let Some(picture) = req.picture {
         // Validate picture URL (basic check)
         let trimmed = picture.trim();
@@ -301,6 +313,43 @@ pub async fn update_profile<C: AuthCallback, E: EmailService>(
     Ok(Json(UserResponse {
         user: user_entity_to_auth_user(&updated_user),
     }))
+}
+
+/// Reserved usernames that cannot be claimed
+const RESERVED_USERNAMES: &[&str] = &[
+    "admin", "system", "support", "help", "root", "moderator", "mod", "staff", "cedros",
+];
+
+/// Validate a username: 3-30 chars, lowercase alphanumeric + underscores,
+/// no leading/trailing underscores, not reserved.
+fn validate_username(username: &str) -> Result<(), AppError> {
+    if username.len() < 3 {
+        return Err(AppError::Validation(
+            "Username must be at least 3 characters".into(),
+        ));
+    }
+    if username.len() > 30 {
+        return Err(AppError::Validation(
+            "Username must be 30 characters or less".into(),
+        ));
+    }
+    if !username
+        .chars()
+        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+    {
+        return Err(AppError::Validation(
+            "Username may only contain lowercase letters, numbers, and underscores".into(),
+        ));
+    }
+    if username.starts_with('_') || username.ends_with('_') {
+        return Err(AppError::Validation(
+            "Username cannot start or end with an underscore".into(),
+        ));
+    }
+    if RESERVED_USERNAMES.contains(&username) {
+        return Err(AppError::Validation("This username is reserved".into()));
+    }
+    Ok(())
 }
 
 /// POST /auth/welcome-completed - Mark the welcome flow as completed

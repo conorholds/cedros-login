@@ -193,13 +193,13 @@ impl TransactionalOps {
         // Step 1: Create user
         let user_result = sqlx::query_as::<_, UserRow>(
             r#"
-            INSERT INTO users (id, email, email_verified, password_hash, name, picture,
+            INSERT INTO users (id, email, email_verified, password_hash, name, username, picture,
                               wallet_address, google_id, apple_id, stripe_customer_id,
                               auth_methods, is_system_admin, created_at, updated_at, last_login_at,
                               welcome_completed_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14, $15)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14, $15, $16)
             ON CONFLICT (email) DO NOTHING
-            RETURNING id, email, email_verified, password_hash, name, picture,
+            RETURNING id, email, email_verified, password_hash, name, username, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id,
                       auth_methods, is_system_admin, created_at, updated_at, last_login_at,
                       welcome_completed_at
@@ -210,6 +210,7 @@ impl TransactionalOps {
         .bind(user.email_verified)
         .bind(&user.password_hash)
         .bind(&user.name)
+        .bind(&user.username)
         .bind(&user.picture)
         .bind(&user.wallet_address)
         .bind(&user.google_id)
@@ -311,6 +312,7 @@ impl TransactionalOps {
             email_verified: user_row.email_verified,
             password_hash: user_row.password_hash,
             name: user_row.name,
+            username: user_row.username,
             picture: user_row.picture,
             wallet_address: user_row.wallet_address,
             google_id: user_row.google_id,
@@ -423,6 +425,7 @@ struct UserRow {
     email_verified: bool,
     password_hash: Option<String>,
     name: Option<String>,
+    username: Option<String>,
     picture: Option<String>,
     wallet_address: Option<String>,
     google_id: Option<String>,

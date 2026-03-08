@@ -339,6 +339,11 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/wallet/withdraw/history",
             get(handlers::withdraw_history::<C, E>),
         )
+        // Username availability check
+        .route(
+            "/username/available",
+            get(handlers::check_username::<C, E>),
+        )
         // Enterprise SSO routes
         .route("/sso/start", post(handlers::start_sso::<C, E>))
 }

@@ -100,6 +100,7 @@ pub struct UserEntity {
     pub email_verified: bool,
     pub password_hash: Option<String>,
     pub name: Option<String>,
+    pub username: Option<String>,
     pub picture: Option<String>,
     pub wallet_address: Option<String>,
     pub google_id: Option<String>,
@@ -125,6 +126,7 @@ impl UserEntity {
             email_verified: false,
             password_hash: Some(password_hash),
             name,
+            username: None,
             picture: None,
             wallet_address: None,
             google_id: None,
@@ -219,6 +221,12 @@ pub trait UserRepository: Send + Sync {
 
     /// Set welcome_completed_at timestamp for a user
     async fn set_welcome_completed(&self, id: Uuid) -> Result<(), AppError>;
+
+    /// Check if a username is already taken (case-insensitive)
+    async fn username_exists(&self, username: &str) -> Result<bool, AppError>;
+
+    /// Set a user's username
+    async fn set_username(&self, id: Uuid, username: &str) -> Result<(), AppError>;
 }
 
 /// In-memory user repository for development/testing
@@ -611,6 +619,23 @@ impl UserRepository for InMemoryUserRepository {
         let mut users = self.users.write().await;
         if let Some(user) = users.get_mut(&id) {
             user.welcome_completed_at = Some(Utc::now());
+            user.updated_at = Utc::now();
+        }
+        Ok(())
+    }
+
+    async fn username_exists(&self, username: &str) -> Result<bool, AppError> {
+        let lower = username.to_lowercase();
+        let users = self.users.read().await;
+        Ok(users
+            .values()
+            .any(|u| u.username.as_deref().map(|n| n.to_lowercase()) == Some(lower.clone())))
+    }
+
+    async fn set_username(&self, id: Uuid, username: &str) -> Result<(), AppError> {
+        let mut users = self.users.write().await;
+        if let Some(user) = users.get_mut(&id) {
+            user.username = Some(username.to_string());
             user.updated_at = Utc::now();
         }
         Ok(())

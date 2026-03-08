@@ -45,6 +45,13 @@ pub struct WebAuthnConfig {
     /// Require user verification (biometric/PIN) for registration
     #[serde(default = "default_true")]
     pub require_user_verification: bool,
+
+    /// Reject authentication when the sign counter doesn't increase (M-02).
+    /// A non-increasing counter may indicate a cloned authenticator.
+    /// When `false` (default), a warning is logged but auth proceeds.
+    /// When `true`, authentication is rejected with an error.
+    #[serde(default)]
+    pub reject_cloned_credentials: bool,
 }
 
 fn default_true() -> bool {
@@ -62,6 +69,7 @@ impl Default for WebAuthnConfig {
             allow_platform: true,
             allow_cross_platform: true,
             require_user_verification: true,
+            reject_cloned_credentials: false,
         }
     }
 }

@@ -33,6 +33,7 @@ mod tests {
             email_verified: true,
             password_hash: Some("hash".to_string()),
             name: Some("Test".to_string()),
+            username: None,
             picture: None,
             wallet_address: None,
             google_id: None,
@@ -65,6 +66,7 @@ struct UserRow {
     email_verified: bool,
     password_hash: Option<String>,
     name: Option<String>,
+    username: Option<String>,
     picture: Option<String>,
     wallet_address: Option<String>,
     google_id: Option<String>,
@@ -86,6 +88,7 @@ impl From<UserRow> for UserEntity {
             email_verified: row.email_verified,
             password_hash: row.password_hash,
             name: row.name,
+            username: row.username,
             picture: row.picture,
             wallet_address: row.wallet_address,
             google_id: row.google_id,
@@ -132,7 +135,7 @@ impl UserRepository for PostgresUserRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<UserEntity>, AppError> {
         let row: Option<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE id = $1
@@ -154,7 +157,7 @@ impl UserRepository for PostgresUserRepository {
 
         let row: Option<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE email = $1
@@ -171,7 +174,7 @@ impl UserRepository for PostgresUserRepository {
     async fn find_by_wallet(&self, wallet: &str) -> Result<Option<UserEntity>, AppError> {
         let row: Option<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE wallet_address = $1
@@ -188,7 +191,7 @@ impl UserRepository for PostgresUserRepository {
     async fn find_by_google_id(&self, google_id: &str) -> Result<Option<UserEntity>, AppError> {
         let row: Option<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE google_id = $1
@@ -205,7 +208,7 @@ impl UserRepository for PostgresUserRepository {
     async fn find_by_apple_id(&self, apple_id: &str) -> Result<Option<UserEntity>, AppError> {
         let row: Option<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE apple_id = $1
@@ -225,7 +228,7 @@ impl UserRepository for PostgresUserRepository {
     ) -> Result<Option<UserEntity>, AppError> {
         let row: Option<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users WHERE stripe_customer_id = $1
@@ -244,13 +247,13 @@ impl UserRepository for PostgresUserRepository {
 
         let row: UserRow = sqlx::query_as(
             r#"
-            INSERT INTO users (id, email, email_verified, password_hash, name, picture,
+            INSERT INTO users (id, email, email_verified, password_hash, name, username, picture,
                               wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                               created_at, updated_at, last_login_at, welcome_completed_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-            RETURNING id, email, email_verified, password_hash, name, picture,
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+            RETURNING id, email, email_verified, password_hash, name, username, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
-                      created_at, updated_at, last_login_at, welcome_completed_at, welcome_completed_at
+                      created_at, updated_at, last_login_at, welcome_completed_at
             "#,
         )
         .bind(user.id)
@@ -258,6 +261,7 @@ impl UserRepository for PostgresUserRepository {
         .bind(user.email_verified)
         .bind(&user.password_hash)
         .bind(&user.name)
+        .bind(&user.username)
         .bind(&user.picture)
         .bind(&user.wallet_address)
         .bind(&user.google_id)
@@ -287,16 +291,17 @@ impl UserRepository for PostgresUserRepository {
                 email_verified = $3,
                 password_hash = $4,
                 name = $5,
-                picture = $6,
-                wallet_address = $7,
-                google_id = $8,
-                apple_id = $9,
-                stripe_customer_id = $10,
-                auth_methods = $11,
-                is_system_admin = $12,
+                username = $6,
+                picture = $7,
+                wallet_address = $8,
+                google_id = $9,
+                apple_id = $10,
+                stripe_customer_id = $11,
+                auth_methods = $12,
+                is_system_admin = $13,
                 updated_at = NOW()
             WHERE id = $1
-            RETURNING id, email, email_verified, password_hash, name, picture,
+            RETURNING id, email, email_verified, password_hash, name, username, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                       created_at, updated_at, last_login_at, welcome_completed_at
             "#,
@@ -306,6 +311,7 @@ impl UserRepository for PostgresUserRepository {
         .bind(user.email_verified)
         .bind(&user.password_hash)
         .bind(&user.name)
+        .bind(&user.username)
         .bind(&user.picture)
         .bind(&user.wallet_address)
         .bind(&user.google_id)
@@ -390,7 +396,7 @@ impl UserRepository for PostgresUserRepository {
 
         let rows: Vec<UserRow> = sqlx::query_as(
             r#"
-            SELECT id, email, email_verified, password_hash, name, picture,
+            SELECT id, email, email_verified, password_hash, name, username, picture,
                    wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
                    created_at, updated_at, last_login_at, welcome_completed_at
             FROM users
@@ -519,6 +525,35 @@ impl UserRepository for PostgresUserRepository {
             "UPDATE users SET welcome_completed_at = NOW(), updated_at = NOW() WHERE id = $1",
         )
         .bind(id)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::NotFound("User not found".into()));
+        }
+
+        Ok(())
+    }
+
+    async fn username_exists(&self, username: &str) -> Result<bool, AppError> {
+        let exists: bool = sqlx::query_scalar(
+            "SELECT EXISTS(SELECT 1 FROM users WHERE LOWER(username) = LOWER($1))",
+        )
+        .bind(username)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(exists)
+    }
+
+    async fn set_username(&self, id: Uuid, username: &str) -> Result<(), AppError> {
+        let result = sqlx::query(
+            "UPDATE users SET username = $2, updated_at = NOW() WHERE id = $1",
+        )
+        .bind(id)
+        .bind(username)
         .execute(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;

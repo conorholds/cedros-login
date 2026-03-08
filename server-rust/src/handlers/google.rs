@@ -97,6 +97,7 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
             email_verified: true, // Google verified the email
             password_hash: None,
             name: claims.name,
+            username: None,
             picture: claims.picture,
             wallet_address: None,
             google_id: Some(claims.sub),

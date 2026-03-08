@@ -495,6 +495,7 @@ mod tests {
             email_verified: true,
             password_hash: None,
             name: None,
+            username: None,
             picture: None,
             wallet_address: None,
             google_id: None,

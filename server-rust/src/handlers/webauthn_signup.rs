@@ -153,6 +153,7 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         email_verified: false,
         password_hash: None,
         name: request.name,
+        username: None,
         picture: None,
         wallet_address: None,
         google_id: None,

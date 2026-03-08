@@ -113,6 +113,7 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
                 email_verified: false,
                 password_hash: None,
                 name: None,
+                username: None,
                 picture: None,
                 wallet_address: None,
                 google_id: None,

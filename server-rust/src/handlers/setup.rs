@@ -136,6 +136,7 @@ pub async fn create_first_admin<C: AuthCallback, E: EmailService>(
         email_verified: true, // Auto-verify for setup admin
         password_hash: Some(password_hash),
         name: req.name,
+        username: None,
         picture: None,
         wallet_address: None,
         google_id: None,

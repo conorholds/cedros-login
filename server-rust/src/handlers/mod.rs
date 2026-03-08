@@ -34,6 +34,7 @@ mod solana;
 mod sso;
 mod user_lookup;
 mod user_withdrawal;
+mod username;
 mod wallet;
 mod webauthn;
 mod webauthn_signup;
@@ -116,6 +117,7 @@ pub use webauthn::{
     auth_options as webauthn_auth_options, auth_verify as webauthn_auth_verify,
     register_options as webauthn_register_options, register_verify as webauthn_register_verify,
 };
+pub use username::check_username;
 pub use webauthn_signup::{
     signup_options as webauthn_signup_options, signup_verify as webauthn_signup_verify,
 };

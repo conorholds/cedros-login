@@ -14,8 +14,9 @@ use crate::services::SettingsService;
 /// Priority:
 /// 1. MFA setup — if `security_require_mfa` is enabled and the user has a password but no TOTP
 /// 2. Welcome (one-time onboarding) — if enabled and user hasn't completed it
-/// 3. Complete profile — if enabled and user is missing a name
-/// 4. Redirect URL — if a redirect URL is configured
+/// 3. Choose username — if enabled and user hasn't set a username
+/// 4. Complete profile — if enabled and user is missing a name
+/// 5. Redirect URL — if a redirect URL is configured
 ///
 /// MFA requirement only applies to users with password credentials. OAuth, passkey,
 /// and wallet users already have strong auth via their providers.
@@ -64,7 +65,19 @@ pub async fn compute_post_login(
         });
     }
 
-    // 2. Complete profile: prompt for missing name
+    // 2b. Choose username: prompt for unique handle
+    let username_enabled = settings
+        .get_bool("postlogin_username_enabled")
+        .await
+        .unwrap_or(None);
+    if username_enabled == Some(true) && user.username.is_none() {
+        return Some(PostLoginAction {
+            action: "choose_username".to_string(),
+            redirect_url: None,
+        });
+    }
+
+    // 3. Complete profile: prompt for missing name
     // Only checks name because email cannot be updated via the profile API.
     let complete_enabled = settings
         .get_bool("postlogin_complete_enabled")

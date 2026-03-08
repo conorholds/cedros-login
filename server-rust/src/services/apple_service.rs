@@ -79,6 +79,9 @@ pub struct AppleTokenClaims {
     pub exp: i64,
     /// Real user status (0 = unsupported, 1 = unknown, 2 = real)
     pub real_user_status: Option<i64>,
+    /// Nonce claim — SHA-256 hash of the nonce sent in the authorization request.
+    /// Present only if the client included a nonce.
+    pub nonce: Option<String>,
 }
 
 impl AppleTokenClaims {
@@ -382,6 +385,7 @@ mod tests {
             iss: "https://appleid.apple.com".to_string(),
             exp: 9999999999,
             real_user_status: Some(2),
+            nonce: None,
         };
         assert!(claims.is_email_verified());
 
@@ -408,6 +412,7 @@ mod tests {
             iss: "https://appleid.apple.com".to_string(),
             exp: 9999999999,
             real_user_status: None,
+            nonce: None,
         };
 
         // None = allowed (fail-open for compatibility)
