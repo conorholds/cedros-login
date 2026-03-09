@@ -66,6 +66,11 @@ export {
   seedToMnemonic,
   mnemonicToSeed,
   isValidMnemonic,
+  isValidWord,
+  getWordSuggestions,
+  parseMnemonicInput,
+  formatMnemonicForDisplay,
+  getWordlist,
   wipeMnemonic,
   MNEMONIC_WORD_COUNT,
 } from "./bip39";

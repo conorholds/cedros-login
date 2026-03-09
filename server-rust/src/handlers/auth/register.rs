@@ -306,6 +306,12 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         state.session_repo.create(session).await?;
     }
 
+    // Auto-enroll wallet (non-fatal — don't break registration)
+    if let Err(e) = crate::utils::auto_enroll_wallet(&state, user.id, &req.password, &headers).await
+    {
+        tracing::warn!(user_id = %user.id, error = %e, "Auto wallet enrollment failed");
+    }
+
     // S-05: Track email queue result to include in response
     let mut email_queued: Option<bool> = None;
     if state.config.email.require_verification {
@@ -374,7 +380,7 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: raw_api_key,
         email_queued,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
     };
 
     // Build response with optional cookies

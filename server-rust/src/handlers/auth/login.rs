@@ -290,7 +290,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
     };
 
     // Build response with optional cookies
@@ -471,7 +471,7 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
     };
 
     // Build response with optional cookies

@@ -12,3 +12,6 @@ export {
   validateEmail,
   validateSolanaPublicKey,
 } from "./validation";
+
+// Unlock credential conversion
+export { toCredentialRequest } from "./unlockCredential";

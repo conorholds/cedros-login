@@ -2584,8 +2584,8 @@ export declare interface PluginRegistry {
  * Post-login action returned by the server after authentication
  */
 export declare interface PostLoginAction {
-    /** Action type: "welcome", "choose_username", "complete_profile", "redirect", or "setup_mfa" */
-    action: 'welcome' | 'choose_username' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** Action type: "setup_mfa", "enroll_wallet", "acknowledge_recovery", "choose_username", "welcome", "complete_profile", or "redirect" */
+    action: 'setup_mfa' | 'enroll_wallet' | 'acknowledge_recovery' | 'choose_username' | 'welcome' | 'complete_profile' | 'redirect';
     /** URL/route for redirect or welcome page */
     redirectUrl?: string;
 }
@@ -4543,15 +4543,23 @@ export declare interface UsePendingRecoveryReturn {
  *     return <MfaSetupPrompt onComplete={clearPostLogin} />;
  *   }
  *
+ *   if (postLoginAction?.action === 'enroll_wallet') {
+ *     return <WalletEnrollment onComplete={clearPostLogin} />;
+ *   }
+ *
+ *   if (postLoginAction?.action === 'acknowledge_recovery') {
+ *     return <RecoveryInfoScreen onComplete={clearPostLogin} />;
+ *   }
+ *
+ *   if (postLoginAction?.action === 'choose_username') {
+ *     return <ChooseUsernamePrompt onComplete={clearPostLogin} onSkip={clearPostLogin} />;
+ *   }
+ *
  *   if (postLoginAction?.action === 'welcome') {
  *     return <WelcomePage onComplete={async () => {
  *       await markWelcomeCompleted();
  *       clearPostLogin();
  *     }} />;
- *   }
- *
- *   if (postLoginAction?.action === 'choose_username') {
- *     return <ChooseUsernamePrompt onComplete={clearPostLogin} onSkip={clearPostLogin} />;
  *   }
  *
  *   if (postLoginAction?.action === 'complete_profile') {
@@ -4770,6 +4778,15 @@ export declare interface UseSessionsReturn {
     revokeAllSessions: () => Promise<RevokeAllSessionsResponse>;
     /** Number of other active sessions (excluding current) */
     otherSessionCount: number;
+}
+
+export declare function useSetPassword(): UseSetPasswordReturn;
+
+export declare interface UseSetPasswordReturn {
+    /** Set initial password for the current user */
+    setPassword: (password: string) => Promise<void>;
+    isLoading: boolean;
+    error: AuthError | null;
 }
 
 /**
@@ -5395,8 +5412,18 @@ export declare interface WalletContextValue {
 /**
  * Wallet enrollment wizard
  */
-export declare function WalletEnrollment({ onComplete, onCancel, className, forceAuthMethod, }: WalletEnrollmentProps): JSX.Element;
+export declare function WalletEnrollment({ onComplete, onCancel, className, }: WalletEnrollmentProps): JSX.Element;
 
+/**
+ * Wallet enrollment wizard component (server-side signing)
+ *
+ * Auto-detects the user's auth method and shows the appropriate flow:
+ * - Email users → enter existing account password
+ * - Passkey users → authenticate with existing passkey
+ * - OAuth-only users → set a new account password first
+ *
+ * Share B is stored as plaintext on the server (SSS math protects it).
+ */
 export declare interface WalletEnrollmentProps {
     /** Callback when enrollment completes */
     onComplete?: (solanaPubkey: string) => void;
@@ -5404,8 +5431,6 @@ export declare interface WalletEnrollmentProps {
     onCancel?: () => void;
     /** Optional class name */
     className?: string;
-    /** Force a specific auth method (otherwise auto-detected) */
-    forceAuthMethod?: ShareAAuthMethod;
 }
 
 /** Request to enroll wallet  */

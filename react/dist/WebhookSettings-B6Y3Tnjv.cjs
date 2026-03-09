@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime");require("react");const t=require("./WebhookSettings-0sgWRI3U.cjs");function o(){return e.jsx("div",{className:"cedros-dashboard__section",children:e.jsx(t.WebhookSettings,{})})}exports.default=o;

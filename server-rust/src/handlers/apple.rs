@@ -109,23 +109,34 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             ));
         }
 
-        // H-06: Security check - prevent automatic account linking via Apple OAuth.
-        // If email already exists with another auth method (email/password),
-        // return AccountLinkRequired so the client can prompt the user to
-        // prove ownership via password before linking. See POST /auth/link-oauth.
+        // Autolink: Apple has verified this email, so we can safely link the
+        // Apple ID to the existing account without requiring a password proof.
         //
         // NEW-03: Note on hidden emails - When users choose "Hide My Email",
         // Apple provides a unique relay address (e.g., xyz@privaterelay.appleid.com).
-        // The email field is only None in rare cases (very old Apple accounts or
-        // specific API configurations). The collision check handles relay emails
-        // correctly since they are unique per user per app.
+        // These are unique per user per app, so collision is impossible.
         let normalized_email = claims.email.as_deref().map(normalize_email);
-        if let Some(ref email) = normalized_email {
-            if state.user_repo.email_exists(email).await? {
-                return Err(AppError::AccountLinkRequired { provider: "apple".into() });
-            }
-        }
+        let autolink_match = if let Some(ref email) = normalized_email {
+            state.user_repo.find_by_email(email).await?
+        } else {
+            None
+        };
 
+        if let Some(mut existing) = autolink_match {
+            let now = Utc::now();
+            existing.apple_id = Some(claims.sub);
+            existing.updated_at = now;
+            existing.last_login_at = Some(now);
+            if !existing.auth_methods.contains(&AuthMethod::Apple) {
+                existing.auth_methods.push(AuthMethod::Apple);
+            }
+            // Backfill name from Apple if missing (Apple only provides on first sign-in)
+            if existing.name.is_none() {
+                existing.name = req.name;
+            }
+            let user = state.user_repo.update(existing).await?;
+            (user, false, None)
+        } else {
         // Create new user
         // Note: Apple may not provide email in rare edge cases (legacy accounts).
         // Users created without email can only authenticate via Apple ID.
@@ -179,6 +190,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         };
 
         (user, true, Some(raw_api_key))
+        }
     };
 
     // Get user's memberships to find default org context
@@ -253,7 +265,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
     };
 
     Ok(build_json_response_with_cookies(

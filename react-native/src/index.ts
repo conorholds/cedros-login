@@ -42,6 +42,14 @@ export {
   useMobileWalletAuth,
   useOrgs,
   useWallet,
+  useWalletMaterial,
+  useWalletDiscovery,
+  useWalletEnrollment,
+  useWalletRecovery,
+  useWalletSigning,
+  useWallets,
+  useDeposit,
+  useCredits,
 } from "./hooks";
 export type {
   UseAuthReturn,
@@ -53,6 +61,7 @@ export type {
   MobileWalletCredentials,
   UseOrgsReturn,
   UseWalletReturn,
+  UseWalletDiscoveryReturn,
 } from "./hooks";
 
 // Components - Shared
@@ -114,11 +123,21 @@ export {
   WalletStatus,
   WalletUnlock,
   RecoveryPhraseDisplay,
+  WalletAddressRow,
+  RecoveryPhraseInput,
+  WalletEnrollment,
+  WalletRecovery,
+  WalletManager,
 } from "./components/wallet";
 export type {
   WalletStatusProps,
   WalletUnlockProps,
   RecoveryPhraseDisplayProps,
+  WalletAddressRowProps,
+  RecoveryPhraseInputProps,
+  WalletEnrollmentProps,
+  WalletRecoveryProps,
+  WalletManagerProps,
 } from "./components/wallet";
 
 // Components - TOTP
@@ -134,11 +153,41 @@ export {
   DepositForm,
   CreditBalance,
   CreditHistory,
+  DepositFlow,
+  FeeConfigDisplay,
+  TokenSelector,
+  TieredAmountSlider,
+  History,
+  DepositExplainerStep,
+  DepositReceiveStep,
+  WaitingStep,
+  SuccessStep,
+  ErrorStep,
+  SUPPORTED_TOKENS,
+  SOL_TOKEN,
+  getTierForAmount,
 } from "./components/deposit";
 export type {
   DepositFormProps,
   CreditBalanceProps,
   CreditHistoryProps,
+  DepositFlowProps,
+  DepositFlowResult,
+  DepositFlowStep,
+  CurrencyMode,
+  DepositMethod,
+  ExplainerConfig,
+  FeeConfigDisplayProps,
+  TokenSelectorProps,
+  TieredAmountSliderProps,
+  HistoryProps,
+  HistoryCategory,
+  DepositExplainerStepProps,
+  DepositReceiveStepProps,
+  WaitingStepProps,
+  SuccessStepProps,
+  ErrorStepProps,
+  Token,
 } from "./components/deposit";
 
 // Utilities

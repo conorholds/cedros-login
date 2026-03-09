@@ -80,15 +80,26 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
 
     let (user, is_new_user, api_key) = if let Some(user) = existing_user {
         (user, false, None)
-    } else {
-        // H-06: Security check - prevent automatic account linking via Google OAuth.
-        // If email already exists with another auth method (email/password),
-        // return AccountLinkRequired so the client can prompt the user to
-        // prove ownership via password before linking. See POST /auth/link-oauth.
-        if state.user_repo.email_exists(&normalized_email).await? {
-            return Err(AppError::AccountLinkRequired { provider: "google".into() });
+    } else if let Some(mut existing) = state.user_repo.find_by_email(&normalized_email).await? {
+        // Autolink: Google has verified this email, so we can safely link the
+        // Google ID to the existing account without requiring a password proof.
+        let now = Utc::now();
+        existing.google_id = Some(claims.sub);
+        existing.updated_at = now;
+        existing.last_login_at = Some(now);
+        if !existing.auth_methods.contains(&AuthMethod::Google) {
+            existing.auth_methods.push(AuthMethod::Google);
         }
-
+        // Backfill profile fields from Google if missing
+        if existing.name.is_none() {
+            existing.name = claims.name;
+        }
+        if existing.picture.is_none() {
+            existing.picture = claims.picture;
+        }
+        let user = state.user_repo.update(existing).await?;
+        (user, false, None)
+    } else {
         // Create new user
         let now = Utc::now();
         let user = UserEntity {
@@ -212,7 +223,7 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo).await,
+        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
     };
 
     Ok(build_json_response_with_cookies(

@@ -12,8 +12,20 @@ import type {
   ShareCRecoveryResponse,
   PendingWalletRecoveryResponse,
   AcknowledgeRecoveryRequest,
+  CreateDerivedWalletRequest,
+  DerivedWalletResponse,
+  AllWalletsListResponse,
 } from "../../types";
 import type ApiClient from "./client";
+
+/** Discovery endpoint response */
+export interface DiscoveryResponse {
+  wallet?: {
+    enabled: boolean;
+    recoveryMode: string;
+    unlockTtlSeconds: number;
+  };
+}
 
 export class WalletApi {
   private client: ApiClient;
@@ -97,6 +109,32 @@ export class WalletApi {
     request: AcknowledgeRecoveryRequest,
   ): Promise<void> {
     await this.client.post("/auth/wallet/acknowledge-recovery", request);
+  }
+
+  async getDiscovery(): Promise<DiscoveryResponse> {
+    const response =
+      await this.client.get<DiscoveryResponse>("/auth/discovery");
+    return response.data;
+  }
+
+  async listDerived(): Promise<AllWalletsListResponse> {
+    const response =
+      await this.client.get<AllWalletsListResponse>("/auth/wallet/derived");
+    return response.data;
+  }
+
+  async createDerived(
+    request: CreateDerivedWalletRequest,
+  ): Promise<DerivedWalletResponse> {
+    const response = await this.client.post<DerivedWalletResponse>(
+      "/auth/wallet/derived",
+      request,
+    );
+    return response.data;
+  }
+
+  async deleteDerived(walletId: string): Promise<void> {
+    await this.client.delete(`/auth/wallet/derived/${walletId}`);
   }
 
 }

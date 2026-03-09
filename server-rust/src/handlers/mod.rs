@@ -26,6 +26,7 @@ mod mfa;
 pub mod orgs;
 mod password_change;
 mod password_reset;
+mod set_password;
 mod policies;
 mod prices;
 mod sessions;
@@ -99,6 +100,7 @@ pub use mfa::{
 pub use orgs::{create_org, delete_org, get_org, list_orgs, switch_org, update_org};
 pub use password_change::change_password;
 pub use password_reset::{forgot_password, reset_password};
+pub use set_password::set_password;
 pub use policies::{create_policy, delete_policy, get_policy, list_policies, update_policy};
 pub use prices::token_prices;
 pub use sessions::{list_sessions, revoke_all_sessions};

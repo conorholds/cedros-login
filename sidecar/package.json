@@ -1,6 +1,6 @@
 {
   "name": "@cedros/login-sidecar",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Cedros Login sidecar service (Privacy Cash + Solana utilities)",
   "main": "dist/index.js",
   "scripts": {
@@ -24,5 +24,9 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "overrides": {
+    "minimatch": ">=10.2.3",
+    "underscore": ">=1.13.8"
   }
 }

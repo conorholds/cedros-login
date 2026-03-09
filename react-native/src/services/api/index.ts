@@ -2,9 +2,10 @@ import ApiClient, { ApiClientOptions, ApiResponse, ApiError } from "./client";
 import AuthApi from "./auth";
 import OrgsApi from "./orgs";
 import WalletApi from "./wallet";
+import DepositApi from "./deposit";
 import { TokenManager } from "../../utils/tokenManager";
 
-export { ApiClient, AuthApi, OrgsApi, WalletApi, TokenManager };
+export { ApiClient, AuthApi, OrgsApi, WalletApi, DepositApi, TokenManager };
 export type { ApiClientOptions, ApiResponse, ApiError };
 
 export interface ApiServices {
@@ -12,6 +13,7 @@ export interface ApiServices {
   auth: AuthApi;
   orgs: OrgsApi;
   wallet: WalletApi;
+  deposit: DepositApi;
   tokenManager: TokenManager;
 }
 
@@ -20,6 +22,7 @@ export function createApiServices(options: ApiClientOptions): ApiServices {
   const auth = new AuthApi(client);
   const orgs = new OrgsApi(client);
   const wallet = new WalletApi(client);
+  const deposit = new DepositApi(client);
 
   client.getTokenManager().setRefreshCallback(async () => {
     await auth.refreshToken();
@@ -30,6 +33,7 @@ export function createApiServices(options: ApiClientOptions): ApiServices {
     auth,
     orgs,
     wallet,
+    deposit,
     tokenManager: client.getTokenManager(),
   };
 }
@@ -39,12 +43,14 @@ let apiClient: ApiClient | null = null;
 let authAPI: AuthApi | null = null;
 let orgsAPI: OrgsApi | null = null;
 let walletAPI: WalletApi | null = null;
+let depositAPI: DepositApi | null = null;
 
 export function initializeApiServices(options: ApiClientOptions): ApiServices {
   apiClient = new ApiClient(options);
   authAPI = new AuthApi(apiClient);
   orgsAPI = new OrgsApi(apiClient);
   walletAPI = new WalletApi(apiClient);
+  depositAPI = new DepositApi(apiClient);
 
   apiClient.getTokenManager().setRefreshCallback(async () => {
     if (authAPI) {
@@ -57,6 +63,7 @@ export function initializeApiServices(options: ApiClientOptions): ApiServices {
     auth: authAPI,
     orgs: orgsAPI,
     wallet: walletAPI,
+    deposit: depositAPI,
     tokenManager: apiClient.getTokenManager(),
   };
 }
@@ -86,6 +93,15 @@ export function getWalletApi(): WalletApi {
     );
   }
   return walletAPI;
+}
+
+export function getDepositApi(): DepositApi {
+  if (!depositAPI) {
+    throw new Error(
+      "API services not initialized. Call initializeApiServices first.",
+    );
+  }
+  return depositAPI;
 }
 
 export default createApiServices;

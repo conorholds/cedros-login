@@ -366,7 +366,7 @@ dependencies = [
 
 [[package]]
 name = "cedros-login-server"
-version = "0.0.31"
+version = "0.0.32"
 dependencies = [
  "aes-gcm",
  "anyhow",

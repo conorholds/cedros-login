@@ -33,6 +33,10 @@ pub struct AuthFeaturesResponse {
     pub apple_client_id: Option<String>,
     /// Whether post-login username selection is enabled.
     pub username_enabled: bool,
+    /// Whether post-login wallet enrollment is enabled.
+    pub wallet_enroll_enabled: bool,
+    /// Whether to show recovery info screen after wallet enrollment.
+    pub show_recovery_enabled: bool,
     /// Display order for social login buttons (e.g. `["webauthn","google","apple","solana"]`).
     pub social_button_order: Vec<String>,
 }
@@ -120,6 +124,20 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .flatten()
         .unwrap_or(false);
 
+    let wallet_enroll_enabled = ss
+        .get_bool("postlogin_wallet_enroll_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
+    let show_recovery_enabled = ss
+        .get_bool("postlogin_show_recovery_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
     let default_order: Vec<String> = vec![
         "webauthn".into(),
         "google".into(),
@@ -145,6 +163,8 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         google_client_id,
         apple_client_id,
         username_enabled,
+        wallet_enroll_enabled,
+        show_recovery_enabled,
         social_button_order,
     })
 }
@@ -165,6 +185,8 @@ mod tests {
             google_client_id: None,
             apple_client_id: None,
             username_enabled: false,
+            wallet_enroll_enabled: false,
+            show_recovery_enabled: false,
             social_button_order: vec!["webauthn".into(), "google".into()],
         };
 
@@ -190,6 +212,8 @@ mod tests {
             google_client_id: Some("goog-123.apps.googleusercontent.com".into()),
             apple_client_id: Some("com.example.auth".into()),
             username_enabled: false,
+            wallet_enroll_enabled: false,
+            show_recovery_enabled: false,
             social_button_order: vec![
                 "webauthn".into(),
                 "google".into(),

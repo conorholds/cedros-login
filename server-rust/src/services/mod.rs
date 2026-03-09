@@ -134,6 +134,7 @@ pub use wallet_signing_service::{
     derive_child_seed_from_bytes, derive_pubkey_at_index,
     UnlockCredential as WalletUnlockCredential, WalletSigningService,
 };
+pub(crate) use wallet_signing_service::derive_pubkey_from_seed;
 pub use wallet_unlock_cache::{
     create_wallet_unlock_cache, WalletUnlockCache, WalletUnlockCacheConfig,
 };

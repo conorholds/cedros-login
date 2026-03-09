@@ -119,6 +119,11 @@ export type {
   UseWalletRecoveryReturn,
   UseWalletMaterialReturn,
   UsePrfCapabilityReturn,
+  DerivedWalletSummary,
+  DerivedWalletResponse,
+  AllWalletsListResponse,
+  CreateDerivedWalletRequest,
+  UseWalletsReturn,
 } from "./wallet";
 
 // Deposit and credit types (non-admin only)
@@ -138,6 +143,10 @@ export type {
   BalancesResponse,
   CreditTransactionResponse,
   CreditHistoryResponse,
+  FeePolicy,
+  CustomTokenDefinition,
+  SpendCreditsRequest,
+  SpendCreditsResponse,
   UseDepositReturn,
   UseCreditsReturn,
 } from "./deposit";

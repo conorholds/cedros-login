@@ -33,20 +33,9 @@ pub async fn wallet_enroll<C: AuthCallback, E: EmailService>(
     let auth = authenticate(&state, &headers).await?;
     let user_id = auth.user_id;
 
-    // Check if user logged in with their own Solana wallet
-    let user = state
-        .user_repo
-        .find_by_id(user_id)
-        .await?
-        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
-
-    if user.wallet_address.is_some() {
-        return Err(AppError::Validation(
-            "Users who sign in with Solana wallet cannot enroll in embedded wallet. \
-             Use your connected wallet for signing."
-                .into(),
-        ));
-    }
+    // Solana wallet users: admin controls via `wallet_enroll_solana_users` setting
+    // in the post-login flow. No hard block here — if they reach this endpoint,
+    // the admin has allowed it (or the user is enrolling manually).
 
     // Validate inputs
     validation::validate_enroll_request(&req)?;

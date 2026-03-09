@@ -532,7 +532,7 @@ impl WalletSigningService {
     /// PERF-001: Runs in spawn_blocking to avoid blocking the async runtime.
     /// Argon2 key derivation is CPU-intensive (~50-100ms) and would otherwise
     /// saturate the tokio thread pool under load.
-    async fn derive_key_argon2(
+    pub(crate) async fn derive_key_argon2(
         &self,
         password: Vec<u8>,
         salt: Vec<u8>,
@@ -760,7 +760,7 @@ impl WalletSigningService {
     }
 
     /// Encrypt data using AES-256-GCM
-    fn encrypt_aes_gcm(
+    pub(crate) fn encrypt_aes_gcm(
         &self,
         key: &[u8; 32],
         plaintext: &[u8],
@@ -781,6 +781,45 @@ impl WalletSigningService {
         nonce_bytes.copy_from_slice(&nonce);
 
         Ok((ciphertext, nonce_bytes))
+    }
+
+    /// Split a secret into 3 Shamir shares (threshold 2) using GF(2^8)
+    ///
+    /// Generates a random degree-1 polynomial `f(x) = secret + a1*x` for each byte,
+    /// then evaluates at x=1,2,3. Any 2 shares can reconstruct the secret via
+    /// Lagrange interpolation (see `combine_shares`).
+    ///
+    /// Returns `(share_a, share_b, share_c)` in secrets.js binary format
+    /// (0x80 prefix + id + data).
+    pub fn split_secret(&self, secret: &[u8]) -> Result<(Vec<u8>, Vec<u8>, Vec<u8>), AppError> {
+        if secret.is_empty() || secret.len() > 64 {
+            return Err(AppError::Validation(format!(
+                "Secret length must be 1-64 bytes, got {}",
+                secret.len()
+            )));
+        }
+
+        let mut coeffs = vec![0u8; secret.len()];
+        OsRng.fill_bytes(&mut coeffs);
+
+        let mut data_1 = vec![0u8; secret.len()];
+        let mut data_2 = vec![0u8; secret.len()];
+        let mut data_3 = vec![0u8; secret.len()];
+
+        for i in 0..secret.len() {
+            // f(x) = secret[i] + coeffs[i]*x  in GF(2^8)
+            data_1[i] = gf256_add(secret[i], gf256_mul(coeffs[i], 1));
+            data_2[i] = gf256_add(secret[i], gf256_mul(coeffs[i], 2));
+            data_3[i] = gf256_add(secret[i], gf256_mul(coeffs[i], 3));
+        }
+
+        coeffs.zeroize();
+
+        Ok((
+            format_share(1, &data_1),
+            format_share(2, &data_2),
+            format_share(3, &data_3),
+        ))
     }
 
     /// Sign data using Ed25519
@@ -923,7 +962,7 @@ fn gf256_div(a: u8, b: u8) -> Result<u8, AppError> {
 /// Format raw 32-byte data as a secrets.js share
 ///
 /// secrets.js format: byte[0] = 0x80 (8-bit mode), byte[1] = share_id, byte[2..] = data
-fn format_share(id: u8, data: &[u8]) -> Vec<u8> {
+pub(crate) fn format_share(id: u8, data: &[u8]) -> Vec<u8> {
     let mut share = Vec::with_capacity(2 + data.len());
     share.push(0x80); // 8-bit mode marker
     share.push(id);
@@ -963,7 +1002,7 @@ pub fn derive_pubkey_at_index(master_seed: &[u8], index: u32) -> Result<String, 
 }
 
 /// Derive Solana public key (base58) from 32-byte seed
-fn derive_pubkey_from_seed(seed: &[u8]) -> Result<String, AppError> {
+pub(crate) fn derive_pubkey_from_seed(seed: &[u8]) -> Result<String, AppError> {
     if seed.len() != 32 {
         return Err(AppError::Internal(anyhow::anyhow!(
             "Invalid seed length: expected 32, got {}",
@@ -1323,5 +1362,40 @@ mod tests {
         // Should fail because wallet uses passkey, not password
         let result = service.reencrypt_share_a(&material, "old", "new").await;
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_split_secret_roundtrip() {
+        let service = WalletSigningService::new();
+        let secret = [0x42u8; 32];
+
+        let (share_a, share_b, share_c) = service.split_secret(&secret).unwrap();
+
+        // Any 2 of 3 shares should reconstruct the original secret
+        let recovered_ab = service.combine_shares(&share_a, &share_b).unwrap();
+        assert_eq!(recovered_ab, secret.to_vec());
+
+        let recovered_ac = service.combine_shares(&share_a, &share_c).unwrap();
+        assert_eq!(recovered_ac, secret.to_vec());
+
+        let recovered_bc = service.combine_shares(&share_b, &share_c).unwrap();
+        assert_eq!(recovered_bc, secret.to_vec());
+    }
+
+    #[test]
+    fn test_split_secret_random_roundtrip() {
+        let service = WalletSigningService::new();
+        let mut secret = [0u8; 32];
+        OsRng.fill_bytes(&mut secret);
+
+        let (share_a, share_b, _) = service.split_secret(&secret).unwrap();
+        let recovered = service.combine_shares(&share_a, &share_b).unwrap();
+        assert_eq!(recovered, secret.to_vec());
+    }
+
+    #[test]
+    fn test_split_secret_rejects_empty() {
+        let service = WalletSigningService::new();
+        assert!(service.split_secret(&[]).is_err());
     }
 }

@@ -274,6 +274,7 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/forgot-password", post(handlers::forgot_password::<C, E>))
         .route("/reset-password", post(handlers::reset_password::<C, E>))
         .route("/change-password", post(handlers::change_password::<C, E>))
+        .route("/set-password", post(handlers::set_password::<C, E>))
         .route("/link-oauth", post(handlers::link_oauth::<C, E>))
         .route("/instant-link", post(handlers::send_instant_link::<C, E>))
         .route(

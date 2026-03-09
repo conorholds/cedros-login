@@ -379,8 +379,8 @@ export declare interface MobileWalletConfig {
  * Post-login action returned by the server after authentication
  */
 declare interface PostLoginAction {
-    /** Action type: "welcome", "choose_username", "complete_profile", "redirect", or "setup_mfa" */
-    action: 'welcome' | 'choose_username' | 'complete_profile' | 'redirect' | 'setup_mfa';
+    /** Action type: "setup_mfa", "enroll_wallet", "acknowledge_recovery", "choose_username", "welcome", "complete_profile", or "redirect" */
+    action: 'setup_mfa' | 'enroll_wallet' | 'acknowledge_recovery' | 'choose_username' | 'welcome' | 'complete_profile' | 'redirect';
     /** URL/route for redirect or welcome page */
     redirectUrl?: string;
 }

@@ -82,5 +82,8 @@
     "type": "git",
     "url": "https://github.com/conorholds/cedros-login.git",
     "directory": "react-native"
+  },
+  "overrides": {
+    "minimatch": ">=10.2.3"
   }
 }

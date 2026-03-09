@@ -299,6 +299,12 @@ export interface UseWalletMaterialReturn {
   lock: () => Promise<void>;
   /** Get Share B for Share C recovery mode (proves ownership via Share C) */
   getShareBForRecovery: (request: ShareCRecoveryRequest) => Promise<ShareCRecoveryResponse>;
+  /** Create a derived wallet */
+  createDerivedWallet: (request: CreateDerivedWalletRequest) => Promise<DerivedWalletResponse>;
+  /** List all wallets (default + derived) */
+  listAllWallets: () => Promise<AllWalletsListResponse>;
+  /** Delete a derived wallet */
+  deleteDerivedWallet: (walletId: string) => Promise<void>;
   /** Whether request is in progress */
   isLoading: boolean;
   /** Error from last request */
@@ -335,4 +341,43 @@ export interface PendingWalletRecoveryResponse {
 export interface AcknowledgeRecoveryRequest {
   /** Confirmation that user has saved the recovery phrase */
   confirmed: boolean;
+}
+
+/** Summary of a derived wallet */
+export interface DerivedWalletSummary {
+  id: string;
+  label: string;
+  solanaPubkey: string;
+  derivationIndex: number;
+  createdAt: string;
+}
+
+/** Response from creating a derived wallet */
+export interface DerivedWalletResponse {
+  id: string;
+  label: string;
+  solanaPubkey: string;
+  derivationIndex: number;
+  createdAt: string;
+}
+
+/** Response listing all wallets (default + derived) */
+export interface AllWalletsListResponse {
+  wallets: DerivedWalletSummary[];
+}
+
+/** Request to create a derived wallet */
+export interface CreateDerivedWalletRequest {
+  label: string;
+}
+
+/** Multi-wallet management hook return value */
+export interface UseWalletsReturn {
+  wallets: DerivedWalletSummary[];
+  isLoading: boolean;
+  createWallet: (label: string) => Promise<DerivedWalletResponse>;
+  deleteWallet: (walletId: string) => Promise<void>;
+  refresh: () => Promise<void>;
+  error: string | null;
+  clearError: () => void;
 }
