@@ -347,6 +347,20 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         )
         // Enterprise SSO routes
         .route("/sso/start", post(handlers::start_sso::<C, E>))
+        // M-04: Deposit submission routes — strict rate limiting for financial operations
+        .route("/deposit", post(handlers::execute_deposit::<C, E>))
+        .route(
+            "/deposit/confirm-spl",
+            post(handlers::confirm_spl_deposit::<C, E>),
+        )
+        .route(
+            "/deposit/public",
+            post(handlers::execute_public_deposit::<C, E>),
+        )
+        .route(
+            "/deposit/micro",
+            post(handlers::execute_micro_deposit::<C, E>),
+        )
 }
 
 fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
@@ -662,27 +676,14 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         // Note: WebAuthn registration routes moved to auth_sensitive_routes (SEC-11)
         // SSO callback (handles redirect from identity provider)
         .route("/sso/callback", get(handlers::sso_callback::<C, E>))
-        // Privacy Cash deposit routes (SSS wallets only)
+        // Privacy Cash deposit routes — read-only (submissions moved to auth_sensitive_routes M-04)
         .route("/deposit/config", get(handlers::deposit_config::<C, E>))
         .route("/deposit/quote", get(handlers::deposit_quote::<C, E>))
-        .route("/deposit", post(handlers::execute_deposit::<C, E>))
         .route(
             "/deposit/pending-spl",
             get(handlers::list_pending_spl_deposits::<C, E>),
         )
-        .route(
-            "/deposit/confirm-spl",
-            post(handlers::confirm_spl_deposit::<C, E>),
-        )
         .route("/prices", get(handlers::token_prices))
-        .route(
-            "/deposit/public",
-            post(handlers::execute_public_deposit::<C, E>),
-        )
-        .route(
-            "/deposit/micro",
-            post(handlers::execute_micro_deposit::<C, E>),
-        )
         .route(
             "/deposit/status/{session_id}",
             get(handlers::deposit_status::<C, E>),

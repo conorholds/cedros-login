@@ -6,7 +6,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::errors::AppError;
-use crate::repositories::{DepositRepository, DepositSessionEntity, DepositStatus};
+use crate::repositories::{DepositRepository, DepositSessionEntity, DepositStatus, DepositType};
 
 const MAX_PAGE_SIZE: u32 = 100;
 const MAX_OFFSET: u32 = 1_000_000;
@@ -245,7 +245,7 @@ impl DepositRepository for PostgresDepositRepository {
         wallet_address: &str,
     ) -> Result<Option<DepositSessionEntity>, AppError> {
         let row: Option<DepositSessionRow> = sqlx::query_as(&format!(
-            "SELECT {} FROM deposit_sessions WHERE wallet_address = $1 AND status = 'pending' LIMIT 1",
+            "SELECT {} FROM deposit_sessions WHERE wallet_address = $1 AND status = 'pending' ORDER BY created_at DESC LIMIT 1",
             SELECT_COLS
         ))
         .bind(wallet_address)
@@ -265,6 +265,24 @@ impl DepositRepository for PostgresDepositRepository {
             SELECT_COLS
         ))
         .bind(tx_signature)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(row.map(DepositSessionEntity::try_from).transpose()?)
+    }
+
+    async fn find_by_tx_signature_and_type(
+        &self,
+        tx_signature: &str,
+        deposit_type: DepositType,
+    ) -> Result<Option<DepositSessionEntity>, AppError> {
+        let row: Option<DepositSessionRow> = sqlx::query_as(&format!(
+            "SELECT {} FROM deposit_sessions WHERE detected_tx_signature = $1 AND deposit_type = $2 LIMIT 1",
+            SELECT_COLS
+        ))
+        .bind(tx_signature)
+        .bind(deposit_type.as_str())
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
@@ -707,7 +725,7 @@ impl DepositRepository for PostgresDepositRepository {
         tx_signature: &str,
     ) -> Result<bool, AppError> {
         // Atomically increment withdrawn amount and check if fully withdrawn
-        let row: (bool,) = sqlx::query_as(
+        let row: Option<(bool,)> = sqlx::query_as(
             r#"
             UPDATE deposit_sessions
             SET withdrawn_amount_lamports = withdrawn_amount_lamports + $1,
@@ -723,17 +741,24 @@ impl DepositRepository for PostgresDepositRepository {
                     ELSE stored_share_b
                 END
             WHERE id = $3
+              AND status = 'processing'
+              AND deposit_amount_lamports IS NOT NULL
             RETURNING (withdrawn_amount_lamports >= COALESCE(deposit_amount_lamports, 0))
             "#,
         )
         .bind(amount_withdrawn)
         .bind(tx_signature)
         .bind(id)
-        .fetch_one(&self.pool)
+        .fetch_optional(&self.pool)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-        Ok(row.0)
+        match row {
+            Some(r) => Ok(r.0),
+            None => Err(AppError::Validation(
+                "Session not in processing state or missing deposit amount".into(),
+            )),
+        }
     }
 
     async fn list_all(
@@ -810,12 +835,19 @@ impl DepositRepository for PostgresDepositRepository {
         const USDC_MINT: &str = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
         const USDT_MINT: &str = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 
-        // Query basic stats
+        // M-13: Use REPEATABLE READ transaction for consistent snapshot across queries
+        let mut tx = self.pool.begin().await.map_err(|e| AppError::Internal(e.into()))?;
+        sqlx::query("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
+
+        // M-07: Include partially_withdrawn, pending_retry, pending_batch, batched in totals
         let basic: (i64, Option<i64>, i64, Option<i64>, i64, Option<i64>, i64) = sqlx::query_as(
             r#"
             SELECT
                 COUNT(*) as total_deposits,
-                COALESCE(SUM(CASE WHEN status IN ('completed', 'withdrawn') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as total_deposited,
+                COALESCE(SUM(CASE WHEN status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry', 'pending_batch', 'batched') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as total_deposited,
                 COUNT(*) FILTER (WHERE status IN ('completed', 'pending_retry')) as pending_withdrawal_count,
                 COALESCE(SUM(CASE WHEN status IN ('completed', 'pending_retry') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as pending_withdrawal_lamports,
                 COUNT(*) FILTER (WHERE status = 'withdrawn') as total_withdrawn_count,
@@ -824,7 +856,7 @@ impl DepositRepository for PostgresDepositRepository {
             FROM deposit_sessions
             "#,
         )
-        .fetch_one(&self.pool)
+        .fetch_one(&mut *tx)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
@@ -839,28 +871,30 @@ impl DepositRepository for PostgresDepositRepository {
             FROM deposit_sessions
             "#,
         )
-        .fetch_one(&self.pool)
+        .fetch_one(&mut *tx)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-        // Query token type breakdown
+        // M-09: Filter token stats to success statuses only
         let tokens: (i64, Option<i64>, i64, Option<i64>, i64, Option<i64>) = sqlx::query_as(
             r#"
             SELECT
-                COUNT(*) FILTER (WHERE input_token_mint = $1) as usdc_count,
-                COALESCE(SUM(CASE WHEN input_token_mint = $1 THEN input_token_amount ELSE 0 END)::BIGINT, 0) as usdc_input,
-                COUNT(*) FILTER (WHERE input_token_mint = $2) as usdt_count,
-                COALESCE(SUM(CASE WHEN input_token_mint = $2 THEN input_token_amount ELSE 0 END)::BIGINT, 0) as usdt_input,
-                COUNT(*) FILTER (WHERE input_token_mint IS NULL AND status IN ('completed', 'withdrawn')) as native_count,
-                COALESCE(SUM(CASE WHEN input_token_mint IS NULL AND status IN ('completed', 'withdrawn') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as native_input
+                COUNT(*) FILTER (WHERE input_token_mint = $1 AND status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry', 'pending_batch', 'batched')) as usdc_count,
+                COALESCE(SUM(CASE WHEN input_token_mint = $1 AND status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry', 'pending_batch', 'batched') THEN input_token_amount ELSE 0 END)::BIGINT, 0) as usdc_input,
+                COUNT(*) FILTER (WHERE input_token_mint = $2 AND status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry', 'pending_batch', 'batched')) as usdt_count,
+                COALESCE(SUM(CASE WHEN input_token_mint = $2 AND status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry', 'pending_batch', 'batched') THEN input_token_amount ELSE 0 END)::BIGINT, 0) as usdt_input,
+                COUNT(*) FILTER (WHERE input_token_mint IS NULL AND status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry')) as native_count,
+                COALESCE(SUM(CASE WHEN input_token_mint IS NULL AND status IN ('completed', 'withdrawn', 'partially_withdrawn', 'pending_retry') THEN deposit_amount_lamports ELSE 0 END)::BIGINT, 0) as native_input
             FROM deposit_sessions
             "#,
         )
         .bind(USDC_MINT)
         .bind(USDT_MINT)
-        .fetch_one(&self.pool)
+        .fetch_one(&mut *tx)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
+
+        tx.commit().await.map_err(|e| AppError::Internal(e.into()))?;
 
         Ok(crate::repositories::DepositStats {
             total_deposits: basic.0 as u64,
@@ -930,10 +964,14 @@ impl DepositRepository for PostgresDepositRepository {
     }
 
     async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError> {
+        // H-06: batch_id IS NULL ensures deposits already claimed by a concurrent
+        // batch worker are excluded. mark_batch_complete (H-05) also guards via
+        // AND status = 'pending_batch', providing a second defense against double-swap.
         let rows: Vec<DepositSessionRow> = sqlx::query_as(&format!(
             r#"
             SELECT {} FROM deposit_sessions
             WHERE status = 'pending_batch' AND deposit_type = 'sol_micro'
+              AND batch_id IS NULL
             ORDER BY created_at ASC
             LIMIT $1
             "#,
@@ -980,6 +1018,7 @@ impl DepositRepository for PostgresDepositRepository {
                 batched_at = $2,
                 withdrawal_tx_signature = $3
             WHERE id = ANY($4)
+              AND status = 'pending_batch'
             "#,
         )
         .bind(batch_id)

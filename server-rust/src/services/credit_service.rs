@@ -75,14 +75,25 @@ impl CreditService {
         self.credit_repo.get_balance(user_id, currency).await
     }
 
-    /// Get all balances for a user (currently just SOL)
+    /// Get all balances for a user (SOL + USD)
     pub async fn get_all_balances(&self, user_id: Uuid) -> Result<Vec<CreditBalance>, AppError> {
-        // Currently we only support SOL
-        let sol_balance = self
-            .credit_repo
-            .get_or_create_balance(user_id, "SOL")
-            .await?;
-        Ok(vec![CreditBalance::from_entity(sol_balance)])
+        // L-01: Fetch both SOL and USD balances
+        let mut balances = Vec::new();
+        for currency in &["SOL", "USD"] {
+            let entity = self
+                .credit_repo
+                .get_or_create_balance(user_id, currency)
+                .await?;
+            if entity.balance != 0 || entity.held_balance != 0 {
+                balances.push(CreditBalance::from_entity(entity));
+            }
+        }
+        // Always include SOL even if zero
+        if balances.is_empty() {
+            let sol = self.credit_repo.get_or_create_balance(user_id, "SOL").await?;
+            balances.push(CreditBalance::from_entity(sol));
+        }
+        Ok(balances)
     }
 
     /// Get transaction history for a user
@@ -185,6 +196,29 @@ impl CreditService {
                 "Maximum spend per transaction is {} lamports",
                 self.max_spend_per_transaction_lamports
             )));
+        }
+
+        // H-01: Idempotency — check if this idempotency_key was already used.
+        // The DB has a UNIQUE(user_id, idempotency_key) index, but checking
+        // first gives a clean idempotent response instead of an internal error.
+        if let Some(existing) = self
+            .credit_repo
+            .find_transaction_by_idempotency_key(user_id, &idempotency_key)
+            .await?
+        {
+            tracing::info!(
+                user_id = %user_id,
+                idempotency_key = %idempotency_key,
+                transaction_id = %existing.id,
+                "Spend already processed (idempotent return)"
+            );
+            let balance = self.credit_repo.get_balance(user_id, currency).await?;
+            return Ok(SpendResult {
+                transaction_id: existing.id,
+                new_balance_lamports: balance,
+                amount_lamports: existing.amount.abs(),
+                currency: currency.to_string(),
+            });
         }
 
         let tx = CreditTransactionEntity::new_spend_with_reference(
@@ -440,20 +474,9 @@ impl CreditService {
                 .add_credit(user_id, amount, currency, tx)
                 .await?
         } else {
-            // Removing credits (debit)
-            // Check available balance first
-            let balance = self
-                .credit_repo
-                .get_or_create_balance(user_id, currency)
-                .await?;
+            // M-04: deduct_credit does an atomic check-and-deduct (WHERE balance >= amount).
+            // No separate balance check needed — that was a TOCTOU race.
             let debit_amount = amount.abs();
-            if balance.available() < debit_amount {
-                return Err(AppError::Validation(format!(
-                    "Insufficient available balance: have {}, need {}",
-                    balance.available(),
-                    debit_amount
-                )));
-            }
             self.credit_repo
                 .deduct_credit(user_id, debit_amount, currency, tx)
                 .await?

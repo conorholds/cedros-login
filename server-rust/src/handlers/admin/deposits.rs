@@ -8,7 +8,7 @@
 
 use axum::{
     extract::{Path, Query, State},
-    http::HeaderMap,
+    http::{HeaderMap, StatusCode},
     Json,
 };
 use std::sync::Arc;
@@ -367,8 +367,8 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Path(session_id): Path<Uuid>,
     Json(request): Json<ProcessWithdrawalRequest>,
-) -> Result<Json<ProcessWithdrawalResponse>, AppError> {
-    validate_system_admin(&state, &headers).await?;
+) -> Result<(StatusCode, Json<ProcessWithdrawalResponse>), AppError> {
+    let admin_user_id = validate_system_admin(&state, &headers).await?;
 
     // Get the deposit session
     let session = state
@@ -426,13 +426,41 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
                 early = early_withdrawal,
                 "Admin withdrawal processed successfully"
             );
-            Ok(Json(ProcessWithdrawalResponse {
+
+            // H-05: Persistent audit log for admin force-withdrawals
+            #[cfg(feature = "postgres")]
+            if let Some(pool) = state.postgres_pool.as_ref() {
+                let details = serde_json::json!({
+                    "tx_signature": tx_signature,
+                    "early_withdrawal": early_withdrawal,
+                    "force": request.force,
+                    "deposit_amount_lamports": session.deposit_amount_lamports,
+                });
+                if let Err(e) = sqlx::query(
+                    r#"INSERT INTO admin_audit_log
+                       (admin_user_id, action, target_user_id, target_entity_type, target_entity_id, details)
+                       VALUES ($1, $2, $3, $4, $5, $6)"#,
+                )
+                .bind(admin_user_id)
+                .bind("force_withdrawal")
+                .bind(session.user_id)
+                .bind("deposit_session")
+                .bind(session_id)
+                .bind(&details)
+                .execute(pool)
+                .await
+                {
+                    tracing::error!(error = %e, "Failed to write admin audit log");
+                }
+            }
+
+            Ok((StatusCode::OK, Json(ProcessWithdrawalResponse {
                 success: true,
                 session_id: session_id.to_string(),
                 tx_signature: Some(tx_signature),
                 error: None,
                 early_withdrawal,
-            }))
+            })))
         }
         Err(e) => {
             tracing::error!(
@@ -440,13 +468,14 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
                 error = %e,
                 "Admin withdrawal failed"
             );
-            Ok(Json(ProcessWithdrawalResponse {
+            // H-10: Return 502 (upstream sidecar failure) instead of 200
+            Ok((StatusCode::BAD_GATEWAY, Json(ProcessWithdrawalResponse {
                 success: false,
                 session_id: session_id.to_string(),
                 tx_signature: None,
                 error: Some(e.to_string()),
                 early_withdrawal,
-            }))
+            })))
         }
     }
 }
@@ -462,7 +491,7 @@ pub async fn process_all_withdrawals<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Query(query): Query<ProcessAllWithdrawalsQuery>,
 ) -> Result<Json<ProcessAllWithdrawalsResponse>, AppError> {
-    validate_system_admin(&state, &headers).await?;
+    let admin_user_id = validate_system_admin(&state, &headers).await?;
 
     let limit = cap_process_all_limit(query.limit);
 
@@ -525,6 +554,32 @@ pub async fn process_all_withdrawals<C: AuthCallback, E: EmailService>(
         failed = failed,
         "Admin batch withdrawal processing complete"
     );
+
+    // R2-H09: Audit log for batch withdrawal processing
+    #[cfg(feature = "postgres")]
+    if let Some(pool) = state.postgres_pool.as_ref() {
+        let session_ids: Vec<String> = ready_sessions.iter().map(|s| s.id.to_string()).collect();
+        let details = serde_json::json!({
+            "total_processed": ready_sessions.len(),
+            "total_succeeded": succeeded,
+            "total_failed": failed,
+            "session_ids": session_ids,
+        });
+        if let Err(e) = sqlx::query(
+            r#"INSERT INTO admin_audit_log
+               (admin_user_id, action, target_entity_type, details)
+               VALUES ($1, $2, $3, $4)"#,
+        )
+        .bind(admin_user_id)
+        .bind("batch_withdrawal")
+        .bind("deposit_session")
+        .bind(&details)
+        .execute(pool)
+        .await
+        {
+            tracing::error!(error = %e, "Failed to write admin audit log for batch withdrawal");
+        }
+    }
 
     Ok(Json(ProcessAllWithdrawalsResponse {
         total_processed: ready_sessions.len() as u32,

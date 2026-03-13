@@ -4,7 +4,7 @@
  * User selects token, enters amount, sees deposit address, and confirms send.
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -57,13 +57,22 @@ export function DepositReceiveStep({
 }: DepositReceiveStepProps): React.ReactElement {
   const [amountUsd, setAmountUsd] = useState(config.privateMinUsd);
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // R2-M20: Clear copy timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
 
   const tier = getTierForAmount(amountUsd, config);
   const isMicroTier = tier === "sol_micro";
 
   const totalFeeUsd = getTotalFeeUsd(config, amountUsd);
-  const feeTotalDisplay = totalFeeUsd < 0.01 ? 0.01 : totalFeeUsd;
-  const feeLine = `Fees: $${feeTotalDisplay.toFixed(2)} total`;
+  // H-08: Don't floor zero fees to $0.01
+  const feeTotalDisplay = totalFeeUsd === 0 ? 0 : totalFeeUsd < 0.01 ? 0.01 : totalFeeUsd;
+  const feeLine = totalFeeUsd === 0 ? "No fees" : `Fees: $${feeTotalDisplay.toFixed(2)} total`;
 
   const activeToken = isMicroTier ? SOL_TOKEN : selectedToken;
   const tokenUsdPrice = getTokenUsdPrice(activeToken, config, tokenPriceUsd);
@@ -87,7 +96,8 @@ export function DepositReceiveStep({
       // Clipboard not available
     }
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
   }, [depositAddress]);
 
   const handleExplorerPress = useCallback(() => {

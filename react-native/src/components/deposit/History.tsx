@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { useCredits } from "../../hooks/useCredits";
 import { styles } from "./historyStyles";
+import { getDecimalsForCurrency } from "./tokens";
 import type {
   CreditTransactionResponse,
   CreditHistoryResponse,
@@ -52,11 +53,12 @@ export interface HistoryProps {
 function formatAmount(lamports: number, currency: string): string {
   const isNegative = lamports < 0;
   const absLamports = Math.abs(lamports);
-  const isSol = currency.toUpperCase() === "SOL";
-  const decimals = isSol ? 9 : 6;
+  // C-04: Use token definitions for correct decimals (not just SOL=9, other=6)
+  const decimals = getDecimalsForCurrency(currency);
   const amount = absLamports / Math.pow(10, decimals);
   const prefix = isNegative ? "-" : "+";
-  if (isSol) return `${prefix}${amount.toFixed(4)} SOL`;
+  const isUsd = currency.toUpperCase() !== "SOL";
+  if (!isUsd) return `${prefix}${amount.toFixed(4)} SOL`;
   return `${prefix}$${amount.toFixed(2)}`;
 }
 
@@ -136,7 +138,7 @@ export function History({
     return transactions.filter((tx) => {
       const txType = tx.txType || "";
       return currentTab.txTypes!.some((type) =>
-        txType.toLowerCase().includes(type.toLowerCase()),
+        txType.toLowerCase() === type.toLowerCase(),
       );
     });
   }, [transactions, currentTab.txTypes]);
@@ -182,7 +184,7 @@ export function History({
     return transactions.filter((tx) => {
       const txType = tx.txType || "";
       return tab.txTypes!.some((type) =>
-        txType.toLowerCase().includes(type.toLowerCase()),
+        txType.toLowerCase() === type.toLowerCase(),
       );
     }).length;
   };

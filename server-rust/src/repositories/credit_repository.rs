@@ -78,6 +78,8 @@ pub struct CreditTransactionEntity {
     /// Link to original hold if this was a captured hold
     pub hold_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
+    /// SOL/USD conversion rate at time of crediting (deposit transactions only)
+    pub conversion_rate: Option<f64>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -105,6 +107,7 @@ impl CreditTransactionEntity {
             reference_id: None,
             hold_id: None,
             metadata: None,
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }
@@ -131,6 +134,7 @@ impl CreditTransactionEntity {
             reference_id: None,
             hold_id: None,
             metadata: None,
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }
@@ -155,6 +159,7 @@ impl CreditTransactionEntity {
             reference_id: None,
             hold_id: None,
             metadata,
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }
@@ -184,6 +189,7 @@ impl CreditTransactionEntity {
             reference_id: Some(reference_id),
             hold_id: None,
             metadata,
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }
@@ -213,6 +219,7 @@ impl CreditTransactionEntity {
             reference_id,
             hold_id: Some(hold_id),
             metadata,
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }
@@ -246,6 +253,7 @@ impl CreditTransactionEntity {
                 "admin_id": admin_id.to_string(),
                 "reason": reason
             })),
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }
@@ -279,6 +287,7 @@ impl CreditTransactionEntity {
                 "refund_request_id": refund_request_id.to_string(),
                 "reason": reason
             })),
+            conversion_rate: None,
             created_at: Utc::now(),
         }
     }

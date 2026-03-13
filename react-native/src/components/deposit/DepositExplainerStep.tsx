@@ -43,7 +43,10 @@ export function DepositExplainerStep({
   const showExchange = explainerConfig?.showExchangeSuggestion !== false;
 
   const handleExchangePress = () => {
-    Linking.openURL(exchangeUrl).catch(() => {});
+    // M-12: Only open https URLs to prevent javascript:, data:, or other scheme injection
+    if (exchangeUrl.startsWith("https://")) {
+      Linking.openURL(exchangeUrl).catch(() => {});
+    }
   };
 
   return (
@@ -75,7 +78,7 @@ export function DepositExplainerStep({
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={[styles.primaryButton, !onCancel && styles.fullWidth]}
+          style={styles.primaryButton}
           onPress={onContinue}
         >
           <Text style={styles.primaryButtonText}>Get Started</Text>
@@ -155,9 +158,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: colors.primary[600],
     alignItems: "center",
-  },
-  fullWidth: {
-    flex: 1,
   },
   primaryButtonText: {
     fontSize: typography.sizes.sm,

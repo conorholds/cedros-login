@@ -16,6 +16,22 @@ use crate::repositories::{
 };
 use crate::services::{CreditParams, DepositCreditService, PrivacySidecarClient};
 
+/// M-10: Minimum privacy period (60 seconds)
+const MIN_PRIVACY_PERIOD_SECS: u64 = 60;
+/// M-10: Maximum privacy period (30 days)
+const MAX_PRIVACY_PERIOD_SECS: u64 = 30 * 24 * 3600;
+
+/// Validate privacy period is within sane bounds (60s to 30 days).
+fn validate_privacy_period(secs: u64) -> Result<(), AppError> {
+    if secs < MIN_PRIVACY_PERIOD_SECS || secs > MAX_PRIVACY_PERIOD_SECS {
+        return Err(AppError::Validation(format!(
+            "Privacy period must be between {}s and {}s, got {}s",
+            MIN_PRIVACY_PERIOD_SECS, MAX_PRIVACY_PERIOD_SECS, secs
+        )));
+    }
+    Ok(())
+}
+
 /// Result of executing a deposit
 pub struct DepositResult {
     /// Session ID for tracking
@@ -56,11 +72,15 @@ pub struct SplDepositResult {
 const USDC_MINT: &str = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const USDT_MINT: &str = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 
-/// Determine credit currency from token mint
-fn currency_from_mint(mint: &str) -> &'static str {
+/// Determine credit currency from token mint.
+/// R2-M01: Returns error for unrecognized mints instead of silently defaulting to USD.
+fn currency_from_mint(mint: &str) -> Result<&'static str, AppError> {
     match mint {
-        USDC_MINT | USDT_MINT => "USD",
-        _ => "USD",
+        USDC_MINT | USDT_MINT => Ok("USD"),
+        _ => Err(AppError::Validation(format!(
+            "Unsupported token mint for credit currency: {}",
+            mint
+        ))),
     }
 }
 
@@ -101,6 +121,11 @@ impl DepositService {
         credit_service: Arc<DepositCreditService>,
         config: &PrivacyConfig,
     ) -> Self {
+        // M-02: Log when max_deposit_lamports=0 (no limit) for visibility
+        if config.max_deposit_lamports == 0 {
+            tracing::info!("Deposit service configured with no maximum deposit limit (max_deposit_lamports=0)");
+        }
+
         Self {
             deposit_repo,
             credit_repo,
@@ -132,6 +157,16 @@ impl DepositService {
         amount_lamports: u64,
         privacy_period_secs: u64,
     ) -> Result<DepositResult, AppError> {
+        // M-10: Validate privacy period is within sane bounds
+        validate_privacy_period(privacy_period_secs)?;
+
+        // R2-H04: Explicit zero-amount guard regardless of min_deposit_lamports config
+        if amount_lamports == 0 {
+            return Err(AppError::Validation(
+                "Deposit amount must be positive".into(),
+            ));
+        }
+
         // Validate amount
         if amount_lamports < self.config.min_deposit_lamports {
             return Err(AppError::Validation(format!(
@@ -200,13 +235,14 @@ impl DepositService {
             })
             .await?;
 
-        // Credit the user
-        let credit_tx = CreditTransactionEntity::new_privacy_deposit(
+        // Credit the user (H-06: persist conversion rate)
+        let mut credit_tx = CreditTransactionEntity::new_privacy_deposit(
             user_id,
             credit_result.amount,
             &credit_result.currency,
             session_id,
         );
+        credit_tx.conversion_rate = credit_result.conversion_rate;
         self.credit_repo
             .add_credit(
                 user_id,
@@ -319,6 +355,19 @@ impl DepositService {
         amount: &str,
         privacy_period_secs: u64,
     ) -> Result<SplDepositResult, AppError> {
+        // M-10: Validate privacy period is within sane bounds
+        validate_privacy_period(privacy_period_secs)?;
+
+        // H-07: Validate SPL deposit amount is positive
+        let parsed_amount: f64 = amount.parse().map_err(|_| {
+            AppError::Validation(format!("Invalid deposit amount: {}", amount))
+        })?;
+        if parsed_amount <= 0.0 {
+            return Err(AppError::Validation(
+                "Deposit amount must be positive".into(),
+            ));
+        }
+
         // Generate session ID
         let session_id = Uuid::new_v4();
 
@@ -343,13 +392,19 @@ impl DepositService {
 
         let sol_amount_lamports = sidecar_response.sol_amount_lamports;
 
-        // Parse input amount for credit calculation
+        // M-03: Parse and validate input amount from sidecar
         let input_amount: i64 = sidecar_response.input_amount.parse().map_err(|_| {
             AppError::Internal(anyhow::anyhow!("Invalid input amount from sidecar"))
         })?;
+        if input_amount <= 0 {
+            return Err(AppError::Internal(anyhow::anyhow!(
+                "Sidecar returned non-positive input_amount: {}",
+                input_amount
+            )));
+        }
 
         // Determine deposit currency from token mint
-        let deposit_currency = currency_from_mint(&sidecar_response.input_mint);
+        let deposit_currency = currency_from_mint(&sidecar_response.input_mint)?;
 
         // Create deposit session with encrypted private key for later withdrawal
         // Note: We store sol_amount_lamports for Privacy Cash tracking
@@ -375,13 +430,14 @@ impl DepositService {
             })
             .await?;
 
-        // Credit the user
-        let credit_tx = CreditTransactionEntity::new_privacy_deposit(
+        // Credit the user (H-06: persist conversion rate)
+        let mut credit_tx = CreditTransactionEntity::new_privacy_deposit(
             user_id,
             credit_result.amount,
             &credit_result.currency,
             session_id,
         );
+        credit_tx.conversion_rate = credit_result.conversion_rate;
         self.credit_repo
             .add_credit(
                 user_id,

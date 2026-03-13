@@ -27,13 +27,24 @@ pub struct CreditBalance {
 impl CreditBalance {
     pub(crate) fn from_entity(entity: CreditBalanceEntity) -> Self {
         let available = entity.available();
-        let sol_amount = available as f64 / 1_000_000_000.0;
+        // R2-M05: Use correct divisor and label based on currency
+        let display = match entity.currency.as_str() {
+            "SOL" => {
+                let sol_amount = available as f64 / 1_000_000_000.0;
+                format!("{:.4} SOL", sol_amount)
+            }
+            "USD" => {
+                let usd_amount = available as f64 / 1_000_000.0;
+                format!("${:.2}", usd_amount)
+            }
+            other => format!("{} {}", available, other),
+        };
         Self {
             balance_lamports: entity.balance,
             held_lamports: entity.held_balance,
             available_lamports: available,
             currency: entity.currency,
-            display: format!("{:.4} SOL", sol_amount),
+            display,
         }
     }
 }

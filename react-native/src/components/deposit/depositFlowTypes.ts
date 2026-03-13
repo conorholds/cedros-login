@@ -2,7 +2,7 @@
  * Shared types for the multi-step deposit flow (React Native)
  */
 
-import type { Token } from "./tokens";
+import { getDisplayDecimals, type Token } from "./tokens";
 import type {
   DepositResponse,
   DepositConfigResponse,
@@ -159,10 +159,9 @@ export function getTokenUsdPrice(
   return null;
 }
 
-/** Format token amount for display */
+/** Format token amount for display (M-08: use token-aware decimals) */
 export function formatTokenAmount(amount: number, symbol: string): string {
-  const decimals = USD_STABLE_TOKENS.has(symbol) ? 2 : 4;
-  return amount.toFixed(decimals);
+  return amount.toFixed(getDisplayDecimals(symbol));
 }
 
 /** User-facing fee label */

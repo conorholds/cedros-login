@@ -154,9 +154,17 @@ impl PrivacyConfig {
         match mint {
             USDC_MINT => Some(6),
             USDT_MINT => Some(6),
-            // For other whitelisted tokens, default to 6 decimals
-            // In the future, this could be extended with a token registry
-            _ => Some(6),
+            // M-10: Unknown whitelisted tokens get 6 decimals. This is ONLY safe for
+            // stablecoins. A 9-decimal token would be undercredited 1000x.
+            // When adding new tokens to the whitelist, ensure their decimals match.
+            other => {
+                tracing::warn!(
+                    mint = %other,
+                    assumed_decimals = 6,
+                    "Unknown whitelisted token using assumed 6 decimals — verify correctness"
+                );
+                Some(6)
+            }
         }
     }
 

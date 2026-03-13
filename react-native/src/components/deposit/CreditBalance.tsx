@@ -3,10 +3,13 @@ import { View, Text, ViewStyle, StyleProp } from "react-native";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { getDecimalsForCurrency } from "./tokens";
 
 export interface CreditBalanceProps {
   balanceLamports: number;
   currency?: string;
+  /** USD price of SOL — when provided, shows approximate USD value */
+  solPriceUsd?: number;
   containerStyle?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -14,21 +17,22 @@ export interface CreditBalanceProps {
 export function CreditBalance({
   balanceLamports,
   currency = "SOL",
+  solPriceUsd,
   containerStyle,
   testID = "credit-balance",
 }: CreditBalanceProps): React.ReactElement {
-  const formatBalance = (lamports: number, currency: string): string => {
-    const decimals = currency === "SOL" ? 9 : 6;
+  const formatBalance = (lamports: number, cur: string): string => {
+    const decimals = getDecimalsForCurrency(cur);
     const divisor = Math.pow(10, decimals);
     const balance = lamports / divisor;
-    return `${balance.toFixed(4)} ${currency}`;
+    return `${balance.toFixed(4)} ${cur}`;
   };
 
-  const getUsdValue = (lamports: number): string => {
-    // Simplified: assume 1 SOL = $100 for display
-    const solPrice = 100;
+  // C-05: Use real SOL price from prop instead of hardcoded $100
+  const getUsdValue = (lamports: number): string | null => {
+    if (!solPriceUsd || solPriceUsd <= 0) return null;
     const solBalance = lamports / 1e9;
-    const usdValue = solBalance * solPrice;
+    const usdValue = solBalance * solPriceUsd;
     return `~$${usdValue.toFixed(2)} USD`;
   };
 
@@ -63,7 +67,7 @@ export function CreditBalance({
       >
         {formatBalance(balanceLamports, currency)}
       </Text>
-      {currency === "SOL" && (
+      {currency === "SOL" && getUsdValue(balanceLamports) != null && (
         <Text
           style={{
             fontSize: typography.sizes.base,

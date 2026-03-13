@@ -298,6 +298,16 @@ pub trait DepositRepository: Send + Sync {
         tx_signature: &str,
     ) -> Result<Option<DepositSessionEntity>, AppError>;
 
+    /// Find a deposit session by tx signature and deposit type.
+    ///
+    /// Used for idempotency: prevents double-crediting when the same on-chain
+    /// transaction is submitted more than once for the same deposit type.
+    async fn find_by_tx_signature_and_type(
+        &self,
+        tx_signature: &str,
+        deposit_type: DepositType,
+    ) -> Result<Option<DepositSessionEntity>, AppError>;
+
     /// Update session status
     async fn update_status(
         &self,
@@ -563,6 +573,21 @@ impl DepositRepository for InMemoryDepositRepository {
             .values()
             .find(|s| {
                 s.deposit_type == DepositType::SolMicro
+                    && s.detected_tx_signature.as_deref() == Some(tx_signature)
+            })
+            .cloned())
+    }
+
+    async fn find_by_tx_signature_and_type(
+        &self,
+        tx_signature: &str,
+        deposit_type: DepositType,
+    ) -> Result<Option<DepositSessionEntity>, AppError> {
+        let sessions = self.sessions.read().await;
+        Ok(sessions
+            .values()
+            .find(|s| {
+                s.deposit_type == deposit_type
                     && s.detected_tx_signature.as_deref() == Some(tx_signature)
             })
             .cloned())
@@ -1016,7 +1041,9 @@ impl DepositRepository for InMemoryDepositRepository {
         Ok(sessions
             .values()
             .filter(|s| {
-                s.status == DepositStatus::PendingBatch && s.deposit_type == DepositType::SolMicro
+                s.status == DepositStatus::PendingBatch
+                    && s.deposit_type == DepositType::SolMicro
+                    && s.batch_id.is_none() // H-06: exclude already-claimed deposits
             })
             .take(limit as usize)
             .cloned()

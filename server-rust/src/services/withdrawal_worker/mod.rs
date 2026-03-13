@@ -265,14 +265,30 @@ impl WithdrawalWorker {
         }
 
         // Filter out sessions with remaining balance below minimum (avoid wasting fees)
-        let skipped_count = sessions.len();
-        sessions.retain(|s| s.remaining_lamports() >= min_lamports);
-        let skipped_count = skipped_count - sessions.len();
-        if skipped_count > 0 {
+        // R2-H07: Reset skipped sessions back to Completed so they don't stay stuck in Processing
+        let mut skipped_sessions = Vec::new();
+        sessions.retain(|s| {
+            if s.remaining_lamports() >= min_lamports {
+                true
+            } else {
+                skipped_sessions.push(s.id);
+                false
+            }
+        });
+        for id in &skipped_sessions {
+            if let Err(e) = self
+                .deposit_repo
+                .update_status(*id, DepositStatus::Completed, None)
+                .await
+            {
+                warn!(session_id = %id, error = %e, "Failed to reset skipped session status");
+            }
+        }
+        if !skipped_sessions.is_empty() {
             debug!(
-                skipped = skipped_count,
+                skipped = skipped_sessions.len(),
                 min_lamports = min_lamports,
-                "Skipped withdrawals below minimum amount"
+                "Skipped and reset withdrawals below minimum amount"
             );
         }
 
@@ -304,6 +320,16 @@ impl WithdrawalWorker {
             sessions.shuffle(&mut rng);
         }
 
+        // R2-H07: Reset sessions beyond target_count back to Completed
+        for session in sessions.iter().skip(target_count) {
+            if let Err(e) = self
+                .deposit_repo
+                .update_status(session.id, DepositStatus::Completed, None)
+                .await
+            {
+                warn!(session_id = %session.id, error = %e, "Failed to reset excess session status");
+            }
+        }
         // Take only the target count
         sessions.truncate(target_count);
 
@@ -441,20 +467,26 @@ impl WithdrawalWorker {
                 let error_msg = e.to_string();
                 let attempts = session.processing_attempts.saturating_add(1);
 
-                if let Err(update_err) = self
+                let record_ok = match self
                     .deposit_repo
                     .record_processing_attempt(session_id, Some(&error_msg))
                     .await
                 {
-                    warn!(
-                        session_id = %session_id,
-                        error = %update_err,
-                        "Failed to record withdrawal attempt"
-                    );
-                }
+                    Ok(_) => true,
+                    Err(update_err) => {
+                        warn!(
+                            session_id = %session_id,
+                            error = %update_err,
+                            "Failed to record withdrawal attempt"
+                        );
+                        false
+                    }
+                };
 
                 // S-03: Use PendingRetry (not Completed) for retry-eligible failures
-                let status = if attempts >= max_retries as i32 {
+                // H-11: If record_processing_attempt failed, the DB counter is stale.
+                // Force Failed to prevent infinite PendingRetry cycling.
+                let status = if !record_ok || attempts >= max_retries as i32 {
                     DepositStatus::Failed
                 } else {
                     DepositStatus::PendingRetry
@@ -497,9 +529,10 @@ impl WithdrawalWorker {
 
         // Record in withdrawal history for audit trail
         let withdrawal_pct = if is_partial {
-            // Calculate what percentage this withdrawal was
-            let pct = if deposit_amount > 0 {
-                (withdrawn_amount * 100 / deposit_amount) as i16
+            // L-06: Calculate percentage of remaining (not total deposit) for accurate audit trail
+            let remaining_before = deposit_amount - previous_withdrawn;
+            let pct = if remaining_before > 0 {
+                (withdrawn_amount * 100 / remaining_before) as i16
             } else {
                 100
             };

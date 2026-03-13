@@ -8,6 +8,7 @@ import {
   StyleProp,
 } from "react-native";
 import { colors } from "../../theme/colors";
+import { getDecimalsForCurrency } from "./tokens";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
 import type { CreditTransactionResponse } from "../../types";
@@ -47,7 +48,7 @@ export function CreditHistory({
   };
 
   const formatAmount = (lamports: number, currency: string): string => {
-    const decimals = currency === "SOL" ? 9 : 6;
+    const decimals = getDecimalsForCurrency(currency);
     const divisor = Math.pow(10, decimals);
     const amount = lamports / divisor;
     const sign = amount >= 0 ? "+" : "";
@@ -109,10 +110,10 @@ export function CreditHistory({
           }}
         >
           {item.txType === "deposit"
-            ? "&#8595;"
+            ? "\u2193"
             : item.txType === "spend"
-              ? "&#8593;"
-              : "&#8634;"}
+              ? "\u2191"
+              : "\u21BA"}
         </Text>
       </View>
 

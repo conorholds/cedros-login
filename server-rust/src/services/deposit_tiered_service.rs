@@ -19,11 +19,15 @@ use crate::services::{CreditParams, DepositCreditService};
 const USDC_MINT: &str = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const USDT_MINT: &str = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 
-/// Determine credit currency from token mint
-fn currency_from_mint(mint: &str) -> &'static str {
+/// Determine credit currency from token mint.
+/// R2-M01: Returns error for unrecognized mints instead of silently defaulting to USD.
+fn currency_from_mint(mint: &str) -> Result<&'static str, AppError> {
     match mint {
-        USDC_MINT | USDT_MINT => "USD",
-        _ => "USD",
+        USDC_MINT | USDT_MINT => Ok("USD"),
+        _ => Err(AppError::Validation(format!(
+            "Unsupported token mint for credit currency: {}",
+            mint
+        ))),
     }
 }
 
@@ -95,8 +99,33 @@ impl TieredDepositService {
             ));
         }
 
+        // C-01: Idempotency — check if this tx_signature was already recorded as a public deposit.
+        // The DB also enforces this via a UNIQUE index on (detected_tx_signature, deposit_type),
+        // but checking first gives a clean response instead of an internal error.
+        if let Some(existing) = self
+            .deposit_repo
+            .find_by_tx_signature_and_type(tx_signature, DepositType::Public)
+            .await?
+        {
+            tracing::info!(
+                session_id = %existing.session_id,
+                tx_signature = %tx_signature,
+                "Public deposit already recorded (idempotent return)"
+            );
+            return Ok(PublicDepositResult {
+                session_id: existing.session_id,
+                tx_signature: tx_signature.to_string(),
+                output_amount: existing.deposit_amount_lamports.unwrap_or(output_amount),
+                credit_currency: existing.currency,
+            });
+        }
+
         let session_id = Uuid::new_v4();
-        let deposit_currency = currency_from_mint(input_mint.unwrap_or(USDC_MINT));
+        // R2-M02: Default to "SOL" when input_mint is None (direct SOL deposit)
+        let deposit_currency = match input_mint {
+            Some(mint) => currency_from_mint(mint)?,
+            None => "SOL",
+        };
 
         // Create deposit session (completed immediately, no privacy period)
         let session = DepositSessionEntity {
@@ -134,7 +163,35 @@ impl TieredDepositService {
             batch_id: None,
             batched_at: None,
         };
-        self.deposit_repo.create(session).await?;
+        // C-02: Handle race condition — if two concurrent requests pass the idempotency
+        // check above, the DB UNIQUE index will reject the second insert. Catch that
+        // and return the existing session instead of an internal error.
+        match self.deposit_repo.create(session).await {
+            Ok(_) => {}
+            Err(_) => {
+                if let Some(existing) = self
+                    .deposit_repo
+                    .find_by_tx_signature_and_type(tx_signature, DepositType::Public)
+                    .await?
+                {
+                    tracing::info!(
+                        session_id = %existing.session_id,
+                        tx_signature = %tx_signature,
+                        "Public deposit race resolved (returning existing session)"
+                    );
+                    return Ok(PublicDepositResult {
+                        session_id: existing.session_id,
+                        tx_signature: tx_signature.to_string(),
+                        output_amount: existing.deposit_amount_lamports.unwrap_or(output_amount),
+                        credit_currency: existing.currency,
+                    });
+                }
+                return Err(AppError::Internal(anyhow::anyhow!(
+                    "Failed to create public deposit session for tx {}",
+                    tx_signature
+                )));
+            }
+        }
 
         // Calculate credit amount (converts to company currency, applies fee policy)
         let credit_result = self
@@ -147,13 +204,14 @@ impl TieredDepositService {
             })
             .await?;
 
-        // Credit user immediately
-        let credit_tx = CreditTransactionEntity::new_privacy_deposit(
+        // Credit user immediately (H-06: persist conversion rate)
+        let mut credit_tx = CreditTransactionEntity::new_privacy_deposit(
             user_id,
             credit_result.amount,
             &credit_result.currency,
             session_id,
         );
+        credit_tx.conversion_rate = credit_result.conversion_rate;
         self.credit_repo
             .add_credit(
                 user_id,
@@ -201,6 +259,26 @@ impl TieredDepositService {
             ));
         }
 
+        // C-02: Idempotency — check if this tx_signature was already recorded as a micro deposit.
+        // The DB also enforces this via a UNIQUE index on (detected_tx_signature, deposit_type),
+        // but checking first gives a clean response instead of an internal error.
+        if let Some(existing) = self
+            .deposit_repo
+            .find_by_tx_signature_and_type(tx_signature, DepositType::SolMicro)
+            .await?
+        {
+            tracing::info!(
+                session_id = %existing.session_id,
+                tx_signature = %tx_signature,
+                "SOL micro deposit already recorded (idempotent return)"
+            );
+            return Ok(MicroDepositResult {
+                session_id: existing.session_id,
+                tx_signature: tx_signature.to_string(),
+                amount_lamports: existing.detected_amount_lamports.unwrap_or(amount_lamports),
+            });
+        }
+
         let session_id = Uuid::new_v4();
 
         // Create deposit session (pending batch - awaiting Jupiter swap)
@@ -240,7 +318,35 @@ impl TieredDepositService {
             batch_id: None,
             batched_at: None,
         };
-        self.deposit_repo.create(session).await?;
+        // C-02: Handle race condition — if two concurrent requests pass the idempotency
+        // check above, the DB UNIQUE index will reject the second insert. Catch that
+        // and return the existing session instead of an internal error.
+        match self.deposit_repo.create(session).await {
+            Ok(_) => {}
+            Err(_) => {
+                if let Some(existing) = self
+                    .deposit_repo
+                    .find_by_tx_signature_and_type(tx_signature, DepositType::SolMicro)
+                    .await?
+                {
+                    tracing::info!(
+                        session_id = %existing.session_id,
+                        tx_signature = %tx_signature,
+                        "SOL micro deposit race resolved (returning existing session)"
+                    );
+                    return Ok(MicroDepositResult {
+                        session_id: existing.session_id,
+                        tx_signature: tx_signature.to_string(),
+                        amount_lamports: existing.detected_amount_lamports.unwrap_or(amount_lamports),
+                    });
+                }
+                // Not a duplicate — re-raise the original error
+                return Err(AppError::Internal(anyhow::anyhow!(
+                    "Failed to create micro deposit session for tx {}",
+                    tx_signature
+                )));
+            }
+        }
 
         // Calculate credit amount (converts to company currency, applies fee policy)
         // Note: has_swap=false because the batch swap happens later (user credited now at SOL rate)
@@ -254,13 +360,14 @@ impl TieredDepositService {
             })
             .await?;
 
-        // Credit user immediately in company currency
-        let credit_tx = CreditTransactionEntity::new_privacy_deposit(
+        // Credit user immediately in company currency (H-06: persist conversion rate)
+        let mut credit_tx = CreditTransactionEntity::new_privacy_deposit(
             user_id,
             credit_result.amount,
             &credit_result.currency,
             session_id,
         );
+        credit_tx.conversion_rate = credit_result.conversion_rate;
         self.credit_repo
             .add_credit(
                 user_id,
@@ -305,6 +412,13 @@ pub async fn execute_admin_withdrawal<
     use zeroize::Zeroize;
 
     let session_id = session.id;
+
+    // L-02: Defense-in-depth: reject already-withdrawn sessions
+    if session.status == crate::repositories::DepositStatus::Withdrawn {
+        return Err(AppError::Validation(
+            "Session already fully withdrawn".into(),
+        ));
+    }
 
     // Get required services
     let sidecar = state

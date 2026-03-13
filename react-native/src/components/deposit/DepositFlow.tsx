@@ -118,6 +118,8 @@ export function DepositFlow({
   const feeLine = useMemo(() => {
     const amountUsd = receiveAmountUsd ?? config.privateMinUsd;
     const totalFeeUsd = getTotalFeeUsd(config, amountUsd);
+    // H-08: Don't floor zero fees to $0.01
+    if (totalFeeUsd === 0) return "No fees";
     const display = totalFeeUsd < 0.01 ? 0.01 : totalFeeUsd;
     return `Fees: $${display.toFixed(2)} total`;
   }, [config, receiveAmountUsd]);
@@ -126,16 +128,22 @@ export function DepositFlow({
   useEffect(() => {
     if (step !== "waiting" || !sessionId) return;
 
+    let consecutiveErrors = 0;
+    const maxConsecutiveErrors = 5; // M-07: Show error after 5 consecutive failures
+
     const poll = async () => {
       try {
         const status = await getStatus(sessionId);
         if (!isMountedRef.current) return;
+        consecutiveErrors = 0; // Reset on success
 
         if (status.status === "completed" || status.status === "withdrawn") {
           const amount = status.amountLamports ?? 0;
+          // H-15: Use effectiveToken for decimals (selectedToken may lag behind currencyMode)
+          const activeToken = currencyMode === "sol" ? effectiveToken : selectedToken;
           const flowResult: DepositFlowResult = {
             token: currencyMode === "sol" ? null : selectedToken,
-            amount: amount / Math.pow(10, selectedToken.decimals),
+            amount: amount / Math.pow(10, activeToken.decimals),
             amountSmallestUnit: amount,
             txSignature: status.txSignature || "",
             sessionId: status.sessionId,
@@ -157,7 +165,11 @@ export function DepositFlow({
           setStep("error");
         }
       } catch {
-        // Polling errors are silently ignored — we retry next interval
+        consecutiveErrors++;
+        if (consecutiveErrors >= maxConsecutiveErrors) {
+          setFlowError("Unable to check deposit status. Please check your connection and try again.");
+          setStep("error");
+        }
       }
     };
 
@@ -170,6 +182,7 @@ export function DepositFlow({
     pollInterval,
     getStatus,
     selectedToken,
+    effectiveToken,
     currencyMode,
     depositAddress,
     onSuccess,

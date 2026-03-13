@@ -91,7 +91,8 @@ export function SuccessStep({
       : result.amount;
   const totalFeeUsd = getTotalFeeUsd(config, amountUsd);
   const creditsUsd = Math.max(amountUsd - totalFeeUsd, 0);
-  const totalFeeDisplay = totalFeeUsd < 0.01 ? 0.01 : totalFeeUsd;
+  // H-08: Don't floor zero fees to $0.01
+  const totalFeeDisplay = totalFeeUsd === 0 ? 0 : totalFeeUsd < 0.01 ? 0.01 : totalFeeUsd;
 
   const handleTxPress = () => {
     Linking.openURL(

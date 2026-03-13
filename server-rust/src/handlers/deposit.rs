@@ -462,6 +462,13 @@ pub async fn list_pending_spl_deposits<C: AuthCallback, E: EmailService>(
 
     #[cfg(feature = "postgres")]
     {
+        // M-05: Mark expired pending records so they don't accumulate indefinitely
+        let _ = sqlx::query(
+            "UPDATE pending_spl_deposits SET status = 'expired' WHERE status = 'pending' AND expires_at <= NOW()"
+        )
+        .execute(pool)
+        .await;
+
         let rows: Vec<PendingSplDepositRow> = sqlx::query_as(
             r#"
             SELECT id, wallet_address, token_mint, token_amount_raw, token_amount,
@@ -583,6 +590,13 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
         .token_amount
         .ok_or_else(|| AppError::Validation("Pending SPL deposit missing token_amount".into()))?;
 
+    // H-07: Validate token amount is positive before processing
+    if token_amount <= 0 {
+        return Err(AppError::Validation(
+            "Deposit amount must be positive".into(),
+        ));
+    }
+
     // CRITICAL: Defense-in-depth validation - verify token is still whitelisted
     // (Token may have been removed from whitelist since webhook received deposit)
     if !state
@@ -683,12 +697,22 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
             .execute(pool)
             .await
             {
-                // S-08: Deposit succeeded on-chain but DB status update failed
+                // C-03: Deposit succeeded on-chain but DB status update failed.
+                // Return error so client retries instead of silently succeeding.
+                // The deposit session and credit were already created, so the
+                // user's balance is correct — only pending_spl_deposits tracking
+                // is stale. Client can check /deposit/status/{session_id}.
                 tracing::error!(
                     pending_id = %pending.id,
+                    session_id = %ok.session_id,
                     error = %db_err,
-                    "Deposit succeeded on-chain but failed to update status to completed"
+                    "Deposit succeeded on-chain but failed to update pending status"
                 );
+                // L-08: Don't leak internal session UUID to client
+                return Err(AppError::Internal(anyhow::anyhow!(
+                    "Deposit completed on-chain but status tracking update failed. \
+                     Your balance has been credited. Check deposit status for details."
+                )));
             }
 
             Ok(Json(ConfirmSplDepositResponse {

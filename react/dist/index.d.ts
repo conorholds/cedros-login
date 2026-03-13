@@ -3293,9 +3293,6 @@ export declare interface SplitPageLayoutProps {
     className?: string;
 }
 
-/**
- * Supported stablecoins for deposits
- */
 export declare const SUPPORTED_TOKENS: Token[];
 
 /**
@@ -5621,7 +5618,7 @@ export declare interface WithdrawalFlowProps {
     className?: string;
 }
 
-export declare function WithdrawalHistory({ pageSize, className, onTransactionClick, explorerUrl, }: WithdrawalHistoryProps): JSX.Element;
+export declare function WithdrawalHistory({ pageSize, className, onTransactionClick, explorerUrl: rawExplorerUrl, }: WithdrawalHistoryProps): JSX.Element;
 
 /** Individual withdrawal history entry */
 declare interface WithdrawalHistoryItem {

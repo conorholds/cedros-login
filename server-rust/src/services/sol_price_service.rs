@@ -122,11 +122,26 @@ impl SolPriceService {
             Err(e) => {
                 // Use fallback on error
                 let fallback = *self.fallback_price.read().await;
-                warn!(
-                    error = %e,
-                    fallback_price = fallback,
-                    "Failed to fetch SOL price, using fallback"
-                );
+                let cache = self.cache.read().await;
+                let staleness_secs = cache.as_ref().map(|c| c.fetched_at.elapsed().as_secs());
+                drop(cache);
+                // M-12: Log whether fallback is a last-known-good or the hardcoded default
+                if let Some(age) = staleness_secs {
+                    warn!(
+                        error = %e,
+                        fallback_price = fallback,
+                        stale_secs = age,
+                        "Failed to fetch SOL price, using last-known-good (stale {}s)",
+                        age,
+                    );
+                } else {
+                    warn!(
+                        error = %e,
+                        fallback_price = fallback,
+                        "Failed to fetch SOL price, using HARDCODED default (${}) — no successful fetch yet",
+                        fallback,
+                    );
+                }
                 Ok(fallback)
             }
         }
@@ -136,18 +151,14 @@ impl SolPriceService {
     async fn fetch_price(&self) -> Result<f64, AppError> {
         let url = format!("{}?ids={}", JUPITER_PRICE_API, SOL_MINT);
 
-        let response = tokio::time::timeout(
-            Duration::from_secs(JUPITER_HTTP_TIMEOUT_SECS),
-            self.http_client.get(&url).send(),
-        )
-        .await
-        .map_err(|_| {
-            AppError::Internal(anyhow::anyhow!(
-                "Jupiter API request timed out after {}s",
-                JUPITER_HTTP_TIMEOUT_SECS
-            ))
-        })?
-        .map_err(|e| AppError::Internal(anyhow::anyhow!("Jupiter API request failed: {}", e)))?;
+        // L-07: The HTTP client already has a timeout (JUPITER_HTTP_TIMEOUT_SECS).
+        // No outer tokio::time::timeout needed — that was a redundant double-timeout.
+        let response = self
+            .http_client
+            .get(&url)
+            .send()
+            .await
+            .map_err(|e| AppError::Internal(anyhow::anyhow!("Jupiter API request failed: {}", e)))?;
 
         if !response.status().is_success() {
             return Err(AppError::Internal(anyhow::anyhow!(

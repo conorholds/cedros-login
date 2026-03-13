@@ -79,6 +79,13 @@ impl DepositCreditService {
     /// Converts the deposit amount to company currency and applies
     /// fee deductions based on the configured fee policy.
     pub async fn calculate(&self, params: CreditParams) -> Result<CreditResult, AppError> {
+        // R2-H02: Reject non-positive deposit amounts before any cast
+        if params.deposit_amount <= 0 {
+            return Err(AppError::Validation(
+                "Deposit amount must be positive".into(),
+            ));
+        }
+
         let fee_config = self.fee_service.get_config().await?;
 
         // Step 1: Convert deposit to company currency
@@ -89,6 +96,7 @@ impl DepositCreditService {
         // Step 2: Calculate fees (in lamports, we'll convert later)
         // For fee calculation, we need the amount in lamports
         let amount_lamports = if params.deposit_currency == "SOL" {
+            // Safe: we validated deposit_amount > 0 above
             params.deposit_amount as u64
         } else {
             // Convert USD to lamports for fee calculation
@@ -144,8 +152,8 @@ impl DepositCreditService {
                     .lamports_to_usd(amount as u64)
                     .await?;
                 let price = self.sol_price_service.get_sol_price_usd().await?;
-                // Convert to minor units (6 decimals)
-                Ok(((usd * USD_MINOR_UNITS) as i64, Some(price)))
+                // M-03: Use floor() consistently to avoid over-crediting
+                Ok(((usd * USD_MINOR_UNITS).floor() as i64, Some(price)))
             }
 
             // USD → SOL (convert USD to lamports)
@@ -153,7 +161,8 @@ impl DepositCreditService {
                 let usd = amount as f64 / USD_MINOR_UNITS;
                 let lamports = self.sol_price_service.usd_to_lamports(usd).await?;
                 let price = self.sol_price_service.get_sol_price_usd().await?;
-                Ok((lamports as i64, Some(price)))
+                // M-03: Use floor() consistently to avoid over-crediting
+                Ok(((lamports as f64).floor() as i64, Some(price)))
             }
 
             // USD → USD (no conversion, already in minor units)
@@ -166,13 +175,20 @@ impl DepositCreditService {
                 let usd = amount as f64 / USD_MINOR_UNITS;
                 let lamports = self.sol_price_service.usd_to_lamports(usd).await?;
                 let price = self.sol_price_service.get_sol_price_usd().await?;
-                Ok((lamports as i64, Some(price)))
+                // M-03: Use floor() consistently to avoid over-crediting
+                Ok(((lamports as f64).floor() as i64, Some(price)))
             }
         }
     }
 
     /// Convert lamports to company currency
     async fn convert_lamports_to_company_currency(&self, lamports: i64) -> Result<i64, AppError> {
+        // R2-H16: Validate non-negative before u64 cast
+        if lamports < 0 {
+            return Err(AppError::Validation(
+                "Fee deduction lamports must be non-negative".into(),
+            ));
+        }
         if self.is_sol_company() {
             Ok(lamports)
         } else {
@@ -180,7 +196,8 @@ impl DepositCreditService {
                 .sol_price_service
                 .lamports_to_usd(lamports as u64)
                 .await?;
-            Ok((usd * USD_MINOR_UNITS) as i64)
+            // M-03: Use floor() consistently to avoid over-crediting
+            Ok((usd * USD_MINOR_UNITS).floor() as i64)
         }
     }
 

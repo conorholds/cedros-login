@@ -80,6 +80,7 @@ struct CreditTransactionRow {
     reference_id: Option<Uuid>,
     hold_id: Option<Uuid>,
     metadata: Option<serde_json::Value>,
+    conversion_rate: Option<f64>,
     created_at: DateTime<Utc>,
 }
 
@@ -90,7 +91,11 @@ impl From<CreditTransactionRow> for CreditTransactionEntity {
             user_id: row.user_id,
             amount: row.amount,
             currency: row.currency,
-            tx_type: CreditTxType::from_str(&row.tx_type).unwrap_or(CreditTxType::Adjustment),
+            tx_type: CreditTxType::from_str(&row.tx_type).unwrap_or_else(|| {
+                // L-04: Log unknown tx_type instead of silently defaulting
+                tracing::warn!(tx_type = %row.tx_type, id = %row.id, "Unknown credit tx_type, defaulting to Adjustment");
+                CreditTxType::Adjustment
+            }),
             deposit_session_id: row.deposit_session_id,
             privacy_note_id: row.privacy_note_id,
             idempotency_key: row.idempotency_key,
@@ -98,6 +103,7 @@ impl From<CreditTransactionRow> for CreditTransactionEntity {
             reference_id: row.reference_id,
             hold_id: row.hold_id,
             metadata: row.metadata,
+            conversion_rate: row.conversion_rate,
             created_at: row.created_at,
         }
     }
@@ -175,6 +181,13 @@ impl CreditRepository for PostgresCreditRepository {
         currency: &str,
         tx: CreditTransactionEntity,
     ) -> Result<i64, AppError> {
+        // R2-M06: Reject non-positive amounts to prevent balance manipulation
+        if amount <= 0 {
+            return Err(AppError::Validation(
+                "Credit amount must be positive".into(),
+            ));
+        }
+
         validate_metadata(&tx.metadata)?;
         // P-02: Normalize currency to uppercase at write time so read queries
         // can use direct equality instead of UPPER(), enabling index use.
@@ -186,6 +199,29 @@ impl CreditRepository for PostgresCreditRepository {
             .begin()
             .await
             .map_err(|e| AppError::Internal(e.into()))?;
+
+        // R2-C04: Idempotency guard — if this credit is for a deposit, check
+        // if we already issued credit for this deposit session to prevent
+        // double-credit on retry.
+        if let Some(session_id) = tx.deposit_session_id {
+            let existing: Option<(Uuid,)> = sqlx::query_as(
+                "SELECT id FROM credit_transactions WHERE deposit_session_id = $1 LIMIT 1",
+            )
+            .bind(session_id)
+            .fetch_optional(&mut *db_tx)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
+
+            if existing.is_some() {
+                // Already credited — return current balance without modifying
+                db_tx
+                    .rollback()
+                    .await
+                    .map_err(|e| AppError::Internal(e.into()))?;
+                let balance = self.get_or_create_balance(user_id, &currency).await?;
+                return Ok(balance.balance);
+            }
+        }
 
         // Upsert balance with atomic increment
         let new_balance: i64 = sqlx::query_scalar(
@@ -210,8 +246,8 @@ impl CreditRepository for PostgresCreditRepository {
             r#"
             INSERT INTO credit_transactions (id, user_id, amount, currency, tx_type,
                 deposit_session_id, privacy_note_id, idempotency_key, reference_type,
-                reference_id, hold_id, metadata, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                reference_id, hold_id, metadata, conversion_rate, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             "#,
         )
         .bind(tx.id)
@@ -226,6 +262,7 @@ impl CreditRepository for PostgresCreditRepository {
         .bind(tx.reference_id)
         .bind(tx.hold_id)
         .bind(&tx.metadata)
+        .bind(tx.conversion_rate)
         .bind(tx.created_at)
         .execute(&mut *db_tx)
         .await
@@ -304,8 +341,8 @@ impl CreditRepository for PostgresCreditRepository {
             r#"
             INSERT INTO credit_transactions (id, user_id, amount, currency, tx_type,
                 deposit_session_id, privacy_note_id, idempotency_key, reference_type,
-                reference_id, hold_id, metadata, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                reference_id, hold_id, metadata, conversion_rate, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             "#,
         )
         .bind(tx.id)
@@ -320,10 +357,21 @@ impl CreditRepository for PostgresCreditRepository {
         .bind(tx.reference_id)
         .bind(tx.hold_id)
         .bind(&tx.metadata)
+        .bind(tx.conversion_rate)
         .bind(tx.created_at)
         .execute(&mut *db_tx)
         .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        .map_err(|e| {
+            // M-21: Detect unique constraint violation (idempotency key or duplicate tx)
+            if let sqlx::Error::Database(ref db_err) = e {
+                if db_err.code().as_deref() == Some("23505") {
+                    return AppError::Validation(
+                        "Duplicate deduction (idempotency key already exists)".into(),
+                    );
+                }
+            }
+            AppError::Internal(e.into())
+        })?;
 
         db_tx
             .commit()
@@ -348,7 +396,7 @@ impl CreditRepository for PostgresCreditRepository {
         let mut sql = String::from(
             r#"SELECT id, user_id, amount, currency, tx_type, deposit_session_id,
                privacy_note_id, idempotency_key, reference_type, reference_id,
-               hold_id, metadata, created_at
+               hold_id, metadata, conversion_rate, created_at
                FROM credit_transactions
                WHERE user_id = $1"#,
         );
@@ -556,7 +604,7 @@ impl CreditRepository for PostgresCreditRepository {
             r#"
             SELECT id, user_id, amount, currency, tx_type, deposit_session_id,
                    privacy_note_id, idempotency_key, reference_type, reference_id,
-                   hold_id, metadata, created_at
+                   hold_id, metadata, conversion_rate, created_at
             FROM credit_transactions
             WHERE id = $1
             "#,
@@ -578,7 +626,7 @@ impl CreditRepository for PostgresCreditRepository {
             r#"
             SELECT id, user_id, amount, currency, tx_type, deposit_session_id,
                    privacy_note_id, idempotency_key, reference_type, reference_id,
-                   hold_id, metadata, created_at
+                   hold_id, metadata, conversion_rate, created_at
             FROM credit_transactions
             WHERE user_id = $1 AND idempotency_key = $2
             "#,

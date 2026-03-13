@@ -3,7 +3,6 @@
 //! Handles configurable fee deduction based on admin settings.
 //! Fee policies determine whether the company or user pays deposit fees.
 
-use std::convert::Infallible;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -25,16 +24,19 @@ pub enum FeePolicy {
 }
 
 impl FromStr for FeePolicy {
-    type Err = Infallible;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s.to_lowercase().as_str() {
-            "company_pays_all" => Self::CompanyPaysAll,
-            "user_pays_swap" => Self::UserPaysSwap,
-            "user_pays_privacy" => Self::UserPaysPrivacy,
-            "user_pays_all" => Self::UserPaysAll,
-            _ => Self::CompanyPaysAll,
-        })
+        match s.to_lowercase().as_str() {
+            "company_pays_all" => Ok(Self::CompanyPaysAll),
+            "user_pays_swap" => Ok(Self::UserPaysSwap),
+            "user_pays_privacy" => Ok(Self::UserPaysPrivacy),
+            "user_pays_all" => Ok(Self::UserPaysAll),
+            _ => Err(format!(
+                "Unrecognized fee policy '{}'. Valid: company_pays_all, user_pays_swap, user_pays_privacy, user_pays_all",
+                s
+            )),
+        }
     }
 }
 
@@ -139,7 +141,9 @@ impl DepositFeeService {
             .unwrap_or(0);
 
         Ok(FeeConfig {
-            policy: policy_str.parse::<FeePolicy>().unwrap(),
+            policy: policy_str
+                .parse::<FeePolicy>()
+                .map_err(|e| AppError::Config(e))?,
             privacy_fixed_lamports: privacy_fixed,
             privacy_percent_bps: privacy_bps,
             swap_fixed_lamports: swap_fixed,
@@ -167,20 +171,21 @@ impl DepositFeeService {
         let mut swap_fee: i64 = 0;
 
         if has_privacy {
-            // Privacy Cash fee = fixed + (amount * percent_bps / 10000)
-            let percent_fee = (amount_lamports as i64 * config.privacy_percent_bps as i64) / 10_000;
+            // R2-H03: Use u128 for intermediate multiply to prevent overflow
+            let percent_fee =
+                (amount_lamports as u128 * config.privacy_percent_bps as u128 / 10_000) as i64;
             privacy_fee = config.privacy_fixed_lamports as i64 + percent_fee;
         }
 
         if has_swap {
-            // Swap fee = fixed + (amount * percent_bps / 10000)
-            let percent_fee = (amount_lamports as i64 * config.swap_percent_bps as i64) / 10_000;
+            let percent_fee =
+                (amount_lamports as u128 * config.swap_percent_bps as u128 / 10_000) as i64;
             swap_fee = config.swap_fixed_lamports as i64 + percent_fee;
         }
 
         // Company fee is always calculated (but may be 0 if not configured)
         let company_percent_fee =
-            (amount_lamports as i64 * config.company_percent_bps as i64) / 10_000;
+            (amount_lamports as u128 * config.company_percent_bps as u128 / 10_000) as i64;
         let company_fee = config.company_fixed_lamports as i64 + company_percent_fee;
 
         CalculatedFees {
@@ -230,9 +235,9 @@ mod tests {
             "user_pays_all".parse::<FeePolicy>().unwrap(),
             FeePolicy::UserPaysAll
         );
-        assert_eq!(
-            "unknown".parse::<FeePolicy>().unwrap(),
-            FeePolicy::CompanyPaysAll
+        assert!(
+            "unknown".parse::<FeePolicy>().is_err(),
+            "Unknown fee policy should return error"
         );
     }
 

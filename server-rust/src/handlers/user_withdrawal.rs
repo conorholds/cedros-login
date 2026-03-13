@@ -105,10 +105,15 @@ fn validate_destination(destination: &str) -> Result<(), AppError> {
             "Invalid destination address length".into(),
         ));
     }
-    if bs58::decode(destination).into_vec().is_err() {
-        return Err(AppError::Validation(
-            "Invalid destination address (not valid base58)".into(),
-        ));
+    // L-03: Decode and verify 32-byte public key length
+    let bytes = bs58::decode(destination).into_vec().map_err(|_| {
+        AppError::Validation("Invalid destination address (not valid base58)".into())
+    })?;
+    if bytes.len() != 32 {
+        return Err(AppError::Validation(format!(
+            "Invalid destination address: expected 32 bytes, got {}",
+            bytes.len()
+        )));
     }
     Ok(())
 }
@@ -227,6 +232,11 @@ pub async fn withdraw_sol<C: AuthCallback, E: EmailService>(
         ));
     }
 
+    // R2-H01: Validate amount fits in i64 before any cast
+    let amount_i64 = i64::try_from(request.amount_lamports).map_err(|_| {
+        AppError::Validation("amount_lamports exceeds maximum allowed value".into())
+    })?;
+
     let (user_private_key, user_id) = reconstruct_key(&state, &headers).await?;
 
     let sidecar = state.privacy_sidecar_client.clone().ok_or_else(|| {
@@ -261,14 +271,23 @@ pub async fn withdraw_sol<C: AuthCallback, E: EmailService>(
             user_id,
             "sol",
             None,
-            request.amount_lamports as i64,
+            amount_i64,
             &request.destination,
             &result.tx_signature,
             result.fee_lamports,
         ))
         .await
     {
-        tracing::error!(error = %e, user_id = %user_id, "Failed to log user SOL withdrawal");
+        // M-11: Include full context for manual reconciliation
+        tracing::error!(
+            error = %e,
+            user_id = %user_id,
+            tx_signature = %result.tx_signature,
+            amount_lamports = request.amount_lamports,
+            destination = %request.destination,
+            fee_lamports = result.fee_lamports,
+            "WITHDRAWAL_LOG_FAILURE: SOL withdrawal succeeded but log write failed"
+        );
     }
 
     Ok(Json(WithdrawalResponse {
@@ -352,7 +371,17 @@ pub async fn withdraw_spl<C: AuthCallback, E: EmailService>(
         ))
         .await
     {
-        tracing::error!(error = %e, user_id = %user_id, "Failed to log user SPL withdrawal");
+        // M-11: Include full context for manual reconciliation
+        tracing::error!(
+            error = %e,
+            user_id = %user_id,
+            tx_signature = %result.tx_signature,
+            token_mint = %request.token_mint,
+            amount = %request.amount,
+            destination = %request.destination,
+            fee_lamports = result.fee_lamports,
+            "WITHDRAWAL_LOG_FAILURE: SPL withdrawal succeeded but log write failed"
+        );
     }
 
     Ok(Json(WithdrawalResponse {
