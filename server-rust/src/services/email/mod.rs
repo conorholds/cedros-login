@@ -89,49 +89,58 @@ pub trait EmailService: Send + Sync {
     /// Send an email
     async fn send(&self, email: Email) -> Result<(), AppError>;
 
-    /// Send verification email
+    /// Send verification email with optional custom subject
     async fn send_verification(
         &self,
         to: &str,
         data: VerificationEmailData,
+        subject_override: Option<&str>,
     ) -> Result<(), AppError> {
-        let email = templates::verification_email(to, data);
+        let email = templates::verification_email_with_subject(to, data, subject_override);
         self.send(email).await
     }
 
-    /// Send password reset email
+    /// Send password reset email with optional custom subject
     async fn send_password_reset(
         &self,
         to: &str,
         data: PasswordResetEmailData,
+        subject_override: Option<&str>,
     ) -> Result<(), AppError> {
-        let email = templates::password_reset_email(to, data);
+        let email = templates::password_reset_email_with_subject(to, data, subject_override);
         self.send(email).await
     }
 
-    /// Send invite email
-    async fn send_invite(&self, to: &str, data: InviteEmailData) -> Result<(), AppError> {
-        let email = templates::invite_email(to, data);
+    /// Send invite email with optional custom subject
+    async fn send_invite(
+        &self,
+        to: &str,
+        data: InviteEmailData,
+        subject_override: Option<&str>,
+    ) -> Result<(), AppError> {
+        let email = templates::invite_email_with_subject(to, data, subject_override);
         self.send(email).await
     }
 
-    /// Send instant link email for passwordless login
+    /// Send instant link email with optional custom subject
     async fn send_instant_link(
         &self,
         to: &str,
         data: InstantLinkEmailData,
+        subject_override: Option<&str>,
     ) -> Result<(), AppError> {
-        let email = templates::instant_link_email(to, data);
+        let email = templates::instant_link_email_with_subject(to, data, subject_override);
         self.send(email).await
     }
 
-    /// Send security alert email (new device login)
+    /// Send security alert email with optional custom subject
     async fn send_security_alert(
         &self,
         to: &str,
         data: SecurityAlertEmailData,
+        subject_override: Option<&str>,
     ) -> Result<(), AppError> {
-        let email = templates::security_alert_email(to, data);
+        let email = templates::security_alert_email_with_subject(to, data, subject_override);
         self.send(email).await
     }
 }

@@ -24,7 +24,7 @@ pub use deposits::{
     process_all_withdrawals, process_withdrawal,
 };
 pub use orgs::{get_org, list_orgs};
-pub use settings::{list_settings, update_settings};
+pub use settings::{list_settings, regenerate_setting, update_settings};
 pub use sso_providers::{
     create_sso_provider, delete_sso_provider, get_sso_provider, list_sso_providers,
     update_sso_provider,

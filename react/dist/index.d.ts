@@ -1150,7 +1150,7 @@ declare interface CustomTokenDefinition {
  * ```
  */
 /** Available dashboard sections */
-export declare type DashboardSection = 'users' | 'team' | 'deposits' | 'withdrawals' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-server';
+export declare type DashboardSection = 'users' | 'team' | 'deposits' | 'withdrawals' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-server' | 'settings-images';
 
 declare type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -3048,7 +3048,7 @@ export declare interface SettingMeta {
     /** Maximum allowed value */
     max?: number;
     /** Input type determines how the setting is rendered */
-    inputType: 'number' | 'duration' | 'percentage' | 'select' | 'text' | 'boolean' | 'secret' | 'tokenSymbolList' | 'tokenList';
+    inputType: 'number' | 'duration' | 'percentage' | 'select' | 'text' | 'boolean' | 'secret' | 'readonlySecret' | 'tokenSymbolList' | 'tokenList';
     /** Preset values for quick selection (used with 'select' or as suggestions) */
     presets?: SettingPreset[];
     /** Value threshold that triggers a warning */
@@ -4171,7 +4171,7 @@ export declare function useEmailAuth(): UseEmailAuthReturn;
 export declare interface UseEmailAuthReturn {
     /** Login - may return mfaRequired if 2FA is enabled */
     login: (email: string, password: string) => Promise<LoginResult>;
-    register: (email: string, password: string, name?: string) => Promise<AuthResponse>;
+    register: (email: string, password: string, name?: string, referral?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;
@@ -4666,7 +4666,7 @@ export declare function UserProfileSettings({ onPasswordChange, onClose, classNa
  * Allows users to:
  * - View their profile information
  * - Change their password
- * - (Future) Update name and picture when backend supports it
+ * - Upload a profile picture (avatar)
  */
 export declare interface UserProfileSettingsProps {
     /** Called when password is changed successfully */

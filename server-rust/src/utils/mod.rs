@@ -1,6 +1,7 @@
 //! Utility modules
 
 pub mod auth;
+pub mod image_processing;
 pub mod auto_enroll_wallet;
 pub mod converters;
 pub mod cookies;
@@ -12,6 +13,7 @@ pub mod tokens;
 pub mod validation;
 
 pub use auth::*;
+pub use image_processing::*;
 pub use auto_enroll_wallet::*;
 pub use converters::*;
 pub use cookies::*;

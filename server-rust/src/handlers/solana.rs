@@ -224,6 +224,7 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
+        referral: None,
     };
 
     let callback_data = if is_new_user {

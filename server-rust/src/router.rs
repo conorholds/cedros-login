@@ -188,6 +188,7 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
     let general_routes = general_routes::<C, E>();
     let credit_routes = credit_operations_routes::<C, E>();
 
+    // Apply 1MB body limit to standard routes, then merge upload route with 5MB limit
     let base_router = if state.config.rate_limit.enabled {
         auth_routes
             .layer(auth_rate_limit)
@@ -196,6 +197,19 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
     } else {
         auth_routes.merge(general_routes).merge(credit_routes)
     };
+
+    // Upload routes with larger body limit (5MB for avatar images)
+    let upload_routes: Router<Arc<AppState<C, E>>> = Router::new()
+        .route(
+            "/upload/avatar",
+            post(handlers::upload::upload_avatar::<C, E>),
+        )
+        .layer(RequestBodyLimitLayer::new(5 * 1024 * 1024));
+
+    // Standard routes get the default 1MB body limit; upload routes get 5MB
+    let base_router = base_router
+        .layer(RequestBodyLimitLayer::new(MAX_BODY_SIZE))
+        .merge(upload_routes);
 
     let base_path = state.config.server.auth_base_path.trim_end_matches('/');
     let base_path = if base_path.is_empty() { "/" } else { base_path };
@@ -250,8 +264,6 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
             header::STRICT_TRANSPORT_SECURITY,
             HeaderValue::from_static("max-age=31536000; includeSubDomains"),
         ))
-        // Request body size limit to prevent DoS
-        .layer(RequestBodyLimitLayer::new(MAX_BODY_SIZE))
         .with_state(state)
 }
 
@@ -564,6 +576,10 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route(
             "/admin/settings",
             get(handlers::list_settings::<C, E>).patch(handlers::update_settings::<C, E>),
+        )
+        .route(
+            "/admin/settings/regenerate/{key}",
+            post(handlers::regenerate_setting::<C, E>),
         )
         // Admin dashboard permissions routes (system admin)
         .route(

@@ -22,6 +22,9 @@ pub struct AuthCallbackPayload {
     pub session_id: String,
     pub ip_address: Option<String>,
     pub user_agent: Option<String>,
+    /// Referral code or metadata passed from the registration request.
+    /// Only present for email registration; None for OAuth/wallet/passkey flows.
+    pub referral: Option<String>,
 }
 
 /// Trait for handling authenticated user events.
@@ -84,6 +87,7 @@ mod tests {
             session_id: "test-session-id".to_string(),
             ip_address: Some("127.0.0.1".to_string()),
             user_agent: Some("TestAgent/1.0".to_string()),
+            referral: None,
         }
     }
 
@@ -155,6 +159,7 @@ mod tests {
             session_id: "solana-session".to_string(),
             ip_address: None,
             user_agent: None,
+            referral: None,
         };
 
         let json = serde_json::to_string(&payload).unwrap();
@@ -184,6 +189,7 @@ mod tests {
             session_id: "google-session".to_string(),
             ip_address: Some("10.0.0.1".to_string()),
             user_agent: Some("Chrome/120.0".to_string()),
+            referral: None,
         };
 
         let json = serde_json::to_string(&payload).unwrap();

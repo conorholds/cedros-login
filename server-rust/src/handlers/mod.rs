@@ -2,6 +2,7 @@
 
 pub mod admin;
 pub mod ai_discovery;
+pub mod upload;
 mod api_keys;
 mod apple;
 mod auth;
@@ -51,7 +52,8 @@ pub use admin::{
     list_orgs as list_admin_orgs, list_pending_withdrawals, list_settings, list_sso_providers,
     list_users, process_all_withdrawals, process_credit_refund_request, process_withdrawal,
     reject_credit_refund_request, revoke_treasury, set_system_admin, update_dashboard_permissions,
-    update_disposable_domains, update_settings, update_sso_provider, update_user,
+    regenerate_setting, update_disposable_domains, update_settings, update_sso_provider,
+    update_user,
 };
 pub use ai_discovery::{
     agent_json, agent_md, ai_discovery_index, ai_plugin_json, ai_txt, heartbeat_json, heartbeat_md,

@@ -121,6 +121,108 @@ fn preload_settings_cache(settings_service: &Arc<SettingsService>) {
     }
 }
 
+/// Auto-generate sidecar secrets in system_settings if they are empty.
+///
+/// Called during startup so a fresh deploy has working defaults.
+/// - `sidecar_api_key`: 32 random bytes, hex-encoded (64 chars)
+/// - `note_encryption_key`: 32 random bytes, base64-encoded
+fn auto_generate_sidecar_secrets(
+    repo: &Arc<dyn SystemSettingsRepository>,
+    encryption: &EncryptionService,
+) {
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    use rand::{rngs::OsRng, RngCore};
+
+    let Ok(handle) = tokio::runtime::Handle::try_current() else {
+        return;
+    };
+    if handle.runtime_flavor() != tokio::runtime::RuntimeFlavor::MultiThread {
+        return;
+    }
+
+    tokio::task::block_in_place(|| {
+        handle.block_on(async {
+            let keys_to_generate: Vec<(&str, Box<dyn Fn() -> String>)> = vec![
+                (
+                    "sidecar_api_key",
+                    Box::new(|| {
+                        let mut bytes = [0u8; 32];
+                        OsRng.fill_bytes(&mut bytes);
+                        hex::encode(bytes)
+                    }),
+                ),
+                (
+                    "note_encryption_key",
+                    Box::new(|| {
+                        let mut bytes = [0u8; 32];
+                        OsRng.fill_bytes(&mut bytes);
+                        STANDARD.encode(bytes)
+                    }),
+                ),
+            ];
+
+            for (key, generate) in keys_to_generate {
+                // Check current value
+                match repo.get_by_key(key).await {
+                    Ok(Some(setting)) if !setting.value.is_empty() => {
+                        tracing::debug!(key, "Sidecar secret already set, skipping auto-generation");
+                    }
+                    Ok(_) => {
+                        // Empty or not found — generate and persist
+                        let raw_value = generate();
+                        let encrypted_value = match encryption.encrypt(&raw_value) {
+                            Ok(v) => v,
+                            Err(e) => {
+                                tracing::error!(key, error = %e, "Failed to encrypt auto-generated sidecar secret");
+                                continue;
+                            }
+                        };
+                        let setting = repositories::SystemSetting {
+                            key: key.to_string(),
+                            value: encrypted_value,
+                            category: "privacy".to_string(),
+                            description: None,
+                            is_secret: true,
+                            encryption_version: Some("v1".to_string()),
+                            updated_at: chrono::Utc::now(),
+                            updated_by: None,
+                        };
+                        match repo.upsert_many(vec![setting]).await {
+                            Ok(_) => tracing::info!(key, "Auto-generated sidecar secret"),
+                            Err(e) => tracing::error!(key, error = %e, "Failed to persist auto-generated sidecar secret"),
+                        }
+                    }
+                    Err(e) => {
+                        tracing::warn!(key, error = %e, "Failed to check sidecar secret, skipping auto-generation");
+                    }
+                }
+            }
+        });
+    });
+}
+
+/// Read a sidecar secret from system_settings, decrypting it.
+/// Returns None if the key doesn't exist or is empty.
+fn read_sidecar_secret_sync(
+    settings_service: &Arc<SettingsService>,
+    key: &str,
+) -> Option<String> {
+    let Ok(handle) = tokio::runtime::Handle::try_current() else {
+        return None;
+    };
+    if handle.runtime_flavor() != tokio::runtime::RuntimeFlavor::MultiThread {
+        return None;
+    }
+    tokio::task::block_in_place(|| {
+        handle.block_on(async {
+            match settings_service.get_secret(key).await {
+                Ok(Some(v)) if !v.is_empty() => Some(v),
+                _ => None,
+            }
+        })
+    })
+}
+
 /// Application state shared across all handlers
 pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub config: Config,
@@ -228,6 +330,19 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
     let settings_service = Arc::new(SettingsService::new(storage.system_settings_repo.clone()));
     preload_settings_cache(&settings_service);
 
+    // Auto-generate sidecar secrets if empty (needs encryption_service first)
+    let encryption_service = EncryptionService::from_secret(&config.jwt.secret);
+    auto_generate_sidecar_secrets(&storage.system_settings_repo, &encryption_service);
+    // Refresh cache so newly generated secrets are available
+    preload_settings_cache(&settings_service);
+
+    // Create SettingsService with encryption for secret decryption
+    let settings_service = Arc::new(SettingsService::with_encryption(
+        storage.system_settings_repo.clone(),
+        encryption_service.clone(),
+    ));
+    preload_settings_cache(&settings_service);
+
     let jwt_service = JwtService::new(&config.jwt);
     let password_service = PasswordService::default();
     let google_service = GoogleService::new(&config.google);
@@ -258,7 +373,6 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         )
     });
     let oidc_service = OidcService::new(sso_callback_url);
-    let encryption_service = EncryptionService::from_secret(&config.jwt.secret);
 
     // Create CommsService for async email/notification delivery
     let base_url = config
@@ -270,18 +384,43 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
     let comms_service = CommsService::new(storage.outbox_repo.clone(), base_url, token_cipher);
 
     // Create privacy services if enabled
+    // Env vars take precedence; fall back to auto-generated values in system_settings
     let (privacy_sidecar_client, note_encryption_service) = if config.privacy.enabled {
         let mut errors = Vec::new();
 
-        let sidecar = match build_privacy_sidecar_client(&config) {
-            Ok(s) => Some(Arc::new(s)),
-            Err(e) => {
-                errors.push(format!("Failed to create privacy sidecar client: {}", e));
+        // Resolve sidecar API key: env var → system_settings
+        let resolved_api_key = config
+            .privacy
+            .sidecar_api_key
+            .clone()
+            .or_else(|| read_sidecar_secret_sync(&settings_service, "sidecar_api_key"));
+
+        let sidecar = match resolved_api_key {
+            Some(api_key) => match PrivacySidecarClient::new(SidecarClientConfig {
+                base_url: config.privacy.sidecar_url.clone(),
+                timeout_ms: config.privacy.sidecar_timeout_ms,
+                api_key,
+            }) {
+                Ok(s) => Some(Arc::new(s)),
+                Err(e) => {
+                    errors.push(format!("Failed to create privacy sidecar client: {}", e));
+                    None
+                }
+            },
+            None => {
+                errors.push("SIDECAR_API_KEY is required (env var or system_settings)".to_string());
                 None
             }
         };
 
-        let note_encryption = match config.privacy.note_encryption_key.as_ref() {
+        // Resolve note encryption key: env var → system_settings
+        let resolved_note_key = config
+            .privacy
+            .note_encryption_key
+            .clone()
+            .or_else(|| read_sidecar_secret_sync(&settings_service, "note_encryption_key"));
+
+        let note_encryption = match resolved_note_key.as_deref() {
             Some(key) => match decode_note_encryption_key(key) {
                 Ok(key_bytes) => match build_note_encryption_service(
                     &key_bytes,
@@ -299,7 +438,7 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
                 }
             },
             None => {
-                errors.push("note_encryption_key is required when privacy is enabled".to_string());
+                errors.push("note_encryption_key is required when privacy is enabled (env var or system_settings)".to_string());
                 None
             }
         };

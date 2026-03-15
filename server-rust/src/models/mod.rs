@@ -199,6 +199,10 @@ pub struct RegisterRequest {
     pub password: String,
     #[zeroize(skip)] // Skip zeroizing name (not sensitive)
     pub name: Option<String>,
+    /// Optional referral code or metadata from the host application.
+    /// Passed through to the AuthCallback for host-side processing.
+    #[zeroize(skip)]
+    pub referral: Option<String>,
 }
 
 /// Login request

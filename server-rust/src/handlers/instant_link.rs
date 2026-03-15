@@ -382,6 +382,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
+        referral: None,
     };
     let callback_data = if is_new_user {
         call_registered_callback_with_timeout(&state.callback, &payload).await

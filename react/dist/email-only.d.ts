@@ -620,7 +620,7 @@ export declare function useEmailAuth(): UseEmailAuthReturn;
 declare interface UseEmailAuthReturn {
     /** Login - may return mfaRequired if 2FA is enabled */
     login: (email: string, password: string) => Promise<LoginResult>;
-    register: (email: string, password: string, name?: string) => Promise<AuthResponse>;
+    register: (email: string, password: string, name?: string, referral?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;

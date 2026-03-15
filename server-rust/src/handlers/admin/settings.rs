@@ -2,8 +2,9 @@
 //!
 //! GET /admin/settings - Get all system settings grouped by category
 //! PATCH /admin/settings - Update multiple settings
+//! POST /admin/settings/regenerate/{key} - Regenerate a secret setting
 
-use axum::{extract::State, http::HeaderMap, Json};
+use axum::{extract::Path, extract::State, http::HeaderMap, Json};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -170,4 +171,84 @@ pub async fn update_settings<C: AuthCallback, E: EmailService>(
     let responses: Vec<SettingResponse> = updated.into_iter().map(Into::into).collect();
 
     Ok(Json(UpdateSettingsResponse { updated: responses }))
+}
+
+/// Keys that can be regenerated via the admin API
+const REGENERABLE_KEYS: &[&str] = &["sidecar_api_key", "note_encryption_key"];
+
+/// Response for POST /admin/settings/regenerate/{key}
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegenerateResponse {
+    pub key: String,
+    /// The new plaintext value (shown once for the admin to copy)
+    pub value: String,
+}
+
+/// POST /admin/settings/regenerate/{key} - Regenerate a secret setting
+///
+/// Generates a new random value for the specified secret key, encrypts and
+/// persists it, and returns the plaintext value for the admin to copy into
+/// deploy secrets.
+///
+/// Only whitelisted keys can be regenerated.
+pub async fn regenerate_setting<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+    Path(key): Path<String>,
+) -> Result<Json<RegenerateResponse>, AppError> {
+    let admin_id = validate_system_admin(&state, &headers).await?;
+
+    if !REGENERABLE_KEYS.contains(&key.as_str()) {
+        return Err(AppError::Validation(format!(
+            "Key '{}' cannot be regenerated. Allowed: {:?}",
+            key, REGENERABLE_KEYS
+        )));
+    }
+
+    // Generate new value
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    use rand::{rngs::OsRng, RngCore};
+
+    let raw_value = match key.as_str() {
+        "sidecar_api_key" => {
+            let mut bytes = [0u8; 32];
+            OsRng.fill_bytes(&mut bytes);
+            hex::encode(bytes)
+        }
+        "note_encryption_key" => {
+            let mut bytes = [0u8; 32];
+            OsRng.fill_bytes(&mut bytes);
+            STANDARD.encode(bytes)
+        }
+        _ => unreachable!(),
+    };
+
+    // Encrypt for storage
+    let encrypted_value = state.encryption_service.encrypt(&raw_value)?;
+
+    let setting = SystemSetting {
+        key: key.clone(),
+        value: encrypted_value,
+        category: "privacy".to_string(),
+        description: None,
+        is_secret: true,
+        encryption_version: Some("v1".to_string()),
+        updated_at: Utc::now(),
+        updated_by: Some(admin_id),
+    };
+
+    state.system_settings_repo.upsert_many(vec![setting]).await?;
+    state.settings_service.refresh().await?;
+
+    tracing::info!(
+        admin_id = %admin_id,
+        key = %key,
+        "Admin regenerated sidecar secret"
+    );
+
+    Ok(Json(RegenerateResponse {
+        key,
+        value: raw_value,
+    }))
 }

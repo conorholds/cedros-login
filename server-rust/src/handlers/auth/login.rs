@@ -567,6 +567,7 @@ async fn complete_login_flow<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
+        referral: None,
     };
     let callback_data =
         super::call_authenticated_callback_with_timeout(&state.callback, &payload).await;

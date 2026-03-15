@@ -46,6 +46,7 @@ mod email;
 mod encrypted_payload;
 mod encryption_service;
 mod google_service;
+mod image_storage;
 mod hold_expiration_worker;
 mod jupiter_swap_service;
 mod jwt_service;
@@ -95,6 +96,7 @@ pub use email::{
 pub(crate) use encrypted_payload::decrypt_base64_payload;
 pub use encryption_service::EncryptionService;
 pub use google_service::{GoogleService, GoogleTokenClaims};
+pub use image_storage::{ImageStorageService, S3ImageStorageConfig, S3ImageStorageService};
 pub use hold_expiration_worker::{HoldExpirationConfig, HoldExpirationWorker};
 pub use jupiter_swap_service::{
     ExecuteResult as JupiterExecuteResult, JupiterSwapService, OrderParams as JupiterOrderParams,

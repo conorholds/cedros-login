@@ -136,6 +136,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .clone()
         .unwrap_or_else(|| "http://localhost:3000".to_string());
     let token_cipher = TokenCipher::new(&config.jwt.secret);
+    // Create settings service for runtime-configurable values (from database)
+    let settings_service = Arc::new(cedros_login::services::SettingsService::new(
+        storage.system_settings_repo.clone(),
+    ));
+
     let outbox_worker_handle = OutboxWorker::new(
         storage.outbox_repo.clone(),
         email_service,
@@ -144,12 +149,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         base_url,
         token_cipher,
     )
+    .with_settings(settings_service.clone())
     .start(cancel_token.clone());
-
-    // Create settings service for runtime-configurable values (from database)
-    let settings_service = Arc::new(cedros_login::services::SettingsService::new(
-        storage.system_settings_repo.clone(),
-    ));
 
     // Refresh settings cache so runtime values are available immediately
     if let Err(e) = settings_service.refresh().await {

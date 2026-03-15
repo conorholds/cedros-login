@@ -354,6 +354,7 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
+        referral: req.referral.clone(),
     };
     let callback_data =
         super::call_registered_callback_with_timeout(&state.callback, &payload).await;

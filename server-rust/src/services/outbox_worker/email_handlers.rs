@@ -1,12 +1,26 @@
 //! Email event handlers for the outbox worker
 
+use std::sync::Arc;
+
 use crate::errors::AppError;
 use crate::repositories::{OutboxEvent, OutboxEventType};
 use crate::services::{
     EmailService, InstantLinkEmailData, InviteEmailData, PasswordResetEmailData,
-    SecurityAlertEmailData, VerificationEmailData,
+    SecurityAlertEmailData, SettingsService, VerificationEmailData,
 };
 use crate::utils::TokenCipher;
+
+/// Read a custom email subject from settings, returning None if empty or unavailable.
+async fn get_custom_subject(
+    settings: &Option<Arc<SettingsService>>,
+    key: &str,
+) -> Option<String> {
+    let ss = settings.as_ref()?;
+    match ss.get(key).await {
+        Ok(Some(v)) if !v.is_empty() => Some(v),
+        _ => None,
+    }
+}
 
 /// Process an email event
 pub async fn process_email_event(
@@ -14,22 +28,26 @@ pub async fn process_email_event(
     email_service: &dyn EmailService,
     base_url: &str,
     token_cipher: &TokenCipher,
+    settings: Option<Arc<SettingsService>>,
 ) -> Result<(), AppError> {
     match event.event_type {
         OutboxEventType::EmailVerification => {
-            process_verification_email(event, email_service, base_url, token_cipher).await
+            process_verification_email(event, email_service, base_url, token_cipher, &settings)
+                .await
         }
         OutboxEventType::EmailPasswordReset => {
-            process_password_reset_email(event, email_service, base_url, token_cipher).await
+            process_password_reset_email(event, email_service, base_url, token_cipher, &settings)
+                .await
         }
         OutboxEventType::EmailInvite => {
-            process_invite_email(event, email_service, base_url, token_cipher).await
+            process_invite_email(event, email_service, base_url, token_cipher, &settings).await
         }
         OutboxEventType::EmailInstantLink => {
-            process_instant_link_email(event, email_service, base_url, token_cipher).await
+            process_instant_link_email(event, email_service, base_url, token_cipher, &settings)
+                .await
         }
         OutboxEventType::EmailSecurityAlert => {
-            process_security_alert_email(event, email_service).await
+            process_security_alert_email(event, email_service, &settings).await
         }
         _ => Err(AppError::Internal(anyhow::anyhow!(
             "Unknown email event type: {}",
@@ -43,6 +61,7 @@ async fn process_verification_email(
     email_service: &dyn EmailService,
     base_url: &str,
     token_cipher: &TokenCipher,
+    settings: &Option<Arc<SettingsService>>,
 ) -> Result<(), AppError> {
     let to = event.payload["to"]
         .as_str()
@@ -65,7 +84,10 @@ async fn process_verification_email(
         expires_in_hours: event.payload["expires_in_hours"].as_u64().unwrap_or(24) as u32,
     };
 
-    email_service.send_verification(to, data).await
+    let subject = get_custom_subject(settings, "email_subject_verification").await;
+    email_service
+        .send_verification(to, data, subject.as_deref())
+        .await
 }
 
 async fn process_password_reset_email(
@@ -73,6 +95,7 @@ async fn process_password_reset_email(
     email_service: &dyn EmailService,
     base_url: &str,
     token_cipher: &TokenCipher,
+    settings: &Option<Arc<SettingsService>>,
 ) -> Result<(), AppError> {
     let to = event.payload["to"]
         .as_str()
@@ -105,7 +128,10 @@ async fn process_password_reset_email(
         has_password,
     };
 
-    email_service.send_password_reset(to, data).await
+    let subject = get_custom_subject(settings, "email_subject_password_reset").await;
+    email_service
+        .send_password_reset(to, data, subject.as_deref())
+        .await
 }
 
 async fn process_invite_email(
@@ -113,6 +139,7 @@ async fn process_invite_email(
     email_service: &dyn EmailService,
     base_url: &str,
     token_cipher: &TokenCipher,
+    settings: &Option<Arc<SettingsService>>,
 ) -> Result<(), AppError> {
     let to = event.payload["to"]
         .as_str()
@@ -143,7 +170,10 @@ async fn process_invite_email(
         expires_in_days: event.payload["expires_in_days"].as_u64().unwrap_or(7) as u32,
     };
 
-    email_service.send_invite(to, data).await
+    let subject = get_custom_subject(settings, "email_subject_invite").await;
+    email_service
+        .send_invite(to, data, subject.as_deref())
+        .await
 }
 
 async fn process_instant_link_email(
@@ -151,6 +181,7 @@ async fn process_instant_link_email(
     email_service: &dyn EmailService,
     base_url: &str,
     token_cipher: &TokenCipher,
+    settings: &Option<Arc<SettingsService>>,
 ) -> Result<(), AppError> {
     let to = event.payload["to"]
         .as_str()
@@ -173,12 +204,16 @@ async fn process_instant_link_email(
         expires_in_minutes: event.payload["expires_in_minutes"].as_u64().unwrap_or(15) as u32,
     };
 
-    email_service.send_instant_link(to, data).await
+    let subject = get_custom_subject(settings, "email_subject_instant_link").await;
+    email_service
+        .send_instant_link(to, data, subject.as_deref())
+        .await
 }
 
 async fn process_security_alert_email(
     event: &OutboxEvent,
     email_service: &dyn EmailService,
+    settings: &Option<Arc<SettingsService>>,
 ) -> Result<(), AppError> {
     let to = event.payload["to"]
         .as_str()
@@ -197,5 +232,8 @@ async fn process_security_alert_email(
         action_url: event.payload["action_url"].as_str().map(String::from),
     };
 
-    email_service.send_security_alert(to, data).await
+    let subject = get_custom_subject(settings, "email_subject_security_alert").await;
+    email_service
+        .send_security_alert(to, data, subject.as_deref())
+        .await
 }

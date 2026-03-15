@@ -20,12 +20,19 @@ pub fn escape_html(s: &str) -> String {
         .collect()
 }
 
-/// Generate verification email
-pub fn verification_email(to: &str, data: VerificationEmailData) -> Email {
+/// Generate verification email with optional custom subject
+pub fn verification_email_with_subject(
+    to: &str,
+    data: VerificationEmailData,
+    subject_override: Option<&str>,
+) -> Email {
     let name = escape_html(data.user_name.as_deref().unwrap_or("there"));
     Email {
         to: to.to_string(),
-        subject: "Verify your email address".to_string(),
+        subject: subject_override
+            .filter(|s| !s.is_empty())
+            .unwrap_or("Verify your email address")
+            .to_string(),
         html_body: format!(
             r#"<!DOCTYPE html>
 <html>
@@ -59,7 +66,12 @@ pub fn verification_email(to: &str, data: VerificationEmailData) -> Email {
 /// - has_password=true  → "Reset your password" heading + reset CTA
 /// - has_password=false → "Access your account" heading + reset CTA (to set a password)
 /// - instant_link_url   → secondary "Or just sign in" CTA
-pub fn password_reset_email(to: &str, data: PasswordResetEmailData) -> Email {
+/// Generate password reset email with optional custom subject
+pub fn password_reset_email_with_subject(
+    to: &str,
+    data: PasswordResetEmailData,
+    subject_override: Option<&str>,
+) -> Email {
     let name = escape_html(data.user_name.as_deref().unwrap_or("there"));
 
     let (heading, subject, intro, cta_label) = if data.has_password {
@@ -94,9 +106,13 @@ pub fn password_reset_email(to: &str, data: PasswordResetEmailData) -> Email {
         String::new()
     };
 
+    let final_subject = subject_override
+        .filter(|s| !s.is_empty())
+        .unwrap_or(subject);
+
     Email {
         to: to.to_string(),
-        subject: subject.to_string(),
+        subject: final_subject.to_string(),
         html_body: format!(
             r#"<!DOCTYPE html>
 <html>
@@ -127,14 +143,22 @@ pub fn password_reset_email(to: &str, data: PasswordResetEmailData) -> Email {
     }
 }
 
-/// Generate invite email
-pub fn invite_email(to: &str, data: InviteEmailData) -> Email {
+/// Generate invite email with optional custom subject
+pub fn invite_email_with_subject(
+    to: &str,
+    data: InviteEmailData,
+    subject_override: Option<&str>,
+) -> Email {
     let inviter = escape_html(data.inviter_name.as_deref().unwrap_or("Someone"));
     let org_name = escape_html(&data.org_name);
     let role = escape_html(&data.role);
+    let default_subject = format!("You've been invited to join {}", data.org_name);
     Email {
         to: to.to_string(),
-        subject: format!("You've been invited to join {}", data.org_name),
+        subject: subject_override
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_string())
+            .unwrap_or(default_subject),
         html_body: format!(
             r#"<!DOCTYPE html>
 <html>
@@ -162,12 +186,19 @@ pub fn invite_email(to: &str, data: InviteEmailData) -> Email {
     }
 }
 
-/// Generate instant link email
-pub fn instant_link_email(to: &str, data: InstantLinkEmailData) -> Email {
+/// Generate instant link email with optional custom subject
+pub fn instant_link_email_with_subject(
+    to: &str,
+    data: InstantLinkEmailData,
+    subject_override: Option<&str>,
+) -> Email {
     let name = escape_html(data.user_name.as_deref().unwrap_or("there"));
     Email {
         to: to.to_string(),
-        subject: "Your sign-in link".to_string(),
+        subject: subject_override
+            .filter(|s| !s.is_empty())
+            .unwrap_or("Your sign-in link")
+            .to_string(),
         html_body: format!(
             r#"<!DOCTYPE html>
 <html>
@@ -195,8 +226,12 @@ pub fn instant_link_email(to: &str, data: InstantLinkEmailData) -> Email {
     }
 }
 
-/// Generate security alert email
-pub fn security_alert_email(to: &str, data: SecurityAlertEmailData) -> Email {
+/// Generate security alert email with optional custom subject
+pub fn security_alert_email_with_subject(
+    to: &str,
+    data: SecurityAlertEmailData,
+    subject_override: Option<&str>,
+) -> Email {
     let name = escape_html(data.user_name.as_deref().unwrap_or("there"));
     let ip = escape_html(data.ip_address.as_deref().unwrap_or("Unknown"));
     let device = escape_html(data.device.as_deref().unwrap_or("Unknown device"));
@@ -217,7 +252,10 @@ pub fn security_alert_email(to: &str, data: SecurityAlertEmailData) -> Email {
 
     Email {
         to: to.to_string(),
-        subject: "New sign-in to your account".to_string(),
+        subject: subject_override
+            .filter(|s| !s.is_empty())
+            .unwrap_or("New sign-in to your account")
+            .to_string(),
         html_body: format!(
             r#"<!DOCTYPE html>
 <html>

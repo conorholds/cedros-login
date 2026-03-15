@@ -51,7 +51,7 @@ async fn test_log_email_service_verification() {
     };
 
     service
-        .send_verification("john@example.com", data)
+        .send_verification("john@example.com", data, None)
         .await
         .unwrap();
 
@@ -75,7 +75,7 @@ async fn test_log_email_service_password_reset() {
     };
 
     service
-        .send_password_reset("user@example.com", data)
+        .send_password_reset("user@example.com", data, None)
         .await
         .unwrap();
 
@@ -134,7 +134,7 @@ async fn test_log_email_service_security_alert() {
     };
 
     service
-        .send_security_alert("jane@example.com", data)
+        .send_security_alert("jane@example.com", data, None)
         .await
         .unwrap();
 
@@ -165,7 +165,7 @@ async fn test_log_email_service_security_alert_minimal() {
     };
 
     service
-        .send_security_alert("user@example.com", data)
+        .send_security_alert("user@example.com", data, None)
         .await
         .unwrap();
 

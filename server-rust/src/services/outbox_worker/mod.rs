@@ -28,7 +28,9 @@ use tracing::{debug, error, info, warn};
 
 use crate::errors::AppError;
 use crate::repositories::{OutboxEvent, OutboxRepository};
-use crate::services::{AdminNotification, EmailService, NotificationService, NotificationSeverity};
+use crate::services::{
+    AdminNotification, EmailService, NotificationService, NotificationSeverity, SettingsService,
+};
 use crate::utils::TokenCipher;
 
 use email_handlers::process_email_event;
@@ -90,6 +92,7 @@ pub struct OutboxWorker {
     config: OutboxWorkerConfig,
     base_url: String,
     token_cipher: TokenCipher,
+    settings_service: Option<Arc<SettingsService>>,
 }
 
 impl OutboxWorker {
@@ -108,7 +111,14 @@ impl OutboxWorker {
             config,
             base_url,
             token_cipher,
+            settings_service: None,
         }
+    }
+
+    /// Set the settings service for reading custom email subjects
+    pub fn with_settings(mut self, settings_service: Arc<SettingsService>) -> Self {
+        self.settings_service = Some(settings_service);
+        self
     }
 
     /// Start the worker as a background task with graceful shutdown support
@@ -233,6 +243,7 @@ impl OutboxWorker {
                     self.email_service.as_ref(),
                     &self.base_url,
                     &self.token_cipher,
+                    self.settings_service.clone(),
                 ),
             )
             .await
