@@ -164,16 +164,21 @@ pub async fn get_user<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::NotFound("User not found".into()))?;
 
-    let balance = state
-        .credit_repo
-        .get_balance(user_id, "SOL")
-        .await
-        .map_err(|e| {
-            tracing::error!(error = %e, user_id = %user_id, "Failed to fetch admin user balance");
-            e
-        })?;
+    let (balance, referral_count) = tokio::join!(
+        state.credit_repo.get_balance(user_id, "SOL"),
+        state.user_repo.count_referrals(user_id)
+    );
+    let balance = balance.map_err(|e| {
+        tracing::error!(error = %e, user_id = %user_id, "Failed to fetch admin user balance");
+        e
+    })?;
+    let referral_count = referral_count.unwrap_or(0);
 
-    Ok(Json(AdminUserResponse::from(&user).with_balance(balance)))
+    Ok(Json(
+        AdminUserResponse::from(&user)
+            .with_balance(balance)
+            .with_referral_count(referral_count),
+    ))
 }
 
 /// PATCH /admin/users/:user_id/system-admin - Set system admin status
@@ -689,6 +694,76 @@ pub async fn get_user_stats<C: AuthCallback, E: EmailService>(
     }))
 }
 
+/// A single referred-user entry for the referral network response.
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReferredUserItem {
+    pub id: uuid::Uuid,
+    pub email: Option<String>,
+    pub name: Option<String>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub last_login_at: Option<chrono::DateTime<chrono::Utc>>,
+}
+
+/// Response for GET /admin/users/:user_id/referrals
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AdminReferredUsersResponse {
+    pub users: Vec<ReferredUserItem>,
+    pub total: u64,
+    pub limit: u32,
+    pub offset: u32,
+}
+
+/// GET /admin/users/:user_id/referrals - List users referred by this user
+///
+/// Requires system admin privileges.
+/// Returns paginated list of users whose `referred_by` matches `user_id`.
+pub async fn get_user_referrals<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+    Path(user_id): Path<uuid::Uuid>,
+    Query(params): Query<ListUsersQueryParams>,
+) -> Result<Json<AdminReferredUsersResponse>, AppError> {
+    validate_system_admin(&state, &headers).await?;
+
+    // Verify the target user exists
+    state
+        .user_repo
+        .find_by_id(user_id)
+        .await?
+        .ok_or(AppError::NotFound("User not found".into()))?;
+
+    let limit = cap_limit(params.limit).min(100);
+    let offset = cap_offset(params.offset);
+
+    let (users_result, total_result) = tokio::join!(
+        state.user_repo.find_referred_by(user_id, limit, offset),
+        state.user_repo.count_referred_by(user_id)
+    );
+
+    let users = users_result?;
+    let total = total_result?;
+
+    let items = users
+        .iter()
+        .map(|u| ReferredUserItem {
+            id: u.id,
+            email: u.email.clone(),
+            name: u.name.clone(),
+            created_at: u.created_at,
+            last_login_at: u.last_login_at,
+        })
+        .collect();
+
+    Ok(Json(AdminReferredUsersResponse {
+        users: items,
+        total,
+        limit,
+        offset,
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -848,6 +923,13 @@ mod tests {
                     "USDC".to_string(),
                 ))
             },
+            referral_payout_repo: storage.referral_payout_repo.clone(),
+            referral_code_history_repo: storage.referral_code_history_repo.clone(),
+            kyc_service: None,
+            accreditation_service: None,
+            sanctions_service: std::sync::Arc::new(
+                crate::services::SanctionsService::new(settings_service.clone()),
+            ),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,
@@ -878,6 +960,15 @@ mod tests {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 

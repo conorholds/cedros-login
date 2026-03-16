@@ -196,13 +196,13 @@ impl TransactionalOps {
             INSERT INTO users (id, email, email_verified, password_hash, name, username, picture,
                               wallet_address, google_id, apple_id, stripe_customer_id,
                               auth_methods, is_system_admin, created_at, updated_at, last_login_at,
-                              welcome_completed_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14, $15, $16)
+                              welcome_completed_at, referral_code, referred_by)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14, $15, $16, $17, $18)
             ON CONFLICT (email) DO NOTHING
             RETURNING id, email, email_verified, password_hash, name, username, picture,
                       wallet_address, google_id, apple_id, stripe_customer_id,
                       auth_methods, is_system_admin, created_at, updated_at, last_login_at,
-                      welcome_completed_at
+                      welcome_completed_at, referral_code, referred_by, payout_wallet_address
             "#,
         )
         .bind(user.id)
@@ -221,6 +221,8 @@ impl TransactionalOps {
         .bind(now)
         .bind(user.last_login_at)
         .bind(user.welcome_completed_at)
+        .bind(&user.referral_code)
+        .bind(user.referred_by)
         .fetch_optional(&mut *tx)
         .await;
 
@@ -324,6 +326,15 @@ impl TransactionalOps {
             updated_at: user_row.updated_at,
             last_login_at: user_row.last_login_at,
             welcome_completed_at: user_row.welcome_completed_at,
+            referral_code: user_row.referral_code,
+            referred_by: user_row.referred_by,
+            payout_wallet_address: user_row.payout_wallet_address,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
 
         let membership = MembershipEntity {
@@ -437,6 +448,9 @@ struct UserRow {
     updated_at: chrono::DateTime<chrono::Utc>,
     last_login_at: Option<chrono::DateTime<chrono::Utc>>,
     welcome_completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    referral_code: String,
+    referred_by: Option<uuid::Uuid>,
+    payout_wallet_address: Option<String>,
 }
 
 #[cfg(test)]

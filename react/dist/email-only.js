@@ -1,6 +1,6 @@
-import { C as s, u as a } from "./useAuth-C-Vw-ggy.js";
+import { C as s, u as a } from "./useAuth-l-itM5am.js";
 import { u as i } from "./useCedrosLogin-CFfID-0i.js";
-import { E as t, a as u, P as p, u as d } from "./EmailRegisterForm-CMXsa-_r.js";
+import { E as t, a as u, P as p, u as d } from "./EmailRegisterForm-p2X5QP58.js";
 import { L as f } from "./LoadingSpinner-6vml-zwr.js";
 import { E as x } from "./ErrorMessage-CcEK0pYO.js";
 import { v as L } from "./validation-B8kMV3BL.js";

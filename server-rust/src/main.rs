@@ -14,8 +14,8 @@ use cedros_login::services::{
 };
 use cedros_login::utils::TokenCipher;
 use cedros_login::{
-    create_micro_batch_worker, create_withdrawal_worker, router_with_storage, Config, NoopCallback,
-    Storage,
+    create_micro_batch_worker, create_referral_payout_worker, create_withdrawal_worker,
+    router_with_storage, Config, NoopCallback, Storage,
 };
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -176,6 +176,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         info!("Withdrawal worker started for Privacy Cash deposits");
     }
 
+    // Start referral payout worker for automated on-chain referral payouts (if enabled)
+    let referral_payout_worker_handle = create_referral_payout_worker(
+        &config,
+        &storage,
+        settings_service.clone(),
+        cancel_token.clone(),
+    );
+    if referral_payout_worker_handle.is_some() {
+        info!("Referral payout worker started for automated payouts");
+    }
+
     // Start micro batch worker for SOL micro deposits (if enabled)
     let micro_batch_worker_handle =
         create_micro_batch_worker(&config, &storage, settings_service, cancel_token.clone());
@@ -217,6 +228,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .is_err()
         {
             info!("Withdrawal worker shutdown timed out");
+        }
+    }
+
+    // Wait for referral payout worker to finish (if running)
+    if let Some(handle) = referral_payout_worker_handle {
+        if tokio::time::timeout(shutdown_timeout, handle)
+            .await
+            .is_err()
+        {
+            info!("Referral payout worker shutdown timed out");
         }
     }
 

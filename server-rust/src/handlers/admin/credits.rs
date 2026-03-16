@@ -336,6 +336,13 @@ mod tests {
                     "USDC".to_string(),
                 ))
             },
+            referral_payout_repo: storage.referral_payout_repo.clone(),
+            referral_code_history_repo: storage.referral_code_history_repo.clone(),
+            kyc_service: None,
+            accreditation_service: None,
+            sanctions_service: std::sync::Arc::new(
+                crate::services::SanctionsService::new(settings_service.clone()),
+            ),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,
@@ -364,6 +371,15 @@ mod tests {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 
@@ -394,6 +410,15 @@ mod tests {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         user.id
@@ -454,6 +479,15 @@ mod tests {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         let api_key = generate_api_key();

@@ -3,6 +3,8 @@
 pub mod admin;
 pub mod ai_discovery;
 pub mod upload;
+mod accreditation;
+mod kyc;
 mod api_keys;
 mod apple;
 mod auth;
@@ -47,13 +49,16 @@ pub use admin::{
     force_password_reset, get_credit_stats, get_dashboard_permissions, get_deposit_stats,
     get_disposable_domains, get_org as get_admin_org, get_org_audit_logs, get_privacy_status,
     get_sso_provider, get_system_audit_logs, get_treasury, get_user as get_admin_user,
-    get_user_credits, get_user_deposits, get_user_stats, get_user_withdrawal_history,
-    list_admin_deposits, list_credit_refund_requests, list_in_privacy_period,
-    list_orgs as list_admin_orgs, list_pending_withdrawals, list_settings, list_sso_providers,
-    list_users, process_all_withdrawals, process_credit_refund_request, process_withdrawal,
-    reject_credit_refund_request, revoke_treasury, set_system_admin, update_dashboard_permissions,
-    regenerate_setting, update_disposable_domains, update_settings, update_sso_provider,
-    update_user,
+    get_referral_stats, get_sanctions_stats, get_user_credits, get_user_deposits,
+    get_user_referrals, get_user_stats,
+    get_user_withdrawal_history, list_admin_deposits, list_credit_refund_requests,
+    list_in_privacy_period, list_orgs as list_admin_orgs, list_pending_withdrawals,
+    cancel_payout, list_all_payouts, list_referral_payouts, list_settings, list_sso_providers,
+    list_users, process_all_withdrawals, process_credit_refund_request,
+    process_referral_payouts, process_single_payout, process_withdrawal, retry_failed_payouts,
+    refresh_sanctions, reject_credit_refund_request, revoke_treasury,
+    set_system_admin, update_dashboard_permissions, regenerate_setting, update_disposable_domains,
+    update_settings, update_sso_provider, update_user,
 };
 pub use ai_discovery::{
     agent_json, agent_md, ai_discovery_index, ai_plugin_json, ai_txt, heartbeat_json, heartbeat_md,
@@ -67,8 +72,8 @@ pub use api_keys::{
 };
 pub use apple::apple_auth;
 pub use auth::{
-    complete_mfa_login, get_user, login, logout, logout_all, refresh, register, update_profile,
-    welcome_completed,
+    complete_mfa_login, get_referral, get_user, login, logout, logout_all, refresh,
+    regenerate_referral, register, set_referral_code, update_profile, welcome_completed,
 };
 pub use authorize::{authorize, get_permissions};
 pub use credentials::{list_credentials, unlink_credential, update_credential};
@@ -109,7 +114,9 @@ pub use sessions::{list_sessions, revoke_all_sessions};
 pub use setup::{create_first_admin, setup_status};
 pub use solana::{solana_auth, solana_challenge};
 pub use sso::{sso_callback, start_sso};
-pub use user_lookup::{link_stripe_customer, lookup_by_stripe_customer, lookup_by_wallet};
+pub use user_lookup::{
+    get_user_compliance, link_stripe_customer, lookup_by_stripe_customer, lookup_by_wallet,
+};
 pub use user_withdrawal::{withdraw_balances, withdraw_history, withdraw_sol, withdraw_spl};
 pub use wallet::{
     acknowledge_recovery, create_derived_wallet, delete_derived_wallet, get_pending_recovery,
@@ -126,3 +133,11 @@ pub use webauthn_signup::{
     signup_options as webauthn_signup_options, signup_verify as webauthn_signup_verify,
 };
 pub use webhook::handle_deposit_webhook;
+pub use kyc::{get_user_kyc, handle_kyc_webhook, kyc_status, override_kyc_status, start_kyc};
+pub use accreditation::{
+    accreditation_status, submit_accreditation, upload_accreditation_document,
+    list_accreditation_submissions, list_pending_accreditations, get_user_accreditation,
+    get_accreditation_submission, review_accreditation,
+    override_accreditation_status as override_accreditation,
+    get_document_presigned_url,
+};

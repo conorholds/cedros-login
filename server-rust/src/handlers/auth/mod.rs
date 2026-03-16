@@ -1,11 +1,13 @@
 //! Authentication handlers for email/password flow
 
 mod login;
+mod referral;
 mod refresh;
 mod register;
 mod session;
 
 pub use login::{complete_mfa_login, login};
+pub use referral::{get_referral, regenerate_referral, set_referral_code};
 pub use refresh::refresh;
 pub use register::register;
 pub use session::{get_user, logout, logout_all, update_profile, welcome_completed};
@@ -170,6 +172,8 @@ mod tests {
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 welcome_completed_at: None,
+                referral_code: None,
+                payout_wallet_address: None,
             },
             method: crate::models::AuthMethod::Email,
             is_new_user: false,

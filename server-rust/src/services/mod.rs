@@ -31,6 +31,7 @@
 //! - Use `metrics::describe_*` for metric documentation
 //! - Add `/metrics` endpoint in router for scraping
 
+mod accreditation_service;
 mod apple_service;
 mod audit_service;
 mod authorization_service;
@@ -47,6 +48,8 @@ mod encrypted_payload;
 mod encryption_service;
 mod google_service;
 mod image_storage;
+pub(crate) mod kyc_stripe;
+mod kyc_service;
 mod hold_expiration_worker;
 mod jupiter_swap_service;
 mod jwt_service;
@@ -60,7 +63,11 @@ pub mod oidc_service;
 mod outbox_worker;
 mod password_service;
 mod policy_service;
+pub mod payout_transfer;
+pub(crate) mod referral_reward_service;
+mod referral_payout_worker;
 mod privacy_sidecar_client;
+mod sanctions_service;
 mod settings_service;
 mod sidecar_types;
 mod sol_price_service;
@@ -72,6 +79,10 @@ mod wallet_unlock_cache;
 pub mod webauthn_service;
 mod withdrawal_worker;
 
+pub use accreditation_service::{
+    AccreditationService, AccreditationStatusResponse, SubmitAccreditationData,
+    SubmitAccreditationResponse,
+};
 pub use apple_service::{AppleService, AppleTokenClaims};
 pub use audit_service::AuditService;
 pub use authorization_service::{
@@ -97,6 +108,7 @@ pub(crate) use encrypted_payload::decrypt_base64_payload;
 pub use encryption_service::EncryptionService;
 pub use google_service::{GoogleService, GoogleTokenClaims};
 pub use image_storage::{ImageStorageService, S3ImageStorageConfig, S3ImageStorageService};
+pub use kyc_service::{KycService, KycStartResponse, KycStatusResponse};
 pub use hold_expiration_worker::{HoldExpirationConfig, HoldExpirationWorker};
 pub use jupiter_swap_service::{
     ExecuteResult as JupiterExecuteResult, JupiterSwapService, OrderParams as JupiterOrderParams,
@@ -127,6 +139,7 @@ pub use privacy_sidecar_client::{
     BalanceResponse as SidecarBalanceResponse, DepositResponse as SidecarDepositResponse,
     PrivacySidecarClient, SidecarClientConfig, WithdrawResponse as SidecarWithdrawResponse,
 };
+pub use sanctions_service::{SanctionsService, SanctionsStats};
 pub use settings_service::SettingsService;
 pub use sol_price_service::SolPriceService;
 pub use solana_service::SolanaService;
@@ -141,4 +154,5 @@ pub use wallet_unlock_cache::{
     create_wallet_unlock_cache, WalletUnlockCache, WalletUnlockCacheConfig,
 };
 pub use webauthn_service::WebAuthnService;
+pub use referral_payout_worker::ReferralPayoutWorker;
 pub use withdrawal_worker::{WithdrawalWorker, WithdrawalWorkerConfig};

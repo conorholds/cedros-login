@@ -92,6 +92,16 @@ pub fn validate_email_ascii_local(email: &str) -> Result<(), crate::errors::AppE
     Ok(())
 }
 
+/// Generate a unique 8-character referral code (uppercase A-Z0-9).
+pub fn generate_referral_code() -> String {
+    use rand::Rng;
+    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let mut rng = rand::thread_rng();
+    (0..8)
+        .map(|_| CHARSET[rng.gen_range(0..CHARSET.len())] as char)
+        .collect()
+}
+
 /// User entity for storage
 #[derive(Debug, Clone)]
 pub struct UserEntity {
@@ -114,6 +124,24 @@ pub struct UserEntity {
     pub last_login_at: Option<DateTime<Utc>>,
     /// When the user completed the one-time welcome flow
     pub welcome_completed_at: Option<DateTime<Utc>>,
+    /// Unique referral code for this user
+    pub referral_code: String,
+    /// ID of the user who referred this user
+    pub referred_by: Option<Uuid>,
+    /// Solana wallet address for direct referral payouts
+    pub payout_wallet_address: Option<String>,
+    /// KYC verification status: none, pending, verified, failed, expired
+    pub kyc_status: String,
+    /// When KYC verification was completed
+    pub kyc_verified_at: Option<DateTime<Utc>>,
+    /// When KYC verification expires (None = never)
+    pub kyc_expires_at: Option<DateTime<Utc>>,
+    /// Accredited investor verification status: none, pending, approved, rejected, expired
+    pub accreditation_status: String,
+    /// When accreditation was approved
+    pub accreditation_verified_at: Option<DateTime<Utc>>,
+    /// When accreditation expires
+    pub accreditation_expires_at: Option<DateTime<Utc>>,
 }
 
 impl UserEntity {
@@ -138,6 +166,15 @@ impl UserEntity {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: generate_referral_code(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         }
     }
 }
@@ -227,6 +264,86 @@ pub trait UserRepository: Send + Sync {
 
     /// Set a user's username
     async fn set_username(&self, id: Uuid, username: &str) -> Result<(), AppError>;
+
+    /// Find a user by referral code
+    async fn find_by_referral_code(&self, code: &str) -> Result<Option<UserEntity>, AppError>;
+
+    /// Count how many users were referred by the given user
+    async fn count_referrals(&self, user_id: Uuid) -> Result<u64, AppError>;
+
+    /// Regenerate a user's referral code, returning the new code
+    async fn regenerate_referral_code(&self, id: Uuid) -> Result<String, AppError>;
+
+    /// Set a custom vanity referral code for a user.
+    ///
+    /// Inputs: `id` — user UUID, `code` — 4–16 uppercase alphanumeric characters.
+    ///
+    /// # Errors
+    /// - `AppError::NotFound` if the user does not exist.
+    /// - `AppError::Validation` if `code` is already held by a different user.
+    /// - `AppError::Internal` on storage failures.
+    async fn set_referral_code(&self, id: Uuid, code: &str) -> Result<(), AppError>;
+
+    /// Set the payout wallet address for direct referral payouts.
+    ///
+    /// Pass `None` to clear the address.
+    async fn set_payout_wallet_address(
+        &self,
+        id: Uuid,
+        address: Option<&str>,
+    ) -> Result<(), AppError>;
+
+    /// Count total users who were referred (i.e. `referred_by IS NOT NULL`).
+    async fn count_referred(&self) -> Result<u64, AppError>;
+
+    /// Count users referred on or after the given timestamp.
+    async fn count_referred_since(&self, since: DateTime<Utc>) -> Result<u64, AppError>;
+
+    /// Return top `limit` users ordered by how many users they have referred.
+    ///
+    /// Each entry contains the referrer's id, email, name, referral_code, and referral_count.
+    async fn top_referrers(&self, limit: u32) -> Result<Vec<TopReferrerRow>, AppError>;
+
+    /// List users directly referred by `referrer_id`, with pagination.
+    ///
+    /// Results are ordered by `created_at DESC` (most recently joined first).
+    async fn find_referred_by(
+        &self,
+        referrer_id: Uuid,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<UserEntity>, AppError>;
+
+    /// Count the total number of users directly referred by `referrer_id`.
+    async fn count_referred_by(&self, referrer_id: Uuid) -> Result<u64, AppError>;
+
+    /// Update a user's KYC verification status.
+    async fn set_kyc_status(
+        &self,
+        id: Uuid,
+        status: &str,
+        verified_at: Option<DateTime<Utc>>,
+        expires_at: Option<DateTime<Utc>>,
+    ) -> Result<(), AppError>;
+
+    /// Update a user's accredited investor verification status.
+    async fn set_accreditation_status(
+        &self,
+        id: Uuid,
+        status: &str,
+        verified_at: Option<DateTime<Utc>>,
+        expires_at: Option<DateTime<Utc>>,
+    ) -> Result<(), AppError>;
+}
+
+/// A row returned by [`UserRepository::top_referrers`].
+#[derive(Debug, Clone)]
+pub struct TopReferrerRow {
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub name: Option<String>,
+    pub referral_code: String,
+    pub referral_count: u64,
 }
 
 /// In-memory user repository for development/testing
@@ -242,6 +359,12 @@ pub struct InMemoryUserRepository {
     google_id_index: RwLock<HashMap<String, Uuid>>,
     apple_id_index: RwLock<HashMap<String, Uuid>>,
     stripe_customer_id_index: RwLock<HashMap<String, Uuid>>,
+    /// Referral code index for O(1) lookup
+    referral_code_index: RwLock<HashMap<String, Uuid>>,
+    /// Historical referral codes: retired code -> user_id.
+    /// Populated by `regenerate_referral_code` and `set_referral_code` so that
+    /// `find_by_referral_code` can fall back to old codes.
+    referral_history: RwLock<HashMap<String, Uuid>>,
 }
 
 impl InMemoryUserRepository {
@@ -253,6 +376,8 @@ impl InMemoryUserRepository {
             google_id_index: RwLock::new(HashMap::new()),
             apple_id_index: RwLock::new(HashMap::new()),
             stripe_customer_id_index: RwLock::new(HashMap::new()),
+            referral_code_index: RwLock::new(HashMap::new()),
+            referral_history: RwLock::new(HashMap::new()),
         }
     }
 }
@@ -369,6 +494,12 @@ impl UserRepository for InMemoryUserRepository {
         if let Some(ref stripe_customer_id) = user.stripe_customer_id {
             let mut stripe_index = self.stripe_customer_id_index.write().await;
             stripe_index.insert(stripe_customer_id.clone(), user.id);
+        }
+
+        // Maintain referral code index
+        {
+            let mut referral_index = self.referral_code_index.write().await;
+            referral_index.insert(user.referral_code.clone(), user.id);
         }
 
         users.insert(user.id, user.clone());
@@ -581,6 +712,11 @@ impl UserRepository for InMemoryUserRepository {
             stripe_index.remove(stripe_customer_id);
         }
 
+        {
+            let mut referral_index = self.referral_code_index.write().await;
+            referral_index.remove(&user.referral_code);
+        }
+
         Ok(())
     }
 
@@ -638,6 +774,220 @@ impl UserRepository for InMemoryUserRepository {
             user.username = Some(username.to_string());
             user.updated_at = Utc::now();
         }
+        Ok(())
+    }
+
+    async fn find_by_referral_code(&self, code: &str) -> Result<Option<UserEntity>, AppError> {
+        // Check active codes first.
+        let referral_index = self.referral_code_index.read().await;
+        let user_id_opt = referral_index.get(code).copied();
+        drop(referral_index);
+
+        let user_id = match user_id_opt {
+            Some(id) => id,
+            None => {
+                // Fall back to retired codes.
+                let history = self.referral_history.read().await;
+                match history.get(code).copied() {
+                    Some(id) => id,
+                    None => return Ok(None),
+                }
+            }
+        };
+
+        let users = self.users.read().await;
+        Ok(users.get(&user_id).cloned())
+    }
+
+    async fn count_referrals(&self, user_id: Uuid) -> Result<u64, AppError> {
+        let users = self.users.read().await;
+        let count = users
+            .values()
+            .filter(|u| u.referred_by == Some(user_id))
+            .count();
+        Ok(count as u64)
+    }
+
+    async fn regenerate_referral_code(&self, id: Uuid) -> Result<String, AppError> {
+        let mut users = self.users.write().await;
+        let user = users
+            .get_mut(&id)
+            .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+        let old_code = user.referral_code.clone();
+
+        let mut referral_index = self.referral_code_index.write().await;
+        referral_index.remove(&old_code);
+
+        let new_code = generate_referral_code();
+        referral_index.insert(new_code.clone(), id);
+        user.referral_code = new_code.clone();
+        user.updated_at = Utc::now();
+
+        // Archive the old code for history fallback.
+        drop(referral_index);
+        drop(users);
+        let mut history = self.referral_history.write().await;
+        history.entry(old_code).or_insert(id);
+
+        Ok(new_code)
+    }
+
+    async fn set_referral_code(&self, id: Uuid, code: &str) -> Result<(), AppError> {
+        // Check that the code isn't already taken by someone else.
+        let referral_index = self.referral_code_index.read().await;
+        if let Some(&existing_id) = referral_index.get(code) {
+            if existing_id != id {
+                return Err(AppError::Validation(
+                    "Referral code is already taken".into(),
+                ));
+            }
+            // Already set to this code — no-op.
+            return Ok(());
+        }
+        drop(referral_index);
+
+        let mut users = self.users.write().await;
+        let user = users
+            .get_mut(&id)
+            .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+        let old_code = user.referral_code.clone();
+
+        let mut referral_index = self.referral_code_index.write().await;
+        referral_index.remove(&old_code);
+        referral_index.insert(code.to_string(), id);
+        user.referral_code = code.to_string();
+        user.updated_at = Utc::now();
+
+        // Archive the old code for history fallback.
+        drop(referral_index);
+        drop(users);
+        let mut history = self.referral_history.write().await;
+        history.entry(old_code).or_insert(id);
+
+        Ok(())
+    }
+
+    async fn set_payout_wallet_address(
+        &self,
+        id: Uuid,
+        address: Option<&str>,
+    ) -> Result<(), AppError> {
+        let mut users = self.users.write().await;
+        if let Some(user) = users.get_mut(&id) {
+            user.payout_wallet_address = address.map(|a| a.to_string());
+            user.updated_at = Utc::now();
+        }
+        Ok(())
+    }
+
+    async fn count_referred(&self) -> Result<u64, AppError> {
+        let users = self.users.read().await;
+        Ok(users.values().filter(|u| u.referred_by.is_some()).count() as u64)
+    }
+
+    async fn count_referred_since(&self, since: DateTime<Utc>) -> Result<u64, AppError> {
+        let users = self.users.read().await;
+        Ok(users
+            .values()
+            .filter(|u| u.referred_by.is_some() && u.created_at >= since)
+            .count() as u64)
+    }
+
+    async fn top_referrers(&self, limit: u32) -> Result<Vec<TopReferrerRow>, AppError> {
+        let users = self.users.read().await;
+
+        // Count how many times each user_id appears as referred_by
+        let mut counts: HashMap<Uuid, u64> = HashMap::new();
+        for u in users.values() {
+            if let Some(referrer_id) = u.referred_by {
+                *counts.entry(referrer_id).or_insert(0) += 1;
+            }
+        }
+
+        let mut rows: Vec<TopReferrerRow> = counts
+            .into_iter()
+            .filter_map(|(referrer_id, count)| {
+                users.get(&referrer_id).map(|u| TopReferrerRow {
+                    user_id: referrer_id,
+                    email: u.email.clone(),
+                    name: u.name.clone(),
+                    referral_code: u.referral_code.clone(),
+                    referral_count: count,
+                })
+            })
+            .collect();
+
+        rows.sort_by(|a, b| b.referral_count.cmp(&a.referral_count));
+        rows.truncate(limit as usize);
+        Ok(rows)
+    }
+
+    async fn find_referred_by(
+        &self,
+        referrer_id: Uuid,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<UserEntity>, AppError> {
+        const MAX_PAGE_SIZE: u32 = 100;
+        let capped_limit = limit.min(MAX_PAGE_SIZE);
+
+        let users = self.users.read().await;
+        let mut referred: Vec<_> = users
+            .values()
+            .filter(|u| u.referred_by == Some(referrer_id))
+            .cloned()
+            .collect();
+        referred.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        Ok(referred
+            .into_iter()
+            .skip(offset as usize)
+            .take(capped_limit as usize)
+            .collect())
+    }
+
+    async fn count_referred_by(&self, referrer_id: Uuid) -> Result<u64, AppError> {
+        let users = self.users.read().await;
+        Ok(users
+            .values()
+            .filter(|u| u.referred_by == Some(referrer_id))
+            .count() as u64)
+    }
+
+    async fn set_kyc_status(
+        &self,
+        id: Uuid,
+        status: &str,
+        verified_at: Option<DateTime<Utc>>,
+        expires_at: Option<DateTime<Utc>>,
+    ) -> Result<(), AppError> {
+        let mut users = self.users.write().await;
+        let user = users
+            .get_mut(&id)
+            .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+        user.kyc_status = status.to_string();
+        user.kyc_verified_at = verified_at;
+        user.kyc_expires_at = expires_at;
+        user.updated_at = Utc::now();
+        Ok(())
+    }
+
+    async fn set_accreditation_status(
+        &self,
+        id: Uuid,
+        status: &str,
+        verified_at: Option<DateTime<Utc>>,
+        expires_at: Option<DateTime<Utc>>,
+    ) -> Result<(), AppError> {
+        let mut users = self.users.write().await;
+        let user = users
+            .get_mut(&id)
+            .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+        user.accreditation_status = status.to_string();
+        user.accreditation_verified_at = verified_at;
+        user.accreditation_expires_at = expires_at;
+        user.updated_at = Utc::now();
         Ok(())
     }
 }

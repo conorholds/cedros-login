@@ -14,17 +14,21 @@ use crate::repositories::{
     InMemoryApiKeyRepository, InMemoryAuditLogRepository, InMemoryCredentialRepository,
     InMemoryCreditHoldRepository, InMemoryCreditRefundRequestRepository, InMemoryCreditRepository,
     InMemoryCustomRoleRepository, InMemoryDerivedWalletRepository, InMemoryDepositRepository,
-    InMemoryInviteRepository,
+    AccreditationRepository, InMemoryAccreditationRepository,
+    InMemoryInviteRepository, InMemoryKycRepository,
     InMemoryLoginAttemptRepository, InMemoryMembershipRepository, InMemoryNonceRepository,
     InMemoryOrgRepository, InMemoryOutboxRepository, InMemoryPendingWalletRecoveryRepository,
-    InMemoryPolicyRepository, InMemoryPrivacyNoteRepository, InMemorySessionRepository,
+    InMemoryPolicyRepository, InMemoryPrivacyNoteRepository, InMemoryReferralCodeHistoryRepository,
+    InMemoryReferralPayoutRepository,
+    InMemorySessionRepository,
     InMemorySsoRepository, InMemorySystemSettingsRepository, InMemoryTotpRepository,
     InMemoryTreasuryConfigRepository, InMemoryUserRepository, InMemoryUserWithdrawalLogRepository,
     InMemoryVerificationRepository, InMemoryWalletMaterialRepository, InMemoryWebAuthnRepository,
     InMemoryWalletRotationHistoryRepository, InMemoryWithdrawalHistoryRepository,
-    InviteRepository, LoginAttemptRepository,
+    InviteRepository, KycRepository, LoginAttemptRepository,
     MembershipRepository, NonceRepository, OrgRepository, OutboxRepository,
     DerivedWalletRepository, PendingWalletRecoveryRepository, PolicyRepository,
+    ReferralCodeHistoryRepository, ReferralPayoutRepository,
     WalletRotationHistoryRepository,
     PrivacyNoteRepository, SessionRepository, SsoRepository, SystemSettingsRepository,
     TotpRepository, TreasuryConfigRepository, UserRepository, UserWithdrawalLogRepository,
@@ -38,10 +42,12 @@ use crate::repositories::{
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
     PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,
-    PostgresInviteRepository,
+    PostgresAccreditationRepository, PostgresInviteRepository, PostgresKycRepository,
     PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
     PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
-    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresSessionRepository,
+    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresReferralCodeHistoryRepository,
+    PostgresReferralPayoutRepository,
+    PostgresSessionRepository,
     PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
     PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
     PostgresVerificationRepository, PostgresWalletMaterialRepository,
@@ -87,6 +93,10 @@ pub struct Storage {
     pub derived_wallet_repo: Arc<dyn DerivedWalletRepository>,
     pub wallet_rotation_history_repo: Arc<dyn WalletRotationHistoryRepository>,
     pub pending_wallet_recovery_repo: Arc<dyn PendingWalletRecoveryRepository>,
+    pub referral_payout_repo: Arc<dyn ReferralPayoutRepository>,
+    pub referral_code_history_repo: Arc<dyn ReferralCodeHistoryRepository>,
+    pub kyc_repo: Arc<dyn KycRepository>,
+    pub accreditation_repo: Arc<dyn AccreditationRepository>,
     #[cfg(feature = "postgres")]
     pub pg_pool: Option<PgPool>,
 }
@@ -148,6 +158,10 @@ impl Storage {
             derived_wallet_repo: Arc::new(InMemoryDerivedWalletRepository::new()),
             wallet_rotation_history_repo: Arc::new(InMemoryWalletRotationHistoryRepository::new()),
             pending_wallet_recovery_repo: Arc::new(InMemoryPendingWalletRecoveryRepository::new()),
+            referral_payout_repo: Arc::new(InMemoryReferralPayoutRepository::new()),
+            referral_code_history_repo: Arc::new(InMemoryReferralCodeHistoryRepository::new()),
+            kyc_repo: Arc::new(InMemoryKycRepository::new()),
+            accreditation_repo: Arc::new(InMemoryAccreditationRepository::new()),
             #[cfg(feature = "postgres")]
             pg_pool: None,
         }
@@ -259,6 +273,12 @@ impl Storage {
             pending_wallet_recovery_repo: Arc::new(PostgresPendingWalletRecoveryRepository::new(
                 pool.clone(),
             )),
+            referral_payout_repo: Arc::new(PostgresReferralPayoutRepository::new(pool.clone())),
+            referral_code_history_repo: Arc::new(PostgresReferralCodeHistoryRepository::new(
+                pool.clone(),
+            )),
+            kyc_repo: Arc::new(PostgresKycRepository::new(pool.clone())),
+            accreditation_repo: Arc::new(PostgresAccreditationRepository::new(pool.clone())),
             #[cfg(feature = "postgres")]
             pg_pool: Some(pool),
         })
@@ -533,6 +553,15 @@ mod tests {
             updated_at: Utc::now(),
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
 
         let created = storage.user_repo.create(user.clone()).await.unwrap();
@@ -565,6 +594,15 @@ mod tests {
             updated_at: Utc::now(),
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = storage.user_repo.create(user).await.unwrap();
 

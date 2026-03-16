@@ -207,6 +207,13 @@ mod tests {
                     "USDC".to_string(),
                 ))
             },
+            referral_payout_repo: storage.referral_payout_repo.clone(),
+            referral_code_history_repo: storage.referral_code_history_repo.clone(),
+            kyc_service: None,
+            accreditation_service: None,
+            sanctions_service: std::sync::Arc::new(
+                crate::services::SanctionsService::new(settings_service.clone()),
+            ),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,

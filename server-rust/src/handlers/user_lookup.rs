@@ -207,6 +207,77 @@ pub async fn link_stripe_customer<C: AuthCallback, E: EmailService>(
     }))
 }
 
+/// Response for the compliance status endpoint.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ComplianceStatusResponse {
+    /// KYC verification status: "none", "pending", "verified", "expired".
+    pub kyc_status: String,
+    /// Whether the user has been verified as an accredited investor.
+    pub accredited_investor: bool,
+    /// When accredited status was last verified (ISO 8601), or null.
+    pub accredited_verified_at: Option<String>,
+}
+
+/// GET /admin/users/{user_id}/compliance
+///
+/// Returns the user's KYC and accredited investor status for compliance gating.
+/// Designed for service-to-service calls (e.g., cedros-pay ComplianceChecker).
+///
+/// # Response
+/// - 200: Compliance status
+/// - 404: User not found
+/// - 401/403: Invalid auth or not system admin
+pub async fn get_user_compliance<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+    Path(user_id): Path<Uuid>,
+) -> Result<Json<ComplianceStatusResponse>, AppError> {
+    validate_system_admin(&state, &headers).await?;
+
+    let user = state
+        .user_repo
+        .find_by_id(user_id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    // Compute effective KYC status (accounts for expiry)
+    let kyc_status = if user.kyc_status == "verified" {
+        if let Some(expires) = user.kyc_expires_at {
+            if expires <= chrono::Utc::now() {
+                "expired".to_string()
+            } else {
+                "verified".to_string()
+            }
+        } else {
+            "verified".to_string()
+        }
+    } else {
+        user.kyc_status.clone()
+    };
+
+    // Compute effective accreditation status (accounts for expiry)
+    let accredited_investor = if user.accreditation_status == "approved" {
+        if let Some(expires) = user.accreditation_expires_at {
+            expires > chrono::Utc::now()
+        } else {
+            true // no expiry = permanently approved
+        }
+    } else {
+        false
+    };
+
+    let accredited_verified_at = user
+        .accreditation_verified_at
+        .map(|dt| dt.to_rfc3339());
+
+    Ok(Json(ComplianceStatusResponse {
+        kyc_status,
+        accredited_investor,
+        accredited_verified_at,
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

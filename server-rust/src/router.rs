@@ -206,10 +206,19 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
         )
         .layer(RequestBodyLimitLayer::new(5 * 1024 * 1024));
 
-    // Standard routes get the default 1MB body limit; upload routes get 5MB
+    // Accreditation document upload with 10MB body limit
+    let accreditation_upload_routes: Router<Arc<AppState<C, E>>> = Router::new()
+        .route(
+            "/accreditation/upload",
+            post(handlers::upload_accreditation_document::<C, E>),
+        )
+        .layer(RequestBodyLimitLayer::new(10 * 1024 * 1024));
+
+    // Standard routes get the default 1MB body limit; upload routes get larger limits
     let base_router = base_router
         .layer(RequestBodyLimitLayer::new(MAX_BODY_SIZE))
-        .merge(upload_routes);
+        .merge(upload_routes)
+        .merge(accreditation_upload_routes);
 
     let base_path = state.config.server.auth_base_path.trim_end_matches('/');
     let base_path = if base_path.is_empty() { "/" } else { base_path };
@@ -357,8 +366,24 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/username/available",
             get(handlers::check_username::<C, E>),
         )
+        // Referral mutation endpoints — stricter rate limit to prevent code squatting
+        .route(
+            "/referral/regenerate",
+            post(handlers::regenerate_referral::<C, E>),
+        )
+        .route(
+            "/referral/set-code",
+            post(handlers::set_referral_code::<C, E>),
+        )
         // Enterprise SSO routes
         .route("/sso/start", post(handlers::start_sso::<C, E>))
+        // KYC start — strict rate limit (creates Stripe sessions)
+        .route("/kyc/start", post(handlers::start_kyc::<C, E>))
+        // Accreditation submission — strict rate limit
+        .route(
+            "/accreditation/submit",
+            post(handlers::submit_accreditation::<C, E>),
+        )
         // M-04: Deposit submission routes — strict rate limiting for financial operations
         .route("/deposit", post(handlers::execute_deposit::<C, E>))
         .route(
@@ -417,6 +442,8 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/.well-known/skills.zip",
             get(handlers::skills_bundle_zip::<C, E>),
         )
+        // Referral read endpoint (general rate limit)
+        .route("/referral", get(handlers::get_referral::<C, E>))
         .route("/logout", post(handlers::logout::<C, E>))
         // M-02: Granular logout - revoke all sessions at once
         .route("/logout-all", post(handlers::logout_all::<C, E>))
@@ -559,6 +586,10 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/admin/users/{user_id}/withdrawal-history",
             get(handlers::get_user_withdrawal_history::<C, E>),
         )
+        .route(
+            "/admin/users/{user_id}/referrals",
+            get(handlers::get_user_referrals::<C, E>),
+        )
         .route("/admin/orgs", get(handlers::list_admin_orgs::<C, E>))
         .route("/admin/orgs/{org_id}", get(handlers::get_admin_org::<C, E>))
         // SSO provider management routes (system admin)
@@ -618,6 +649,35 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/admin/withdrawals/process-all",
             post(handlers::process_all_withdrawals::<C, E>),
         )
+        // Admin referral analytics and payout routes (system admin)
+        .route(
+            "/admin/referral-stats",
+            get(handlers::get_referral_stats::<C, E>),
+        )
+        .route(
+            "/admin/referral-payouts",
+            get(handlers::list_referral_payouts::<C, E>),
+        )
+        .route(
+            "/admin/referral-payouts/process",
+            post(handlers::process_referral_payouts::<C, E>),
+        )
+        .route(
+            "/admin/referral-payouts/retry-failed",
+            post(handlers::retry_failed_payouts::<C, E>),
+        )
+        .route(
+            "/admin/referral-payouts/list",
+            get(handlers::list_all_payouts::<C, E>),
+        )
+        .route(
+            "/admin/referral-payouts/{id}/process",
+            post(handlers::process_single_payout::<C, E>),
+        )
+        .route(
+            "/admin/referral-payouts/{id}/cancel",
+            post(handlers::cancel_payout::<C, E>),
+        )
         // Admin credit routes (system admin)
         .route(
             "/admin/credits/stats",
@@ -639,6 +699,15 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route(
             "/admin/privacy/status",
             get(handlers::get_privacy_status::<C, E>),
+        )
+        // Admin sanctions routes (system admin)
+        .route(
+            "/admin/sanctions/stats",
+            get(handlers::get_sanctions_stats::<C, E>),
+        )
+        .route(
+            "/admin/sanctions/refresh",
+            post(handlers::refresh_sanctions::<C, E>),
         )
         // Admin treasury configuration routes (system admin)
         .route(
@@ -735,10 +804,64 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/users/by-stripe-customer/{stripe_customer_id}/link",
             post(handlers::link_stripe_customer::<C, E>),
         )
+        // KYC status (user-facing read endpoint)
+        .route("/kyc/status", get(handlers::kyc_status::<C, E>))
         // Webhook routes (external service callbacks)
         .route(
             "/webhook/deposit",
             post(handlers::handle_deposit_webhook::<C, E>),
+        )
+        .route(
+            "/webhook/kyc",
+            post(handlers::handle_kyc_webhook::<C, E>),
+        )
+        // Admin KYC routes
+        .route(
+            "/admin/users/{user_id}/kyc",
+            get(handlers::get_user_kyc::<C, E>),
+        )
+        .route(
+            "/admin/users/{user_id}/kyc/override",
+            post(handlers::override_kyc_status::<C, E>),
+        )
+        // Accreditation routes (user-facing)
+        .route(
+            "/accreditation/status",
+            get(handlers::accreditation_status::<C, E>),
+        )
+        .route(
+            "/accreditation/submissions",
+            get(handlers::list_accreditation_submissions::<C, E>),
+        )
+        // Admin accreditation routes
+        .route(
+            "/admin/accreditation/pending",
+            get(handlers::list_pending_accreditations::<C, E>),
+        )
+        .route(
+            "/admin/users/{user_id}/accreditation",
+            get(handlers::get_user_accreditation::<C, E>),
+        )
+        .route(
+            "/admin/accreditation/{submission_id}",
+            get(handlers::get_accreditation_submission::<C, E>),
+        )
+        .route(
+            "/admin/accreditation/{submission_id}/review",
+            post(handlers::review_accreditation::<C, E>),
+        )
+        .route(
+            "/admin/users/{user_id}/accreditation/override",
+            post(handlers::override_accreditation::<C, E>),
+        )
+        .route(
+            "/admin/accreditation/documents/{doc_id}/url",
+            get(handlers::get_document_presigned_url::<C, E>),
+        )
+        // Compliance status (service-to-service, e.g. cedros-pay)
+        .route(
+            "/admin/users/{user_id}/compliance",
+            get(handlers::get_user_compliance::<C, E>),
         )
 }
 

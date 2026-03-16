@@ -19,6 +19,19 @@ pub trait ImageStorageService: Send + Sync {
 
     /// Delete an avatar by its object key.
     async fn delete_avatar(&self, key: &str) -> Result<(), AppError>;
+
+    /// Upload raw bytes to an arbitrary S3 key with the given content type.
+    /// Returns the resulting object key (same as `s3_key`).
+    async fn upload_document(
+        &self,
+        s3_key: &str,
+        data: &[u8],
+        content_type: &str,
+    ) -> Result<(), AppError>;
+
+    /// Generate a presigned GET URL for the given S3 key.
+    /// `expiry_secs` must be ≤ 604800 (7 days).
+    async fn presign_get(&self, s3_key: &str, expiry_secs: u32) -> Result<String, AppError>;
 }
 
 /// Configuration for S3-compatible image storage
@@ -109,5 +122,31 @@ impl ImageStorageService for S3ImageStorageService {
         })?;
 
         Ok(())
+    }
+
+    async fn upload_document(
+        &self,
+        s3_key: &str,
+        data: &[u8],
+        content_type: &str,
+    ) -> Result<(), AppError> {
+        self.bucket
+            .put_object_with_content_type(s3_key, data, content_type)
+            .await
+            .map_err(|e| {
+                tracing::error!(error = %e, key = %s3_key, "Failed to upload document to S3");
+                AppError::Internal(anyhow::anyhow!("Failed to upload document: {}", e))
+            })?;
+        Ok(())
+    }
+
+    async fn presign_get(&self, s3_key: &str, expiry_secs: u32) -> Result<String, AppError> {
+        self.bucket
+            .presign_get(s3_key, expiry_secs, None)
+            .await
+            .map_err(|e| {
+                tracing::error!(error = %e, key = %s3_key, "Failed to generate presigned URL");
+                AppError::Internal(anyhow::anyhow!("Failed to generate presigned URL: {}", e))
+            })
     }
 }

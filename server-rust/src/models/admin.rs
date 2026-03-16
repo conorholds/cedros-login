@@ -56,6 +56,18 @@ pub struct AdminUserResponse {
     /// Credit balance in lamports (only present if credit system is enabled)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub balance_lamports: Option<i64>,
+    /// User's referral code
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub referral_code: Option<String>,
+    /// ID of the user who referred this user
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub referred_by: Option<Uuid>,
+    /// Number of users this user has referred
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub referral_count: Option<u64>,
+    /// Solana wallet address for direct referral payouts
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payout_wallet_address: Option<String>,
 }
 
 impl From<&UserEntity> for AdminUserResponse {
@@ -75,6 +87,10 @@ impl From<&UserEntity> for AdminUserResponse {
             updated_at: entity.updated_at,
             last_login_at: entity.last_login_at,
             balance_lamports: None, // Set separately via with_balance()
+            referral_code: Some(entity.referral_code.clone()),
+            referred_by: entity.referred_by,
+            referral_count: None, // Set separately via with_referral_count()
+            payout_wallet_address: entity.payout_wallet_address.clone(),
         }
     }
 }
@@ -83,6 +99,12 @@ impl AdminUserResponse {
     /// Add balance information to the response
     pub fn with_balance(mut self, balance: i64) -> Self {
         self.balance_lamports = Some(balance);
+        self
+    }
+
+    /// Add referral count to the response
+    pub fn with_referral_count(mut self, count: u64) -> Self {
+        self.referral_count = Some(count);
         self
     }
 }

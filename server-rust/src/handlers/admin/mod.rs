@@ -7,6 +7,9 @@ mod dashboard_permissions;
 mod disposable_domains;
 pub(crate) mod deposits;
 mod orgs;
+mod referral_payouts;
+mod referral_stats;
+mod sanctions;
 mod settings;
 mod sso_providers;
 mod treasury;
@@ -24,6 +27,12 @@ pub use deposits::{
     process_all_withdrawals, process_withdrawal,
 };
 pub use orgs::{get_org, list_orgs};
+pub use referral_payouts::{
+    cancel_payout, list_all_payouts, list_referral_payouts, process_referral_payouts,
+    process_single_payout, retry_failed_payouts,
+};
+pub use referral_stats::get_referral_stats;
+pub use sanctions::{get_sanctions_stats, refresh_sanctions};
 pub use settings::{list_settings, regenerate_setting, update_settings};
 pub use sso_providers::{
     create_sso_provider, delete_sso_provider, get_sso_provider, list_sso_providers,
@@ -32,6 +41,6 @@ pub use sso_providers::{
 pub use treasury::{authorize_treasury, get_treasury, revoke_treasury};
 pub use users::{
     delete_user, force_password_reset, get_user, get_user_credits, get_user_deposits,
-    get_user_stats, get_user_withdrawal_history, list_users, set_system_admin, update_user,
-    validate_system_admin,
+    get_user_referrals, get_user_stats, get_user_withdrawal_history, list_users, set_system_admin,
+    update_user, validate_system_admin,
 };

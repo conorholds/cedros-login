@@ -71,8 +71,8 @@ async fn register_with_transaction(
         r#"
         INSERT INTO users (id, email, email_verified, password_hash, name, picture,
                            wallet_address, google_id, auth_methods, is_system_admin,
-                           created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                           created_at, updated_at, referral_code, referred_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
         "#,
     )
     .bind(user.id)
@@ -87,6 +87,8 @@ async fn register_with_transaction(
     .bind(user.is_system_admin)
     .bind(user.created_at)
     .bind(user.updated_at)
+    .bind(&user.referral_code)
+    .bind(user.referred_by)
     .execute(&mut *tx)
     .await
     .map_err(|e| AppError::Internal(e.into()))?;
@@ -167,6 +169,9 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Email auth disabled".into()));
     }
 
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
     // Validate email format
     if !is_valid_email(&req.email) {
         return Err(AppError::Validation("Invalid email format".to_string()));
@@ -227,6 +232,31 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     // Create user
     let mut user =
         UserEntity::new_email_user(normalized_email.clone(), password_hash, req.name.clone());
+
+    // Resolve referral: if feature enabled and referral code provided, link referrer
+    let referrals_enabled = state
+        .settings_service
+        .get_bool("feature_referrals_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+    if referrals_enabled {
+        if let Some(ref code) = req.referral {
+            match state.user_repo.find_by_referral_code(code).await {
+                Ok(Some(referrer)) => {
+                    user.referred_by = Some(referrer.id);
+                }
+                Ok(None) => {
+                    // Soft validation: don't block registration for invalid referral codes
+                    tracing::debug!(referral_code = %code, "Referral code not found, ignoring");
+                }
+                Err(e) => {
+                    tracing::warn!(error = %e, "Failed to look up referral code, ignoring");
+                }
+            }
+        }
+    }
 
     // SRV-11: When verification is not required, mark email as verified at registration.
     // This prevents a race where config flips from false→true after registration,
@@ -310,6 +340,29 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     if let Err(e) = crate::utils::auto_enroll_wallet(&state, user.id, &req.password, &headers).await
     {
         tracing::warn!(user_id = %user.id, error = %e, "Auto wallet enrollment failed");
+    }
+
+    // Issue referral signup reward (non-fatal — don't break registration)
+    if let Some(referrer_id) = user.referred_by {
+        if let Err(e) = crate::services::referral_reward_service::issue_signup_reward(
+            &*state.user_repo,
+            &*state.credit_repo,
+            &*state.referral_payout_repo,
+            &state.settings_service,
+            &*state.callback,
+            user.id,
+            referrer_id,
+            &state.config.privacy.company_currency,
+        )
+        .await
+        {
+            tracing::warn!(
+                user_id = %user.id,
+                referrer_id = %referrer_id,
+                error = %e,
+                "Failed to issue referral signup reward"
+            );
+        }
     }
 
     // S-05: Track email queue result to include in response

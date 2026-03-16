@@ -48,12 +48,13 @@ pub mod utils;
 
 mod router;
 
-pub use callback::{AuthCallback, AuthCallbackPayload, NoopCallback};
+pub use callback::{AuthCallback, AuthCallbackPayload, NoopCallback, ReferralRewardPayload};
 pub use config::{Config, DatabaseConfig, NotificationConfig};
 pub use errors::AppError;
 pub use router::create_router;
 // Re-export NotificationService trait for create_withdrawal_worker
 pub use services::NotificationService;
+pub use services::ReferralPayoutWorker;
 pub use services::{
     EmailService, InstantLinkEmailData, LogEmailService, NoopEmailService, PasswordResetEmailData,
     VerificationEmailData,
@@ -68,7 +69,7 @@ use repositories::{
     CreditRefundRequestRepository, CreditRepository, CustomRoleRepository, DepositRepository,
     DerivedWalletRepository, InviteRepository, LoginAttemptConfig, LoginAttemptRepository,
     MembershipRepository, NonceRepository, OrgRepository, OutboxRepository, PolicyRepository,
-    PrivacyNoteRepository,
+    PrivacyNoteRepository, ReferralCodeHistoryRepository, ReferralPayoutRepository,
     SessionRepository, SystemSettingsRepository, TotpRepository, TreasuryConfigRepository,
     UserRepository, UserWithdrawalLogRepository, VerificationRepository, WalletMaterialRepository,
     WalletRotationHistoryRepository, WebAuthnRepository,
@@ -77,8 +78,8 @@ use services::{
     create_wallet_unlock_cache, AppleService, AuditService, CommsService, DepositCreditService,
     DepositFeeService, EncryptionService, GoogleService, JupiterSwapService, JwtService,
     MfaAttemptService, NoteEncryptionService, OidcService, PasswordService, PrivacySidecarClient,
-    SettingsService, SidecarClientConfig, SolPriceService, SolanaService, StepUpService,
-    TotpService, WalletSigningService, WalletUnlockCache, WebAuthnService,
+    SanctionsService, SettingsService, SidecarClientConfig, SolPriceService, SolanaService,
+    StepUpService, TotpService, WalletSigningService, WalletUnlockCache, WebAuthnService,
 };
 use std::sync::Arc;
 use utils::TokenCipher;
@@ -270,6 +271,10 @@ pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub treasury_config_repo: Arc<dyn TreasuryConfigRepository>,
     /// User withdrawal log repository for tracking user-initiated withdrawals
     pub user_withdrawal_log_repo: Arc<dyn UserWithdrawalLogRepository>,
+    /// Referral payout repository for direct on-chain referral payouts
+    pub referral_payout_repo: Arc<dyn ReferralPayoutRepository>,
+    /// Referral code history repository for preserving retired codes
+    pub referral_code_history_repo: Arc<dyn ReferralCodeHistoryRepository>,
     /// Settings service with caching for runtime configuration
     pub settings_service: Arc<SettingsService>,
     /// SEC-04: Per-user MFA attempt tracking to prevent brute-force
@@ -291,6 +296,12 @@ pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub jupiter_swap_service: Option<Arc<JupiterSwapService>>,
     /// Deposit credit service for calculating credits from deposits
     pub deposit_credit_service: Arc<DepositCreditService>,
+    /// KYC verification service (None if KYC not configured)
+    pub kyc_service: Option<Arc<services::KycService>>,
+    /// Accredited investor verification service
+    pub accreditation_service: Option<Arc<services::AccreditationService>>,
+    /// Sanctions screening service — always present; disabled state handled internally
+    pub sanctions_service: Arc<SanctionsService>,
     #[cfg(feature = "postgres")]
     pub postgres_pool: Option<PgPool>,
 }
@@ -533,6 +544,8 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         system_settings_repo: storage.system_settings_repo.clone(),
         treasury_config_repo: storage.treasury_config_repo.clone(),
         user_withdrawal_log_repo: storage.user_withdrawal_log_repo.clone(),
+        referral_payout_repo: storage.referral_payout_repo.clone(),
+        referral_code_history_repo: storage.referral_code_history_repo.clone(),
         settings_service: settings_service.clone(),
         mfa_attempt_service: MfaAttemptService::new(),
         step_up_service,
@@ -543,6 +556,17 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
         sol_price_service,
         jupiter_swap_service,
         deposit_credit_service,
+        kyc_service: Some(Arc::new(services::KycService::new(
+            storage.kyc_repo.clone(),
+            storage.user_repo.clone(),
+            settings_service.clone(),
+        ))),
+        accreditation_service: Some(Arc::new(services::AccreditationService::new(
+            storage.accreditation_repo.clone(),
+            storage.user_repo.clone(),
+            settings_service.clone(),
+        ))),
+        sanctions_service: Arc::new(SanctionsService::new(settings_service.clone())),
         #[cfg(feature = "postgres")]
         postgres_pool: storage.pg_pool.clone(),
         storage,
@@ -688,6 +712,68 @@ pub fn create_micro_batch_worker(
         note_encryption,
         settings_service,
         config.privacy.company_currency.clone(),
+    );
+
+    Some(worker.start(cancel_token))
+}
+
+/// Create a referral payout worker for automated on-chain payouts.
+///
+/// Returns `Some(JoinHandle)` if privacy is enabled, `None` otherwise.
+/// The worker polls for pending referral payouts and processes them
+/// using the treasury wallet.
+///
+/// Runtime-tunable settings (payout_auto_enabled, payout_poll_interval_secs,
+/// payout_batch_size) are read from the database via SettingsService.
+pub fn create_referral_payout_worker(
+    config: &Config,
+    storage: &Storage,
+    settings_service: Arc<SettingsService>,
+    cancel_token: tokio_util::sync::CancellationToken,
+) -> Option<tokio::task::JoinHandle<()>> {
+    if !config.privacy.enabled {
+        return None;
+    }
+
+    let sidecar = match build_privacy_sidecar_client(config) {
+        Ok(s) => Arc::new(s),
+        Err(e) => {
+            tracing::error!(error = %e, "Failed to create sidecar client for referral payout worker");
+            return None;
+        }
+    };
+
+    let encryption_key = match config.privacy.note_encryption_key.as_ref() {
+        Some(k) => k,
+        None => {
+            tracing::error!("note_encryption_key is required for referral payout worker");
+            return None;
+        }
+    };
+    let key_bytes = match decode_note_encryption_key(encryption_key) {
+        Ok(k) => k,
+        Err(e) => {
+            tracing::error!(error = %e, "Invalid base64 in note_encryption_key");
+            return None;
+        }
+    };
+    let note_encryption = match build_note_encryption_service(
+        &key_bytes,
+        &config.privacy.note_encryption_key_id,
+    ) {
+        Ok(s) => Arc::new(s),
+        Err(e) => {
+            tracing::error!(error = %e, "Failed to create note encryption for referral payout worker");
+            return None;
+        }
+    };
+
+    let worker = ReferralPayoutWorker::new(
+        storage.referral_payout_repo.clone(),
+        storage.treasury_config_repo.clone(),
+        sidecar,
+        note_encryption,
+        settings_service,
     );
 
     Some(worker.start(cancel_token))

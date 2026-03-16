@@ -148,6 +148,15 @@ pub async fn create_first_admin<C: AuthCallback, E: EmailService>(
         updated_at: now,
         last_login_at: Some(now),
         welcome_completed_at: None,
+        referral_code: crate::repositories::generate_referral_code(),
+        referred_by: None,
+        payout_wallet_address: None,
+        kyc_status: "none".to_string(),
+        kyc_verified_at: None,
+        kyc_expires_at: None,
+        accreditation_status: "none".to_string(),
+        accreditation_verified_at: None,
+        accreditation_expires_at: None,
     };
 
     // Create site organization
@@ -234,10 +243,11 @@ async fn create_first_admin_postgres_atomic(
         r#"
         INSERT INTO users (
             id, email, email_verified, password_hash, name, picture, wallet_address, google_id,
-            apple_id, stripe_customer_id, auth_methods, is_system_admin, created_at, updated_at, last_login_at
+            apple_id, stripe_customer_id, auth_methods, is_system_admin, created_at, updated_at, last_login_at,
+            referral_code, referred_by
         ) VALUES (
             $1, $2, $3, $4, $5, NULL, NULL, NULL,
-            NULL, NULL, $6, $7, $8, $9, $10
+            NULL, NULL, $6, $7, $8, $9, $10, $11, $12
         )
         "#,
     )
@@ -251,6 +261,8 @@ async fn create_first_admin_postgres_atomic(
     .bind(user.created_at)
     .bind(user.updated_at)
     .bind(user.last_login_at)
+    .bind(&user.referral_code)
+    .bind(user.referred_by)
     .execute(&mut *tx)
     .await
     .map_err(|e| AppError::Database(format!("Failed to create setup admin user: {}", e)))?;

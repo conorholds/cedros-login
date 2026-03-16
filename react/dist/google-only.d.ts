@@ -102,6 +102,10 @@ export declare interface AuthUser {
     updatedAt: string;
     /** When the user completed the one-time welcome flow */
     welcomeCompletedAt?: string;
+    /** User's unique referral code */
+    referralCode?: string;
+    /** Wallet address to receive direct referral payouts */
+    payoutWalletAddress?: string;
 }
 
 /**
@@ -180,6 +184,8 @@ declare interface CedrosLoginContextValue extends AuthStateContextValue, AuthUIC
 declare interface CedrosLoginInternalAPI {
     handleLoginSuccess: (user: AuthUser, tokens?: TokenPair) => void;
     getAccessToken: () => string | null;
+    /** Get the referral code captured from the ?ref= URL parameter (if any) */
+    getReferralCode: () => string | null;
 }
 
 /**

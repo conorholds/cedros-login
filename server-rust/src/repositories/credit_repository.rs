@@ -441,6 +441,15 @@ pub trait CreditRepository: Send + Sync {
         reference_type: &str,
         reference_id: Uuid,
     ) -> Result<i64, AppError>;
+
+    /// Sum positive adjustment amounts where reference_type starts with the given prefix.
+    /// Used for referral reward cap enforcement across all referral subtypes.
+    async fn sum_adjustments_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+    ) -> Result<i64, AppError>;
 }
 
 /// In-memory credit repository for development/testing
@@ -781,6 +790,30 @@ impl CreditRepository for InMemoryCreditRepository {
                         .map(|rt| rt == reference_type)
                         .unwrap_or(false)
                     && t.reference_id == Some(reference_id)
+            })
+            .map(|t| t.amount)
+            .sum();
+        Ok(sum)
+    }
+
+    async fn sum_adjustments_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+    ) -> Result<i64, AppError> {
+        let transactions = self.transactions.read().await;
+        let sum = transactions
+            .iter()
+            .filter(|t| {
+                t.user_id == user_id
+                    && t.tx_type == CreditTxType::Adjustment
+                    && t.amount > 0
+                    && t.currency.eq_ignore_ascii_case(currency)
+                    && t.reference_type
+                        .as_deref()
+                        .map(|rt| rt.starts_with(prefix))
+                        .unwrap_or(false)
             })
             .map(|t| t.amount)
             .sum();

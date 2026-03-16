@@ -154,6 +154,7 @@ impl OidcService {
         provider: &SsoProvider,
         client_secret: &str,
         redirect_uri: Option<String>,
+        referral: Option<String>,
         sso_repo: &Arc<dyn SsoRepository>,
     ) -> Result<SsoAuthStart, AppError> {
         // Build OIDC client inline (type-state pattern prevents returning from helper)
@@ -213,6 +214,7 @@ impl OidcService {
             AUTH_STATE_TTL_SECS,
         );
         auth_state.state_id = state_id;
+        auth_state.referral = referral;
 
         sso_repo.store_auth_state(auth_state).await?;
 

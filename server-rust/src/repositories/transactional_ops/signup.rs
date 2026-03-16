@@ -76,8 +76,9 @@ impl TransactionalOps {
             r#"
             INSERT INTO users (id, email, email_verified, password_hash, name, picture,
                                wallet_address, google_id, apple_id, stripe_customer_id,
-                               auth_methods, is_system_admin, created_at, updated_at, last_login_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                               auth_methods, is_system_admin, created_at, updated_at, last_login_at,
+                               referral_code, referred_by)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
             "#,
         )
         .bind(user.id)
@@ -95,6 +96,8 @@ impl TransactionalOps {
         .bind(user.created_at)
         .bind(user.updated_at)
         .bind(user.last_login_at)
+        .bind(&user.referral_code)
+        .bind(user.referred_by)
         .execute(&mut **tx)
         .await
         .map_err(|e| AppError::Internal(e.into()))?;

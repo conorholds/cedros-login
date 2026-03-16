@@ -76,6 +76,8 @@ pub struct SsoAuthState {
     pub nonce: String,
     /// Redirect URL after authentication
     pub redirect_uri: Option<String>,
+    /// Optional referral code provided at SSO start; carried through the redirect
+    pub referral: Option<String>,
     pub created_at: DateTime<Utc>,
     pub expires_at: DateTime<Utc>,
 }
@@ -98,6 +100,7 @@ impl SsoAuthState {
             pkce_verifier,
             nonce,
             redirect_uri,
+            referral: None,
             created_at: now,
             expires_at: now + chrono::Duration::seconds(ttl_seconds),
         }

@@ -42,6 +42,8 @@ pub struct StartSsoRequest {
     pub org_id: Uuid,
     /// Optional redirect URI after authentication
     pub redirect_uri: Option<String>,
+    /// Optional referral code to attribute new user signups
+    pub referral: Option<String>,
 }
 
 /// Response with SSO authorization URL
@@ -146,6 +148,7 @@ pub async fn start_sso<C: AuthCallback, E: EmailService>(
             &provider,
             &client_secret,
             redirect_uri,
+            request.referral,
             &state.storage.sso_repo,
         )
         .await?;
@@ -178,6 +181,9 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("SSO authentication disabled".into()));
     }
 
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
     // Check for errors from provider
     if let Some(error) = query.error {
         let description = query.error_description.unwrap_or_default();
@@ -187,13 +193,14 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         )));
     }
 
-    // Look up the auth state to find the provider
+    // Look up the auth state to find the provider (and capture referral before consuming)
     let auth_state = state
         .storage
         .sso_repository()
         .get_auth_state(query.state)
         .await?
         .ok_or_else(|| AppError::Validation("Invalid or expired SSO state".into()))?;
+    let referral_code = auth_state.referral.clone();
 
     // Find the provider
     let provider = state
@@ -249,7 +256,7 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
 
             // Create new user (SSO users have no password)
             let now = Utc::now();
-            let new_user = UserEntity {
+            let mut new_user = UserEntity {
                 id: Uuid::new_v4(),
                 email: Some(normalized_email.clone()),
                 email_verified: claims.email_verified.unwrap_or(false),
@@ -267,7 +274,40 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                 updated_at: now,
                 last_login_at: Some(now),
                 welcome_completed_at: None,
+                referral_code: crate::repositories::generate_referral_code(),
+                referred_by: None,
+                payout_wallet_address: None,
+                kyc_status: "none".to_string(),
+                kyc_verified_at: None,
+                kyc_expires_at: None,
+                accreditation_status: "none".to_string(),
+                accreditation_verified_at: None,
+                accreditation_expires_at: None,
             };
+
+            // Resolve referral: if feature enabled and referral code provided, link referrer
+            let referrals_enabled = state
+                .settings_service
+                .get_bool("feature_referrals_enabled")
+                .await
+                .ok()
+                .flatten()
+                .unwrap_or(false);
+            if referrals_enabled {
+                if let Some(ref code) = referral_code {
+                    match state.user_repo.find_by_referral_code(code).await {
+                        Ok(Some(referrer)) => {
+                            new_user.referred_by = Some(referrer.id);
+                        }
+                        Ok(None) => {
+                            tracing::debug!(referral_code = %code, "SSO referral code not found, ignoring");
+                        }
+                        Err(e) => {
+                            tracing::warn!(error = %e, "Failed to look up SSO referral code, ignoring");
+                        }
+                    }
+                }
+            }
             let membership =
                 MembershipEntity::new(new_user.id, provider.org_id, crate::repositories::OrgRole::Member);
             let raw_api_key = generate_api_key();
@@ -301,6 +341,31 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
             (user, true, Some(raw_api_key))
         }
     };
+
+    // Issue referral signup reward for new users (non-fatal)
+    if is_new_user {
+        if let Some(referrer_id) = user.referred_by {
+            if let Err(e) = crate::services::referral_reward_service::issue_signup_reward(
+                &*state.user_repo,
+                &*state.credit_repo,
+                &*state.referral_payout_repo,
+                &state.settings_service,
+                &*state.callback,
+                user.id,
+                referrer_id,
+                &state.config.privacy.company_currency,
+            )
+            .await
+            {
+                tracing::warn!(
+                    user_id = %user.id,
+                    referrer_id = %referrer_id,
+                    error = %e,
+                    "Failed to issue SSO referral signup reward"
+                );
+            }
+        }
+    }
 
     // Create SSO credential entry
     ensure_sso_credential(
@@ -350,7 +415,7 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
-        referral: None,
+        referral: referral_code,
     };
     let callback_data = if is_new_user {
         call_registered_callback_with_timeout(&state.callback, &payload).await
@@ -554,6 +619,8 @@ mod tests {
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 welcome_completed_at: None,
+                referral_code: None,
+                payout_wallet_address: None,
             },
             method: AuthMethod::Sso,
             is_new_user: false,

@@ -233,6 +233,8 @@ pub struct UpdateProfileRequest {
     pub username: Option<String>,
     /// User's profile picture URL
     pub picture: Option<String>,
+    /// Solana wallet address for direct referral payouts (pass empty string to clear)
+    pub payout_wallet_address: Option<String>,
 }
 
 /// PATCH /auth/me - Update current user's profile
@@ -295,6 +297,36 @@ pub async fn update_profile<C: AuthCallback, E: EmailService>(
             // Empty string clears the picture
             user.picture = None;
         }
+    }
+
+    // Handle payout wallet address (set via dedicated repo method, not general update)
+    if let Some(payout_addr) = req.payout_wallet_address {
+        let trimmed = payout_addr.trim();
+        let addr_opt = if trimmed.is_empty() {
+            None
+        } else {
+            // Basic Solana address validation: 32-44 base58 chars
+            if trimmed.len() < 32 || trimmed.len() > 44 {
+                return Err(AppError::Validation(
+                    "Payout wallet address must be a valid Solana address (32-44 characters)".into(),
+                ));
+            }
+            // Validate base58 character set (no 0, O, I, l)
+            if !trimmed.chars().all(|c| matches!(c,
+                '1'..='9' | 'A'..='H' | 'J'..='N' | 'P'..='Z' | 'a'..='k' | 'm'..='z'
+            )) {
+                return Err(AppError::Validation(
+                    "Payout wallet address contains invalid characters (must be base58)".into(),
+                ));
+            }
+            Some(trimmed)
+        };
+        state
+            .user_repo
+            .set_payout_wallet_address(auth.user_id, addr_opt)
+            .await?;
+        // Sync in-memory entity so the response reflects the new value
+        user.payout_wallet_address = addr_opt.map(|a| a.to_string());
     }
 
     // Save updated user

@@ -120,8 +120,11 @@
 //!
 //! This is a significant architectural change tracked for future work.
 
+mod accreditation_repository;
 mod api_key_repository;
 mod audit_repository;
+mod referral_code_history_repository;
+mod referral_payout_repository;
 mod credential_repository;
 mod credit_hold_repository;
 mod credit_refund_request_repository;
@@ -130,6 +133,7 @@ mod custom_role_repository;
 mod deposit_repository;
 mod derived_wallet_repository;
 mod invite_repository;
+mod kyc_repository;
 mod login_attempt_repository;
 mod membership_repository;
 mod nonce_repository;
@@ -161,6 +165,10 @@ pub mod postgres;
 #[cfg(test)]
 mod tests;
 
+pub use accreditation_repository::{
+    AccreditationDocumentEntity, AccreditationRepository, AccreditationSubmissionEntity,
+    InMemoryAccreditationRepository,
+};
 pub use api_key_repository::{
     generate_api_key, hash_api_key, ApiKeyEntity, ApiKeyRepository, InMemoryApiKeyRepository,
     API_KEY_PREFIX,
@@ -197,6 +205,7 @@ pub use invite_repository::{
     default_invite_expiry, generate_invite_token, hash_invite_token, InMemoryInviteRepository,
     InviteEntity, InviteRepository, INVITE_EXPIRY_DAYS,
 };
+pub use kyc_repository::{InMemoryKycRepository, KycRepository, KycSessionEntity};
 pub use login_attempt_repository::{
     InMemoryLoginAttemptRepository, LockoutStatus, LoginAttemptConfig, LoginAttemptRecord,
     LoginAttemptRepository,
@@ -230,8 +239,16 @@ pub use transactional_ops::TransactionalOps;
 pub use treasury_config_repository::{
     InMemoryTreasuryConfigRepository, TreasuryConfigEntity, TreasuryConfigRepository,
 };
+pub use referral_code_history_repository::{
+    InMemoryReferralCodeHistoryRepository, ReferralCodeHistoryRepository,
+};
+pub use referral_payout_repository::{
+    InMemoryReferralPayoutRepository, ReferralPayoutEntity, ReferralPayoutRepository,
+    ReferrerPayoutSummary,
+};
 pub use user_repository::{
-    normalize_email, validate_email_ascii_local, InMemoryUserRepository, UserEntity, UserRepository,
+    generate_referral_code, normalize_email, validate_email_ascii_local, InMemoryUserRepository,
+    TopReferrerRow, UserEntity, UserRepository,
 };
 pub use user_withdrawal_log_repository::{
     InMemoryUserWithdrawalLogRepository, UserWithdrawalLogEntry, UserWithdrawalLogRepository,
@@ -258,13 +275,17 @@ pub use withdrawal_history_repository::{
 
 #[cfg(feature = "postgres")]
 pub use postgres::{
+    PostgresAccreditationRepository,
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
     PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,
     PostgresInviteRepository,
+    PostgresKycRepository,
     PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
     PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
-    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresSessionRepository,
+    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresReferralCodeHistoryRepository,
+    PostgresReferralPayoutRepository,
+    PostgresSessionRepository,
     PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
     PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
     PostgresVerificationRepository, PostgresWalletMaterialRepository,

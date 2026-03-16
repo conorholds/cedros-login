@@ -670,4 +670,33 @@ impl CreditRepository for PostgresCreditRepository {
 
         Ok(sum)
     }
+
+    async fn sum_adjustments_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+    ) -> Result<i64, AppError> {
+        let currency = currency.to_uppercase();
+        let pattern = format!("{}%", prefix);
+        let sum: i64 = sqlx::query_scalar(
+            r#"
+            SELECT COALESCE(SUM(amount)::BIGINT, 0)
+            FROM credit_transactions
+            WHERE user_id = $1
+              AND currency = $2
+              AND tx_type = 'adjustment'
+              AND amount > 0
+              AND reference_type LIKE $3
+            "#,
+        )
+        .bind(user_id)
+        .bind(currency)
+        .bind(pattern)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(sum)
+    }
 }

@@ -114,6 +114,12 @@ pub struct AuthUser {
     /// When the user completed the one-time welcome flow (if enabled)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub welcome_completed_at: Option<DateTime<Utc>>,
+    /// User's unique referral code
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub referral_code: Option<String>,
+    /// Solana wallet address for direct referral payouts
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payout_wallet_address: Option<String>,
 }
 
 /// Token pair
@@ -225,6 +231,9 @@ pub struct LoginRequest {
 pub struct GoogleAuthRequest {
     pub id_token: Option<String>,
     pub access_token: Option<String>,
+    /// Optional referral code for new user signup attribution.
+    /// Only processed when this is a new account creation.
+    pub referral: Option<String>,
 }
 
 /// Apple Sign-In auth request
@@ -241,6 +250,9 @@ pub struct AppleAuthRequest {
     /// Client-generated nonce (unhashed). Server computes SHA-256 and
     /// compares with the `nonce` claim in the ID token for replay protection.
     pub nonce: Option<String>,
+    /// Optional referral code for new user signup attribution.
+    /// Only processed when this is a new account creation.
+    pub referral: Option<String>,
 }
 
 /// Link OAuth account request
@@ -286,6 +298,9 @@ pub struct SolanaAuthRequest {
     pub public_key: String,
     pub signature: String,
     pub message: String,
+    /// Optional referral code for new user signup attribution.
+    /// Only processed when this is a new account creation.
+    pub referral: Option<String>,
 }
 
 /// Refresh request
@@ -438,6 +453,8 @@ mod tests {
             created_at: Utc::now(),
             updated_at: Utc::now(),
             welcome_completed_at: None,
+            referral_code: None,
+            payout_wallet_address: None,
         };
 
         let json = serde_json::to_string(&user).unwrap();
@@ -593,6 +610,8 @@ mod tests {
             created_at: Utc::now(),
             updated_at: Utc::now(),
             welcome_completed_at: None,
+            referral_code: None,
+            payout_wallet_address: None,
         };
 
         let json = serde_json::to_string(&user).unwrap();

@@ -140,7 +140,64 @@ pub async fn execute_public_deposit<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Deposits not enabled".into()));
     }
 
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
     let auth_user = authenticate(&state, &headers).await?;
+
+    // KYC enforcement gate
+    if let Some(kyc_service) = &state.kyc_service {
+        kyc_service
+            .check_enforcement(auth_user.user_id, "deposits")
+            .await?;
+    }
+
+    // Sanctions check on the depositing wallet
+    state
+        .sanctions_service
+        .check_address(&request.wallet_address)
+        .await?;
+
+    // KYC threshold check (amount-based, independent of enforcement mode)
+    if let Some(kyc_service) = &state.kyc_service {
+        let sol_price = state
+            .sol_price_service
+            .get_sol_price_usd()
+            .await
+            .unwrap_or(0.0);
+        // Convert input_amount to USD. USDC/USDT use 6 decimals (stablecoins);
+        // SOL uses 9 decimals (lamports). Anything else falls back to SOL scale.
+        use crate::config::privacy::{USDC_MINT, USDT_MINT};
+        let deposit_usd = if request.input_mint == USDC_MINT
+            || request.input_mint == USDT_MINT
+        {
+            request.input_amount as f64 / 1_000_000.0
+        } else {
+            (request.input_amount as f64 / LAMPORTS_PER_SOL) * sol_price
+        };
+        let company_currency = &state.config.privacy.company_currency;
+        let prior_usd = state
+            .credit_repo
+            .get_user_stats(auth_user.user_id, company_currency)
+            .await
+            .map(|s| {
+                if company_currency.eq_ignore_ascii_case("SOL") {
+                    (s.total_deposited as f64 / LAMPORTS_PER_SOL) * sol_price
+                } else {
+                    // USD-denominated credits stored with 6 decimal places
+                    s.total_deposited as f64 / 1_000_000.0
+                }
+            })
+            .unwrap_or(0.0);
+        kyc_service
+            .check_threshold(
+                auth_user.user_id,
+                "deposit",
+                deposit_usd,
+                Some(prior_usd),
+            )
+            .await?;
+    }
 
     // Require Jupiter swap service
     let jupiter = state.jupiter_swap_service.as_ref().ok_or_else(|| {
@@ -223,7 +280,48 @@ pub async fn execute_micro_deposit<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Deposits not enabled".into()));
     }
 
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
     let auth_user = authenticate(&state, &headers).await?;
+
+    // KYC enforcement gate
+    if let Some(kyc_service) = &state.kyc_service {
+        kyc_service
+            .check_enforcement(auth_user.user_id, "deposits")
+            .await?;
+    }
+
+    // KYC threshold check (amount-based, independent of enforcement mode)
+    if let Some(kyc_service) = &state.kyc_service {
+        let sol_price = state
+            .sol_price_service
+            .get_sol_price_usd()
+            .await
+            .unwrap_or(0.0);
+        let deposit_usd =
+            (request.amount_lamports as f64 / LAMPORTS_PER_SOL) * sol_price;
+        let prior_usd = state
+            .credit_repo
+            .get_user_stats(auth_user.user_id, "SOL")
+            .await
+            .map(|s| (s.total_deposited as f64 / LAMPORTS_PER_SOL) * sol_price)
+            .unwrap_or(0.0);
+        kyc_service
+            .check_threshold(
+                auth_user.user_id,
+                "deposit",
+                deposit_usd,
+                Some(prior_usd),
+            )
+            .await?;
+    }
+
+    // Sanctions check on the depositing wallet
+    state
+        .sanctions_service
+        .check_address(&request.wallet_address)
+        .await?;
 
     // Resolve the configured treasury wallet (global)
     let treasury_config = state

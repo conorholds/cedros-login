@@ -12,6 +12,7 @@ use crate::models::{AuthMethod, AuthUser};
 use async_trait::async_trait;
 use serde::Serialize;
 use serde_json::Value;
+use uuid::Uuid;
 
 /// Payload passed to callbacks
 #[derive(Debug, Clone, Serialize)]
@@ -25,6 +26,27 @@ pub struct AuthCallbackPayload {
     /// Referral code or metadata passed from the registration request.
     /// Only present for email registration; None for OAuth/wallet/passkey flows.
     pub referral: Option<String>,
+}
+
+/// Payload emitted after a referral reward is successfully issued.
+///
+/// Both `credits` and `direct_payout` reward types fire this callback.
+/// Errors from the callback are logged as warnings and do not affect the reward itself.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReferralRewardPayload {
+    /// The referrer who receives the reward.
+    pub referrer_id: Uuid,
+    /// The referred user who triggered the reward.
+    pub referred_user_id: Uuid,
+    /// What triggered this: `"signup"`, `"first_spend"`, or `"spend"`.
+    pub trigger_type: String,
+    /// Reward amount in smallest currency unit (e.g. lamports).
+    pub amount: i64,
+    /// Currency code (e.g. `"SOL"`, `"USD"`).
+    pub currency: String,
+    /// How the reward was issued: `"credits"` or `"direct_payout"`.
+    pub reward_type: String,
 }
 
 /// Trait for handling authenticated user events.
@@ -41,6 +63,15 @@ pub trait AuthCallback: Send + Sync {
 
     /// Called when a user logs out.
     async fn on_logout(&self, user_id: &str) -> Result<(), AppError>;
+
+    /// Called when a referral reward is issued (credit or payout created).
+    ///
+    /// Default implementation does nothing. Override to react to reward events,
+    /// e.g. to notify your application or update external records.
+    async fn on_referral_reward(&self, payload: &ReferralRewardPayload) -> Result<(), AppError> {
+        let _ = payload;
+        Ok(())
+    }
 }
 
 /// Default callback that does nothing extra
@@ -81,6 +112,8 @@ mod tests {
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 welcome_completed_at: None,
+                referral_code: None,
+                payout_wallet_address: None,
             },
             method: AuthMethod::Email,
             is_new_user: false,
@@ -153,6 +186,8 @@ mod tests {
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 welcome_completed_at: None,
+                referral_code: None,
+                payout_wallet_address: None,
             },
             method: AuthMethod::Solana,
             is_new_user: true,
@@ -183,6 +218,8 @@ mod tests {
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 welcome_completed_at: None,
+                referral_code: None,
+                payout_wallet_address: None,
             },
             method: AuthMethod::Google,
             is_new_user: false,

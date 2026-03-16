@@ -39,6 +39,14 @@ pub struct AuthFeaturesResponse {
     pub show_recovery_enabled: bool,
     /// Display order for social login buttons (e.g. `["webauthn","google","apple","solana"]`).
     pub social_button_order: Vec<String>,
+    /// Whether KYC identity verification is enabled.
+    pub kyc_enabled: bool,
+    /// Current KYC enforcement mode: `"none"`, `"optional"`, `"withdrawals"`, `"deposits"`, `"all"`.
+    pub kyc_enforcement_mode: String,
+    /// Whether accredited investor verification is enabled.
+    pub accreditation_enabled: bool,
+    /// Accreditation enforcement: `"none"`, `"optional"`, `"required"`.
+    pub accreditation_enforcement_mode: String,
 }
 
 /// GET /features — lightweight public endpoint for UI feature discovery.
@@ -153,6 +161,34 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .map(|s| s.split(',').map(|p| p.trim().to_string()).collect::<Vec<_>>())
         .unwrap_or(default_order);
 
+    let kyc_enabled = ss
+        .get_bool("kyc_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
+    let kyc_enforcement_mode = ss
+        .get("kyc_enforcement_mode")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "none".to_string());
+
+    let accreditation_enabled = ss
+        .get_bool("accreditation_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
+    let accreditation_enforcement_mode = ss
+        .get("accreditation_enforcement_mode")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "none".to_string());
+
     Json(AuthFeaturesResponse {
         email,
         google,
@@ -166,6 +202,10 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         wallet_enroll_enabled,
         show_recovery_enabled,
         social_button_order,
+        kyc_enabled,
+        kyc_enforcement_mode,
+        accreditation_enabled,
+        accreditation_enforcement_mode,
     })
 }
 
@@ -188,6 +228,10 @@ mod tests {
             wallet_enroll_enabled: false,
             show_recovery_enabled: false,
             social_button_order: vec!["webauthn".into(), "google".into()],
+            kyc_enabled: false,
+            kyc_enforcement_mode: "none".to_string(),
+            accreditation_enabled: false,
+            accreditation_enforcement_mode: "none".to_string(),
         };
 
         let json = serde_json::to_string(&resp).unwrap();
@@ -198,6 +242,8 @@ mod tests {
         assert!(!json.contains("googleClientId"));
         assert!(!json.contains("appleClientId"));
         assert!(json.contains("\"socialButtonOrder\":[\"webauthn\",\"google\"]"));
+        assert!(json.contains("\"kycEnabled\":false"));
+        assert!(json.contains("\"kycEnforcementMode\":\"none\""));
     }
 
     #[test]
@@ -220,6 +266,10 @@ mod tests {
                 "apple".into(),
                 "solana".into(),
             ],
+            kyc_enabled: false,
+            kyc_enforcement_mode: "none".to_string(),
+            accreditation_enabled: false,
+            accreditation_enforcement_mode: "none".to_string(),
         };
 
         let json = serde_json::to_string(&resp).unwrap();

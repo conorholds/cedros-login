@@ -98,7 +98,7 @@ pub struct AvatarUploadResponse {
 }
 
 /// Build an S3ImageStorageService from runtime settings, decrypting secrets.
-async fn build_storage_service<C: AuthCallback, E: EmailService>(
+pub(crate) async fn build_storage_service<C: AuthCallback, E: EmailService>(
     state: &AppState<C, E>,
 ) -> Result<S3ImageStorageService, AppError> {
     let ss = &state.settings_service;

@@ -1,5 +1,6 @@
 //! PostgreSQL repository implementations
 
+mod accreditation_repository;
 mod api_key_repository;
 mod audit_repository;
 mod credential_repository;
@@ -10,6 +11,7 @@ mod custom_role_repository;
 mod deposit_repository;
 mod derived_wallet_repository;
 mod invite_repository;
+mod kyc_repository;
 mod login_attempt_repository;
 mod membership_repository;
 mod nonce_repository;
@@ -17,6 +19,8 @@ mod org_repository;
 mod outbox_repository;
 mod pending_wallet_recovery_repository;
 mod policy_repository;
+mod referral_code_history_repository;
+mod referral_payout_repository;
 mod privacy_note_repository;
 mod session_repository;
 mod sso_repository;
@@ -31,6 +35,7 @@ mod wallet_rotation_history_repository;
 mod webauthn_repository;
 mod withdrawal_history_repository;
 
+pub use accreditation_repository::PostgresAccreditationRepository;
 pub use api_key_repository::PostgresApiKeyRepository;
 pub use audit_repository::PostgresAuditLogRepository;
 pub use credential_repository::PostgresCredentialRepository;
@@ -41,6 +46,7 @@ pub use custom_role_repository::PostgresCustomRoleRepository;
 pub use deposit_repository::PostgresDepositRepository;
 pub use derived_wallet_repository::PostgresDerivedWalletRepository;
 pub use invite_repository::PostgresInviteRepository;
+pub use kyc_repository::PostgresKycRepository;
 pub use login_attempt_repository::PostgresLoginAttemptRepository;
 pub use membership_repository::PostgresMembershipRepository;
 pub use nonce_repository::PostgresNonceRepository;
@@ -48,6 +54,8 @@ pub use org_repository::PostgresOrgRepository;
 pub use outbox_repository::PostgresOutboxRepository;
 pub use pending_wallet_recovery_repository::PostgresPendingWalletRecoveryRepository;
 pub use policy_repository::PostgresPolicyRepository;
+pub use referral_code_history_repository::PostgresReferralCodeHistoryRepository;
+pub use referral_payout_repository::PostgresReferralPayoutRepository;
 pub use privacy_note_repository::PostgresPrivacyNoteRepository;
 pub use session_repository::PostgresSessionRepository;
 pub use sso_repository::PostgresSsoRepository;

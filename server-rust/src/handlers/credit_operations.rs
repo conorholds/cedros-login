@@ -58,6 +58,23 @@ pub async fn spend_credits<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::NotFound("User not found".into()))?;
 
+    // KYC threshold check for purchases (amount-based, independent of enforcement mode)
+    if let Some(kyc_service) = &state.kyc_service {
+        let amount_usd = if request.currency.eq_ignore_ascii_case("USD") {
+            request.amount_lamports as f64 / 1_000_000.0
+        } else {
+            let sol_price = state
+                .sol_price_service
+                .get_sol_price_usd()
+                .await
+                .unwrap_or(0.0);
+            (request.amount_lamports as f64 / 1_000_000_000.0) * sol_price
+        };
+        kyc_service
+            .check_threshold(user_id, "purchase", amount_usd, None)
+            .await?;
+    }
+
     // Create credit service
     let credit_service =
         CreditService::new(state.credit_repo.clone(), state.credit_hold_repo.clone());
@@ -85,6 +102,26 @@ pub async fn spend_credits<C: AuthCallback, E: EmailService>(
         transaction_id = %result.transaction_id,
         "Credit spend operation"
     );
+
+    // Issue referral spend reward (non-fatal, fire-and-forget)
+    if let Err(e) = crate::services::referral_reward_service::issue_spend_reward(
+        &*state.user_repo,
+        &*state.credit_repo,
+        &*state.referral_payout_repo,
+        &state.settings_service,
+        &*state.callback,
+        user_id,
+        result.transaction_id,
+        &state.config.privacy.company_currency,
+    )
+    .await
+    {
+        tracing::warn!(
+            user_id = %user_id,
+            error = %e,
+            "Failed to issue referral spend reward"
+        );
+    }
 
     Ok(Json(SpendCreditsResponse::from_result(
         result,
@@ -125,6 +162,24 @@ pub async fn create_hold<C: AuthCallback, E: EmailService>(
         .find_by_id(user_id)
         .await?
         .ok_or(AppError::NotFound("User not found".into()))?;
+
+    // KYC threshold check for purchases (amount-based, independent of enforcement mode).
+    // Checked at hold creation so the purchase is gated before funds are reserved.
+    if let Some(kyc_service) = &state.kyc_service {
+        let amount_usd = if request.currency.eq_ignore_ascii_case("USD") {
+            request.amount_lamports as f64 / 1_000_000.0
+        } else {
+            let sol_price = state
+                .sol_price_service
+                .get_sol_price_usd()
+                .await
+                .unwrap_or(0.0);
+            (request.amount_lamports as f64 / 1_000_000_000.0) * sol_price
+        };
+        kyc_service
+            .check_threshold(user_id, "purchase", amount_usd, None)
+            .await?;
+    }
 
     // SRV-12: Validate TTL bounds (1-60 minutes). ttl=0 would create an already-expired hold.
     if request.ttl_minutes < 1 || request.ttl_minutes > 60 {
@@ -185,6 +240,14 @@ pub async fn capture_hold<C: AuthCallback, E: EmailService>(
     let credit_service =
         CreditService::new(state.credit_repo.clone(), state.credit_hold_repo.clone());
 
+    // Look up hold to get user_id for referral reward
+    let hold = state
+        .credit_hold_repo
+        .get_hold(hold_id)
+        .await?
+        .ok_or_else(|| AppError::NotFound(format!("Hold {} not found", hold_id)))?;
+    let hold_user_id = hold.user_id;
+
     // S-14: Capture returns currency from the hold it fetches internally,
     // avoiding a separate get_hold() call just to read the currency.
     let result = credit_service.capture(hold_id).await?;
@@ -196,6 +259,26 @@ pub async fn capture_hold<C: AuthCallback, E: EmailService>(
         amount_lamports = result.amount_lamports,
         "Credit hold captured"
     );
+
+    // Issue referral spend reward (non-fatal, fire-and-forget)
+    if let Err(e) = crate::services::referral_reward_service::issue_spend_reward(
+        &*state.user_repo,
+        &*state.credit_repo,
+        &*state.referral_payout_repo,
+        &state.settings_service,
+        &*state.callback,
+        hold_user_id,
+        result.transaction_id,
+        &state.config.privacy.company_currency,
+    )
+    .await
+    {
+        tracing::warn!(
+            user_id = %hold_user_id,
+            error = %e,
+            "Failed to issue referral spend reward"
+        );
+    }
 
     Ok(Json(CaptureHoldResponse::from_result(result)))
 }
@@ -389,6 +472,13 @@ mod tests {
                     "USDC".to_string(),
                 ))
             },
+            referral_payout_repo: storage.referral_payout_repo.clone(),
+            referral_code_history_repo: storage.referral_code_history_repo.clone(),
+            kyc_service: None,
+            accreditation_service: None,
+            sanctions_service: std::sync::Arc::new(
+                crate::services::SanctionsService::new(settings_service.clone()),
+            ),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,
@@ -417,6 +507,15 @@ mod tests {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
 
@@ -447,6 +546,15 @@ mod tests {
             updated_at: now,
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = state.user_repo.create(user).await.unwrap();
         user.id

@@ -44,6 +44,8 @@ pub struct SignupVerifyRequest {
     pub name: Option<String>,
     /// Passkey label (e.g. "MacBook Pro")
     pub label: Option<String>,
+    /// Optional referral code for signup attribution
+    pub referral: Option<String>,
 }
 
 /// POST /auth/webauthn/signup/options
@@ -115,6 +117,9 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("WebAuthn auth disabled".into()));
     }
 
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
     // Parse the credential from JSON
     let credential: webauthn_rs::prelude::RegisterPublicKeyCredential =
         serde_json::from_value(request.credential)
@@ -144,6 +149,34 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         None
     };
 
+    // Resolve referral code before building user entity
+    let referrals_enabled = state
+        .settings_service
+        .get_bool("feature_referrals_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+    let referred_by = if referrals_enabled {
+        if let Some(ref code) = request.referral {
+            match state.user_repo.find_by_referral_code(code).await {
+                Ok(Some(referrer)) => Some(referrer.id),
+                Ok(None) => {
+                    tracing::debug!(referral_code = %code, "Referral code not found, ignoring");
+                    None
+                }
+                Err(e) => {
+                    tracing::warn!(error = %e, "Failed to look up referral code, ignoring");
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     // Build user entity
     let now = Utc::now();
     let user_id = Uuid::new_v4();
@@ -165,6 +198,15 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         updated_at: now,
         last_login_at: Some(now),
         welcome_completed_at: None,
+        referral_code: crate::repositories::generate_referral_code(),
+        referred_by,
+        payout_wallet_address: None,
+        kyc_status: "none".to_string(),
+        kyc_verified_at: None,
+        kyc_expires_at: None,
+        accreditation_status: "none".to_string(),
+        accreditation_verified_at: None,
+        accreditation_expires_at: None,
     };
 
     let org_assignment = resolve_org_assignment(&state, user.id).await?;
@@ -224,6 +266,29 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         );
     }
 
+    // Issue referral signup reward (non-fatal)
+    if let Some(referrer_id) = user.referred_by {
+        if let Err(e) = crate::services::referral_reward_service::issue_signup_reward(
+            &*state.user_repo,
+            &*state.credit_repo,
+            &*state.referral_payout_repo,
+            &state.settings_service,
+            &*state.callback,
+            user.id,
+            referrer_id,
+            &state.config.privacy.company_currency,
+        )
+        .await
+        {
+            tracing::warn!(
+                user_id = %user.id,
+                referrer_id = %referrer_id,
+                error = %e,
+                "Failed to issue referral signup reward"
+            );
+        }
+    }
+
     // Session + JWT
     let memberships = state.membership_repo.find_by_user(user_id).await?;
     let token_context =
@@ -263,7 +328,7 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
-        referral: None,
+        referral: request.referral.clone(),
     };
     let callback_data = call_registered_callback_with_timeout(&state.callback, &payload).await;
 

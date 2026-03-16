@@ -37,10 +37,125 @@ export declare interface AccountSettingsProps extends ProfileTabProps, LinkedAcc
 
 declare type AccountTab = 'profile' | 'security' | 'linked';
 
+/**
+ * Banner prompting users to complete accredited investor verification.
+ *
+ * Returns null when status is "approved". All other statuses render a banner
+ * with an optional action button that calls `onStartVerification`.
+ *
+ * @example
+ * ```tsx
+ * const [showWizard, setShowWizard] = useState(false);
+ * const { status } = useAccreditation();
+ * <AccreditationBanner status={status ?? 'none'} onStartVerification={() => setShowWizard(true)} />
+ * ```
+ */
+export declare function AccreditationBanner({ status, onStartVerification, className, }: AccreditationBannerProps): JSX.Element | null;
+
+export declare interface AccreditationBannerProps {
+    /** Current accreditation status */
+    status: string;
+    /** Called when the user clicks the verification action button */
+    onStartVerification?: () => void;
+    /** Additional CSS class */
+    className?: string;
+}
+
+/**
+ * A document uploaded for an accreditation submission.
+ */
+export declare interface AccreditationDocumentItem {
+    id: string;
+    documentType: string;
+    originalFilename?: string;
+    contentType?: string;
+    fileSizeBytes?: number;
+    uploadedAt: string;
+}
+
+/**
+ * Accredited investor verification types.
+ *
+ * These mirror the server-side accreditation module types.
+ */
+/** Verification method used by the user to prove accredited investor status. */
+export declare type AccreditationMethod = 'income' | 'net_worth' | 'credential' | 'third_party_letter' | 'insider' | 'investment_threshold';
+
+/**
+ * Response for GET /admin/accreditation/pending
+ */
+export declare interface AccreditationPendingListResponse {
+    items: AccreditationSubmissionItem[];
+    total: number;
+}
+
+/** Overall accreditation status for a user. */
+export declare type AccreditationStatus = 'none' | 'pending' | 'approved' | 'rejected' | 'expired';
+
+/**
+ * Response for GET /accreditation/status
+ *
+ * @returns status - current accreditation status
+ * @returns enforcementMode - server enforcement setting
+ */
+export declare interface AccreditationStatusResponse {
+    status: AccreditationStatus;
+    verifiedAt?: string;
+    expiresAt?: string;
+    enforcementMode: string;
+}
+
+/**
+ * A single accreditation submission (user or admin view).
+ */
+export declare interface AccreditationSubmissionItem {
+    id: string;
+    method: AccreditationMethod;
+    status: string;
+    incomeType?: string;
+    statedAmountUsd?: number;
+    crdNumber?: string;
+    licenseType?: string;
+    investmentCommitmentUsd?: number;
+    entityType?: string;
+    userStatement?: string;
+    reviewerNotes?: string;
+    rejectionReason?: string;
+    expiresAt?: string;
+    createdAt: string;
+    reviewedAt?: string;
+}
+
+/**
+ * Multi-step accredited investor verification wizard.
+ *
+ * Step 1 — choose method, Step 2 — fill details + upload documents,
+ * Step 3 — review and submit. On submit, calls `submitVerification` then
+ * uploads all staged files, then calls `onComplete(submissionId)`.
+ */
+export declare function AccreditationWizard({ onComplete, onCancel, className }: AccreditationWizardProps): JSX.Element;
+
+export declare interface AccreditationWizardProps {
+    /** Called after successful submission with the new submissionId */
+    onComplete?: (submissionId: string) => void;
+    /** Called when user cancels or navigates back from step 1 */
+    onCancel?: () => void;
+    /** Additional CSS class */
+    className?: string;
+}
+
 /** Request to acknowledge receipt of recovery phrase */
 export declare interface AcknowledgeRecoveryRequest {
     /** Confirmation that user has saved the recovery phrase */
     confirmed: boolean;
+}
+
+/**
+ * Admin-level detail view of a single submission, including documents.
+ */
+export declare interface AdminAccreditationSubmissionDetail extends AccreditationSubmissionItem {
+    userId: string;
+    documents: AccreditationDocumentItem[];
 }
 
 /**
@@ -286,6 +401,37 @@ export declare interface AdminPrivacyPeriodDepositsProps {
 }
 
 /**
+ * Admin UI for managing direct referral payouts.
+ *
+ * Inputs: none beyond className.
+ * Outputs: renders tabbed payout management UI.
+ * Errors: displayed inline with retry options.
+ */
+export declare function AdminReferralPayouts({ className }: AdminReferralPayoutsProps): JSX.Element;
+
+/**
+ * Admin referral payouts management component
+ *
+ * Tab 1: Summary — grouped-by-referrer view with Process All / Retry Failed
+ * Tab 2: All Payouts — paginated individual list with per-row actions
+ *
+ * Requires system admin privileges.
+ */
+export declare interface AdminReferralPayoutsProps {
+    className?: string;
+}
+
+/**
+ * Response for GET /admin/users/:user_id/referrals
+ */
+declare interface AdminReferredUsersResponse {
+    users: ReferredUserItem[];
+    total: number;
+    limit: number;
+    offset: number;
+}
+
+/**
  * Section configuration for sidebar navigation.
  *
  * **Ordering:** Sections within a group are sorted by `order` (ascending).
@@ -377,6 +523,38 @@ export declare interface AdminUser {
     lastLoginAt?: string;
     /** Credit balance in lamports (if credit system is enabled) */
     balanceLamports?: number;
+    /** User's referral code */
+    referralCode?: string;
+    /** ID of the user who referred this user */
+    referredBy?: string;
+    /** Number of users this user has referred */
+    referralCount?: number;
+    /** Wallet address configured for direct referral payouts */
+    payoutWalletAddress?: string;
+    /** KYC verification status: none, pending, verified, failed, expired, canceled */
+    kycStatus?: string;
+    /** When KYC was verified (ISO 8601) */
+    kycVerifiedAt?: string;
+    /** When KYC verification expires (ISO 8601) */
+    kycExpiresAt?: string;
+    /** Accredited investor verification status: none, pending, approved, rejected, expired */
+    accreditationStatus?: string;
+    /** When accreditation was verified (ISO 8601) */
+    accreditationVerifiedAt?: string;
+    /** When accreditation expires (ISO 8601) */
+    accreditationExpiresAt?: string;
+}
+
+/**
+ * Response for GET /admin/users/:userId/accreditation
+ */
+export declare interface AdminUserAccreditationResponse {
+    userId: string;
+    status: string;
+    verifiedAt?: string;
+    expiresAt?: string;
+    submissions: AccreditationSubmissionItem[];
+    totalSubmissions: number;
 }
 
 /**
@@ -415,6 +593,33 @@ declare interface AdminUserCreditStats {
     currentBalanceSol: number;
     depositCount: number;
     spendCount: number;
+}
+
+/**
+ * Response for GET /admin/users/:user_id/kyc
+ */
+export declare interface AdminUserKycResponse {
+    userId: string;
+    status: string;
+    verifiedAt?: string;
+    expiresAt?: string;
+    sessions: AdminUserKycSession[];
+    totalSessions: number;
+}
+
+/**
+ * A single KYC verification session for a user (admin view)
+ */
+export declare interface AdminUserKycSession {
+    id: string;
+    provider: string;
+    providerSessionId: string;
+    status: string;
+    errorCode?: string;
+    errorReason?: string;
+    createdAt: string;
+    updatedAt: string;
+    completedAt?: string;
 }
 
 /**
@@ -684,6 +889,10 @@ export declare interface AuthUser {
     updatedAt: string;
     /** When the user completed the one-time welcome flow */
     welcomeCompletedAt?: string;
+    /** User's unique referral code */
+    referralCode?: string;
+    /** Wallet address to receive direct referral payouts */
+    payoutWalletAddress?: string;
 }
 
 /** Multiple balances response */
@@ -829,6 +1038,8 @@ declare interface CedrosLoginContextValue extends AuthStateContextValue, AuthUIC
 declare interface CedrosLoginInternalAPI {
     handleLoginSuccess: (user: AuthUser, tokens?: TokenPair) => void;
     getAccessToken: () => string | null;
+    /** Get the referral code captured from the ?ref= URL parameter (if any) */
+    getReferralCode: () => string | null;
 }
 
 declare const cedrosLoginPlugin: AdminPlugin;
@@ -1150,7 +1361,7 @@ declare interface CustomTokenDefinition {
  * ```
  */
 /** Available dashboard sections */
-export declare type DashboardSection = 'users' | 'team' | 'deposits' | 'withdrawals' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-server' | 'settings-images';
+export declare type DashboardSection = 'users' | 'team' | 'referrals' | 'deposits' | 'withdrawals' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-server' | 'settings-images';
 
 declare type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -1975,6 +2186,56 @@ export declare interface KdfParams {
     pCost: number;
 }
 
+/**
+ * Banner prompting users to complete KYC identity verification.
+ *
+ * Shown when KYC enforcement is active and the user is not yet verified.
+ * Clicking the button starts a Stripe Identity session and redirects the user.
+ */
+export declare function KycBanner({ status, startVerification, className, }: KycBannerProps): JSX.Element | null;
+
+export declare interface KycBannerProps {
+    /** Current KYC status */
+    status: string;
+    /** Function that starts verification and returns redirect URL */
+    startVerification: () => Promise<string>;
+    /** Optional CSS class name */
+    className?: string;
+}
+
+/**
+ * Post-KYC redirect landing component.
+ *
+ * Polls the KYC status every 3 seconds after Stripe redirects the user back.
+ * Stops polling when status changes from "pending" to a final state, or after
+ * 60 seconds.
+ *
+ * @example
+ * ```tsx
+ * const { fetchStatus } = useKyc();
+ * <KycCallback fetchStatus={fetchStatus} onComplete={(status) => navigate('/dashboard')} />
+ * ```
+ */
+export declare function KycCallback({ fetchStatus, onComplete, className }: KycCallbackProps): JSX.Element;
+
+export declare interface KycCallbackProps {
+    /** Function that fetches KYC status — obtain from useKyc().fetchStatus */
+    fetchStatus: () => Promise<{
+        status: string;
+    }>;
+    /** Called when polling resolves to a non-pending status */
+    onComplete?: (status: string) => void;
+    /** Additional CSS classes */
+    className?: string;
+}
+
+declare interface KycStatusResponse {
+    status: string;
+    verifiedAt?: string;
+    expiresAt?: string;
+    enforcementMode: string;
+}
+
 export declare function LinkedAccounts({ onLinkGoogle, onLinkApple, onAddPasskey, onLinkSolana, className, }: LinkedAccountsProps): JSX.Element;
 
 /**
@@ -2768,6 +3029,23 @@ export declare interface RecoveryState {
 
 /** Recovery flow state */
 declare type RecoveryStep = 'idle' | 'entering_phrase' | 'validating' | 'prompting_password' | 'registering_passkey' | 'encrypting' | 'uploading' | 'complete' | 'error';
+
+declare interface ReferralInfo {
+    referralCode: string;
+    referralCount: number;
+    directPayoutEnabled: boolean;
+}
+
+/**
+ * A single user entry in the referral network response
+ */
+declare interface ReferredUserItem {
+    id: string;
+    email?: string;
+    name?: string;
+    createdAt: string;
+    lastLoginAt?: string;
+}
 
 /**
  * Register Mobile Wallet Adapter as a wallet-standard wallet.
@@ -3743,6 +4021,8 @@ export declare interface UpdateProfileRequest {
     username?: string;
     /** User's profile picture URL */
     picture?: string;
+    /** Solana wallet address to receive direct referral payouts (32–44 chars) */
+    payoutWalletAddress?: string;
 }
 
 /**
@@ -3782,6 +4062,65 @@ declare interface UpdateUserRequest {
     name?: string;
     email?: string;
     emailVerified?: boolean;
+}
+
+/**
+ * Hook for accredited investor verification.
+ *
+ * Follows the same pattern as useKyc.
+ */
+export declare function useAccreditation(): UseAccreditationReturn;
+
+/**
+ * Return type for the useAccreditation hook.
+ *
+ * @example
+ * ```tsx
+ * const { status, isRequired, fetchStatus, submitVerification } = useAccreditation();
+ *
+ * useEffect(() => { fetchStatus(); }, [fetchStatus]);
+ * ```
+ */
+export declare interface UseAccreditationReturn {
+    /** Current accreditation status: none, pending, approved, rejected, expired */
+    status: AccreditationStatus | null;
+    /** When accreditation was verified (ISO 8601) */
+    verifiedAt: string | null;
+    /** When accreditation expires (ISO 8601) */
+    expiresAt: string | null;
+    /** Whether accreditation enforcement is active (mode is not "none") */
+    isRequired: boolean;
+    /** Current enforcement mode from server */
+    enforcementMode: string | null;
+    /** Fetch the current user's accreditation status */
+    fetchStatus: () => Promise<AccreditationStatusResponse>;
+    /**
+     * Submit a new accreditation verification request.
+     *
+     * @param method - verification method
+     * @param data - method-specific data (income amount, CRD number, etc.)
+     * @returns submissionId of the created submission
+     */
+    submitVerification: (method: AccreditationMethod, data: Record<string, unknown>) => Promise<{
+        submissionId: string;
+    }>;
+    /**
+     * Upload a supporting document for a submission.
+     *
+     * @param submissionId - ID of the submission to attach the document to
+     * @param file - File object to upload
+     * @param documentType - document category (e.g. "tax_return", "letter")
+     * @returns documentId of the created document record
+     */
+    uploadDocument: (submissionId: string, file: File, documentType: string) => Promise<{
+        documentId: string;
+    }>;
+    /** List this user's accreditation submissions */
+    listSubmissions: () => Promise<AccreditationSubmissionItem[]>;
+    /** Whether a request is in progress */
+    isLoading: boolean;
+    /** Error from the last operation */
+    error: Error | null;
 }
 
 /**
@@ -3878,6 +4217,7 @@ export declare interface UseAdminUsersReturn {
     getUserCredits: (userId: string, params?: ListUsersParams) => Promise<AdminUserCreditsResponse>;
     getUserWithdrawalHistory: (userId: string, params?: ListUsersParams) => Promise<AdminUserWithdrawalHistoryResponse>;
     getUserChats: (userId: string, params?: ListUsersParams) => Promise<AdminUserChatsResponse>;
+    getUserReferrals: (userId: string, params?: ListUsersParams) => Promise<AdminReferredUsersResponse>;
     getStats: () => Promise<AdminUserStatsResponse>;
     refresh: () => Promise<void>;
     clearError: () => void;
@@ -4326,6 +4666,47 @@ export declare interface UseInvitesReturn {
 }
 
 /**
+ * Hook for KYC identity verification.
+ *
+ * @example
+ * ```tsx
+ * const { status, isRequired, startVerification, fetchStatus, isLoading } = useKyc();
+ *
+ * useEffect(() => { fetchStatus(); }, [fetchStatus]);
+ *
+ * if (isRequired && status !== 'verified') {
+ *   const url = await startVerification();
+ *   window.location.href = url;
+ * }
+ * ```
+ */
+export declare function useKyc(): UseKycReturn;
+
+/**
+ * Return type for the useKyc hook
+ */
+export declare interface UseKycReturn {
+    /** Current KYC status: none, pending, verified, failed, expired, canceled */
+    status: string | null;
+    /** When verification was completed (ISO 8601) */
+    verifiedAt: string | null;
+    /** When verification expires (ISO 8601) */
+    expiresAt: string | null;
+    /** Whether KYC enforcement is active (mode is not "none") */
+    isRequired: boolean;
+    /** Current enforcement mode from server */
+    enforcementMode: string | null;
+    /** Fetch the current user's KYC status */
+    fetchStatus: () => Promise<KycStatusResponse>;
+    /** Start a new verification session (returns redirect URL) */
+    startVerification: () => Promise<string>;
+    /** Whether a request is in progress */
+    isLoading: boolean;
+    /** Error from the last operation */
+    error: Error | null;
+}
+
+/**
  * Hook to access current locale
  */
 export declare function useLocale(): string;
@@ -4638,6 +5019,35 @@ export declare interface UseProfileReturn {
     changePassword: (data: ChangePasswordRequest) => Promise<void>;
     /** Clear error state */
     clearError: () => void;
+}
+
+/**
+ * Hook for referral code management.
+ *
+ * @example
+ * ```tsx
+ * const { getReferral, regenerateCode, isLoading } = useReferral();
+ *
+ * const info = await getReferral();
+ * console.log(info.referralCode, info.referralCount);
+ *
+ * const newCode = await regenerateCode();
+ * ```
+ */
+export declare function useReferral(): UseReferralReturn;
+
+/**
+ * Return type for the useReferral hook
+ */
+export declare interface UseReferralReturn {
+    /** Fetch the current user's referral code and count */
+    getReferral: () => Promise<ReferralInfo>;
+    /** Regenerate the current user's referral code */
+    regenerateCode: () => Promise<string>;
+    /** Whether a request is in progress */
+    isLoading: boolean;
+    /** Error from the last operation */
+    error: Error | null;
 }
 
 /**

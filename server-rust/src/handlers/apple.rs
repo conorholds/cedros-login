@@ -65,6 +65,9 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         .or_else(|| state.config.apple.team_id.clone())
         .ok_or_else(|| AppError::Config("Apple team ID not configured".into()))?;
 
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
     // Verify the Apple ID token
     let claims = state
         .apple_service
@@ -142,7 +145,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         // Users created without email can only authenticate via Apple ID.
         // This is acceptable as the apple_id field uniquely identifies them.
         let now = Utc::now();
-        let user = UserEntity {
+        let mut user = UserEntity {
             id: uuid::Uuid::new_v4(),
             email: normalized_email.clone(),
             email_verified: claims.is_email_verified(),
@@ -161,7 +164,41 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             updated_at: now,
             last_login_at: Some(now),
             welcome_completed_at: None,
+            referral_code: crate::repositories::generate_referral_code(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
+
+        // Resolve referral: if feature enabled and referral code provided, link referrer
+        let referrals_enabled = state
+            .settings_service
+            .get_bool("feature_referrals_enabled")
+            .await
+            .ok()
+            .flatten()
+            .unwrap_or(false);
+        if referrals_enabled {
+            if let Some(ref code) = req.referral {
+                match state.user_repo.find_by_referral_code(code).await {
+                    Ok(Some(referrer)) => {
+                        user.referred_by = Some(referrer.id);
+                    }
+                    Ok(None) => {
+                        tracing::debug!(referral_code = %code, "Referral code not found, ignoring");
+                    }
+                    Err(e) => {
+                        tracing::warn!(error = %e, "Failed to look up referral code, ignoring");
+                    }
+                }
+            }
+        }
+
         let org_assignment = resolve_org_assignment(&state, user.id).await?;
         let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
         let raw_api_key = generate_api_key();
@@ -192,6 +229,31 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         (user, true, Some(raw_api_key))
         }
     };
+
+    // Issue referral signup reward for new users (non-fatal)
+    if is_new_user {
+        if let Some(referrer_id) = user.referred_by {
+            if let Err(e) = crate::services::referral_reward_service::issue_signup_reward(
+                &*state.user_repo,
+                &*state.credit_repo,
+                &*state.referral_payout_repo,
+                &state.settings_service,
+                &*state.callback,
+                user.id,
+                referrer_id,
+                &state.config.privacy.company_currency,
+            )
+            .await
+            {
+                tracing::warn!(
+                    user_id = %user.id,
+                    referrer_id = %referrer_id,
+                    error = %e,
+                    "Failed to issue referral signup reward"
+                );
+            }
+        }
+    }
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
@@ -233,7 +295,7 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
-        referral: None,
+        referral: req.referral.clone(),
     };
 
     let callback_data = if is_new_user {

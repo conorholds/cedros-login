@@ -36,6 +36,9 @@ use tokio::time::{Duration as TokioDuration, Instant as TokioInstant};
 #[derive(Debug, Deserialize)]
 pub struct InstantLinkRequest {
     pub email: String,
+    /// Optional referral code for new user signup attribution.
+    /// Stored on the provisional user at send time; applied at verify time.
+    pub referral: Option<String>,
 }
 
 /// Request to verify instant link and login
@@ -103,6 +106,34 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
     let user = match state.user_repo.find_by_email(&email).await? {
         Some(u) => u,
         None => {
+            // Resolve referral code for new user (non-fatal)
+            let referrals_enabled = state
+                .settings_service
+                .get_bool("feature_referrals_enabled")
+                .await
+                .ok()
+                .flatten()
+                .unwrap_or(false);
+            let referred_by = if referrals_enabled {
+                if let Some(ref code) = req.referral {
+                    match state.user_repo.find_by_referral_code(code).await {
+                        Ok(Some(referrer)) => Some(referrer.id),
+                        Ok(None) => {
+                            tracing::debug!(referral_code = %code, "Referral code not found, ignoring");
+                            None
+                        }
+                        Err(e) => {
+                            tracing::warn!(error = %e, "Failed to look up referral code, ignoring");
+                            None
+                        }
+                    }
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
             // Create provisional user for instant link signup.
             // The user must exist for verification_tokens.user_id FK.
             // Membership + API key are created later in verify_instant_link.
@@ -125,6 +156,15 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
                 updated_at: now,
                 last_login_at: None,
                 welcome_completed_at: None,
+                referral_code: crate::repositories::generate_referral_code(),
+                referred_by,
+                payout_wallet_address: None,
+                kyc_status: "none".to_string(),
+                kyc_verified_at: None,
+                kyc_expires_at: None,
+                accreditation_status: "none".to_string(),
+                accreditation_verified_at: None,
+                accreditation_expires_at: None,
             };
             match state.user_repo.create(new_user).await {
                 Ok(created) => created,
@@ -207,6 +247,9 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
     if !enabled {
         return Err(AppError::NotFound("Instant link auth disabled".into()));
     }
+
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
 
     // H-08: Always hash and lookup to prevent timing attacks.
     // Don't do early format validation - just hash whatever we got.
@@ -297,6 +340,30 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         let raw = generate_api_key();
         let api_key_entity = ApiKeyEntity::new(user.id, &raw, "default");
         state.api_key_repo.create(api_key_entity).await?;
+
+        // Issue referral signup reward (non-fatal)
+        if let Some(referrer_id) = user.referred_by {
+            if let Err(e) = crate::services::referral_reward_service::issue_signup_reward(
+                &*state.user_repo,
+                &*state.credit_repo,
+                &*state.referral_payout_repo,
+                &state.settings_service,
+                &*state.callback,
+                user.id,
+                referrer_id,
+                &state.config.privacy.company_currency,
+            )
+            .await
+            {
+                tracing::warn!(
+                    user_id = %user.id,
+                    referrer_id = %referrer_id,
+                    error = %e,
+                    "Failed to issue referral signup reward"
+                );
+            }
+        }
+
         (true, Some(raw))
     } else {
         (false, None)
@@ -382,7 +449,7 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         session_id: session_id.to_string(),
         ip_address,
         user_agent,
-        referral: None,
+        referral: None, // referral code not available at verify step (was captured at send step)
     };
     let callback_data = if is_new_user {
         call_registered_callback_with_timeout(&state.callback, &payload).await

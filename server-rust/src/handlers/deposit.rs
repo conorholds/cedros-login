@@ -84,6 +84,15 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
     headers: HeaderMap,
     Json(request): Json<PrivacyDepositRequest>,
 ) -> Result<Json<PrivacyDepositResponse>, AppError> {
+    // GeoIP country screening (fail-open: skipped when header not configured or absent)
+    state.sanctions_service.check_country_from_request(&headers).await?;
+
+    // KYC enforcement gate
+    if let Some(kyc_service) = &state.kyc_service {
+        let auth_user = authenticate(&state, &headers).await?;
+        kyc_service.check_enforcement(auth_user.user_id, "deposits").await?;
+    }
+
     // Verify privacy deposits are enabled
     if !state.config.privacy.enabled {
         return Err(AppError::NotFound("Privacy deposits not enabled".into()));
@@ -101,6 +110,31 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
     // Authenticate user
     let auth_user = authenticate(&state, &headers).await?;
 
+    // KYC threshold check (amount-based, independent of enforcement mode)
+    if let Some(kyc_service) = &state.kyc_service {
+        let sol_price = state
+            .sol_price_service
+            .get_sol_price_usd()
+            .await
+            .unwrap_or(0.0);
+        let deposit_usd =
+            (request.amount_lamports as f64 / 1_000_000_000.0) * sol_price;
+        let prior_usd = state
+            .credit_repo
+            .get_user_stats(auth_user.user_id, "SOL")
+            .await
+            .map(|s| (s.total_deposited as f64 / 1_000_000_000.0) * sol_price)
+            .unwrap_or(0.0);
+        kyc_service
+            .check_threshold(
+                auth_user.user_id,
+                "deposit",
+                deposit_usd,
+                Some(prior_usd),
+            )
+            .await?;
+    }
+
     // Get wallet material - user must have enrolled SSS wallet
     let wallet_material = state
         .wallet_material_repo
@@ -111,6 +145,12 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
                 "SSS wallet not enrolled. Privacy deposits require SSS wallet.".into(),
             )
         })?;
+
+    // Sanctions check on the user's own wallet address
+    state
+        .sanctions_service
+        .check_address(&wallet_material.solana_pubkey)
+        .await?;
 
     // Get session ID for wallet unlock cache
     let session_id_for_cache = auth_user.session_id.ok_or_else(|| {
@@ -548,6 +588,13 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
 
     let auth_user = authenticate(&state, &headers).await?;
 
+    // KYC enforcement gate (SPL deposits are stablecoin deposits)
+    if let Some(kyc_service) = &state.kyc_service {
+        kyc_service
+            .check_enforcement(auth_user.user_id, "deposits")
+            .await?;
+    }
+
     #[cfg(feature = "postgres")]
     let pool = state.postgres_pool.as_ref().ok_or_else(|| {
         AppError::Config("Postgres pool is required for confirming SPL deposits".into())
@@ -595,6 +642,33 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
         return Err(AppError::Validation(
             "Deposit amount must be positive".into(),
         ));
+    }
+
+    // KYC threshold check for SPL deposits (stablecoins — amount is in USD)
+    if let Some(kyc_service) = &state.kyc_service {
+        // Whitelisted SPL tokens are stablecoins (USDC/USDT) with 6 decimal places
+        let deposit_usd = token_amount as f64 / 1_000_000.0;
+        let company_currency = &state.config.privacy.company_currency;
+        let sol_price = state
+            .sol_price_service
+            .get_sol_price_usd()
+            .await
+            .unwrap_or(0.0);
+        let prior_usd = state
+            .credit_repo
+            .get_user_stats(auth_user.user_id, company_currency)
+            .await
+            .map(|s| {
+                if company_currency.eq_ignore_ascii_case("SOL") {
+                    (s.total_deposited as f64 / 1_000_000_000.0) * sol_price
+                } else {
+                    s.total_deposited as f64 / 1_000_000.0
+                }
+            })
+            .unwrap_or(0.0);
+        kyc_service
+            .check_threshold(auth_user.user_id, "deposit", deposit_usd, Some(prior_usd))
+            .await?;
     }
 
     // CRITICAL: Defense-in-depth validation - verify token is still whitelisted

@@ -507,6 +507,15 @@ mod tests {
             updated_at: Utc::now(),
             last_login_at: None,
             welcome_completed_at: None,
+            referral_code: "TESTCODE".to_string(),
+            referred_by: None,
+            payout_wallet_address: None,
+            kyc_status: "none".to_string(),
+            kyc_verified_at: None,
+            kyc_expires_at: None,
+            accreditation_status: "none".to_string(),
+            accreditation_verified_at: None,
+            accreditation_expires_at: None,
         };
         let user = storage
             .user_repo
