@@ -49,6 +49,10 @@ pub struct AuthFeaturesResponse {
     pub accreditation_enforcement_mode: String,
     /// Whether token gating (Solana wallet holdings check) is enabled.
     pub token_gating_enabled: bool,
+    /// Whether the per-period signup rate limit is active.
+    pub signup_limit_enabled: bool,
+    /// Whether a signup access code is required to register.
+    pub signup_access_code_required: bool,
 }
 
 /// GET /features — lightweight public endpoint for UI feature discovery.
@@ -198,6 +202,20 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .flatten()
         .unwrap_or(false);
 
+    let signup_limit_enabled = ss
+        .get_bool("signup_limit_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
+    let signup_access_code_required = ss
+        .get_bool("signup_access_code_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
     Json(AuthFeaturesResponse {
         email,
         google,
@@ -216,6 +234,8 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         accreditation_enabled,
         accreditation_enforcement_mode,
         token_gating_enabled,
+        signup_limit_enabled,
+        signup_access_code_required,
     })
 }
 
@@ -243,6 +263,8 @@ mod tests {
             accreditation_enabled: false,
             accreditation_enforcement_mode: "none".to_string(),
             token_gating_enabled: false,
+            signup_limit_enabled: false,
+            signup_access_code_required: false,
         };
 
         let json = serde_json::to_string(&resp).unwrap();
@@ -283,6 +305,8 @@ mod tests {
             accreditation_enabled: false,
             accreditation_enforcement_mode: "none".to_string(),
             token_gating_enabled: false,
+            signup_limit_enabled: false,
+            signup_access_code_required: false,
         };
 
         let json = serde_json::to_string(&resp).unwrap();

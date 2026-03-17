@@ -39,6 +39,8 @@ pub struct InstantLinkRequest {
     /// Optional referral code for new user signup attribution.
     /// Stored on the provisional user at send time; applied at verify time.
     pub referral: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    pub access_code: Option<String>,
 }
 
 /// Request to verify instant link and login
@@ -106,6 +108,12 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
     let user = match state.user_repo.find_by_email(&email).await? {
         Some(u) => u,
         None => {
+            // Signup gating: enforce access codes and/or rate limits for new users
+            let gate_result = state
+                .signup_gating_service
+                .check_signup(req.access_code.as_deref())
+                .await?;
+
             // Resolve referral code for new user (non-fatal)
             let referrals_enabled = state
                 .settings_service
@@ -166,7 +174,7 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
                 accreditation_verified_at: None,
                 accreditation_expires_at: None,
             };
-            match state.user_repo.create(new_user).await {
+            let created_user = match state.user_repo.create(new_user).await {
                 Ok(created) => created,
                 Err(AppError::EmailExists) => {
                     // Race: user created between find and create
@@ -181,7 +189,21 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
                         })?
                 }
                 Err(e) => return Err(e),
+            };
+
+            // Mark access code as used (non-fatal)
+            if let Some(code_id) = gate_result.access_code_id {
+                if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
+                    tracing::warn!(
+                        user_id = %created_user.id,
+                        code_id = %code_id,
+                        error = %e,
+                        "Failed to mark access code as used"
+                    );
+                }
             }
+
+            created_user
         }
     };
 

@@ -881,6 +881,29 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/admin/users/{user_id}/compliance",
             get(handlers::get_user_compliance::<C, E>),
         )
+        // Access code routes (user-facing)
+        .route(
+            "/access-codes/generate",
+            post(handlers::generate_user_code::<C, E>),
+        )
+        .route(
+            "/access-codes/mine",
+            get(handlers::list_my_codes::<C, E>),
+        )
+        // Admin access code routes
+        .route(
+            "/admin/access-codes",
+            get(handlers::admin_list_codes::<C, E>)
+                .post(handlers::admin_create_code::<C, E>),
+        )
+        .route(
+            "/admin/access-codes/{id}",
+            delete(handlers::admin_delete_code::<C, E>),
+        )
+        .route(
+            "/admin/signup-stats",
+            get(handlers::admin_signup_stats::<C, E>),
+        )
 }
 
 /// Credit operations routes with dedicated rate limiting

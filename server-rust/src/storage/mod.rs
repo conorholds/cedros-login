@@ -9,9 +9,11 @@ use tracing::{debug, error, info};
 use crate::config::DatabaseConfig;
 use crate::errors::AppError;
 use crate::repositories::{
-    ApiKeyRepository, AuditLogRepository, CredentialRepository, CreditHoldRepository,
+    AccessCodeRepository, ApiKeyRepository, AuditLogRepository, CredentialRepository,
+    CreditHoldRepository,
     CreditRefundRequestRepository, CreditRepository, CustomRoleRepository, DepositRepository,
-    InMemoryApiKeyRepository, InMemoryAuditLogRepository, InMemoryCredentialRepository,
+    InMemoryAccessCodeRepository, InMemoryApiKeyRepository, InMemoryAuditLogRepository,
+    InMemoryCredentialRepository,
     InMemoryCreditHoldRepository, InMemoryCreditRefundRequestRepository, InMemoryCreditRepository,
     InMemoryCustomRoleRepository, InMemoryDerivedWalletRepository, InMemoryDepositRepository,
     AccreditationRepository, InMemoryAccreditationRepository,
@@ -39,7 +41,8 @@ use crate::services::EncryptionService;
 
 #[cfg(feature = "postgres")]
 use crate::repositories::{
-    PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
+    PostgresAccessCodeRepository, PostgresApiKeyRepository, PostgresAuditLogRepository,
+    PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
     PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,
     PostgresAccreditationRepository, PostgresInviteRepository, PostgresKycRepository,
@@ -97,6 +100,7 @@ pub struct Storage {
     pub referral_code_history_repo: Arc<dyn ReferralCodeHistoryRepository>,
     pub kyc_repo: Arc<dyn KycRepository>,
     pub accreditation_repo: Arc<dyn AccreditationRepository>,
+    pub access_code_repo: Arc<dyn AccessCodeRepository>,
     #[cfg(feature = "postgres")]
     pub pg_pool: Option<PgPool>,
 }
@@ -162,6 +166,7 @@ impl Storage {
             referral_code_history_repo: Arc::new(InMemoryReferralCodeHistoryRepository::new()),
             kyc_repo: Arc::new(InMemoryKycRepository::new()),
             accreditation_repo: Arc::new(InMemoryAccreditationRepository::new()),
+            access_code_repo: Arc::new(InMemoryAccessCodeRepository::new()),
             #[cfg(feature = "postgres")]
             pg_pool: None,
         }
@@ -279,6 +284,7 @@ impl Storage {
             )),
             kyc_repo: Arc::new(PostgresKycRepository::new(pool.clone())),
             accreditation_repo: Arc::new(PostgresAccreditationRepository::new(pool.clone())),
+            access_code_repo: Arc::new(PostgresAccessCodeRepository::new(pool.clone())),
             #[cfg(feature = "postgres")]
             pg_pool: Some(pool),
         })

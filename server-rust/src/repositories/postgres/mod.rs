@@ -1,6 +1,7 @@
 //! PostgreSQL repository implementations
 
 mod accreditation_repository;
+mod access_code_repository;
 mod api_key_repository;
 mod audit_repository;
 mod credential_repository;
@@ -36,6 +37,7 @@ mod webauthn_repository;
 mod withdrawal_history_repository;
 
 pub use accreditation_repository::PostgresAccreditationRepository;
+pub use access_code_repository::PostgresAccessCodeRepository;
 pub use api_key_repository::PostgresApiKeyRepository;
 pub use audit_repository::PostgresAuditLogRepository;
 pub use credential_repository::PostgresCredentialRepository;

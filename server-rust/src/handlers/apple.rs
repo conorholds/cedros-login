@@ -140,6 +140,12 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             let user = state.user_repo.update(existing).await?;
             (user, false, None)
         } else {
+        // Signup gating: enforce access codes and/or rate limits for new users
+        let gate_result = state
+            .signup_gating_service
+            .check_signup(req.access_code.as_deref())
+            .await?;
+
         // Create new user
         // Note: Apple may not provide email in rare edge cases (legacy accounts).
         // Users created without email can only authenticate via Apple ID.
@@ -225,6 +231,18 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             state.api_key_repo.create(api_key_entity).await?;
             created
         };
+
+        // Mark access code as used (non-fatal)
+        if let Some(code_id) = gate_result.access_code_id {
+            if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
+                tracing::warn!(
+                    user_id = %user.id,
+                    code_id = %code_id,
+                    error = %e,
+                    "Failed to mark access code as used"
+                );
+            }
+        }
 
         (user, true, Some(raw_api_key))
         }

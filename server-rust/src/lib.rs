@@ -78,9 +78,9 @@ use services::{
     create_wallet_unlock_cache, AppleService, AuditService, CommsService, DepositCreditService,
     DepositFeeService, EncryptionService, GoogleService, JupiterSwapService, JwtService,
     MfaAttemptService, NoteEncryptionService, OidcService, PasswordService, PrivacySidecarClient,
-    SanctionsService, SettingsService, SidecarClientConfig, SolPriceService, SolanaService,
-    StepUpService, TokenGatingService, TotpService, WalletSigningService, WalletUnlockCache,
-    WebAuthnService,
+    SanctionsService, SettingsService, SidecarClientConfig, SignupGatingService, SolPriceService,
+    SolanaService, StepUpService, TokenGatingService, TotpService, WalletSigningService,
+    WalletUnlockCache, WebAuthnService,
 };
 use std::sync::Arc;
 use utils::TokenCipher;
@@ -305,6 +305,8 @@ pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub sanctions_service: Arc<SanctionsService>,
     /// Token gating service — always present; disabled state handled internally
     pub token_gating_service: Arc<TokenGatingService>,
+    /// Signup gating service — always present; checks disabled state internally
+    pub signup_gating_service: Arc<SignupGatingService>,
     #[cfg(feature = "postgres")]
     pub postgres_pool: Option<PgPool>,
 }
@@ -574,6 +576,11 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
             settings_service.clone(),
             storage.user_repo.clone(),
             storage.wallet_material_repo.clone(),
+        )),
+        signup_gating_service: Arc::new(SignupGatingService::new(
+            storage.access_code_repo.clone(),
+            storage.user_repo.clone(),
+            settings_service.clone(),
         )),
         #[cfg(feature = "postgres")]
         postgres_pool: storage.pg_pool.clone(),

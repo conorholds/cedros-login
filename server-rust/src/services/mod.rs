@@ -69,6 +69,7 @@ mod referral_payout_worker;
 mod privacy_sidecar_client;
 mod sanctions_service;
 mod settings_service;
+mod signup_gating_service;
 mod token_gating_service;
 mod sidecar_types;
 mod sol_price_service;
@@ -143,6 +144,8 @@ pub use privacy_sidecar_client::{
 pub use sanctions_service::{SanctionsService, SanctionsStats};
 pub use token_gating_service::{TokenGateRule, TokenGatingService};
 pub use settings_service::SettingsService;
+pub use signup_gating_service::{SignupGateResult, SignupGatingService};
+pub(crate) use signup_gating_service::period_start;
 pub use sol_price_service::SolPriceService;
 pub use solana_service::SolanaService;
 pub use step_up_service::{StepUpService, DEFAULT_STEP_UP_MAX_AGE_SECS};

@@ -229,6 +229,12 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         return Err(AppError::EmailExists);
     }
 
+    // Signup gating: enforce access codes and/or rate limits
+    let gate_result = state
+        .signup_gating_service
+        .check_signup(req.access_code.as_deref())
+        .await?;
+
     // Create user
     let mut user =
         UserEntity::new_email_user(normalized_email.clone(), password_hash, req.name.clone());
@@ -334,6 +340,18 @@ pub async fn register<C: AuthCallback, E: EmailService>(
             state.api_key_repo.create(api_key_entity).await?;
         }
         state.session_repo.create(session).await?;
+    }
+
+    // Mark access code as used (non-fatal — don't break registration)
+    if let Some(code_id) = gate_result.access_code_id {
+        if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
+            tracing::warn!(
+                user_id = %user.id,
+                code_id = %code_id,
+                error = %e,
+                "Failed to mark access code as used"
+            );
+        }
     }
 
     // Auto-enroll wallet (non-fatal — don't break registration)

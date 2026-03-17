@@ -939,4 +939,14 @@ impl UserRepository for PostgresUserRepository {
 
         Ok(())
     }
+
+    async fn count_created_since(&self, since: DateTime<Utc>) -> Result<u64, AppError> {
+        let count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE created_at >= $1")
+                .bind(since)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?;
+        Ok(count.max(0) as u64)
+    }
 }

@@ -486,6 +486,13 @@ mod tests {
                     storage.wallet_material_repo.clone(),
                 ),
             ),
+            signup_gating_service: std::sync::Arc::new(
+                crate::services::SignupGatingService::new(
+                    storage.access_code_repo.clone(),
+                    storage.user_repo.clone(),
+                    settings_service.clone(),
+                ),
+            ),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,

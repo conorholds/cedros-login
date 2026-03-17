@@ -4,6 +4,7 @@ pub mod admin;
 pub mod ai_discovery;
 pub mod upload;
 mod accreditation;
+mod access_codes;
 mod kyc;
 mod api_keys;
 mod apple;
@@ -141,4 +142,8 @@ pub use accreditation::{
     get_accreditation_submission, review_accreditation,
     override_accreditation_status as override_accreditation,
     get_document_presigned_url,
+};
+pub use access_codes::{
+    admin_create_code, admin_delete_code, admin_list_codes, admin_signup_stats,
+    generate_user_code, list_my_codes,
 };

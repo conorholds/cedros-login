@@ -15,6 +15,6 @@ ALTER TABLE users ALTER COLUMN referral_code SET NOT NULL;
 CREATE INDEX idx_users_referred_by ON users(referred_by) WHERE referred_by IS NOT NULL;
 
 -- Seed feature flag (disabled by default)
-INSERT INTO system_settings (key, value)
-VALUES ('feature_referrals_enabled', 'false')
+INSERT INTO system_settings (key, value, category)
+VALUES ('feature_referrals_enabled', 'false', 'referral')
 ON CONFLICT (key) DO NOTHING;

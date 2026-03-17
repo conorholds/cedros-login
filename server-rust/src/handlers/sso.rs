@@ -254,6 +254,11 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                 ));
             }
 
+            // TODO: SSO signup gating is not yet implemented.
+            // When adding it, call `state.signup_gating_service.check_signup(...)` here
+            // and `mark_code_used` after creation. SSO uses provider-level `allow_registration`
+            // as its own gate, so the access-code flow needs careful UX design.
+
             // Create new user (SSO users have no password)
             let now = Utc::now();
             let mut new_user = UserEntity {

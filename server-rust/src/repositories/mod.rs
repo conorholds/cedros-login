@@ -121,6 +121,7 @@
 //! This is a significant architectural change tracked for future work.
 
 mod accreditation_repository;
+mod access_code_repository;
 mod api_key_repository;
 mod audit_repository;
 mod referral_code_history_repository;
@@ -168,6 +169,9 @@ mod tests;
 pub use accreditation_repository::{
     AccreditationDocumentEntity, AccreditationRepository, AccreditationSubmissionEntity,
     InMemoryAccreditationRepository,
+};
+pub use access_code_repository::{
+    AccessCodeEntity, AccessCodeRepository, InMemoryAccessCodeRepository,
 };
 pub use api_key_repository::{
     generate_api_key, hash_api_key, ApiKeyEntity, ApiKeyRepository, InMemoryApiKeyRepository,
@@ -276,6 +280,7 @@ pub use withdrawal_history_repository::{
 #[cfg(feature = "postgres")]
 pub use postgres::{
     PostgresAccreditationRepository,
+    PostgresAccessCodeRepository,
     PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
     PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
     PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,

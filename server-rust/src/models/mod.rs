@@ -209,6 +209,9 @@ pub struct RegisterRequest {
     /// Passed through to the AuthCallback for host-side processing.
     #[zeroize(skip)]
     pub referral: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    #[zeroize(skip)]
+    pub access_code: Option<String>,
 }
 
 /// Login request
@@ -234,6 +237,8 @@ pub struct GoogleAuthRequest {
     /// Optional referral code for new user signup attribution.
     /// Only processed when this is a new account creation.
     pub referral: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    pub access_code: Option<String>,
 }
 
 /// Apple Sign-In auth request
@@ -253,6 +258,8 @@ pub struct AppleAuthRequest {
     /// Optional referral code for new user signup attribution.
     /// Only processed when this is a new account creation.
     pub referral: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    pub access_code: Option<String>,
 }
 
 /// Link OAuth account request
@@ -301,6 +308,8 @@ pub struct SolanaAuthRequest {
     /// Optional referral code for new user signup attribution.
     /// Only processed when this is a new account creation.
     pub referral: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    pub access_code: Option<String>,
 }
 
 /// Refresh request

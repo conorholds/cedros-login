@@ -20,8 +20,8 @@ CREATE INDEX idx_referral_payouts_referrer ON referral_payouts(referrer_id);
 CREATE INDEX idx_referral_payouts_status ON referral_payouts(status) WHERE status = 'pending';
 
 -- Add reward type setting
-INSERT INTO system_settings (key, value)
-VALUES ('referral_reward_type', 'credits')
+INSERT INTO system_settings (key, value, category)
+VALUES ('referral_reward_type', 'credits', 'referral')
 ON CONFLICT (key) DO NOTHING;
 
 -- Remove the now-unused currency setting

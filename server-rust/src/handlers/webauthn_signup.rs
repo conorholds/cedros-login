@@ -46,6 +46,8 @@ pub struct SignupVerifyRequest {
     pub label: Option<String>,
     /// Optional referral code for signup attribution
     pub referral: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    pub access_code: Option<String>,
 }
 
 /// POST /auth/webauthn/signup/options
@@ -148,6 +150,12 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
     } else {
         None
     };
+
+    // Signup gating: enforce access codes and/or rate limits
+    let gate_result = state
+        .signup_gating_service
+        .check_signup(request.access_code.as_deref())
+        .await?;
 
     // Resolve referral code before building user entity
     let referrals_enabled = state
@@ -264,6 +272,18 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
             error = %e,
             "Failed to create unified credential entry for WebAuthn signup passkey"
         );
+    }
+
+    // Mark access code as used (non-fatal)
+    if let Some(code_id) = gate_result.access_code_id {
+        if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
+            tracing::warn!(
+                user_id = %user_id,
+                code_id = %code_id,
+                error = %e,
+                "Failed to mark access code as used"
+            );
+        }
     }
 
     // Issue referral signup reward (non-fatal)

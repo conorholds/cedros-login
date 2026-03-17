@@ -334,6 +334,11 @@ pub trait UserRepository: Send + Sync {
         verified_at: Option<DateTime<Utc>>,
         expires_at: Option<DateTime<Utc>>,
     ) -> Result<(), AppError>;
+
+    /// Count users created on or after `since`.
+    ///
+    /// Used by `SignupGatingService` to enforce signup volume limits.
+    async fn count_created_since(&self, since: DateTime<Utc>) -> Result<u64, AppError>;
 }
 
 /// A row returned by [`UserRepository::top_referrers`].
@@ -989,6 +994,11 @@ impl UserRepository for InMemoryUserRepository {
         user.accreditation_expires_at = expires_at;
         user.updated_at = Utc::now();
         Ok(())
+    }
+
+    async fn count_created_since(&self, since: DateTime<Utc>) -> Result<u64, AppError> {
+        let users = self.users.read().await;
+        Ok(users.values().filter(|u| u.created_at >= since).count() as u64)
     }
 }
 
