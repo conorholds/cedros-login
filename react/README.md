@@ -185,6 +185,21 @@ function AuthStatus() {
 | `CredentialList` | List all authentication methods (passwords, passkeys, OAuth) |
 | `CredentialCard` | Individual credential display with management options |
 
+### Compliance (KYC & Accreditation)
+
+| Component | Description |
+|-----------|-------------|
+| `KycBanner` | Banner prompting KYC identity verification, with status-aware messaging |
+| `KycCallback` | Post-redirect landing page that polls KYC status until resolved |
+| `AccreditationWizard` | Multi-step accredited investor verification wizard (method select, details, review) |
+| `AccreditationBanner` | Banner prompting accreditation verification, with status-aware messaging |
+
+### Rewards
+
+| Component | Description |
+|-----------|-------------|
+| `RewardsPanel` | Self-contained rewards dashboard with summary cards, payout wallet editor, and paginated history |
+
 ### Admin Dashboard
 
 | Component | Description |
@@ -549,6 +564,88 @@ const {
   unlinkCredential,  // Remove credential (if not last one)
   refetch,
 } = useCredentials();
+```
+
+### Referrals
+
+```tsx
+const {
+  getReferral,     // Fetch referral code and count (returns ReferralInfo)
+  regenerateCode,  // Regenerate referral code (returns new code string)
+  isLoading,
+  error,
+} = useReferral();
+
+// Usage
+const info = await getReferral();
+console.log(info.referralCode, info.referralCount);
+```
+
+### KYC (Identity Verification)
+
+```tsx
+const {
+  status,            // 'none' | 'pending' | 'verified' | 'failed' | 'expired' | 'canceled' or null
+  verifiedAt,        // ISO 8601 timestamp or null
+  expiresAt,         // ISO 8601 timestamp or null
+  isRequired,        // True when enforcement mode is not "none"
+  enforcementMode,   // Current enforcement mode from server
+  fetchStatus,       // Fetch user's KYC status
+  startVerification, // Start a session (returns redirect URL)
+  isLoading,
+  error,
+} = useKyc();
+
+// Usage
+useEffect(() => { fetchStatus(); }, [fetchStatus]);
+if (isRequired && status !== 'verified') {
+  const url = await startVerification();
+  window.location.href = url;
+}
+```
+
+### Accreditation (Investor Verification)
+
+```tsx
+const {
+  status,              // 'none' | 'pending' | 'approved' | 'rejected' | 'expired' or null
+  verifiedAt,          // ISO 8601 timestamp or null
+  expiresAt,           // ISO 8601 timestamp or null
+  isRequired,          // True when enforcement mode is not "none"
+  enforcementMode,     // Current enforcement mode from server
+  fetchStatus,         // Fetch user's accreditation status
+  submitVerification,  // Submit verification (method, data) -> { submissionId }
+  uploadDocument,      // Upload document (submissionId, file, documentType) -> { documentId }
+  listSubmissions,     // List user's submissions
+  isLoading,
+  error,
+} = useAccreditation();
+
+// Usage
+useEffect(() => { fetchStatus(); }, [fetchStatus]);
+const { submissionId } = await submitVerification('income', { statedAmountUsd: 250000 });
+await uploadDocument(submissionId, taxFile, 'tax_return');
+```
+
+### Rewards
+
+```tsx
+const {
+  rewards,         // RewardsInfo summary (totalEarned, pendingAmount, currency, etc.) or null
+  history,         // RewardHistoryItem[]
+  historyTotal,    // Total history count for pagination
+  fetchRewards,    // Fetch rewards summary
+  fetchHistory,    // Fetch history (limit, offset)
+  setPayoutWallet, // Set payout wallet address (string | null)
+  isLoading,
+  error,
+} = useRewards();
+
+// Usage
+useEffect(() => {
+  fetchRewards();
+  fetchHistory(10, 0);
+}, [fetchRewards, fetchHistory]);
 ```
 
 ### Authorization
@@ -1009,6 +1106,105 @@ function InviteButton({ orgId }) {
 }
 ```
 
+### KYC Verification
+
+```tsx
+import { KycBanner, KycCallback, useKyc } from '@cedros/login-react';
+
+// Display a KYC prompt banner
+function Dashboard() {
+  const { status, isRequired, startVerification, fetchStatus } = useKyc();
+
+  useEffect(() => { fetchStatus(); }, [fetchStatus]);
+
+  if (!isRequired || status === 'verified') return <MainContent />;
+
+  return <KycBanner status={status ?? 'none'} startVerification={startVerification} />;
+}
+
+// Handle the post-redirect callback page
+function KycReturnPage() {
+  const { fetchStatus } = useKyc();
+  return <KycCallback fetchStatus={fetchStatus} onComplete={(s) => navigate('/dashboard')} />;
+}
+```
+
+**KycBanner Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `status` | `string` | — | Current KYC status (`none`, `pending`, `verified`, `failed`, `expired`, `canceled`) |
+| `startVerification` | `() => Promise<string>` | — | Function that starts verification and returns redirect URL |
+| `className` | `string` | `''` | Additional CSS classes |
+
+**KycCallback Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fetchStatus` | `() => Promise<{ status: string }>` | — | Function that fetches KYC status (from `useKyc().fetchStatus`) |
+| `onComplete` | `(status: string) => void` | — | Called when polling resolves to a non-pending status |
+| `className` | `string` | `''` | Additional CSS classes |
+
+### Accreditation Verification
+
+```tsx
+import {
+  AccreditationBanner,
+  AccreditationWizard,
+  useAccreditation,
+} from '@cedros/login-react';
+
+function InvestorGate() {
+  const { status, isRequired, fetchStatus } = useAccreditation();
+  const [showWizard, setShowWizard] = useState(false);
+
+  useEffect(() => { fetchStatus(); }, [fetchStatus]);
+
+  if (!isRequired || status === 'approved') return <ProtectedContent />;
+  if (showWizard) return <AccreditationWizard onComplete={() => setShowWizard(false)} />;
+
+  return (
+    <AccreditationBanner
+      status={status ?? 'none'}
+      onStartVerification={() => setShowWizard(true)}
+    />
+  );
+}
+```
+
+**AccreditationWizard Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onComplete` | `(submissionId: string) => void` | — | Called after successful submission |
+| `onCancel` | `() => void` | — | Called when user cancels or navigates back from step 1 |
+| `className` | `string` | `''` | Additional CSS classes |
+
+**AccreditationBanner Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `status` | `string` | — | Current accreditation status (`none`, `pending`, `approved`, `rejected`, `expired`) |
+| `onStartVerification` | `() => void` | — | Called when user clicks the verification action button |
+| `className` | `string` | `''` | Additional CSS classes |
+
+### Rewards Dashboard
+
+```tsx
+import { RewardsPanel } from '@cedros/login-react';
+
+function RewardsPage() {
+  return <RewardsPanel explorerUrl="https://explorer.solana.com" />;
+}
+```
+
+**RewardsPanel Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `explorerUrl` | `string` | `'https://explorer.solana.com'` | Solana explorer URL base for transaction links |
+| `className` | `string` | `''` | Additional CSS classes |
+
 ### User Withdrawals
 
 Withdraw SOL or SPL tokens from the user's embedded wallet to any external Solana address.
@@ -1350,6 +1546,26 @@ import type {
   ListSystemSettingsResponse,
   UpdateSystemSettingsResponse,
   UseSystemSettingsReturn,
+
+  // Accreditation types
+  AccreditationMethod,
+  AccreditationStatus,
+  AccreditationStatusResponse,
+  AccreditationSubmissionItem,
+  AccreditationDocumentItem,
+
+  // KYC / Compliance component props
+  KycBannerProps,
+  KycCallbackProps,
+  AccreditationWizardProps,
+  AccreditationBannerProps,
+
+  // Rewards types
+  RewardsPanelProps,
+  UseRewardsReturn,
+  UseKycReturn,
+  UseAccreditationReturn,
+  UseReferralReturn,
 
   // Admin plugin types
   AdminPlugin,

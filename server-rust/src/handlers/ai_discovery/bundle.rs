@@ -16,6 +16,8 @@ use crate::callback::AuthCallback;
 use crate::services::EmailService;
 use crate::AppState;
 
+use super::bundle_compliance;
+
 /// GET /.well-known/skills.zip - Downloadable skills bundle
 ///
 /// Returns a ZIP file containing all skills in a format compatible with
@@ -33,6 +35,12 @@ use crate::AppState;
 /// ├── mfa/
 /// │   └── SKILL.md
 /// ├── wallet/
+/// │   └── SKILL.md
+/// ├── kyc/
+/// │   └── SKILL.md
+/// ├── compliance/
+/// │   └── SKILL.md
+/// ├── rewards/
 /// │   └── SKILL.md
 /// └── admin/
 ///     └── SKILL.md
@@ -129,6 +137,9 @@ unzip skills.zip -d ~/.codex/skills/cedros-login/
 | orgs | Team and organization management |
 | mfa | Multi-factor authentication setup |
 | wallet | Embedded Solana wallet operations |
+| kyc | KYC identity verification (Stripe Identity) |
+| compliance | Compliance & gating (accreditation, sanctions, token gating) |
+| rewards | Referral rewards & payouts |
 | admin | System administration (requires admin role) |
 
 ## API Base URL
@@ -162,6 +173,9 @@ fn generate_skill_contents(base: &str) -> Vec<(&'static str, String)> {
         ("orgs", generate_orgs_skill(base)),
         ("mfa", generate_mfa_skill(base)),
         ("wallet", generate_wallet_skill(base)),
+        ("kyc", bundle_compliance::generate_kyc_skill(base)),
+        ("compliance", bundle_compliance::generate_compliance_skill(base)),
+        ("rewards", bundle_compliance::generate_rewards_skill(base)),
         ("admin", generate_admin_skill(base)),
     ]
 }

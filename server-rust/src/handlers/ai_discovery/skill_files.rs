@@ -8,8 +8,9 @@ use axum::response::{IntoResponse, Response};
 use std::sync::Arc;
 
 use super::content::{
-    generate_skill_admin_md, generate_skill_auth_md, generate_skill_mfa_md, generate_skill_orgs_md,
-    generate_skill_profile_md, generate_skill_wallet_md, ContentConfig,
+    generate_skill_admin_md, generate_skill_auth_md, generate_skill_compliance_md,
+    generate_skill_kyc_md, generate_skill_mfa_md, generate_skill_orgs_md,
+    generate_skill_profile_md, generate_skill_rewards_md, generate_skill_wallet_md, ContentConfig,
 };
 use crate::callback::AuthCallback;
 use crate::services::EmailService;
@@ -81,6 +82,51 @@ pub async fn skill_wallet_md<C: AuthCallback + 'static, E: EmailService + 'stati
 ) -> Response {
     let config = get_content_config(&state);
     let content = generate_skill_wallet_md(&config);
+
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "text/markdown; charset=utf-8")],
+        content,
+    )
+        .into_response()
+}
+
+/// GET /skills/kyc.md - KYC Identity Verification
+pub async fn skill_kyc_md<C: AuthCallback + 'static, E: EmailService + 'static>(
+    State(state): State<Arc<AppState<C, E>>>,
+) -> Response {
+    let config = get_content_config(&state);
+    let content = generate_skill_kyc_md(&config);
+
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "text/markdown; charset=utf-8")],
+        content,
+    )
+        .into_response()
+}
+
+/// GET /skills/compliance.md - Compliance & Gating
+pub async fn skill_compliance_md<C: AuthCallback + 'static, E: EmailService + 'static>(
+    State(state): State<Arc<AppState<C, E>>>,
+) -> Response {
+    let config = get_content_config(&state);
+    let content = generate_skill_compliance_md(&config);
+
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "text/markdown; charset=utf-8")],
+        content,
+    )
+        .into_response()
+}
+
+/// GET /skills/rewards.md - Referral Rewards & Payouts
+pub async fn skill_rewards_md<C: AuthCallback + 'static, E: EmailService + 'static>(
+    State(state): State<Arc<AppState<C, E>>>,
+) -> Response {
+    let config = get_content_config(&state);
+    let content = generate_skill_rewards_md(&config);
 
     (
         StatusCode::OK,

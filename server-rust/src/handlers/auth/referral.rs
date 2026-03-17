@@ -300,7 +300,10 @@ fn default_limit() -> u32 {
     20
 }
 
-/// GET /referral/rewards/history — paginated payout history for the authenticated user
+/// GET /referral/rewards/history — paginated reward history for the authenticated user.
+///
+/// For "direct_payout" mode, returns payout records. For "credits" mode, returns
+/// credit transactions whose reference_type starts with "referral_".
 pub async fn get_rewards_history<C: AuthCallback, E: EmailService>(
     State(state): State<Arc<AppState<C, E>>>,
     headers: HeaderMap,
@@ -319,28 +322,81 @@ pub async fn get_rewards_history<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Referrals not enabled".into()));
     }
 
+    let reward_type = state
+        .settings_service
+        .get("referral_reward_type")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "credits".to_string());
+
     let limit = query.limit.min(100);
 
-    let payouts = state
-        .referral_payout_repo
-        .list_by_referrer(auth.user_id, None, limit, query.offset)
+    if reward_type == "direct_payout" {
+        let payouts = state
+            .referral_payout_repo
+            .list_by_referrer(auth.user_id, None, limit, query.offset)
+            .await?;
+        let total = state
+            .referral_payout_repo
+            .count_by_referrer(auth.user_id, None)
+            .await?;
+
+        let items = payouts
+            .into_iter()
+            .map(|p| RewardHistoryItem {
+                id: p.id.to_string(),
+                trigger_type: p.trigger_type,
+                amount: p.amount,
+                currency: p.currency,
+                status: p.status,
+                tx_signature: p.tx_signature,
+                created_at: p.created_at.to_rfc3339(),
+                completed_at: p.completed_at.map(|t| t.to_rfc3339()),
+            })
+            .collect();
+
+        return Ok(Json(RewardsHistoryResponse { items, total }));
+    }
+
+    // credits mode: query credit transactions with referral_ reference_type prefix
+    let currency = state
+        .settings_service
+        .get("referral_reward_currency")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "USD".to_string());
+
+    let txs = state
+        .credit_repo
+        .list_by_reference_type_prefix(auth.user_id, &currency, "referral_", limit, query.offset)
         .await?;
     let total = state
-        .referral_payout_repo
-        .count_by_referrer(auth.user_id, None)
+        .credit_repo
+        .count_by_reference_type_prefix(auth.user_id, &currency, "referral_")
         .await?;
 
-    let items = payouts
+    let items = txs
         .into_iter()
-        .map(|p| RewardHistoryItem {
-            id: p.id.to_string(),
-            trigger_type: p.trigger_type,
-            amount: p.amount,
-            currency: p.currency,
-            status: p.status,
-            tx_signature: p.tx_signature,
-            created_at: p.created_at.to_rfc3339(),
-            completed_at: p.completed_at.map(|t| t.to_rfc3339()),
+        .map(|t| {
+            // "referral_signup" -> "signup", "referral_first_spend" -> "first_spend", etc.
+            let trigger_type = t
+                .reference_type
+                .as_deref()
+                .and_then(|rt| rt.strip_prefix("referral_"))
+                .unwrap_or("unknown")
+                .to_string();
+            RewardHistoryItem {
+                id: t.id.to_string(),
+                trigger_type,
+                amount: t.amount,
+                currency: t.currency,
+                status: "credited".to_string(),
+                tx_signature: None,
+                created_at: t.created_at.to_rfc3339(),
+                completed_at: Some(t.created_at.to_rfc3339()),
+            }
         })
         .collect();
 

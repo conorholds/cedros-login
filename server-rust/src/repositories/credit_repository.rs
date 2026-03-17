@@ -450,6 +450,27 @@ pub trait CreditRepository: Send + Sync {
         currency: &str,
         prefix: &str,
     ) -> Result<i64, AppError>;
+
+    /// List transactions where reference_type starts with the given prefix.
+    ///
+    /// Returns up to `limit` transactions for `user_id` and `currency`, sorted newest-first,
+    /// with `offset` for pagination.
+    async fn list_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<CreditTransactionEntity>, AppError>;
+
+    /// Count transactions where reference_type starts with the given prefix.
+    async fn count_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+    ) -> Result<u64, AppError>;
 }
 
 /// In-memory credit repository for development/testing
@@ -818,6 +839,60 @@ impl CreditRepository for InMemoryCreditRepository {
             .map(|t| t.amount)
             .sum();
         Ok(sum)
+    }
+
+    async fn list_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<CreditTransactionEntity>, AppError> {
+        let limit = cap_limit(limit);
+        let offset = cap_offset(offset);
+
+        let transactions = self.transactions.read().await;
+        let mut filtered: Vec<_> = transactions
+            .iter()
+            .filter(|t| {
+                t.user_id == user_id
+                    && t.currency.eq_ignore_ascii_case(currency)
+                    && t.reference_type
+                        .as_deref()
+                        .map(|rt| rt.starts_with(prefix))
+                        .unwrap_or(false)
+            })
+            .cloned()
+            .collect();
+
+        filtered.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+
+        Ok(filtered
+            .into_iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .collect())
+    }
+
+    async fn count_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+    ) -> Result<u64, AppError> {
+        let transactions = self.transactions.read().await;
+        Ok(transactions
+            .iter()
+            .filter(|t| {
+                t.user_id == user_id
+                    && t.currency.eq_ignore_ascii_case(currency)
+                    && t.reference_type
+                        .as_deref()
+                        .map(|rt| rt.starts_with(prefix))
+                        .unwrap_or(false)
+            })
+            .count() as u64)
     }
 }
 

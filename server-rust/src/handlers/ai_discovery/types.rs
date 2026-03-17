@@ -44,6 +44,12 @@ pub struct SkillCapabilities {
     pub mfa: bool,
     pub rbac: bool,
     pub api_keys: bool,
+    pub kyc_verification: bool,
+    pub accredited_investor: bool,
+    pub sanctions_screening: bool,
+    pub token_gating: bool,
+    pub referral_rewards: bool,
+    pub compliance_api: bool,
 }
 
 #[derive(Debug, Serialize)]

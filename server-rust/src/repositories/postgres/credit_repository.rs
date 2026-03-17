@@ -699,4 +699,70 @@ impl CreditRepository for PostgresCreditRepository {
 
         Ok(sum)
     }
+
+    async fn list_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<CreditTransactionEntity>, AppError> {
+        let limit = cap_limit(limit);
+        let offset = cap_offset(offset);
+        let currency = currency.to_uppercase();
+        let pattern = format!("{}%", prefix);
+
+        let rows: Vec<CreditTransactionRow> = sqlx::query_as(
+            r#"
+            SELECT id, user_id, amount, currency, tx_type, deposit_session_id,
+                   privacy_note_id, idempotency_key, reference_type, reference_id,
+                   hold_id, metadata, conversion_rate, created_at
+            FROM credit_transactions
+            WHERE user_id = $1
+              AND currency = $2
+              AND reference_type LIKE $3
+            ORDER BY created_at DESC
+            LIMIT $4 OFFSET $5
+            "#,
+        )
+        .bind(user_id)
+        .bind(currency)
+        .bind(pattern)
+        .bind(limit as i64)
+        .bind(offset as i64)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(rows.into_iter().map(Into::into).collect())
+    }
+
+    async fn count_by_reference_type_prefix(
+        &self,
+        user_id: Uuid,
+        currency: &str,
+        prefix: &str,
+    ) -> Result<u64, AppError> {
+        let currency = currency.to_uppercase();
+        let pattern = format!("{}%", prefix);
+
+        let count: i64 = sqlx::query_scalar(
+            r#"
+            SELECT COUNT(*)
+            FROM credit_transactions
+            WHERE user_id = $1
+              AND currency = $2
+              AND reference_type LIKE $3
+            "#,
+        )
+        .bind(user_id)
+        .bind(currency)
+        .bind(pattern)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(count as u64)
+    }
 }

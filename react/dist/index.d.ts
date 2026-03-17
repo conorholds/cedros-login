@@ -89,6 +89,22 @@ export declare interface AccreditationPendingListResponse {
     total: number;
 }
 
+/**
+ * Item returned by GET /admin/accreditation/pending — includes user context.
+ */
+export declare interface AccreditationQueueItem extends AccreditationSubmissionItem {
+    userId: string;
+    userEmail?: string;
+}
+
+/**
+ * Response for GET /admin/accreditation/pending (queue list variant)
+ */
+export declare interface AccreditationQueueListResponse {
+    items: AccreditationQueueItem[];
+    total: number;
+}
+
 /** Overall accreditation status for a user. */
 export declare type AccreditationStatus = 'none' | 'pending' | 'approved' | 'rejected' | 'expired';
 
@@ -148,6 +164,28 @@ export declare interface AccreditationWizardProps {
 export declare interface AcknowledgeRecoveryRequest {
     /** Confirmation that user has saved the recovery phrase */
     confirmed: boolean;
+}
+
+/**
+ * Admin accreditation review queue.
+ *
+ * Inputs: className.
+ * Outputs: renders tabbed queue; approves/rejects submissions via API.
+ * Errors: displayed inline per row and globally.
+ */
+export declare function AdminAccreditationQueue({ className }: AdminAccreditationQueueProps): JSX.Element;
+
+/**
+ * Admin queue for reviewing accredited investor submissions.
+ *
+ * Tabs: Pending | All
+ * Each row is expandable to show submission detail, documents, and the
+ * approve/reject review form.
+ *
+ * Requires system admin privileges.
+ */
+export declare interface AdminAccreditationQueueProps {
+    className?: string;
 }
 
 /**
@@ -429,6 +467,27 @@ declare interface AdminReferredUsersResponse {
     total: number;
     limit: number;
     offset: number;
+}
+
+/**
+ * Admin sanctions screening status panel.
+ *
+ * Inputs: className.
+ * Outputs: displays stats and allows force-refresh of the OFAC/sanctions cache.
+ * Errors: displayed inline with retry support.
+ */
+export declare function AdminSanctionsPanel({ className }: AdminSanctionsPanelProps): JSX.Element;
+
+/**
+ * Admin panel for sanctions screening status and cache management.
+ *
+ * Shows: sanctioned addresses count, sanctioned countries count, cache age,
+ * last refresh timestamp, and a "Force Refresh" action.
+ *
+ * Requires system admin privileges.
+ */
+export declare interface AdminSanctionsPanelProps {
+    className?: string;
 }
 
 /**
@@ -1167,6 +1226,12 @@ export declare interface CompleteAccountPromptProps {
     className?: string;
 }
 
+export declare function ComplianceSettings({ className }: ComplianceSettingsProps): JSX.Element;
+
+export declare interface ComplianceSettingsProps {
+    className?: string;
+}
+
 /** Request to create a derived wallet */
 export declare interface CreateDerivedWalletRequest {
     /** Human-readable label for the wallet (1-100 chars) */
@@ -1338,30 +1403,10 @@ declare interface CustomTokenDefinition {
 }
 
 /**
- * Unified Admin Dashboard
- *
- * A complete, ready-to-use admin panel following shadcn/ui dashboard patterns.
- *
- * @example
- * ```tsx
- * // Minimal setup - everything included
- * function AdminPage() {
- *   return <CedrosAdminDashboard />;
- * }
- *
- * // Customized sections
- * function AdminPage() {
- *   return (
- *     <CedrosAdminDashboard
- *       sections={['users', 'team', 'deposits', 'settings-auth']}
- *       title="My App Admin"
- *     />
- *   );
- * }
- * ```
+ * Types and props interfaces for CedrosAdminDashboard
  */
 /** Available dashboard sections */
-export declare type DashboardSection = 'users' | 'team' | 'referrals' | 'deposits' | 'withdrawals' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-server' | 'settings-images';
+export declare type DashboardSection = 'users' | 'team' | 'referrals' | 'deposits' | 'withdrawals' | 'compliance' | 'accreditation-queue' | 'sanctions' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-compliance' | 'settings-referrals' | 'settings-server' | 'settings-images';
 
 declare type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -3036,6 +3081,12 @@ declare interface ReferralInfo {
     directPayoutEnabled: boolean;
 }
 
+export declare function ReferralSettings({ className }: ReferralSettingsProps): JSX.Element;
+
+export declare interface ReferralSettingsProps {
+    className?: string;
+}
+
 /**
  * A single user entry in the referral network response
  */
@@ -3181,6 +3232,17 @@ export declare type RotateUserSecretRequest = UnlockCredentialRequest & {
     /** New PRF salt for passkey (base64, 32 bytes) */
     prfSalt?: string;
 };
+
+/**
+ * Stats returned by GET /admin/sanctions/stats
+ */
+export declare interface SanctionsStats {
+    sanctionedAddresses: number;
+    sanctionedCountries: number;
+    cacheAgeSeconds?: number;
+    lastRefreshedAt?: string;
+    configured: boolean;
+}
 
 /** Section identifier, unique within a plugin */
 export declare type SectionId = string;
@@ -3736,6 +3798,50 @@ export declare interface TokenBalanceEntry {
     mint: string;
     amount: string;
     decimals: number;
+}
+
+/**
+ * Token gate enforcement scope.
+ */
+export declare type TokenGateEnforcement = 'all' | 'deposits' | 'withdrawals';
+
+/**
+ * A single token gate rule stored in the `token_gating_rules` system setting.
+ */
+export declare interface TokenGateRule {
+    id: string;
+    name: string;
+    ruleType: TokenGateRuleType;
+    collectionAddress?: string;
+    mintAddress?: string;
+    minQuantity?: number;
+    minAmount?: string;
+    enforcement: TokenGateEnforcement;
+}
+
+/**
+ * Token gate rule type.
+ */
+export declare type TokenGateRuleType = 'nft_collection' | 'fungible_token' | 'any_nft';
+
+/**
+ * Admin settings panel for token gate rules.
+ *
+ * Inputs: className optional CSS modifier.
+ * Outputs: reads/writes `token_gating_rules` system setting as JSON.
+ * Errors: displayed inline; save errors shown near the form.
+ */
+export declare function TokenGateSettings({ className }: TokenGateSettingsProps): JSX.Element;
+
+/**
+ * Admin settings page for managing token gate rules.
+ *
+ * Rules are persisted as JSON in the `token_gating_rules` system setting.
+ * Each rule specifies a token type, address/mint, minimum hold amount, and
+ * which operations (deposits / withdrawals / all) are gated.
+ */
+export declare interface TokenGateSettingsProps {
+    className?: string;
 }
 
 /**

@@ -24,7 +24,10 @@
 
 mod agent;
 mod bundle;
+mod bundle_compliance;
 pub mod content;
+mod content_compliance;
+mod content_skills;
 mod heartbeat;
 mod llms;
 mod manifests;
@@ -40,7 +43,8 @@ pub use skills::{skill_json, skill_md};
 
 // Individual skill files
 pub use skill_files::{
-    skill_admin_md, skill_auth_md, skill_mfa_md, skill_orgs_md, skill_profile_md, skill_wallet_md,
+    skill_admin_md, skill_auth_md, skill_compliance_md, skill_kyc_md, skill_mfa_md, skill_orgs_md,
+    skill_profile_md, skill_rewards_md, skill_wallet_md,
 };
 
 // Agent integration guide

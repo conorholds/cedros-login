@@ -44,6 +44,19 @@ Production-ready authentication server with multi-tenancy, flexible auth methods
 - **Admin-Enforced MFA**: Admins can require email/password users to set up TOTP via `security_require_mfa` setting. Prompted as a non-skippable post-login action. Does not affect OAuth, passkey, or wallet users.
 - **Production Validation**: Enforces COOKIE_SECURE and CORS_ORIGINS in production
 
+### Compliance & Gating
+- **KYC (Stripe Identity)**: Identity verification via Stripe Identity sessions with webhook-driven status updates
+- **Accredited Investor Verification**: Document-based accreditation with admin review workflow
+- **Sanctions Screening**: OFAC/SDN sanctions list screening with automatic refresh
+- **Token Gating**: Require token holdings for access (configured via admin system settings)
+- **Compliance API**: Server-to-server endpoint for aggregated compliance status (KYC + accreditation + sanctions)
+
+### Referrals & Rewards
+- **Referral Codes**: Auto-generated or custom referral codes per user
+- **Reward Tracking**: Configurable rewards for referrals (credits or crypto payouts)
+- **Payout Management**: Admin batch processing and individual payout control
+- **Payout Wallets**: Users set their preferred payout wallet address
+
 ### Communications
 - **Outbox Pattern**: Reliable async email delivery
 - **Email Templates**: Verification, password reset, instant link, security alerts
@@ -272,6 +285,40 @@ server-to-server flows (e.g. payments/webhooks) where only an external identifie
 | `GET` | `/users/by-stripe-customer/:stripe_customer_id` | Resolve `user_id` for a Stripe customer |
 | `POST` | `/users/by-stripe-customer/:stripe_customer_id/link` | Link a Stripe customer to a user |
 
+### Referrals & Rewards
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/referral` | Get current user's referral code and stats |
+| `POST` | `/referral/regenerate` | Regenerate referral code |
+| `POST` | `/referral/set-code` | Set a custom referral code |
+| `GET` | `/referral/rewards` | Get rewards configuration and earned totals |
+| `GET` | `/referral/rewards/history` | Get paginated reward history |
+| `POST` | `/referral/payout-wallet` | Set payout wallet address |
+
+### KYC (Identity Verification)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/kyc/start` | Start a Stripe Identity verification session |
+| `GET` | `/kyc/status` | Get current KYC verification status |
+| `POST` | `/webhook/kyc` | Stripe Identity webhook callback |
+
+### Accredited Investor Verification
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/accreditation/status` | Get current accreditation status |
+| `POST` | `/accreditation/submit` | Submit accreditation application |
+| `POST` | `/accreditation/upload` | Upload supporting document (10 MB limit) |
+| `GET` | `/accreditation/submissions` | List user's accreditation submissions |
+
+### Features Discovery
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/features` | Get enabled features (includes `kycEnabled`, `accreditationEnabled`, `tokenGatingEnabled`) |
+
 ### API Keys
 
 | Method | Path | Description |
@@ -295,12 +342,87 @@ server-to-server flows (e.g. payments/webhooks) where only an external identifie
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/admin/users` | List all users (system admin) |
-| `GET` | `/admin/users/:user_id` | Get user details (system admin) |
-| `PATCH` | `/admin/users/:user_id/system-admin` | Set system admin status |
+| `GET` | `/admin/users/stats` | Get user statistics |
+| `GET` | `/admin/users/{user_id}` | Get user details (system admin) |
+| `PATCH` | `/admin/users/{user_id}` | Update user |
+| `DELETE` | `/admin/users/{user_id}` | Delete user |
+| `PATCH` | `/admin/users/{user_id}/system-admin` | Set system admin status |
+| `POST` | `/admin/users/{user_id}/force-password-reset` | Force password reset for user |
+| `GET` | `/admin/users/{user_id}/credits` | Get user credit balances |
+| `POST` | `/admin/users/{user_id}/credits` | Adjust user credits |
+| `GET` | `/admin/users/{user_id}/deposits` | Get user deposit history |
+| `GET` | `/admin/users/{user_id}/withdrawal-history` | Get user withdrawal history |
+| `GET` | `/admin/users/{user_id}/referrals` | Get user referral details |
 | `GET` | `/admin/orgs` | List all orgs (system admin) |
-| `GET` | `/admin/orgs/:org_id` | Get org details (system admin) |
+| `GET` | `/admin/orgs/{org_id}` | Get org details (system admin) |
 | `GET` | `/admin/settings` | Get all system settings grouped by category |
 | `PATCH` | `/admin/settings` | Update system settings |
+| `POST` | `/admin/settings/regenerate/{key}` | Regenerate a setting value |
+| `GET` | `/admin/dashboard-permissions` | Get admin dashboard permissions |
+| `PUT` | `/admin/dashboard-permissions` | Update admin dashboard permissions |
+| `GET` | `/admin/disposable-domains` | Get disposable email domain blocklist |
+| `PUT` | `/admin/disposable-domains` | Update disposable email domain blocklist |
+
+### Admin: KYC
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/users/{user_id}/kyc` | Get user KYC verification details |
+| `POST` | `/admin/users/{user_id}/kyc/override` | Override user KYC status |
+
+### Admin: Accreditation
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/accreditation/pending` | List pending accreditation submissions |
+| `GET` | `/admin/users/{user_id}/accreditation` | Get user accreditation status |
+| `GET` | `/admin/accreditation/{submission_id}` | Get accreditation submission details |
+| `POST` | `/admin/accreditation/{submission_id}/review` | Approve or reject accreditation |
+| `POST` | `/admin/users/{user_id}/accreditation/override` | Override user accreditation status |
+| `GET` | `/admin/accreditation/documents/{doc_id}/url` | Get presigned URL for uploaded document |
+
+### Admin: Sanctions
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/sanctions/stats` | Get sanctions screening statistics |
+| `POST` | `/admin/sanctions/refresh` | Refresh sanctions list from upstream |
+
+### Admin: Compliance (Server-to-Server)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/users/{user_id}/compliance` | Get aggregated compliance status (KYC + accreditation + sanctions) |
+
+### Admin: Referral Payouts
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/referral-stats` | Get referral program statistics |
+| `GET` | `/admin/referral-payouts` | Get payout summary |
+| `POST` | `/admin/referral-payouts/process` | Process batch of pending payouts |
+| `POST` | `/admin/referral-payouts/retry-failed` | Retry all failed payouts |
+| `GET` | `/admin/referral-payouts/list` | List all individual payouts |
+| `POST` | `/admin/referral-payouts/{id}/process` | Process a single payout |
+| `POST` | `/admin/referral-payouts/{id}/cancel` | Cancel a pending payout |
+
+### Admin: SSO Providers
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/sso-providers` | List SSO providers |
+| `POST` | `/admin/sso-providers` | Create SSO provider |
+| `GET` | `/admin/sso-providers/{id}` | Get SSO provider details |
+| `PUT` | `/admin/sso-providers/{id}` | Update SSO provider |
+| `DELETE` | `/admin/sso-providers/{id}` | Delete SSO provider |
+
+### Admin: Treasury
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/admin/treasury/authorize` | Authorize treasury wallet |
+| `GET` | `/admin/treasury` | Get treasury configuration |
+| `DELETE` | `/admin/treasury` | Revoke treasury authorization |
 
 ### System Settings
 
@@ -421,6 +543,7 @@ Response:
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/webhook/deposit` | Handle deposit notifications (Helius/Quicknode) |
+| `POST` | `/webhook/kyc` | Handle Stripe Identity verification webhooks |
 
 ### Health
 

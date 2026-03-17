@@ -63,8 +63,8 @@ pub use admin::{
 pub use ai_discovery::{
     agent_json, agent_md, ai_discovery_index, ai_plugin_json, ai_txt, heartbeat_json, heartbeat_md,
     llms_admin_txt, llms_full_txt, llms_txt, mcp_discovery, skill_admin_md, skill_auth_md,
-    skill_json, skill_md, skill_mfa_md, skill_orgs_md, skill_profile_md, skill_wallet_md,
-    skills_bundle_zip,
+    skill_compliance_md, skill_json, skill_kyc_md, skill_md, skill_mfa_md, skill_orgs_md,
+    skill_profile_md, skill_rewards_md, skill_wallet_md, skills_bundle_zip,
 };
 pub use api_keys::{
     create_api_key, delete_api_key, get_api_key, list_api_keys, regenerate_api_key,

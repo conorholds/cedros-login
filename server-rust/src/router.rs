@@ -430,6 +430,15 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/skills/orgs.md", get(handlers::skill_orgs_md::<C, E>))
         .route("/skills/mfa.md", get(handlers::skill_mfa_md::<C, E>))
         .route("/skills/wallet.md", get(handlers::skill_wallet_md::<C, E>))
+        .route("/skills/kyc.md", get(handlers::skill_kyc_md::<C, E>))
+        .route(
+            "/skills/compliance.md",
+            get(handlers::skill_compliance_md::<C, E>),
+        )
+        .route(
+            "/skills/rewards.md",
+            get(handlers::skill_rewards_md::<C, E>),
+        )
         .route("/skills/admin.md", get(handlers::skill_admin_md::<C, E>))
         // Standard AI manifests
         .route(

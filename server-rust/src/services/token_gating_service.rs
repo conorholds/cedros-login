@@ -33,6 +33,7 @@ struct DasResponse {
 #[derive(serde::Deserialize)]
 struct DasResult {
     items: Vec<DasAsset>,
+    total: Option<u32>,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -418,44 +419,82 @@ impl TokenGatingService {
         })
     }
 
+    /// Fetch all NFTs owned by `wallet` via DAS `getAssetsByOwner`.
+    ///
+    /// Paginates automatically until all assets are fetched or the
+    /// safety cap (10 000 assets) is reached.
     async fn fetch_nfts(
         &self,
         rpc_url: &str,
         wallet: &str,
     ) -> Result<Vec<DasAsset>, AppError> {
-        let body = serde_json::json!({
-            "jsonrpc": "2.0",
-            "id": "das",
-            "method": "getAssetsByOwner",
-            "params": {
-                "ownerAddress": wallet,
-                "page": 1,
-                "limit": 1000
-            }
-        });
+        const PAGE_SIZE: u32 = 1000;
+        const MAX_ASSETS: usize = 10_000;
 
-        let resp = self
-            .client
-            .post(rpc_url)
-            .json(&body)
-            .send()
-            .await
-            .map_err(|e| {
-                AppError::Internal(anyhow::anyhow!("DAS getAssetsByOwner failed: {}", e))
+        let mut all_items: Vec<DasAsset> = Vec::new();
+        let mut page: u32 = 1;
+
+        loop {
+            let body = serde_json::json!({
+                "jsonrpc": "2.0",
+                "id": "das",
+                "method": "getAssetsByOwner",
+                "params": {
+                    "ownerAddress": wallet,
+                    "page": page,
+                    "limit": PAGE_SIZE
+                }
+            });
+
+            let resp = self
+                .client
+                .post(rpc_url)
+                .json(&body)
+                .send()
+                .await
+                .map_err(|e| {
+                    AppError::Internal(anyhow::anyhow!("DAS getAssetsByOwner failed: {}", e))
+                })?;
+
+            if !resp.status().is_success() {
+                return Err(AppError::Internal(anyhow::anyhow!(
+                    "DAS getAssetsByOwner returned status {}",
+                    resp.status()
+                )));
+            }
+
+            let parsed: DasResponse = resp.json().await.map_err(|e| {
+                AppError::Internal(anyhow::anyhow!("Failed to parse DAS response: {}", e))
             })?;
 
-        if !resp.status().is_success() {
-            return Err(AppError::Internal(anyhow::anyhow!(
-                "DAS getAssetsByOwner returned status {}",
-                resp.status()
-            )));
+            let result = match parsed.result {
+                Some(r) => r,
+                None => break,
+            };
+
+            let page_count = result.items.len();
+            all_items.extend(result.items);
+
+            // Stop if: last page was incomplete, hit safety cap, or no total info
+            if (page_count as u32) < PAGE_SIZE
+                || all_items.len() >= MAX_ASSETS
+                || result.total.map(|t| all_items.len() >= t as usize).unwrap_or(false)
+            {
+                break;
+            }
+
+            page += 1;
         }
 
-        let parsed: DasResponse = resp.json().await.map_err(|e| {
-            AppError::Internal(anyhow::anyhow!("Failed to parse DAS response: {}", e))
-        })?;
+        if all_items.len() >= MAX_ASSETS {
+            tracing::warn!(
+                wallet,
+                fetched = all_items.len(),
+                "Token gating: hit NFT fetch safety cap"
+            );
+        }
 
-        Ok(parsed.result.map(|r| r.items).unwrap_or_default())
+        Ok(all_items)
     }
 
     async fn fetch_token_balances(

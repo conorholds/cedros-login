@@ -113,6 +113,49 @@ These require `is_system_admin: true` on the user account.
 | GET | {base}/admin/audit-logs | Get system audit logs |
 | GET | {base}/admin/orgs/{{id}}/audit-logs | Get org audit logs |
 
+## Admin: KYC
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/admin/users/{{user_id}}/kyc | Get user KYC status + session history |
+| POST | {base}/admin/users/{{user_id}}/kyc/override | Override KYC status manually |
+
+## Admin: Accredited Investor
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/admin/accreditation/pending | List pending accreditation submissions |
+| GET | {base}/admin/users/{{user_id}}/accreditation | Get user accreditation + submissions |
+| GET | {base}/admin/accreditation/{{id}} | Get submission detail + documents |
+| GET | {base}/admin/accreditation/documents/{{id}}/url | Get presigned document download URL |
+| POST | {base}/admin/accreditation/{{id}}/review | Approve or reject submission |
+| POST | {base}/admin/users/{{user_id}}/accreditation/override | Override accreditation status |
+
+## Admin: Sanctions
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/admin/sanctions/stats | Get sanctions cache stats |
+| POST | {base}/admin/sanctions/refresh | Force sanctions list refresh |
+
+## Admin: Compliance (Server-to-Server)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/admin/users/{{user_id}}/compliance | Get compliance status (KYC + accreditation + token gating) |
+
+## Admin: Referral Payouts
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/admin/referral-stats | Get referral analytics |
+| GET | {base}/admin/referral-payouts | List pending payouts by referrer |
+| POST | {base}/admin/referral-payouts/process | Process all pending payouts |
+| POST | {base}/admin/referral-payouts/retry-failed | Retry failed payouts |
+| GET | {base}/admin/referral-payouts/list | List all payouts (paginated) |
+| POST | {base}/admin/referral-payouts/{{id}}/process | Process single payout |
+| POST | {base}/admin/referral-payouts/{{id}}/cancel | Cancel single payout |
+
+## Admin: Webhooks
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | {base}/webhook/kyc | Stripe-Signature | Stripe Identity webhook (no user auth) |
+
 ## Dashboard Permissions
 | Method | Path | Description |
 |--------|------|-------------|
@@ -339,6 +382,30 @@ Authorization: Bearer ck_live_abc123...
 | POST | {base}/wallet/unlock | Unlock wallet |
 | POST | {base}/wallet/sign | Sign transaction |
 
+### KYC / Identity Verification
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | {base}/kyc/start | Start Stripe Identity verification session |
+| GET | {base}/kyc/status | Get KYC status + enforcement mode |
+
+### Accredited Investor Verification
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/accreditation/status | Get accreditation status |
+| POST | {base}/accreditation/submit | Submit verification (6 methods) |
+| POST | {base}/accreditation/upload | Upload supporting document (multipart, 10 MB) |
+| GET | {base}/accreditation/submissions | List own submissions |
+
+### Referral Rewards
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | {base}/referral | Get referral code + count |
+| GET | {base}/referral/rewards | Get rewards summary |
+| GET | {base}/referral/rewards/history | Get reward history (paginated) |
+| POST | {base}/referral/payout-wallet | Set or clear payout wallet address |
+| POST | {base}/referral/regenerate | Regenerate referral code |
+| POST | {base}/referral/set-code | Set vanity referral code |
+
 ## Error Format
 ```json
 {{
@@ -366,6 +433,9 @@ Authorization: Bearer ck_live_abc123...
 - [{base}/skills/orgs.md]({base}/skills/orgs.md): Organizations, members, invites, RBAC
 - [{base}/skills/mfa.md]({base}/skills/mfa.md): Multi-factor authentication setup
 - [{base}/skills/wallet.md]({base}/skills/wallet.md): Embedded Solana wallet operations
+- [{base}/skills/kyc.md]({base}/skills/kyc.md): KYC identity verification (Stripe Identity)
+- [{base}/skills/compliance.md]({base}/skills/compliance.md): Compliance & gating (accreditation, sanctions, token gating)
+- [{base}/skills/rewards.md]({base}/skills/rewards.md): Referral rewards & payouts
 - [{base}/skills/admin.md]({base}/skills/admin.md): System administration (requires admin role)
 
 ## API
