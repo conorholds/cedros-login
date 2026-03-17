@@ -233,6 +233,16 @@ pub async fn withdraw_sol<C: AuthCallback, E: EmailService>(
 
     validate_destination(&request.destination)?;
     state.sanctions_service.check_address(&request.destination).await?;
+
+    // Token gate enforcement
+    {
+        let auth_user = crate::utils::authenticate(&state, &headers).await?;
+        state
+            .token_gating_service
+            .check_enforcement(auth_user.user_id, "withdrawals")
+            .await?;
+    }
+
     if request.amount_lamports == 0 {
         return Err(AppError::Validation(
             "amount_lamports must be positive".into(),
@@ -322,6 +332,15 @@ pub async fn withdraw_spl<C: AuthCallback, E: EmailService>(
 
     validate_destination(&request.destination)?;
     state.sanctions_service.check_address(&request.destination).await?;
+
+    // Token gate enforcement
+    {
+        let auth_user = crate::utils::authenticate(&state, &headers).await?;
+        state
+            .token_gating_service
+            .check_enforcement(auth_user.user_id, "withdrawals")
+            .await?;
+    }
 
     // Validate token_mint is a valid base58 address
     if request.token_mint.len() < 32

@@ -136,6 +136,32 @@ pub trait ReferralPayoutRepository: Send + Sync {
 
     /// Count all payouts with optional status filter
     async fn count_all(&self, status_filter: Option<&str>) -> Result<u64, AppError>;
+
+    /// List payouts for a specific referrer, with optional status filter, paginated.
+    /// Returns payouts ordered by created_at descending.
+    async fn list_by_referrer(
+        &self,
+        referrer_id: Uuid,
+        status_filter: Option<&str>,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<ReferralPayoutEntity>, AppError>;
+
+    /// Count payouts for a specific referrer, with optional status filter.
+    async fn count_by_referrer(
+        &self,
+        referrer_id: Uuid,
+        status_filter: Option<&str>,
+    ) -> Result<u64, AppError>;
+
+    /// Sum payout amounts for a specific referrer filtered by an exact status.
+    ///
+    /// Returns 0 when no matching rows exist.
+    async fn sum_by_status_for_referrer(
+        &self,
+        referrer_id: Uuid,
+        status: &str,
+    ) -> Result<i64, AppError>;
 }
 
 /// In-memory implementation for development and testing
@@ -378,6 +404,58 @@ impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
             .values()
             .filter(|p| status_filter.map_or(true, |s| p.status == s))
             .count() as u64)
+    }
+
+    async fn list_by_referrer(
+        &self,
+        referrer_id: Uuid,
+        status_filter: Option<&str>,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<ReferralPayoutEntity>, AppError> {
+        let payouts = self.payouts.read().await;
+        let mut items: Vec<_> = payouts
+            .values()
+            .filter(|p| {
+                p.referrer_id == referrer_id
+                    && status_filter.map_or(true, |s| p.status == s)
+            })
+            .cloned()
+            .collect();
+        items.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        Ok(items
+            .into_iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .collect())
+    }
+
+    async fn count_by_referrer(
+        &self,
+        referrer_id: Uuid,
+        status_filter: Option<&str>,
+    ) -> Result<u64, AppError> {
+        let payouts = self.payouts.read().await;
+        Ok(payouts
+            .values()
+            .filter(|p| {
+                p.referrer_id == referrer_id
+                    && status_filter.map_or(true, |s| p.status == s)
+            })
+            .count() as u64)
+    }
+
+    async fn sum_by_status_for_referrer(
+        &self,
+        referrer_id: Uuid,
+        status: &str,
+    ) -> Result<i64, AppError> {
+        let payouts = self.payouts.read().await;
+        Ok(payouts
+            .values()
+            .filter(|p| p.referrer_id == referrer_id && p.status == status)
+            .map(|p| p.amount)
+            .sum())
     }
 }
 

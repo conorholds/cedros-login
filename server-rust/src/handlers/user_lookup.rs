@@ -217,6 +217,9 @@ pub struct ComplianceStatusResponse {
     pub accredited_investor: bool,
     /// When accredited status was last verified (ISO 8601), or null.
     pub accredited_verified_at: Option<String>,
+    /// Whether the user currently passes all configured token gate rules.
+    /// `true` when gating is disabled or no rules are configured.
+    pub token_gated: bool,
 }
 
 /// GET /admin/users/{user_id}/compliance
@@ -271,10 +274,18 @@ pub async fn get_user_compliance<C: AuthCallback, E: EmailService>(
         .accreditation_verified_at
         .map(|dt| dt.to_rfc3339());
 
+    // Evaluate token gate rules — fail-open on RPC errors so compliance
+    // endpoint remains available even when the Solana RPC is unreachable.
+    let token_gated = state
+        .token_gating_service
+        .evaluate_all_rules(user_id)
+        .await;
+
     Ok(Json(ComplianceStatusResponse {
         kyc_status,
         accredited_investor,
         accredited_verified_at,
+        token_gated,
     }))
 }
 

@@ -1,6 +1,7 @@
 //! Referral code endpoints (user-facing)
 
 use axum::{extract::State, http::HeaderMap, Json};
+use axum::extract::Query;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -159,4 +160,256 @@ fn validate_vanity_code(code: &str) -> Result<(), AppError> {
         ));
     }
     Ok(())
+}
+
+// ============================================================================
+// Rewards summary and history
+// ============================================================================
+
+/// Response for GET /referral/rewards
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RewardsInfoResponse {
+    /// Total rewards earned (completed direct payouts + referral credits), in smallest unit
+    pub total_earned: i64,
+    /// Pending direct payouts waiting to be processed
+    pub pending_amount: i64,
+    /// Number of pending payouts
+    pub pending_count: u64,
+    /// Currency for the amounts (from settings)
+    pub currency: String,
+    /// Reward type: "credits" or "direct_payout"
+    pub reward_type: String,
+    /// User's configured payout wallet (None if not set)
+    pub payout_wallet_address: Option<String>,
+    /// Number of users referred
+    pub referral_count: u64,
+}
+
+/// GET /referral/rewards — aggregated rewards summary for the authenticated user
+pub async fn get_rewards_info<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+) -> Result<Json<RewardsInfoResponse>, AppError> {
+    let auth = authenticate(&state, &headers).await?;
+
+    let enabled = state
+        .settings_service
+        .get_bool("feature_referrals_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+    if !enabled {
+        return Err(AppError::NotFound("Referrals not enabled".into()));
+    }
+
+    let user = state
+        .user_repo
+        .find_by_id(auth.user_id)
+        .await?
+        .ok_or(AppError::InvalidToken)?;
+
+    let reward_type = state
+        .settings_service
+        .get("referral_reward_type")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "credits".to_string());
+
+    let currency = state
+        .settings_service
+        .get("referral_reward_currency")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "USD".to_string());
+
+    let referral_count = state.user_repo.count_referrals(auth.user_id).await?;
+
+    let (total_earned, pending_amount, pending_count) = if reward_type == "direct_payout" {
+        let total = state
+            .referral_payout_repo
+            .sum_for_referrer(auth.user_id)
+            .await?;
+        let pending_sum = state
+            .referral_payout_repo
+            .sum_by_status_for_referrer(auth.user_id, "pending")
+            .await
+            .unwrap_or(0);
+        let p_count = state
+            .referral_payout_repo
+            .count_by_referrer(auth.user_id, Some("pending"))
+            .await?;
+        (total, pending_sum, p_count)
+    } else {
+        // credits mode: sum positive adjustments with referral_ prefix
+        let total = state
+            .credit_repo
+            .sum_adjustments_by_reference_type_prefix(auth.user_id, &currency, "referral_")
+            .await?;
+        (total, 0i64, 0u64)
+    };
+
+    Ok(Json(RewardsInfoResponse {
+        total_earned,
+        pending_amount,
+        pending_count,
+        currency,
+        reward_type,
+        payout_wallet_address: user.payout_wallet_address,
+        referral_count,
+    }))
+}
+
+/// A single item in rewards history
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RewardHistoryItem {
+    pub id: String,
+    pub trigger_type: String,
+    pub amount: i64,
+    pub currency: String,
+    /// "pending", "processing", "completed", "failed", "cancelled", or "credited"
+    pub status: String,
+    pub tx_signature: Option<String>,
+    pub created_at: String,
+    pub completed_at: Option<String>,
+}
+
+/// Response for GET /referral/rewards/history
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RewardsHistoryResponse {
+    pub items: Vec<RewardHistoryItem>,
+    pub total: u64,
+}
+
+/// Query params for GET /referral/rewards/history
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RewardsHistoryQuery {
+    #[serde(default = "default_limit")]
+    pub limit: u32,
+    #[serde(default)]
+    pub offset: u32,
+}
+
+fn default_limit() -> u32 {
+    20
+}
+
+/// GET /referral/rewards/history — paginated payout history for the authenticated user
+pub async fn get_rewards_history<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+    Query(query): Query<RewardsHistoryQuery>,
+) -> Result<Json<RewardsHistoryResponse>, AppError> {
+    let auth = authenticate(&state, &headers).await?;
+
+    let enabled = state
+        .settings_service
+        .get_bool("feature_referrals_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+    if !enabled {
+        return Err(AppError::NotFound("Referrals not enabled".into()));
+    }
+
+    let limit = query.limit.min(100);
+
+    let payouts = state
+        .referral_payout_repo
+        .list_by_referrer(auth.user_id, None, limit, query.offset)
+        .await?;
+    let total = state
+        .referral_payout_repo
+        .count_by_referrer(auth.user_id, None)
+        .await?;
+
+    let items = payouts
+        .into_iter()
+        .map(|p| RewardHistoryItem {
+            id: p.id.to_string(),
+            trigger_type: p.trigger_type,
+            amount: p.amount,
+            currency: p.currency,
+            status: p.status,
+            tx_signature: p.tx_signature,
+            created_at: p.created_at.to_rfc3339(),
+            completed_at: p.completed_at.map(|t| t.to_rfc3339()),
+        })
+        .collect();
+
+    Ok(Json(RewardsHistoryResponse { items, total }))
+}
+
+// ============================================================================
+// Payout wallet management
+// ============================================================================
+
+/// Request body for POST /referral/payout-wallet
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SetPayoutWalletRequest {
+    /// Base58-encoded 32-byte Solana public key, or null to clear
+    pub wallet_address: Option<String>,
+}
+
+/// Response for POST /referral/payout-wallet
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SetPayoutWalletResponse {
+    pub ok: bool,
+    pub wallet_address: Option<String>,
+}
+
+/// Validate a base58-encoded Solana public key (32 decoded bytes).
+fn validate_solana_wallet(address: &str) -> Result<(), AppError> {
+    let decoded = bs58::decode(address)
+        .into_vec()
+        .map_err(|_| AppError::Validation("Invalid wallet address: not valid base58".into()))?;
+    if decoded.len() != 32 {
+        return Err(AppError::Validation(
+            "Invalid wallet address: must be a 32-byte Solana public key".into(),
+        ));
+    }
+    Ok(())
+}
+
+/// POST /referral/payout-wallet — set or clear the authenticated user's payout wallet address
+pub async fn set_payout_wallet<C: AuthCallback, E: EmailService>(
+    State(state): State<Arc<AppState<C, E>>>,
+    headers: HeaderMap,
+    Json(body): Json<SetPayoutWalletRequest>,
+) -> Result<Json<SetPayoutWalletResponse>, AppError> {
+    let auth = authenticate(&state, &headers).await?;
+
+    let enabled = state
+        .settings_service
+        .get_bool("feature_referrals_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+    if !enabled {
+        return Err(AppError::NotFound("Referrals not enabled".into()));
+    }
+
+    if let Some(ref addr) = body.wallet_address {
+        validate_solana_wallet(addr)?;
+    }
+
+    state
+        .user_repo
+        .set_payout_wallet_address(auth.user_id, body.wallet_address.as_deref())
+        .await?;
+
+    Ok(Json(SetPayoutWalletResponse {
+        ok: true,
+        wallet_address: body.wallet_address,
+    }))
 }

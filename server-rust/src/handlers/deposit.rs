@@ -152,6 +152,12 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
         .check_address(&wallet_material.solana_pubkey)
         .await?;
 
+    // Token gate enforcement
+    state
+        .token_gating_service
+        .check_enforcement(auth_user.user_id, "deposits")
+        .await?;
+
     // Get session ID for wallet unlock cache
     let session_id_for_cache = auth_user.session_id.ok_or_else(|| {
         AppError::Unauthorized("Session required for embedded wallet operations".into())
@@ -594,6 +600,12 @@ pub async fn confirm_spl_deposit<C: AuthCallback, E: EmailService>(
             .check_enforcement(auth_user.user_id, "deposits")
             .await?;
     }
+
+    // Token gate enforcement
+    state
+        .token_gating_service
+        .check_enforcement(auth_user.user_id, "deposits")
+        .await?;
 
     #[cfg(feature = "postgres")]
     let pool = state.postgres_pool.as_ref().ok_or_else(|| {

@@ -404,4 +404,94 @@ impl ReferralPayoutRepository for PostgresReferralPayoutRepository {
         };
         Ok(count.max(0) as u64)
     }
+
+    async fn list_by_referrer(
+        &self,
+        referrer_id: Uuid,
+        status_filter: Option<&str>,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<ReferralPayoutEntity>, AppError> {
+        let rows: Vec<ReferralPayoutRow> = if let Some(status) = status_filter {
+            sqlx::query_as(
+                r#"
+                SELECT id, referrer_id, referred_user_id, trigger_type,
+                       amount, currency, status, tx_signature, error_message,
+                       spend_transaction_id, created_at, completed_at
+                FROM referral_payouts
+                WHERE referrer_id = $1 AND status = $2
+                ORDER BY created_at DESC
+                LIMIT $3 OFFSET $4
+                "#,
+            )
+            .bind(referrer_id)
+            .bind(status)
+            .bind(limit as i64)
+            .bind(offset as i64)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+        } else {
+            sqlx::query_as(
+                r#"
+                SELECT id, referrer_id, referred_user_id, trigger_type,
+                       amount, currency, status, tx_signature, error_message,
+                       spend_transaction_id, created_at, completed_at
+                FROM referral_payouts
+                WHERE referrer_id = $1
+                ORDER BY created_at DESC
+                LIMIT $2 OFFSET $3
+                "#,
+            )
+            .bind(referrer_id)
+            .bind(limit as i64)
+            .bind(offset as i64)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+        };
+        Ok(rows.into_iter().map(Into::into).collect())
+    }
+
+    async fn count_by_referrer(
+        &self,
+        referrer_id: Uuid,
+        status_filter: Option<&str>,
+    ) -> Result<u64, AppError> {
+        let count: i64 = if let Some(status) = status_filter {
+            sqlx::query_scalar(
+                "SELECT COUNT(*) FROM referral_payouts WHERE referrer_id = $1 AND status = $2",
+            )
+            .bind(referrer_id)
+            .bind(status)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+        } else {
+            sqlx::query_scalar(
+                "SELECT COUNT(*) FROM referral_payouts WHERE referrer_id = $1",
+            )
+            .bind(referrer_id)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+        };
+        Ok(count.max(0) as u64)
+    }
+
+    async fn sum_by_status_for_referrer(
+        &self,
+        referrer_id: Uuid,
+        status: &str,
+    ) -> Result<i64, AppError> {
+        let sum: Option<i64> = sqlx::query_scalar(
+            "SELECT COALESCE(SUM(amount), 0) FROM referral_payouts WHERE referrer_id = $1 AND status = $2",
+        )
+        .bind(referrer_id)
+        .bind(status)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+        Ok(sum.unwrap_or(0))
+    }
 }

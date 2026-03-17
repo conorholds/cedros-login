@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime");require("react");const r=require("./ServerSettings-BV0SipW1.cjs");function t(){return e.jsx("div",{className:"cedros-dashboard__section",children:e.jsx(r.ServerSettings,{})})}exports.default=t;

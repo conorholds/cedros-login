@@ -375,6 +375,10 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/referral/set-code",
             post(handlers::set_referral_code::<C, E>),
         )
+        .route(
+            "/referral/payout-wallet",
+            post(handlers::set_payout_wallet::<C, E>),
+        )
         // Enterprise SSO routes
         .route("/sso/start", post(handlers::start_sso::<C, E>))
         // KYC start — strict rate limit (creates Stripe sessions)
@@ -442,8 +446,13 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/.well-known/skills.zip",
             get(handlers::skills_bundle_zip::<C, E>),
         )
-        // Referral read endpoint (general rate limit)
+        // Referral read endpoints (general rate limit)
         .route("/referral", get(handlers::get_referral::<C, E>))
+        .route("/referral/rewards", get(handlers::get_rewards_info::<C, E>))
+        .route(
+            "/referral/rewards/history",
+            get(handlers::get_rewards_history::<C, E>),
+        )
         .route("/logout", post(handlers::logout::<C, E>))
         // M-02: Granular logout - revoke all sessions at once
         .route("/logout-all", post(handlers::logout_all::<C, E>))

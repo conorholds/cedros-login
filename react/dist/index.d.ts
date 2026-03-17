@@ -3109,6 +3109,53 @@ export declare interface RevokeAllSessionsResponse {
     message: string;
 }
 
+declare interface RewardHistoryItem {
+    id: string;
+    triggerType: string;
+    amount: number;
+    currency: string;
+    status: string;
+    txSignature: string | null;
+    createdAt: string;
+    completedAt: string | null;
+}
+
+declare interface RewardsHistoryResponse {
+    items: RewardHistoryItem[];
+    total: number;
+}
+
+declare interface RewardsInfo {
+    totalEarned: number;
+    pendingAmount: number;
+    pendingCount: number;
+    currency: string;
+    rewardType: string;
+    payoutWalletAddress: string | null;
+    referralCount: number;
+}
+
+/**
+ * Self-contained rewards dashboard panel.
+ *
+ * Shows a summary of earned rewards, pending payouts, referral count,
+ * a payout wallet editor (for direct_payout mode), and a paginated history
+ * table with Solana explorer links.
+ *
+ * @example
+ * ```tsx
+ * <RewardsPanel explorerUrl="https://explorer.solana.com" />
+ * ```
+ */
+export declare function RewardsPanel({ explorerUrl, className }: RewardsPanelProps): JSX.Element;
+
+export declare interface RewardsPanelProps {
+    /** Solana explorer URL base (default: https://explorer.solana.com) */
+    explorerUrl?: string;
+    /** Additional CSS class */
+    className?: string;
+}
+
 /**
  * Request to rotate user secret (re-encrypt Share A)
  *
@@ -5044,6 +5091,48 @@ export declare interface UseReferralReturn {
     getReferral: () => Promise<ReferralInfo>;
     /** Regenerate the current user's referral code */
     regenerateCode: () => Promise<string>;
+    /** Whether a request is in progress */
+    isLoading: boolean;
+    /** Error from the last operation */
+    error: Error | null;
+}
+
+/**
+ * Hook for fetching rewards info and history, and managing payout wallet.
+ *
+ * @example
+ * ```tsx
+ * const { rewards, history, fetchRewards, fetchHistory, setPayoutWallet, isLoading } = useRewards();
+ *
+ * useEffect(() => {
+ *   fetchRewards();
+ *   fetchHistory(10, 0);
+ * }, [fetchRewards, fetchHistory]);
+ * ```
+ */
+export declare function useRewards(): UseRewardsReturn;
+
+/**
+ * Return type for the useRewards hook.
+ *
+ * Inputs: none (reads config from CedrosLoginProvider context)
+ * Outputs: rewards summary, history list, and mutation methods
+ * Errors: all methods throw on failure and set `error` state
+ * Invariants: `isLoading` is true only while a request is in flight
+ */
+export declare interface UseRewardsReturn {
+    /** Rewards summary data */
+    rewards: RewardsInfo | null;
+    /** Reward history items */
+    history: RewardHistoryItem[];
+    /** Total history count */
+    historyTotal: number;
+    /** Fetch rewards summary */
+    fetchRewards: () => Promise<RewardsInfo>;
+    /** Fetch reward history (paginated) */
+    fetchHistory: (limit?: number, offset?: number) => Promise<RewardsHistoryResponse>;
+    /** Set payout wallet address (null to clear) */
+    setPayoutWallet: (walletAddress: string | null) => Promise<void>;
     /** Whether a request is in progress */
     isLoading: boolean;
     /** Error from the last operation */

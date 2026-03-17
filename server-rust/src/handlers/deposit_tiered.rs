@@ -158,6 +158,12 @@ pub async fn execute_public_deposit<C: AuthCallback, E: EmailService>(
         .check_address(&request.wallet_address)
         .await?;
 
+    // Token gate enforcement
+    state
+        .token_gating_service
+        .check_enforcement(auth_user.user_id, "deposits")
+        .await?;
+
     // KYC threshold check (amount-based, independent of enforcement mode)
     if let Some(kyc_service) = &state.kyc_service {
         let sol_price = state
@@ -321,6 +327,12 @@ pub async fn execute_micro_deposit<C: AuthCallback, E: EmailService>(
     state
         .sanctions_service
         .check_address(&request.wallet_address)
+        .await?;
+
+    // Token gate enforcement
+    state
+        .token_gating_service
+        .check_enforcement(auth_user.user_id, "deposits")
         .await?;
 
     // Resolve the configured treasury wallet (global)

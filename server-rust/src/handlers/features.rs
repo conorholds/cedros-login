@@ -47,6 +47,8 @@ pub struct AuthFeaturesResponse {
     pub accreditation_enabled: bool,
     /// Accreditation enforcement: `"none"`, `"optional"`, `"required"`.
     pub accreditation_enforcement_mode: String,
+    /// Whether token gating (Solana wallet holdings check) is enabled.
+    pub token_gating_enabled: bool,
 }
 
 /// GET /features — lightweight public endpoint for UI feature discovery.
@@ -189,6 +191,13 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .flatten()
         .unwrap_or_else(|| "none".to_string());
 
+    let token_gating_enabled = ss
+        .get_bool("token_gating_enabled")
+        .await
+        .ok()
+        .flatten()
+        .unwrap_or(false);
+
     Json(AuthFeaturesResponse {
         email,
         google,
@@ -206,6 +215,7 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         kyc_enforcement_mode,
         accreditation_enabled,
         accreditation_enforcement_mode,
+        token_gating_enabled,
     })
 }
 
@@ -232,6 +242,7 @@ mod tests {
             kyc_enforcement_mode: "none".to_string(),
             accreditation_enabled: false,
             accreditation_enforcement_mode: "none".to_string(),
+            token_gating_enabled: false,
         };
 
         let json = serde_json::to_string(&resp).unwrap();
@@ -244,6 +255,7 @@ mod tests {
         assert!(json.contains("\"socialButtonOrder\":[\"webauthn\",\"google\"]"));
         assert!(json.contains("\"kycEnabled\":false"));
         assert!(json.contains("\"kycEnforcementMode\":\"none\""));
+        assert!(json.contains("\"tokenGatingEnabled\":false"));
     }
 
     #[test]
@@ -270,6 +282,7 @@ mod tests {
             kyc_enforcement_mode: "none".to_string(),
             accreditation_enabled: false,
             accreditation_enforcement_mode: "none".to_string(),
+            token_gating_enabled: false,
         };
 
         let json = serde_json::to_string(&resp).unwrap();

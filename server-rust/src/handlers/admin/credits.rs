@@ -343,6 +343,13 @@ mod tests {
             sanctions_service: std::sync::Arc::new(
                 crate::services::SanctionsService::new(settings_service.clone()),
             ),
+            token_gating_service: std::sync::Arc::new(
+                crate::services::TokenGatingService::new(
+                    settings_service.clone(),
+                    storage.user_repo.clone(),
+                    storage.wallet_material_repo.clone(),
+                ),
+            ),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,

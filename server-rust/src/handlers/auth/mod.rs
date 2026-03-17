@@ -7,7 +7,10 @@ mod register;
 mod session;
 
 pub use login::{complete_mfa_login, login};
-pub use referral::{get_referral, regenerate_referral, set_referral_code};
+pub use referral::{
+    get_referral, get_rewards_history, get_rewards_info, regenerate_referral, set_payout_wallet,
+    set_referral_code,
+};
 pub use refresh::refresh;
 pub use register::register;
 pub use session::{get_user, logout, logout_all, update_profile, welcome_completed};

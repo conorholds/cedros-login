@@ -79,7 +79,8 @@ use services::{
     DepositFeeService, EncryptionService, GoogleService, JupiterSwapService, JwtService,
     MfaAttemptService, NoteEncryptionService, OidcService, PasswordService, PrivacySidecarClient,
     SanctionsService, SettingsService, SidecarClientConfig, SolPriceService, SolanaService,
-    StepUpService, TotpService, WalletSigningService, WalletUnlockCache, WebAuthnService,
+    StepUpService, TokenGatingService, TotpService, WalletSigningService, WalletUnlockCache,
+    WebAuthnService,
 };
 use std::sync::Arc;
 use utils::TokenCipher;
@@ -302,6 +303,8 @@ pub struct AppState<C: AuthCallback, E: EmailService = LogEmailService> {
     pub accreditation_service: Option<Arc<services::AccreditationService>>,
     /// Sanctions screening service — always present; disabled state handled internally
     pub sanctions_service: Arc<SanctionsService>,
+    /// Token gating service — always present; disabled state handled internally
+    pub token_gating_service: Arc<TokenGatingService>,
     #[cfg(feature = "postgres")]
     pub postgres_pool: Option<PgPool>,
 }
@@ -567,6 +570,11 @@ pub fn router_with_storage<C: AuthCallback + 'static>(
             settings_service.clone(),
         ))),
         sanctions_service: Arc::new(SanctionsService::new(settings_service.clone())),
+        token_gating_service: Arc::new(TokenGatingService::new(
+            settings_service.clone(),
+            storage.user_repo.clone(),
+            storage.wallet_material_repo.clone(),
+        )),
         #[cfg(feature = "postgres")]
         postgres_pool: storage.pg_pool.clone(),
         storage,
