@@ -56,6 +56,14 @@ Admin operations require:
 1. Valid authentication (API key or JWT)
 2. System admin role OR org owner/admin role (for org-scoped operations)
 
+## First-Run Setup (Root Path — No Auth Required)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /setup/status | Check if first-run setup is needed (needsSetup, hasAdmin) |
+| POST | /setup/admin | Create the first admin user (one-time only, 403 if admin exists) |
+
+Note: Setup endpoints are at the ROOT path, NOT under the auth base path.
+
 ## System Admin Operations
 These require `is_system_admin: true` on the user account.
 

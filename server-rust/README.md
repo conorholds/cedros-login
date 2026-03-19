@@ -99,6 +99,32 @@ cargo run
 
 The server starts at `http://localhost:8080`.
 
+### First-Run Admin Setup
+
+On a fresh install (no users in the database), you need to create the first admin account. There are two ways:
+
+**Option A: UI Setup Wizard (recommended)**
+
+If you're using `@cedros/login-react`, the `<CedrosAdminDashboard>` component automatically detects that no admin exists and shows a WordPress-style setup wizard. Just open the admin page in your browser — it will prompt for email, password, name, and organization name.
+
+**Option B: API call**
+
+```bash
+# 1. Check if setup is needed
+curl http://localhost:8080/setup/status
+# → {"needsSetup":true,"hasAdmin":false,"serverVersion":"0.0.38"}
+
+# 2. Create the first admin (only works when no admin exists)
+curl -X POST http://localhost:8080/setup/admin \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"your-secure-password","name":"Admin"}'
+# → {"success":true,"userId":"...","message":"Admin account created successfully. You can now log in."}
+```
+
+> **Important:** The setup endpoints (`/setup/status`, `/setup/admin`) are served at the **root path**, not under `AUTH_BASE_PATH`. They require no authentication. `POST /setup/admin` returns 403 if any admin already exists — it's a one-time operation.
+
+After creating the admin, log in with those credentials and access the admin dashboard.
+
 ### Using Docker
 
 ```bash
@@ -111,7 +137,17 @@ The server starts at `http://localhost:8080`.
 
 ## API Endpoints
 
-All endpoints are served under `AUTH_BASE_PATH` (default: `/auth`). Paths below are relative to that base path.
+All endpoints are served under `AUTH_BASE_PATH` (default: `/auth`). Paths below are relative to that base path, **except** for setup and health endpoints which are at the root.
+
+### Setup (Root Path — No Auth)
+
+These endpoints are served at the root path, not under `AUTH_BASE_PATH`. They require no authentication.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/setup/status` | Check if first-run setup is needed |
+| `POST` | `/setup/admin` | Create the first admin user (one-time only, 403 if admin exists) |
+| `GET` | `/health` | Health check |
 
 ### Authentication
 

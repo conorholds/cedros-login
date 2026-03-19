@@ -24,6 +24,19 @@ export declare interface AcceptInviteResponse {
     role: OrgRole;
 }
 
+/**
+ * A single access code record as returned by the server.
+ */
+export declare interface AccessCode {
+    id: string;
+    code: string;
+    codeType: string;
+    maxUses: number | null;
+    currentUses: number;
+    expiresAt: string | null;
+    createdAt: string;
+}
+
 export declare function AccountSettings({ defaultTab, onClose, onPasswordChange, onTotpChange, onLinkGoogle, onLinkApple, onAddPasskey, onLinkSolana, className, }: AccountSettingsProps): JSX.Element;
 
 export declare interface AccountSettingsProps extends ProfileTabProps, LinkedAccountsProps {
@@ -164,6 +177,25 @@ export declare interface AccreditationWizardProps {
 export declare interface AcknowledgeRecoveryRequest {
     /** Confirmation that user has saved the recovery phrase */
     confirmed: boolean;
+}
+
+/**
+ * Admin access codes management panel.
+ *
+ * Inputs: className
+ * Outputs: CRUD for access codes; displays signup stats
+ * Errors: displayed inline
+ */
+export declare function AdminAccessCodes({ className }: AdminAccessCodesProps): JSX.Element;
+
+/**
+ * Admin panel for managing access codes and viewing signup stats.
+ *
+ * Shows a stats bar, a create-code form, a filterable table of codes,
+ * and pagination.
+ */
+export declare interface AdminAccessCodesProps {
+    className?: string;
 }
 
 /**
@@ -800,7 +832,7 @@ export declare interface AllWalletsListResponse {
  * />
  * ```
  */
-export declare function AppleLoginButton({ onSuccess, onError, className, variant, size, disabled, hideOnNonApple, }: AppleLoginButtonProps): JSX.Element | null;
+export declare function AppleLoginButton({ onSuccess, onError, className, variant, size, disabled, hideOnNonApple, accessCode, }: AppleLoginButtonProps): JSX.Element | null;
 
 export declare interface AppleLoginButtonProps {
     onSuccess?: () => void;
@@ -816,6 +848,8 @@ export declare interface AppleLoginButtonProps {
      * @default true
      */
     hideOnNonApple?: boolean;
+    /** Access code forwarded to the server when this flow creates a new account. */
+    accessCode?: string;
 }
 
 /**
@@ -1079,6 +1113,8 @@ export declare interface CedrosLoginConfig {
     theme?: ThemeMode;
     /** CSS variable overrides for custom theming */
     themeOverrides?: ThemeOverrides;
+    /** Disable all default cedros styles. Use for custom design systems. */
+    unstyled?: boolean;
     /** API request timeout in ms. Default: 10000 */
     requestTimeout?: number;
     /** Retry attempts on transient errors. Default: 2 */
@@ -1406,7 +1442,7 @@ declare interface CustomTokenDefinition {
  * Types and props interfaces for CedrosAdminDashboard
  */
 /** Available dashboard sections */
-export declare type DashboardSection = 'users' | 'team' | 'referrals' | 'deposits' | 'withdrawals' | 'compliance' | 'accreditation-queue' | 'sanctions' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-compliance' | 'settings-referrals' | 'settings-server' | 'settings-images';
+export declare type DashboardSection = 'users' | 'team' | 'referrals' | 'deposits' | 'withdrawals' | 'compliance' | 'accreditation-queue' | 'sanctions' | 'signup-gating' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-compliance' | 'settings-referrals' | 'settings-signup' | 'settings-server' | 'settings-images';
 
 declare type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -1720,12 +1756,18 @@ export declare interface EmailOptInConfig {
 /**
  * Email/password registration form
  */
-export declare function EmailRegisterForm({ onSuccess, onSwitchToLogin, className, }: EmailRegisterFormProps): JSX.Element;
+export declare function EmailRegisterForm({ onSuccess, onSwitchToLogin, className, accessCode: accessCodeProp, }: EmailRegisterFormProps): JSX.Element;
 
 export declare interface EmailRegisterFormProps {
     onSuccess?: () => void;
     onSwitchToLogin?: () => void;
     className?: string;
+    /**
+     * Access code value controlled by the parent (e.g. LoginForm).
+     * When provided, the internal access code input is hidden and this value
+     * is used directly. Allows LoginForm to show a single shared field.
+     */
+    accessCode?: string;
 }
 
 export declare function EmailSettings({ className }: EmailSettingsProps): JSX.Element;
@@ -1967,7 +2009,7 @@ export declare function getTierForAmount(usd: number, config: DepositConfigRespo
 /**
  * Google OAuth login button
  */
-export declare function GoogleLoginButton({ onSuccess, onError, className, variant, size, disabled, }: GoogleLoginButtonProps): JSX.Element;
+export declare function GoogleLoginButton({ onSuccess, onError, className, variant, size, disabled, accessCode, }: GoogleLoginButtonProps): JSX.Element;
 
 export declare interface GoogleLoginButtonProps {
     onSuccess?: () => void;
@@ -1976,6 +2018,8 @@ export declare interface GoogleLoginButtonProps {
     variant?: 'default' | 'outline';
     size?: 'sm' | 'md' | 'lg';
     disabled?: boolean;
+    /** Access code forwarded to the server when this flow creates a new account. */
+    accessCode?: string;
 }
 
 /**
@@ -2113,6 +2157,24 @@ export declare interface Invite {
     invitedBy: string;
     createdAt: string;
     expiresAt: string;
+}
+
+/**
+ * User-facing panel for generating and sharing invite codes.
+ *
+ * Displays the user's existing invite codes (copyable, with status and dates)
+ * and provides a button to generate a new one.
+ *
+ * @example
+ * ```tsx
+ * <InviteCodePanel />
+ * ```
+ */
+export declare function InviteCodePanel({ className }: InviteCodePanelProps): JSX.Element;
+
+export declare interface InviteCodePanelProps {
+    /** Additional CSS class */
+    className?: string;
 }
 
 /**
@@ -2755,13 +2817,16 @@ export declare interface OtpInputProps {
     className?: string;
 }
 
-export declare function PasskeyLoginButton({ onSuccess, className, children, disabled, }: PasskeyLoginButtonProps): JSX.Element;
+export declare function PasskeyLoginButton({ onSuccess, onError, className, children, disabled, accessCode, }: PasskeyLoginButtonProps): JSX.Element;
 
 export declare interface PasskeyLoginButtonProps {
     onSuccess?: () => void;
+    onError?: (error: Error) => void;
     className?: string;
     children?: ReactNode;
     disabled?: boolean;
+    /** Access code forwarded to the server when this flow creates a new account. */
+    accessCode?: string;
 }
 
 /**
@@ -3318,6 +3383,14 @@ export declare interface ServerFeatures {
      * **Cosmetic** — only controls admin dashboard tab visibility.
      */
     cedrosPay: boolean;
+    /**
+     * Require an access code to register.
+     *
+     * **Enforced** — the server rejects registrations without a valid code
+     * when this is enabled. The EmailRegisterForm shows an access code field
+     * when this flag is true.
+     */
+    signupAccessCodeRequired: boolean;
 }
 
 export declare function ServerSettings({ className }: ServerSettingsProps): JSX.Element;
@@ -3563,6 +3636,12 @@ export declare interface SignTransactionResponse {
     pubkey: string;
 }
 
+export declare function SignupSettings({ className }: SignupSettingsProps): JSX.Element;
+
+export declare interface SignupSettingsProps {
+    className?: string;
+}
+
 /**
  * Solana configuration options
  */
@@ -3600,6 +3679,8 @@ export declare interface SolanaLoginButtonProps {
     hideIfNoWallet?: boolean;
     /** Called when the button's loading state changes (connecting, signing, etc.). */
     onLoadingChange?: (loading: boolean) => void;
+    /** Access code forwarded to the server when this flow creates a new account. */
+    accessCode?: string;
     /**
      * Solana wallet adapter context. Pass this from @solana/wallet-adapter-react's useWallet().
      * When provided, the component assumes a WalletProvider exists in the React tree and
@@ -4218,6 +4299,49 @@ declare interface UpdateUserRequest {
 }
 
 /**
+ * Hook for user-facing access code operations.
+ *
+ * Lets authenticated users generate invite codes and view the ones they've
+ * already created.
+ *
+ * @example
+ * ```tsx
+ * const { codes, generateCode, fetchCodes, isLoading, error } = useAccessCodes();
+ *
+ * useEffect(() => { fetchCodes(); }, [fetchCodes]);
+ *
+ * const handleGenerate = async () => {
+ *   const code = await generateCode();
+ *   console.log(code.code);
+ * };
+ * ```
+ */
+export declare function useAccessCodes(): UseAccessCodesReturn;
+
+/**
+ * Return type for the useAccessCodes hook.
+ *
+ * Inputs: none (reads config from CedrosLoginProvider context)
+ * Outputs: user's generated codes and mutation methods
+ * Errors: all methods throw on failure and set `error` state
+ * Invariants: `isLoading` is true only while a request is in flight
+ */
+export declare interface UseAccessCodesReturn {
+    /** Generated codes by this user */
+    codes: AccessCode[];
+    /** Total number of codes on server */
+    total: number;
+    /** Generate a new invite code */
+    generateCode: () => Promise<AccessCode>;
+    /** Fetch user's generated codes */
+    fetchCodes: () => Promise<void>;
+    /** Whether a request is in progress */
+    isLoading: boolean;
+    /** Error from the last operation */
+    error: Error | null;
+}
+
+/**
  * Hook for accredited investor verification.
  *
  * Follows the same pattern as useKyc.
@@ -4395,7 +4519,8 @@ export declare interface UseAdminUsersReturn {
 export declare function useAppleAuth(): UseAppleAuthReturn;
 
 export declare interface UseAppleAuthReturn {
-    signIn: () => Promise<AuthResponse>;
+    /** @param accessCode Optional signup access code, forwarded to the server on new registrations. */
+    signIn: (accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     isInitialized: boolean;
     error: AuthError | null;
@@ -4522,6 +4647,45 @@ export declare function useAuthUI(): AuthUIContextValue;
  * only need a subset of the context. This hook re-renders on any change.
  */
 export declare function useCedrosLogin(): CedrosLoginContextValue;
+
+/**
+ * Hook exposing the current cedros-login theme state.
+ *
+ * Use this to read theme values and apply them to custom components
+ * that need to match the cedros-login theme. Follows the cedros-pay
+ * `useCedrosTheme()` pattern.
+ *
+ * @example
+ * ```tsx
+ * function MyCustomCard() {
+ *   const { isDark, className, style } = useCedrosTheme();
+ *   return (
+ *     <div className={className} style={style}>
+ *       {isDark ? 'Dark mode' : 'Light mode'}
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
+export declare function useCedrosTheme(): UseCedrosThemeReturn;
+
+/**
+ * Theme state exposed to consumers for custom theming.
+ */
+export declare interface UseCedrosThemeReturn {
+    /** Current theme mode: 'light', 'dark', or 'auto' */
+    mode: ThemeMode;
+    /** Whether dark mode is currently active */
+    isDark: boolean;
+    /** CSS class name for the current theme (e.g. 'cedros-dark' or '') */
+    className: string;
+    /** Inline style object with CSS variable overrides */
+    style: React.CSSProperties;
+    /** Whether `unstyled` mode is active (no default cedros styles) */
+    unstyled: boolean;
+    /** The resolved theme overrides from config */
+    overrides: ThemeOverrides | undefined;
+}
 
 /**
  * Hook for managing user credentials (linked sign-in methods).
@@ -4664,7 +4828,7 @@ export declare function useEmailAuth(): UseEmailAuthReturn;
 export declare interface UseEmailAuthReturn {
     /** Login - may return mfaRequired if 2FA is enabled */
     login: (email: string, password: string) => Promise<LoginResult>;
-    register: (email: string, password: string, name?: string, referral?: string) => Promise<AuthResponse>;
+    register: (email: string, password: string, name?: string, referral?: string, accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;
@@ -4706,7 +4870,8 @@ export declare interface UseEmailAuthReturn {
 export declare function useGoogleAuth(): UseGoogleAuthReturn;
 
 export declare interface UseGoogleAuthReturn {
-    signIn: () => Promise<AuthResponse>;
+    /** @param accessCode Optional signup access code, forwarded to the server on new registrations. */
+    signIn: (accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     isInitialized: boolean;
     error: AuthError | null;
@@ -5457,7 +5622,8 @@ export declare function useSolanaAuth(): UseSolanaAuthReturn;
 
 export declare interface UseSolanaAuthReturn {
     requestChallenge: (publicKey: string) => Promise<ChallengeResponse>;
-    signIn: (publicKey: string, signature: string, message: string) => Promise<AuthResponse>;
+    /** @param accessCode Optional signup access code, forwarded to the server on new registrations. */
+    signIn: (publicKey: string, signature: string, message: string, accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;
@@ -5868,8 +6034,11 @@ export declare interface UseWebAuthnReturn {
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;
-    /** Unified passkey flow: tries discoverable auth first, falls back to signup if no passkey exists. */
-    continueWithPasskey: () => Promise<AuthResponse>;
+    /**
+     * Unified passkey flow: tries discoverable auth first, falls back to signup if no passkey exists.
+     * @param accessCode Optional signup access code forwarded to the server when creating a new account.
+     */
+    continueWithPasskey: (accessCode?: string) => Promise<AuthResponse>;
     /** Start a server-managed WebAuthn authentication ceremony (login). */
     authenticatePasskey: (params?: {
         email?: string;
@@ -5886,6 +6055,8 @@ export declare interface UseWebAuthnReturn {
         email?: string;
         name?: string;
         label?: string;
+        /** Optional signup access code forwarded to the server. */
+        accessCode?: string;
     }) => Promise<AuthResponse>;
 }
 

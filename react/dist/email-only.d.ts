@@ -167,6 +167,8 @@ export declare interface CedrosLoginConfig {
     theme?: ThemeMode;
     /** CSS variable overrides for custom theming */
     themeOverrides?: ThemeOverrides;
+    /** Disable all default cedros styles. Use for custom design systems. */
+    unstyled?: boolean;
     /** API request timeout in ms. Default: 10000 */
     requestTimeout?: number;
     /** Retry attempts on transient errors. Default: 2 */
@@ -286,12 +288,18 @@ declare interface EmailOptInConfig {
 /**
  * Email/password registration form
  */
-export declare function EmailRegisterForm({ onSuccess, onSwitchToLogin, className, }: EmailRegisterFormProps): JSX.Element;
+export declare function EmailRegisterForm({ onSuccess, onSwitchToLogin, className, accessCode: accessCodeProp, }: EmailRegisterFormProps): JSX.Element;
 
 declare interface EmailRegisterFormProps {
     onSuccess?: () => void;
     onSwitchToLogin?: () => void;
     className?: string;
+    /**
+     * Access code value controlled by the parent (e.g. LoginForm).
+     * When provided, the internal access code input is hidden and this value
+     * is used directly. Allows LoginForm to show a single shared field.
+     */
+    accessCode?: string;
 }
 
 /**
@@ -626,7 +634,7 @@ export declare function useEmailAuth(): UseEmailAuthReturn;
 declare interface UseEmailAuthReturn {
     /** Login - may return mfaRequired if 2FA is enabled */
     login: (email: string, password: string) => Promise<LoginResult>;
-    register: (email: string, password: string, name?: string, referral?: string) => Promise<AuthResponse>;
+    register: (email: string, password: string, name?: string, referral?: string, accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;

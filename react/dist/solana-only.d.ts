@@ -166,6 +166,8 @@ export declare interface CedrosLoginConfig {
     theme?: ThemeMode;
     /** CSS variable overrides for custom theming */
     themeOverrides?: ThemeOverrides;
+    /** Disable all default cedros styles. Use for custom design systems. */
+    unstyled?: boolean;
     /** API request timeout in ms. Default: 10000 */
     requestTimeout?: number;
     /** Retry attempts on transient errors. Default: 2 */
@@ -501,6 +503,8 @@ declare interface SolanaLoginButtonProps {
     hideIfNoWallet?: boolean;
     /** Called when the button's loading state changes (connecting, signing, etc.). */
     onLoadingChange?: (loading: boolean) => void;
+    /** Access code forwarded to the server when this flow creates a new account. */
+    accessCode?: string;
     /**
      * Solana wallet adapter context. Pass this from @solana/wallet-adapter-react's useWallet().
      * When provided, the component assumes a WalletProvider exists in the React tree and
@@ -678,7 +682,8 @@ export declare function useSolanaAuth(): UseSolanaAuthReturn;
 
 declare interface UseSolanaAuthReturn {
     requestChallenge: (publicKey: string) => Promise<ChallengeResponse>;
-    signIn: (publicKey: string, signature: string, message: string) => Promise<AuthResponse>;
+    /** @param accessCode Optional signup access code, forwarded to the server on new registrations. */
+    signIn: (publicKey: string, signature: string, message: string, accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     error: AuthError | null;
     clearError: () => void;

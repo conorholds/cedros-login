@@ -166,6 +166,8 @@ export declare interface CedrosLoginConfig {
     theme?: ThemeMode;
     /** CSS variable overrides for custom theming */
     themeOverrides?: ThemeOverrides;
+    /** Disable all default cedros styles. Use for custom design systems. */
+    unstyled?: boolean;
     /** API request timeout in ms. Default: 10000 */
     requestTimeout?: number;
     /** Retry attempts on transient errors. Default: 2 */
@@ -332,7 +334,7 @@ declare interface FormConfig {
 /**
  * Google OAuth login button
  */
-export declare function GoogleLoginButton({ onSuccess, onError, className, variant, size, disabled, }: GoogleLoginButtonProps): JSX.Element;
+export declare function GoogleLoginButton({ onSuccess, onError, className, variant, size, disabled, accessCode, }: GoogleLoginButtonProps): JSX.Element;
 
 declare interface GoogleLoginButtonProps {
     onSuccess?: () => void;
@@ -341,6 +343,8 @@ declare interface GoogleLoginButtonProps {
     variant?: 'default' | 'outline';
     size?: 'sm' | 'md' | 'lg';
     disabled?: boolean;
+    /** Access code forwarded to the server when this flow creates a new account. */
+    accessCode?: string;
 }
 
 /**
@@ -564,7 +568,8 @@ export declare function useCedrosLogin(): CedrosLoginContextValue;
 export declare function useGoogleAuth(): UseGoogleAuthReturn;
 
 declare interface UseGoogleAuthReturn {
-    signIn: () => Promise<AuthResponse>;
+    /** @param accessCode Optional signup access code, forwarded to the server on new registrations. */
+    signIn: (accessCode?: string) => Promise<AuthResponse>;
     isLoading: boolean;
     isInitialized: boolean;
     error: AuthError | null;

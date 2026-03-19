@@ -204,7 +204,8 @@ function AuthStatus() {
 
 | Component | Description |
 |-----------|-------------|
-| `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections |
+| `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections. **Auto-detects first run and shows SetupWizard.** |
+| `SetupWizard` | First-run setup wizard — creates the first admin account (email, password, name, org). Shown automatically by `CedrosAdminDashboard` when no admin exists. |
 | `AdminShell` | Plugin host for combining multiple admin dashboards (cedros-login + cedros-pay) |
 | `AdminPanel` | Legacy admin dashboard with tabs for members, invites, sessions, system settings |
 | `SystemSettings` | System settings editor (privacy, withdrawal, rate limits) - system admin only |
@@ -1367,7 +1368,9 @@ function AdminStatsWidget() {
 
 ### Admin Dashboard
 
-The `CedrosAdminDashboard` is a complete, ready-to-use admin panel with sidebar navigation:
+The `CedrosAdminDashboard` is a complete, ready-to-use admin panel with sidebar navigation.
+
+**First-run setup is automatic** — when no admin user exists, the dashboard shows a WordPress-style setup wizard instead of the normal admin interface. The wizard prompts for email, password, name, and organization name to create the first admin account. Once created, it reloads into the full dashboard. No env vars or SQL needed.
 
 ```tsx
 import { CedrosAdminDashboard } from '@cedros/login-react';
@@ -1385,16 +1388,43 @@ function AdminPage() {
 }
 ```
 
+If you need custom setup flow control, use the `SetupWizard` component directly:
+
+```tsx
+import { SetupWizard, useSetup, CedrosAdminDashboard } from '@cedros/login-react';
+
+function AdminApp() {
+  const { status, isLoading, checkStatus } = useSetup();
+
+  useEffect(() => { checkStatus(); }, [checkStatus]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (status?.needsSetup) {
+    return <SetupWizard onComplete={() => window.location.reload()} />;
+  }
+  return <CedrosAdminDashboard />;
+}
+```
+
 **Available sections:**
 - `users` - User management with stats (system admin only)
 - `team` - Organization members and pending invites
+- `referrals` - Referral analytics and payout management
 - `deposits` - Browse all deposits with status filtering
 - `withdrawals` - Process company withdrawal queue
+- `compliance` - Token gate rule management
+- `accreditation-queue` - Review accredited investor submissions
+- `sanctions` - Sanctions screening stats and refresh
+- `signup-gating` - Access code management and signup stats
 - `settings-auth` - Authentication settings (OAuth, passkeys, etc.)
 - `settings-messaging` - Email/SMTP and webhook configuration
 - `settings-wallet` - User wallet settings
 - `settings-credits` - Credit system and treasury configuration
+- `settings-compliance` - KYC, accreditation, sanctions, token gating settings
+- `settings-referrals` - Referral reward configuration
+- `settings-signup` - Signup volume limits and access code settings
 - `settings-server` - Auth server settings
+- `settings-images` - Image storage (S3) settings
 
 ### Unified Admin Dashboard (Plugin System)
 
