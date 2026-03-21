@@ -271,10 +271,6 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         user.email_verified = true;
     }
 
-    // Resolve which org this user should join
-    let org_assignment = resolve_org_assignment(&state, user.id).await?;
-    let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
-
     // Create API key for user
     let (raw_api_key, api_key_entity) = if state.config.email.require_verification {
         (None, None)
@@ -286,8 +282,22 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         )
     };
 
+    let ip_address =
+        extract_client_ip_with_fallback(&headers, state.config.server.trust_proxy, peer_ip);
+    let user_agent = headers
+        .get(header::USER_AGENT)
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
+
+    // Persist user FIRST — org resolution may auto-create a "Default" org
+    // whose owner_id FK references users.id, so the user row must exist.
+    user = state.user_repo.create(user).await?;
+
+    // NOW resolve org assignment — user exists in DB, FK satisfied
+    let org_assignment = resolve_org_assignment(&state, user.id).await?;
+    let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
+
     // Create session with org context
-    // New users are never system admins, so is_system_admin is None
     let session_id = uuid::Uuid::new_v4();
     let token_context = TokenContext {
         org_id: Some(org_assignment.org_id),
@@ -302,13 +312,6 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     let refresh_expiry =
         Utc::now() + Duration::seconds(state.jwt_service.refresh_expiry_secs() as i64);
 
-    let ip_address =
-        extract_client_ip_with_fallback(&headers, state.config.server.trust_proxy, peer_ip);
-    let user_agent = headers
-        .get(header::USER_AGENT)
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string());
-
     let mut session = SessionEntity::new_with_id(
         session_id,
         user.id,
@@ -319,28 +322,12 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     );
     session.last_strong_auth_at = Some(Utc::now());
 
-    #[cfg(feature = "postgres")]
-    if let Some(pool) = state.postgres_pool.as_ref() {
-        register_with_transaction(pool, &user, &membership, api_key_entity.as_ref(), &session)
-            .await?;
-    } else {
-        user = state.user_repo.create(user).await?;
-        state.membership_repo.create(membership).await?;
-        if let Some(api_key_entity) = api_key_entity {
-            state.api_key_repo.create(api_key_entity).await?;
-        }
-        state.session_repo.create(session).await?;
+    // Create membership, API key, session
+    state.membership_repo.create(membership).await?;
+    if let Some(api_key_entity) = api_key_entity {
+        state.api_key_repo.create(api_key_entity).await?;
     }
-
-    #[cfg(not(feature = "postgres"))]
-    {
-        user = state.user_repo.create(user).await?;
-        state.membership_repo.create(membership).await?;
-        if let Some(api_key_entity) = api_key_entity {
-            state.api_key_repo.create(api_key_entity).await?;
-        }
-        state.session_repo.create(session).await?;
-    }
+    state.session_repo.create(session).await?;
 
     // Mark access code as used (non-fatal — don't break registration)
     if let Some(code_id) = gate_result.access_code_id {

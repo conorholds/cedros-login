@@ -13,7 +13,7 @@ use crate::models::{AuthMethod, AuthResponse, GoogleAuthRequest};
 use crate::repositories::normalize_email;
 use crate::repositories::{
     generate_api_key, ApiKeyEntity, AuditEventType, MembershipEntity, SessionEntity,
-    TransactionalOps, UserEntity,
+    UserEntity,
 };
 use crate::services::EmailService;
 use crate::utils::{
@@ -163,32 +163,18 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
             }
         }
 
+        // Persist user FIRST — org resolution may auto-create a "Default" org
+        // whose owner_id FK references users.id, so the user row must exist.
+        let user = state.user_repo.create(user).await?;
+
+        // NOW resolve org assignment — user exists in DB, FK satisfied
         let org_assignment = resolve_org_assignment(&state, user.id).await?;
         let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
         let raw_api_key = generate_api_key();
         let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key, "default");
 
-        #[cfg(feature = "postgres")]
-        let user = if let Some(pool) = state.postgres_pool.as_ref() {
-            TransactionalOps::create_user_with_membership_and_api_key(
-                pool, &user, &membership, &api_key_entity,
-            )
-            .await?;
-            user
-        } else {
-            let created = state.user_repo.create(user).await?;
-            state.membership_repo.create(membership).await?;
-            state.api_key_repo.create(api_key_entity).await?;
-            created
-        };
-
-        #[cfg(not(feature = "postgres"))]
-        let user = {
-            let created = state.user_repo.create(user).await?;
-            state.membership_repo.create(membership).await?;
-            state.api_key_repo.create(api_key_entity).await?;
-            created
-        };
+        state.membership_repo.create(membership).await?;
+        state.api_key_repo.create(api_key_entity).await?;
 
         // Mark access code as used (non-fatal)
         if let Some(code_id) = gate_result.access_code_id {

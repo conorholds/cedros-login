@@ -20,7 +20,7 @@ use crate::handlers::webauthn::RegisterOptionsResponse;
 use crate::models::{AuthMethod, AuthResponse};
 use crate::repositories::{
     generate_api_key, normalize_email, ApiKeyEntity, AuditEventType, CredentialEntity,
-    CredentialType, MembershipEntity, SessionEntity, TransactionalOps, UserEntity,
+    CredentialType, MembershipEntity, SessionEntity, UserEntity,
 };
 use crate::services::{
     webauthn_service::VerifyRegistrationRequest, EmailService,
@@ -217,48 +217,28 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         accreditation_expires_at: None,
     };
 
-    let org_assignment = resolve_org_assignment(&state, user.id).await?;
-    let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
-    let raw_api_key = generate_api_key();
-    let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key, "default");
-
     // Set the real user_id on the webauthn credential (was placeholder Uuid::nil())
     let mut webauthn_cred = webauthn_cred;
     webauthn_cred.user_id = user_id;
 
-    // Atomic insert: user + membership + api_key + webauthn_credential
-    #[cfg(feature = "postgres")]
-    if let Some(pool) = state.postgres_pool.as_ref() {
-        TransactionalOps::create_user_with_membership_apikey_and_credential(
-            pool,
-            &user,
-            &membership,
-            &api_key_entity,
-            &webauthn_cred,
-        )
-        .await?;
-    } else {
-        let _ = state.user_repo.create(user.clone()).await?;
-        state.membership_repo.create(membership.clone()).await?;
-        state.api_key_repo.create(api_key_entity.clone()).await?;
-        state
-            .storage
-            .webauthn_repository()
-            .create_credential(webauthn_cred.clone())
-            .await?;
-    }
+    let raw_api_key = generate_api_key();
+    let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key, "default");
 
-    #[cfg(not(feature = "postgres"))]
-    {
-        let _ = state.user_repo.create(user.clone()).await?;
-        state.membership_repo.create(membership.clone()).await?;
-        state.api_key_repo.create(api_key_entity.clone()).await?;
-        state
-            .storage
-            .webauthn_repository()
-            .create_credential(webauthn_cred.clone())
-            .await?;
-    }
+    // Persist user FIRST — org resolution may auto-create a "Default" org
+    // whose owner_id FK references users.id, so the user row must exist.
+    let _ = state.user_repo.create(user.clone()).await?;
+
+    // NOW resolve org assignment — user exists in DB, FK satisfied
+    let org_assignment = resolve_org_assignment(&state, user.id).await?;
+    let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
+
+    state.membership_repo.create(membership).await?;
+    state.api_key_repo.create(api_key_entity).await?;
+    state
+        .storage
+        .webauthn_repository()
+        .create_credential(webauthn_cred)
+        .await?;
 
     // Best-effort unified credential entry
     let unified_cred = CredentialEntity::new(
