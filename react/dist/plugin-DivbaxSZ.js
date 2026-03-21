@@ -446,7 +446,7 @@ const l = {
     /* @__PURE__ */ e("line", { x1: "6", x2: "6.01", y1: "6", y2: "6" }),
     /* @__PURE__ */ e("line", { x1: "6", x2: "6.01", y1: "18", y2: "18" })
   ] })
-}, ee = w(() => import("./UsersSection-CnsFrG-6.js")), re = w(() => import("./TeamSection-gUyP4YDM.js")), se = w(() => import("./DepositsSection-Bb4ISzvE.js")), ie = w(() => import("./WithdrawalsSection-BN-FjTEV.js")), ne = w(() => import("./AuthenticationSettings-DXWCVZxS.js")), oe = w(() => import("./EmbeddedWalletSettings-MH4A6e6S.js")), te = w(() => import("./EmailSettings-0y8D1QzF.js")), ae = w(() => import("./WebhookSettings-LS_wUimF.js")), le = w(() => import("./CreditSystemSettings-B59-gOQT.js")), de = w(() => import("./ServerSettings-CwCkkU50.js")), ce = {
+}, ee = w(() => import("./UsersSection-CnsFrG-6.js")), re = w(() => import("./TeamSection-gUyP4YDM.js")), se = w(() => import("./DepositsSection-Bb4ISzvE.js")), ie = w(() => import("./WithdrawalsSection-BCG_-DAP.js")), ne = w(() => import("./AuthenticationSettings-DXWCVZxS.js")), oe = w(() => import("./EmbeddedWalletSettings-MH4A6e6S.js")), te = w(() => import("./EmailSettings-0y8D1QzF.js")), ae = w(() => import("./WebhookSettings-LS_wUimF.js")), le = w(() => import("./CreditSystemSettings-B59-gOQT.js")), de = w(() => import("./ServerSettings-CwCkkU50.js")), ce = {
   "login:users:read": ["admin", "owner"],
   "login:users:write": ["admin", "owner"],
   "login:members:read": ["member:read", "admin", "owner"],

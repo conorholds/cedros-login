@@ -1,6 +1,6 @@
 import { jsxs as s, jsx as a } from "react/jsx-runtime";
 import { useState as n, useEffect as c } from "react";
-import { A as l, a as h, b as m, c as p } from "./AdminWithdrawalHistory-C76bkbjX.js";
+import { A as l, a as h, b as m, c as p } from "./AdminWithdrawalHistory-CgYehfMH.js";
 function _({
   pageSize: e = 20,
   refreshInterval: i = 0

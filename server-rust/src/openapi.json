@@ -28,7 +28,13 @@
     {"name": "mfa", "description": "Multi-factor authentication"},
     {"name": "sessions", "description": "Session management"},
     {"name": "admin", "description": "System administration"},
-    {"name": "wallet", "description": "Embedded Solana wallet operations"}
+    {"name": "wallet", "description": "Embedded Solana wallet operations"},
+    {"name": "setup", "description": "First-run setup (no auth required)"},
+    {"name": "kyc", "description": "KYC identity verification"},
+    {"name": "accreditation", "description": "Accredited investor verification"},
+    {"name": "referrals", "description": "Referral rewards and payouts"},
+    {"name": "access-codes", "description": "Signup access code management"},
+    {"name": "webhooks", "description": "External service webhook callbacks"}
   ],
   "paths": {
     "/discovery": {
@@ -776,6 +782,896 @@
           "200": {"description": "Recovery code accepted"}
         }
       }
+    },
+    "/setup/status": {
+      "get": {
+        "tags": ["setup"],
+        "summary": "Check if initial setup is required",
+        "description": "Returns whether the system needs first-run setup (no admin exists). No authentication required.",
+        "operationId": "getSetupStatus",
+        "responses": {
+          "200": {
+            "description": "Setup status",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SetupStatusResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/setup/admin": {
+      "post": {
+        "tags": ["setup"],
+        "summary": "Create first admin user",
+        "description": "Creates the initial admin account. Only works when no admin users exist; returns 403 afterwards.",
+        "operationId": "createFirstAdmin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateFirstAdminRequest"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admin created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/CreateFirstAdminResponse"}
+              }
+            }
+          },
+          "403": {"description": "Setup already completed"}
+        }
+      }
+    },
+    "/kyc/start": {
+      "post": {
+        "tags": ["kyc"],
+        "summary": "Start a KYC verification session",
+        "description": "Creates a new Stripe Identity session and returns a redirect URL for the user.",
+        "operationId": "startKyc",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "KYC session created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/StartKycResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "404": {"description": "KYC service not configured"}
+        }
+      }
+    },
+    "/kyc/status": {
+      "get": {
+        "tags": ["kyc"],
+        "summary": "Get current KYC status",
+        "description": "Returns the authenticated user's current KYC verification status.",
+        "operationId": "getKycStatus",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "KYC status",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/KycStatusResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "404": {"description": "KYC service not configured"}
+        }
+      }
+    },
+    "/accreditation/status": {
+      "get": {
+        "tags": ["accreditation"],
+        "summary": "Get accreditation status",
+        "description": "Returns the authenticated user's current accredited investor status.",
+        "operationId": "getAccreditationStatus",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Accreditation status",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AccreditationStatusResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "404": {"description": "Accreditation service not configured"}
+        }
+      }
+    },
+    "/accreditation/submit": {
+      "post": {
+        "tags": ["accreditation"],
+        "summary": "Submit an accreditation request",
+        "description": "Creates a new accreditation submission for admin review.",
+        "operationId": "submitAccreditation",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/SubmitAccreditationRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SubmitAccreditationResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "404": {"description": "Accreditation service not configured"}
+        }
+      }
+    },
+    "/accreditation/upload": {
+      "post": {
+        "tags": ["accreditation"],
+        "summary": "Upload an accreditation supporting document",
+        "description": "Accepts multipart/form-data with fields: submissionId, documentType, file. Max 10 MB.",
+        "operationId": "uploadAccreditationDocument",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["submissionId", "documentType", "file"],
+                "properties": {
+                  "submissionId": {"type": "string", "format": "uuid"},
+                  "documentType": {"type": "string", "example": "tax_w2"},
+                  "file": {"type": "string", "format": "binary"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document uploaded",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/DocumentUploadResponse"}
+              }
+            }
+          },
+          "400": {"description": "Missing fields or unsupported file type"},
+          "401": {"description": "Unauthorized"}
+        }
+      }
+    },
+    "/accreditation/submissions": {
+      "get": {
+        "tags": ["accreditation"],
+        "summary": "List own accreditation submissions",
+        "description": "Returns the authenticated user's submission history, paginated.",
+        "operationId": "listAccreditationSubmissions",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 200, "default": 50}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0, "default": 0}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions list",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SubmissionsListResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"}
+        }
+      }
+    },
+    "/referral/rewards": {
+      "get": {
+        "tags": ["referrals"],
+        "summary": "Get referral rewards summary",
+        "description": "Returns aggregated rewards earned, pending amounts, and payout wallet for the authenticated user.",
+        "operationId": "getReferralRewards",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Rewards summary",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/RewardsInfoResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "404": {"description": "Referrals not enabled"}
+        }
+      }
+    },
+    "/referral/rewards/history": {
+      "get": {
+        "tags": ["referrals"],
+        "summary": "Get referral rewards history",
+        "description": "Returns paginated history of referral rewards (payouts or credit transactions).",
+        "operationId": "getReferralRewardsHistory",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0, "default": 0}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Rewards history",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/RewardsHistoryResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "404": {"description": "Referrals not enabled"}
+        }
+      }
+    },
+    "/referral/payout-wallet": {
+      "post": {
+        "tags": ["referrals"],
+        "summary": "Set or clear payout wallet address",
+        "description": "Sets the Solana wallet address for receiving direct referral payouts. Pass null to clear.",
+        "operationId": "setPayoutWallet",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/SetPayoutWalletRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet address updated",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SetPayoutWalletResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid wallet address"},
+          "401": {"description": "Unauthorized"}
+        }
+      }
+    },
+    "/access-codes/generate": {
+      "post": {
+        "tags": ["access-codes"],
+        "summary": "Generate a personal invite code",
+        "description": "Generates a single-use invite code for the authenticated user to share.",
+        "operationId": "generateAccessCode",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Invite code created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AccessCodeResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"}
+        }
+      }
+    },
+    "/access-codes/mine": {
+      "get": {
+        "tags": ["access-codes"],
+        "summary": "List own access codes",
+        "description": "Returns all access codes generated by the authenticated user.",
+        "operationId": "listMyAccessCodes",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0, "default": 0}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Access codes list",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AccessCodeListResponse"}
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"}
+        }
+      }
+    },
+    "/webhook/kyc": {
+      "post": {
+        "tags": ["webhooks"],
+        "summary": "Receive KYC webhook from Stripe",
+        "description": "Processes Stripe Identity webhook events. Requires a valid Stripe-Signature header.",
+        "operationId": "handleKycWebhook",
+        "parameters": [
+          {
+            "name": "Stripe-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {"type": "string"},
+            "description": "Stripe webhook signature for request verification"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Webhook processed"},
+          "400": {"description": "Missing or invalid signature"},
+          "404": {"description": "KYC service not configured"}
+        }
+      }
+    },
+    "/admin/users/{user_id}/kyc": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get KYC status and session history for a user",
+        "operationId": "getAdminUserKyc",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/userId"}],
+        "responses": {
+          "200": {
+            "description": "User KYC record",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AdminUserKycResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "User or KYC service not found"}
+        }
+      }
+    },
+    "/admin/users/{user_id}/kyc/override": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Override a user's KYC status",
+        "description": "Manually sets the KYC status for a user, bypassing the normal verification flow.",
+        "operationId": "overrideUserKycStatus",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/userId"}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/KycOverrideRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status overridden",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/OkResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid status value"},
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "User not found"}
+        }
+      }
+    },
+    "/admin/accreditation/pending": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "List pending accreditation submissions",
+        "description": "Returns all submissions in 'pending' status (oldest first) for admin review.",
+        "operationId": "listPendingAccreditations",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 200, "default": 50}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0, "default": 0}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending submissions",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/PendingListResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/users/{user_id}/accreditation": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get accreditation record for a user",
+        "description": "Returns aggregate accreditation status and submission history for a user.",
+        "operationId": "getAdminUserAccreditation",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/userId"}],
+        "responses": {
+          "200": {
+            "description": "User accreditation record",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AdminUserAccreditationResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "User not found"}
+        }
+      }
+    },
+    "/admin/accreditation/{submission_id}": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get accreditation submission detail",
+        "description": "Returns full submission detail including documents.",
+        "operationId": "getAccreditationSubmission",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission detail",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AdminSubmissionDetailResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "Submission not found"}
+        }
+      }
+    },
+    "/admin/accreditation/documents/{doc_id}/url": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get presigned URL for an accreditation document",
+        "description": "Returns a short-lived presigned S3 URL (15 minutes) for downloading the document.",
+        "operationId": "getAccreditationDocumentUrl",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presigned URL",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/DocumentPresignedUrlResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "Document not found"}
+        }
+      }
+    },
+    "/admin/accreditation/{submission_id}/review": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Approve or reject an accreditation submission",
+        "operationId": "reviewAccreditation",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/ReviewAccreditationRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review recorded",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/OkResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "Submission not found"}
+        }
+      }
+    },
+    "/admin/users/{user_id}/accreditation/override": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Override a user's accreditation status",
+        "description": "Manually sets the accreditation status for a user, bypassing the review flow.",
+        "operationId": "overrideUserAccreditationStatus",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/userId"}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/AccreditationOverrideRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status overridden",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/OkResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid status value"},
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "User not found"}
+        }
+      }
+    },
+    "/admin/sanctions/stats": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get sanctions cache statistics",
+        "description": "Returns the number of sanctioned addresses/countries cached and the cache age.",
+        "operationId": "getSanctionsStats",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Sanctions cache stats",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SanctionsStatsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/sanctions/refresh": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Force a sanctions list refresh",
+        "description": "Forces an immediate refresh of the sanctions cache from the configured API.",
+        "operationId": "refreshSanctions",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Cache refreshed; returns updated stats",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SanctionsStatsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/users/{user_id}/compliance": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get compliance status for a user",
+        "description": "Returns KYC status, accredited investor flag, and token gate result. Designed for service-to-service calls.",
+        "operationId": "getUserCompliance",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [{"$ref": "#/components/parameters/userId"}],
+        "responses": {
+          "200": {
+            "description": "Compliance status",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ComplianceStatusResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "User not found"}
+        }
+      }
+    },
+    "/admin/access-codes": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "List all access codes",
+        "description": "Returns all access codes with optional type filter.",
+        "operationId": "adminListAccessCodes",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0, "default": 0}},
+          {"name": "code_type", "in": "query", "schema": {"type": "string"}, "description": "Filter by code type (e.g. limited, user)"}
+        ],
+        "responses": {
+          "200": {
+            "description": "Access codes list",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AccessCodeListResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "Create an admin-managed access code",
+        "description": "Creates a new limited-use code. The code string must not be empty.",
+        "operationId": "adminCreateAccessCode",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateAccessCodeRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Access code created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AccessCodeResponse"}
+              }
+            }
+          },
+          "400": {"description": "Invalid request"},
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/access-codes/{id}": {
+      "delete": {
+        "tags": ["admin"],
+        "summary": "Delete an access code",
+        "operationId": "adminDeleteAccessCode",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/OkResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/signup-stats": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get signup statistics for the current period",
+        "description": "Returns the number of registrations in the current period vs the configured limit.",
+        "operationId": "adminSignupStats",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Signup stats",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SignupStatsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/referral-stats": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Get referral analytics",
+        "description": "Returns aggregate referral counts, payout totals, and top affiliates.",
+        "operationId": "getReferralStats",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Referral stats",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ReferralStatsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/referral-payouts": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "List pending referral payouts grouped by referrer",
+        "operationId": "listReferralPayouts",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Pending payouts by referrer",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ListReferralPayoutsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/referral-payouts/process": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Execute all pending referral payouts on-chain",
+        "description": "Aggregates and transfers pending referral rewards to each referrer's payout wallet.",
+        "operationId": "processReferralPayouts",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Payout batch result",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ProcessReferralPayoutsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/referral-payouts/retry-failed": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Reset failed referral payouts to pending",
+        "operationId": "retryFailedPayouts",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "responses": {
+          "200": {
+            "description": "Reset count",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/RetryFailedPayoutsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/referral-payouts/list": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "List individual referral payouts",
+        "description": "Paginated list of all individual payout records with optional status filter.",
+        "operationId": "listAllPayouts",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {"name": "status", "in": "query", "schema": {"type": "string"}, "description": "Filter by status: pending, processing, completed, failed, cancelled"},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "minimum": 0, "default": 0}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Payouts list",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ListPayoutsResponse"}
+              }
+            }
+          },
+          "403": {"description": "Not a system admin"}
+        }
+      }
+    },
+    "/admin/referral-payouts/{id}/process": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Process a single referral payout",
+        "description": "Executes an individual pending or failed payout on-chain.",
+        "operationId": "processSinglePayout",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payout processed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ProcessSingleResponse"}
+              }
+            }
+          },
+          "400": {"description": "Payout not in processable state"},
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "Payout not found"}
+        }
+      }
+    },
+    "/admin/referral-payouts/{id}/cancel": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Cancel a pending referral payout",
+        "operationId": "cancelPayout",
+        "security": [{"bearerAuth": []}, {"apiKey": []}],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payout cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cancelled": {"type": "boolean"}
+                  }
+                }
+              }
+            }
+          },
+          "400": {"description": "Payout cannot be cancelled in current state"},
+          "403": {"description": "Not a system admin"},
+          "404": {"description": "Payout not found"}
+        }
+      }
     }
   },
   "components": {
@@ -1046,6 +1942,409 @@
         "required": ["name"],
         "properties": {
           "name": {"type": "string"}
+        }
+      },
+      "SetupStatusResponse": {
+        "type": "object",
+        "properties": {
+          "needsSetup": {"type": "boolean", "description": "True when no admin user exists yet"},
+          "hasAdmin": {"type": "boolean"},
+          "serverVersion": {"type": "string"}
+        }
+      },
+      "CreateFirstAdminRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string", "minLength": 8},
+          "name": {"type": "string", "description": "Optional display name"},
+          "orgName": {"type": "string", "description": "Organization name (defaults to 'My Organization')"}
+        }
+      },
+      "CreateFirstAdminResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "userId": {"type": "string", "format": "uuid"},
+          "message": {"type": "string"}
+        }
+      },
+      "StartKycResponse": {
+        "type": "object",
+        "properties": {
+          "sessionId": {"type": "string", "format": "uuid"},
+          "redirectUrl": {"type": "string", "format": "uri", "description": "URL to redirect the user to for identity verification"}
+        }
+      },
+      "KycStatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["none", "pending", "verified", "failed", "canceled"]},
+          "verifiedAt": {"type": "string", "format": "date-time"},
+          "expiresAt": {"type": "string", "format": "date-time"},
+          "enforcementMode": {"type": "string", "enum": ["none", "optional", "withdrawals", "deposits", "all"]}
+        }
+      },
+      "KycSessionItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "provider": {"type": "string"},
+          "providerSessionId": {"type": "string"},
+          "status": {"type": "string", "enum": ["pending", "verified", "failed", "canceled"]},
+          "errorCode": {"type": "string"},
+          "errorReason": {"type": "string"},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "updatedAt": {"type": "string", "format": "date-time"},
+          "completedAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "AdminUserKycResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {"type": "string", "format": "uuid"},
+          "status": {"type": "string"},
+          "verifiedAt": {"type": "string", "format": "date-time"},
+          "expiresAt": {"type": "string", "format": "date-time"},
+          "sessions": {"type": "array", "items": {"$ref": "#/components/schemas/KycSessionItem"}},
+          "totalSessions": {"type": "integer", "format": "int64"}
+        }
+      },
+      "KycOverrideRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {"type": "string", "enum": ["none", "pending", "verified", "failed", "canceled"]},
+          "expiresAt": {"type": "string", "format": "date-time", "description": "Optional expiry for 'verified' status (ISO 8601)"}
+        }
+      },
+      "AccreditationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["none", "pending", "approved", "rejected", "expired"]},
+          "verifiedAt": {"type": "string", "format": "date-time"},
+          "expiresAt": {"type": "string", "format": "date-time"},
+          "enforcementMode": {"type": "string"}
+        }
+      },
+      "SubmitAccreditationRequest": {
+        "type": "object",
+        "required": ["method"],
+        "properties": {
+          "method": {"type": "string", "enum": ["income", "net_worth", "credential", "third_party_letter", "insider", "investment_threshold"]},
+          "incomeType": {"type": "string", "enum": ["individual", "joint"]},
+          "statedAmountUsd": {"type": "number", "format": "double"},
+          "crdNumber": {"type": "string"},
+          "licenseType": {"type": "string", "enum": ["series_7", "series_65", "series_82"]},
+          "investmentCommitmentUsd": {"type": "number", "format": "double"},
+          "entityType": {"type": "string", "enum": ["individual", "entity"]},
+          "userStatement": {"type": "string"}
+        }
+      },
+      "SubmitAccreditationResponse": {
+        "type": "object",
+        "properties": {
+          "submissionId": {"type": "string", "format": "uuid"}
+        }
+      },
+      "DocumentUploadResponse": {
+        "type": "object",
+        "properties": {
+          "documentId": {"type": "string", "format": "uuid"},
+          "submissionId": {"type": "string", "format": "uuid"},
+          "s3Key": {"type": "string"}
+        }
+      },
+      "DocumentPresignedUrlResponse": {
+        "type": "object",
+        "properties": {
+          "url": {"type": "string", "format": "uri", "description": "Presigned S3 GET URL"},
+          "expiresIn": {"type": "integer", "description": "Seconds until URL expiry"}
+        }
+      },
+      "AccreditationSubmissionItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "userId": {"type": "string", "format": "uuid"},
+          "method": {"type": "string"},
+          "status": {"type": "string"},
+          "incomeType": {"type": "string"},
+          "statedAmountUsd": {"type": "number"},
+          "crdNumber": {"type": "string"},
+          "licenseType": {"type": "string"},
+          "investmentCommitmentUsd": {"type": "number"},
+          "entityType": {"type": "string"},
+          "userStatement": {"type": "string"},
+          "reviewedBy": {"type": "string", "format": "uuid"},
+          "reviewedAt": {"type": "string", "format": "date-time"},
+          "reviewerNotes": {"type": "string"},
+          "rejectionReason": {"type": "string"},
+          "expiresAt": {"type": "string", "format": "date-time"},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "updatedAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "SubmissionsListResponse": {
+        "type": "object",
+        "properties": {
+          "submissions": {"type": "array", "items": {"$ref": "#/components/schemas/AccreditationSubmissionItem"}},
+          "total": {"type": "integer", "format": "int64"},
+          "limit": {"type": "integer"},
+          "offset": {"type": "integer"}
+        }
+      },
+      "PendingListResponse": {
+        "type": "object",
+        "properties": {
+          "submissions": {"type": "array", "items": {"$ref": "#/components/schemas/AccreditationSubmissionItem"}},
+          "total": {"type": "integer", "format": "int64"},
+          "limit": {"type": "integer"},
+          "offset": {"type": "integer"}
+        }
+      },
+      "AdminUserAccreditationResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {"type": "string", "format": "uuid"},
+          "status": {"type": "string"},
+          "verifiedAt": {"type": "string", "format": "date-time"},
+          "expiresAt": {"type": "string", "format": "date-time"},
+          "submissions": {"type": "array", "items": {"$ref": "#/components/schemas/AccreditationSubmissionItem"}},
+          "totalSubmissions": {"type": "integer", "format": "int64"}
+        }
+      },
+      "AccreditationDocumentItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "submissionId": {"type": "string", "format": "uuid"},
+          "documentType": {"type": "string"},
+          "s3Key": {"type": "string"},
+          "originalFilename": {"type": "string"},
+          "contentType": {"type": "string"},
+          "fileSizeBytes": {"type": "integer", "format": "int64"},
+          "uploadedAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "AdminSubmissionDetailResponse": {
+        "type": "object",
+        "properties": {
+          "submission": {"$ref": "#/components/schemas/AccreditationSubmissionItem"},
+          "documents": {"type": "array", "items": {"$ref": "#/components/schemas/AccreditationDocumentItem"}}
+        }
+      },
+      "ReviewAccreditationRequest": {
+        "type": "object",
+        "required": ["approved"],
+        "properties": {
+          "approved": {"type": "boolean"},
+          "reviewerNotes": {"type": "string"},
+          "rejectionReason": {"type": "string"},
+          "expiryDays": {"type": "integer", "format": "int64", "description": "Custom expiry in days from now (overrides default setting)"}
+        }
+      },
+      "AccreditationOverrideRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {"type": "string", "enum": ["none", "pending", "approved", "rejected", "expired"]},
+          "expiresAt": {"type": "string", "format": "date-time", "description": "Optional expiry for 'approved' status (ISO 8601)"}
+        }
+      },
+      "RewardsInfoResponse": {
+        "type": "object",
+        "properties": {
+          "totalEarned": {"type": "integer", "format": "int64", "description": "Total rewards earned in smallest unit"},
+          "pendingAmount": {"type": "integer", "format": "int64", "description": "Pending direct payouts"},
+          "pendingCount": {"type": "integer", "format": "int64"},
+          "currency": {"type": "string"},
+          "rewardType": {"type": "string", "enum": ["credits", "direct_payout"]},
+          "payoutWalletAddress": {"type": "string", "description": "User's configured Solana payout wallet"},
+          "referralCount": {"type": "integer", "format": "int64"}
+        }
+      },
+      "RewardHistoryItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "triggerType": {"type": "string", "description": "e.g. 'signup', 'first_spend'"},
+          "amount": {"type": "integer", "format": "int64"},
+          "currency": {"type": "string"},
+          "status": {"type": "string", "enum": ["pending", "processing", "completed", "failed", "cancelled", "credited"]},
+          "txSignature": {"type": "string"},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "completedAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "RewardsHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {"type": "array", "items": {"$ref": "#/components/schemas/RewardHistoryItem"}},
+          "total": {"type": "integer", "format": "int64"}
+        }
+      },
+      "SetPayoutWalletRequest": {
+        "type": "object",
+        "properties": {
+          "walletAddress": {"type": "string", "description": "Base58-encoded 32-byte Solana public key, or null to clear", "nullable": true}
+        }
+      },
+      "SetPayoutWalletResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {"type": "boolean"},
+          "walletAddress": {"type": "string", "nullable": true}
+        }
+      },
+      "AccessCodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "code": {"type": "string"},
+          "codeType": {"type": "string", "enum": ["limited", "user"]},
+          "maxUses": {"type": "integer", "nullable": true},
+          "currentUses": {"type": "integer"},
+          "createdBy": {"type": "string", "format": "uuid", "nullable": true},
+          "expiresAt": {"type": "string", "format": "date-time", "nullable": true},
+          "createdAt": {"type": "string", "format": "date-time"}
+        }
+      },
+      "AccessCodeListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {"type": "array", "items": {"$ref": "#/components/schemas/AccessCodeResponse"}},
+          "total": {"type": "integer", "format": "int64"}
+        }
+      },
+      "CreateAccessCodeRequest": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1, "description": "The invite code string"},
+          "maxUses": {"type": "integer", "nullable": true, "description": "Maximum number of uses (null = unlimited)"},
+          "expiresAt": {"type": "string", "format": "date-time", "nullable": true}
+        }
+      },
+      "SignupStatsResponse": {
+        "type": "object",
+        "properties": {
+          "count": {"type": "integer", "format": "int64", "description": "Users registered in the current period"},
+          "limit": {"type": "integer", "format": "int64", "nullable": true, "description": "Max registrations per period (null = unlimited)"},
+          "period": {"type": "string", "enum": ["day", "week", "month"]},
+          "periodStart": {"type": "string", "format": "date-time"}
+        }
+      },
+      "SanctionsStatsResponse": {
+        "type": "object",
+        "properties": {
+          "addressCount": {"type": "integer", "description": "Number of sanctioned addresses currently cached"},
+          "countryCount": {"type": "integer", "description": "Number of blocked country codes currently cached"},
+          "cacheAgeSecs": {"type": "integer", "format": "int64", "nullable": true, "description": "Seconds since last refresh, null if never refreshed"}
+        }
+      },
+      "ComplianceStatusResponse": {
+        "type": "object",
+        "properties": {
+          "kycStatus": {"type": "string", "enum": ["none", "pending", "verified", "expired"]},
+          "accreditedInvestor": {"type": "boolean"},
+          "accreditedVerifiedAt": {"type": "string", "format": "date-time", "nullable": true},
+          "tokenGated": {"type": "boolean", "description": "True when all token gate rules pass (or gating is disabled)"}
+        }
+      },
+      "ReferralStatsResponse": {
+        "type": "object",
+        "properties": {
+          "totalReferrals": {"type": "integer", "format": "int64"},
+          "referralsThisMonth": {"type": "integer", "format": "int64"},
+          "totalPendingPayouts": {"type": "integer", "format": "int64"},
+          "totalCompletedPayouts": {"type": "integer", "format": "int64"},
+          "topAffiliates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {"type": "string", "format": "uuid"},
+                "email": {"type": "string", "nullable": true},
+                "name": {"type": "string", "nullable": true},
+                "referralCount": {"type": "integer", "format": "int64"},
+                "referralCode": {"type": "string"}
+              }
+            }
+          }
+        }
+      },
+      "ListReferralPayoutsResponse": {
+        "type": "object",
+        "properties": {
+          "referrers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Aggregated pending payout summary per referrer",
+              "properties": {
+                "referrerId": {"type": "string", "format": "uuid"},
+                "payoutWalletAddress": {"type": "string", "nullable": true},
+                "pendingCount": {"type": "integer"},
+                "totalAmount": {"type": "integer", "format": "int64"},
+                "currency": {"type": "string"}
+              }
+            }
+          },
+          "total": {"type": "integer", "format": "int64"}
+        }
+      },
+      "ProcessReferralPayoutsResponse": {
+        "type": "object",
+        "properties": {
+          "processed": {"type": "integer", "format": "int64"},
+          "failed": {"type": "integer", "format": "int64"},
+          "totalAmount": {"type": "integer", "format": "int64"},
+          "skippedNoWallet": {"type": "integer", "format": "int64"}
+        }
+      },
+      "RetryFailedPayoutsResponse": {
+        "type": "object",
+        "properties": {
+          "resetCount": {"type": "integer", "format": "int64"}
+        }
+      },
+      "AdminPayoutItem": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "format": "uuid"},
+          "referrerId": {"type": "string", "format": "uuid"},
+          "referrerEmail": {"type": "string", "nullable": true},
+          "referrerName": {"type": "string", "nullable": true},
+          "referredUserId": {"type": "string", "format": "uuid"},
+          "triggerType": {"type": "string"},
+          "amount": {"type": "integer", "format": "int64"},
+          "currency": {"type": "string"},
+          "status": {"type": "string", "enum": ["pending", "processing", "completed", "failed", "cancelled"]},
+          "txSignature": {"type": "string", "nullable": true},
+          "errorMessage": {"type": "string", "nullable": true},
+          "createdAt": {"type": "string", "format": "date-time"},
+          "completedAt": {"type": "string", "format": "date-time", "nullable": true}
+        }
+      },
+      "ListPayoutsResponse": {
+        "type": "object",
+        "properties": {
+          "payouts": {"type": "array", "items": {"$ref": "#/components/schemas/AdminPayoutItem"}},
+          "total": {"type": "integer", "format": "int64"}
+        }
+      },
+      "ProcessSingleResponse": {
+        "type": "object",
+        "properties": {
+          "txSignature": {"type": "string", "description": "On-chain transaction signature"}
+        }
+      },
+      "OkResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {"type": "boolean"}
         }
       }
     }
