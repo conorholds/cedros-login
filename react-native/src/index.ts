@@ -38,28 +38,17 @@ export type {
   CedrosLoginContextValue,
 } from "./context";
 
-// Auth hooks (NO crypto dependencies)
-export {
-  useAuth,
-  useEmailAuth,
-  useGoogleAuth,
-  useAppleAuth,
-  useSolanaAuth,
-  useMobileWalletAuth,
-  useOrgs,
-  useDeposit,
-  useCredits,
-} from "./hooks";
-export type {
-  UseAuthReturn,
-  UseEmailAuthReturn,
-  UseGoogleAuthReturn,
-  UseAppleAuthReturn,
-  UseSolanaAuthReturn,
-  UseMobileWalletAuthReturn,
-  MobileWalletCredentials,
-  UseOrgsReturn,
-} from "./hooks";
+// Auth hooks — imported DIRECTLY from individual files to avoid the hooks
+// barrel which re-exports wallet hooks that transitively import crypto.
+export { useAuth, type UseAuthReturn } from "./hooks/useAuth";
+export { useEmailAuth, type UseEmailAuthReturn } from "./hooks/useEmailAuth";
+export { useGoogleAuth, type UseGoogleAuthReturn } from "./hooks/useGoogleAuth";
+export { useAppleAuth, type UseAppleAuthReturn } from "./hooks/useAppleAuth";
+export { useSolanaAuth, type UseSolanaAuthReturn } from "./hooks/useSolanaAuth";
+export { useMobileWalletAuth, type UseMobileWalletAuthReturn, type MobileWalletCredentials } from "./hooks/useMobileWalletAuth";
+export { useOrgs, type UseOrgsReturn } from "./hooks/useOrgs";
+export { useDeposit } from "./hooks/useDeposit";
+export { useCredits } from "./hooks/useCredits";
 
 // Components - Shared
 export {
