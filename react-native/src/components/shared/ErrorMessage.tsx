@@ -1,8 +1,6 @@
 import React from "react";
 import { View, Text, ViewStyle, TextStyle, StyleProp } from "react-native";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
+import { useCedrosTheme } from "../../context/ThemeContext";
 import type { DisplayError } from "../../types";
 
 export interface ErrorMessageProps {
@@ -18,6 +16,8 @@ export function ErrorMessage({
   textStyle,
   testID = "error-message",
 }: ErrorMessageProps): React.ReactElement | null {
+  const { colors, spacing, typography } = useCedrosTheme();
+
   if (!error) {
     return null;
   }

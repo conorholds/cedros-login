@@ -8,9 +8,7 @@ import {
   TextStyle,
   StyleProp,
 } from "react-native";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
+import { useCedrosTheme } from "../../context/ThemeContext";
 
 export interface PasswordInputProps {
   label?: string;
@@ -24,6 +22,22 @@ export interface PasswordInputProps {
   errorStyle?: StyleProp<TextStyle>;
   editable?: boolean;
   testID?: string;
+  /** Label for the show-password toggle. Default: "Show" */
+  showLabel?: string;
+  /** Label for the hide-password toggle. Default: "Hide" */
+  hideLabel?: string;
+  /** Style applied to the toggle TouchableOpacity. */
+  toggleStyle?: StyleProp<ViewStyle>;
+  /** Style applied to the toggle label Text. */
+  toggleLabelStyle?: StyleProp<TextStyle>;
+  /**
+   * Render a custom toggle element.
+   * When provided, the default text toggle is replaced entirely.
+   *
+   * @param visible - whether the password is currently visible
+   * @param onToggle - call to toggle visibility
+   */
+  renderToggle?: (visible: boolean, onToggle: () => void) => React.ReactNode;
 }
 
 export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
@@ -40,11 +54,48 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
       errorStyle,
       editable = true,
       testID = "password-input",
+      showLabel = "Show",
+      hideLabel = "Hide",
+      toggleStyle,
+      toggleLabelStyle,
+      renderToggle,
     },
     ref,
   ): React.ReactElement => {
+    const { colors, spacing, typography } = useCedrosTheme();
     const [isVisible, setIsVisible] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+
+    const handleToggle = () => setIsVisible((v) => !v);
+
+    const defaultToggle = (
+      <TouchableOpacity
+        onPress={handleToggle}
+        style={[
+          {
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.md,
+          },
+          toggleStyle,
+        ]}
+        accessibilityLabel={isVisible ? "Hide password" : "Show password"}
+        accessibilityRole="button"
+        testID="password-toggle"
+      >
+        <Text
+          style={[
+            {
+              fontSize: typography.sizes.sm,
+              color: colors.primary[600],
+              fontWeight: typography.weights.medium,
+            },
+            toggleLabelStyle,
+          ]}
+        >
+          {isVisible ? hideLabel : showLabel}
+        </Text>
+      </TouchableOpacity>
+    );
 
     return (
       <View style={[{ width: "100%" }, containerStyle]} testID={testID}>
@@ -102,26 +153,9 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
               isVisible ? "Password is visible" : "Password is hidden"
             }
           />
-          <TouchableOpacity
-            onPress={() => setIsVisible(!isVisible)}
-            style={{
-              paddingHorizontal: spacing.md,
-              paddingVertical: spacing.md,
-            }}
-            accessibilityLabel={isVisible ? "Hide password" : "Show password"}
-            accessibilityRole="button"
-            testID="password-toggle"
-          >
-            <Text
-              style={{
-                fontSize: typography.sizes.sm,
-                color: colors.primary[600],
-                fontWeight: typography.weights.medium,
-              }}
-            >
-              {isVisible ? "Hide" : "Show"}
-            </Text>
-          </TouchableOpacity>
+          {renderToggle
+            ? renderToggle(isVisible, handleToggle)
+            : defaultToggle}
         </View>
         {error && (
           <Text

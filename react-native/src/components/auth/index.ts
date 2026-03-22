@@ -1,8 +1,16 @@
 export { EmailLoginForm } from "./EmailLoginForm";
-export type { EmailLoginFormProps } from "./EmailLoginForm";
+export type {
+  EmailLoginFormProps,
+  EmailLoginFormStrings,
+  EmailLoginFormStyleProps,
+} from "./EmailLoginForm";
 
 export { EmailRegisterForm } from "./EmailRegisterForm";
-export type { EmailRegisterFormProps } from "./EmailRegisterForm";
+export type {
+  EmailRegisterFormProps,
+  EmailRegisterFormStrings,
+  EmailRegisterFormStyleProps,
+} from "./EmailRegisterForm";
 
 export { PasswordInput } from "./PasswordInput";
 export type { PasswordInputProps } from "./PasswordInput";
@@ -17,4 +25,8 @@ export { SolanaLoginButton } from "./SolanaLoginButton";
 export type { SolanaLoginButtonProps } from "./SolanaLoginButton";
 
 export { ForgotPasswordForm } from "./ForgotPasswordForm";
-export type { ForgotPasswordFormProps } from "./ForgotPasswordForm";
+export type {
+  ForgotPasswordFormProps,
+  ForgotPasswordFormStrings,
+  ForgotPasswordFormStyleProps,
+} from "./ForgotPasswordForm";

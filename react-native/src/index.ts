@@ -38,6 +38,14 @@ export type {
   CedrosLoginContextValue,
 } from "./context";
 
+// Theme context
+export { CedrosThemeProvider, useCedrosTheme } from "./context";
+export type {
+  CedrosTheme,
+  CedrosThemeOverrides,
+  CedrosThemeProviderProps,
+} from "./context";
+
 // Auth hooks — imported DIRECTLY from individual files to avoid the hooks
 // barrel which re-exports wallet hooks that transitively import crypto.
 export { useAuth, type UseAuthReturn } from "./hooks/useAuth";
@@ -76,17 +84,27 @@ export {
 } from "./components/auth";
 export type {
   EmailLoginFormProps,
+  EmailLoginFormStrings,
+  EmailLoginFormStyleProps,
   EmailRegisterFormProps,
+  EmailRegisterFormStrings,
+  EmailRegisterFormStyleProps,
   PasswordInputProps,
   GoogleLoginButtonProps,
   AppleLoginButtonProps,
   SolanaLoginButtonProps,
   ForgotPasswordFormProps,
+  ForgotPasswordFormStrings,
+  ForgotPasswordFormStyleProps,
 } from "./components/auth";
 
 // Components - Screens
 export { LoginScreen } from "./components/screens";
-export type { LoginScreenProps } from "./components/screens";
+export type {
+  LoginScreenProps,
+  LoginScreenStrings,
+  LoginScreenStyleProps,
+} from "./components/screens";
 
 // Components - Organization
 export { OrgSelector, OrgSwitcher } from "./components/org";

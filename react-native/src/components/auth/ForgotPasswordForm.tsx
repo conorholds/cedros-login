@@ -6,32 +6,83 @@ import {
   Platform,
   ScrollView,
   ViewStyle,
+  TextStyle,
   StyleProp,
 } from "react-native";
 import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
+import { useCedrosTheme } from "../../context/ThemeContext";
 import { validateEmail } from "../../utils/validation";
+
+export interface ForgotPasswordFormStrings {
+  /** Form title. Default: "Reset Password" */
+  title?: string;
+  /** Subtitle below the title. Default: "Enter your email and we'll send you instructions..." */
+  subtitle?: string;
+  /** Email field label. Default: "Email" */
+  emailLabel?: string;
+  /** Email field placeholder. Default: "Enter your email" */
+  emailPlaceholder?: string;
+  /** Submit button text. Default: "Send Reset Link" */
+  submitButton?: string;
+  /** Back-to-login button text on the form. Default: "Back to Sign In" */
+  backToLogin?: string;
+  /** Success screen title. Default: "Check Your Email" */
+  successTitle?: string;
+  /** Success screen body (email address is appended). Default: "We've sent password reset instructions to " */
+  successMessage?: string;
+  /** Back-to-login button text on the success screen. Default: "Back to Sign In" */
+  successBackToLogin?: string;
+}
+
+export interface ForgotPasswordFormStyleProps {
+  containerStyle?: StyleProp<ViewStyle>;
+  headerStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  subtitleStyle?: StyleProp<TextStyle>;
+  fieldContainerStyle?: StyleProp<ViewStyle>;
+  footerStyle?: StyleProp<ViewStyle>;
+}
 
 export interface ForgotPasswordFormProps {
   onSubmit?: (email: string) => Promise<void>;
   onBackToLogin?: () => void;
   onSuccess?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
+  /** Override any subset of user-facing strings. */
+  strings?: ForgotPasswordFormStrings;
+  /** Override style slots for layout sections. */
+  styles?: ForgotPasswordFormStyleProps;
   testID?: string;
 }
+
+const DEFAULT_STRINGS: Required<ForgotPasswordFormStrings> = {
+  title: "Reset Password",
+  subtitle:
+    "Enter your email and we'll send you instructions to reset your password",
+  emailLabel: "Email",
+  emailPlaceholder: "Enter your email",
+  submitButton: "Send Reset Link",
+  backToLogin: "Back to Sign In",
+  successTitle: "Check Your Email",
+  successMessage: "We've sent password reset instructions to ",
+  successBackToLogin: "Back to Sign In",
+};
 
 export function ForgotPasswordForm({
   onSubmit,
   onBackToLogin,
   onSuccess,
   containerStyle,
+  strings,
+  styles: styleSlots,
   testID = "forgot-password-form",
 }: ForgotPasswordFormProps): React.ReactElement {
+  const { colors, spacing, typography } = useCedrosTheme();
+  const copy = { ...DEFAULT_STRINGS, ...strings };
+
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -87,6 +138,7 @@ export function ForgotPasswordForm({
             alignItems: "center",
           },
           containerStyle,
+          styleSlots?.containerStyle,
         ]}
         testID={testID}
       >
@@ -111,29 +163,36 @@ export function ForgotPasswordForm({
           </Text>
         </View>
         <Text
-          style={{
-            fontSize: typography.sizes["2xl"],
-            fontWeight: typography.weights.bold,
-            color: colors.gray[900],
-            marginBottom: spacing.md,
-            textAlign: "center",
-          }}
+          style={[
+            {
+              fontSize: typography.sizes["2xl"],
+              fontWeight: typography.weights.bold,
+              color: colors.gray[900],
+              marginBottom: spacing.md,
+              textAlign: "center",
+            },
+            styleSlots?.titleStyle,
+          ]}
         >
-          Check Your Email
+          {copy.successTitle}
         </Text>
         <Text
-          style={{
-            fontSize: typography.sizes.base,
-            color: colors.gray[600],
-            textAlign: "center",
-            marginBottom: spacing.xl,
-          }}
+          style={[
+            {
+              fontSize: typography.sizes.base,
+              color: colors.gray[600],
+              textAlign: "center",
+              marginBottom: spacing.xl,
+            },
+            styleSlots?.subtitleStyle,
+          ]}
         >
-          We've sent password reset instructions to {email}
+          {copy.successMessage}
+          {email}
         </Text>
         {onBackToLogin && (
           <Button
-            title="Back to Sign In"
+            title={copy.successBackToLogin}
             onPress={onBackToLogin}
             variant="primary"
             size="lg"
@@ -147,7 +206,7 @@ export function ForgotPasswordForm({
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[{ flex: 1 }, containerStyle]}
+      style={[{ flex: 1 }, containerStyle, styleSlots?.containerStyle]}
     >
       <ScrollView
         contentContainerStyle={{
@@ -157,25 +216,32 @@ export function ForgotPasswordForm({
         keyboardShouldPersistTaps="handled"
         testID={testID}
       >
-        <View style={{ marginBottom: spacing.xl }}>
+        <View
+          style={[{ marginBottom: spacing.xl }, styleSlots?.headerStyle]}
+        >
           <Text
-            style={{
-              fontSize: typography.sizes["3xl"],
-              fontWeight: typography.weights.bold,
-              color: colors.gray[900],
-              marginBottom: spacing.sm,
-            }}
+            style={[
+              {
+                fontSize: typography.sizes["3xl"],
+                fontWeight: typography.weights.bold,
+                color: colors.gray[900],
+                marginBottom: spacing.sm,
+              },
+              styleSlots?.titleStyle,
+            ]}
           >
-            Reset Password
+            {copy.title}
           </Text>
           <Text
-            style={{
-              fontSize: typography.sizes.base,
-              color: colors.gray[600],
-            }}
+            style={[
+              {
+                fontSize: typography.sizes.base,
+                color: colors.gray[600],
+              },
+              styleSlots?.subtitleStyle,
+            ]}
           >
-            Enter your email and we'll send you instructions to reset your
-            password
+            {copy.subtitle}
           </Text>
         </View>
 
@@ -183,10 +249,12 @@ export function ForgotPasswordForm({
           <ErrorMessage error={error} style={{ marginBottom: spacing.md }} />
         )}
 
-        <View style={{ gap: spacing.md }}>
+        <View
+          style={[{ gap: spacing.md }, styleSlots?.fieldContainerStyle]}
+        >
           <Input
-            label="Email"
-            placeholder="Enter your email"
+            label={copy.emailLabel}
+            placeholder={copy.emailPlaceholder}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -201,7 +269,7 @@ export function ForgotPasswordForm({
             <LoadingSpinner style={{ marginTop: spacing.md }} />
           ) : (
             <Button
-              title="Send Reset Link"
+              title={copy.submitButton}
               onPress={handleSubmit}
               variant="primary"
               size="lg"
@@ -211,14 +279,16 @@ export function ForgotPasswordForm({
           )}
 
           {onBackToLogin && (
-            <Button
-              title="Back to Sign In"
-              onPress={onBackToLogin}
-              variant="ghost"
-              size="md"
-              style={{ marginTop: spacing.lg }}
-              testID="back-to-login-button"
-            />
+            <View style={styleSlots?.footerStyle}>
+              <Button
+                title={copy.backToLogin}
+                onPress={onBackToLogin}
+                variant="ghost"
+                size="md"
+                style={{ marginTop: spacing.lg }}
+                testID="back-to-login-button"
+              />
+            </View>
           )}
         </View>
       </ScrollView>

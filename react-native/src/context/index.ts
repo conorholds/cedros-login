@@ -4,3 +4,10 @@ export type {
   CedrosLoginProviderProps,
   CedrosLoginContextValue,
 } from "./CedrosLoginProvider";
+
+export { CedrosThemeProvider, useCedrosTheme } from "./ThemeContext";
+export type {
+  CedrosTheme,
+  CedrosThemeOverrides,
+  CedrosThemeProviderProps,
+} from "./ThemeContext";

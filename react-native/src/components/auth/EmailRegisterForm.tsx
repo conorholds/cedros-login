@@ -6,31 +6,97 @@ import {
   Platform,
   ScrollView,
   ViewStyle,
+  TextStyle,
   StyleProp,
 } from "react-native";
 import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
+import { useCedrosTheme } from "../../context/ThemeContext";
 import { useEmailAuth } from "../../hooks/useEmailAuth";
 import { validateEmail } from "../../utils/validation";
+
+export interface EmailRegisterFormStrings {
+  /** Form title. Default: "Create Account" */
+  title?: string;
+  /** Subtitle below the title. Default: "Fill in your details to get started" */
+  subtitle?: string;
+  /** Full name field label. Default: "Full Name" */
+  nameLabel?: string;
+  /** Full name field placeholder. Default: "Enter your full name" */
+  namePlaceholder?: string;
+  /** Email field label. Default: "Email" */
+  emailLabel?: string;
+  /** Email field placeholder. Default: "Enter your email" */
+  emailPlaceholder?: string;
+  /** Password field label. Default: "Password" */
+  passwordLabel?: string;
+  /** Password field placeholder. Default: "Create a password" */
+  passwordPlaceholder?: string;
+  /** Confirm password field label. Default: "Confirm Password" */
+  confirmPasswordLabel?: string;
+  /** Confirm password field placeholder. Default: "Confirm your password" */
+  confirmPasswordPlaceholder?: string;
+  /** Password hint text. Default: "Password must be at least 8 characters..." */
+  passwordHint?: string;
+  /** Submit button text. Default: "Create Account" */
+  submitButton?: string;
+  /** "Already have account" prompt. Default: "Already have an account?" */
+  hasAccount?: string;
+  /** Sign-in link text. Default: "Sign In" */
+  signInLink?: string;
+}
+
+export interface EmailRegisterFormStyleProps {
+  containerStyle?: StyleProp<ViewStyle>;
+  headerStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  subtitleStyle?: StyleProp<TextStyle>;
+  fieldContainerStyle?: StyleProp<ViewStyle>;
+  footerStyle?: StyleProp<ViewStyle>;
+}
 
 export interface EmailRegisterFormProps {
   onSuccess?: () => void;
   onLoginPress?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
+  /** Override any subset of user-facing strings. */
+  strings?: EmailRegisterFormStrings;
+  /** Override style slots for layout sections. */
+  styles?: EmailRegisterFormStyleProps;
   testID?: string;
 }
+
+const DEFAULT_STRINGS: Required<EmailRegisterFormStrings> = {
+  title: "Create Account",
+  subtitle: "Fill in your details to get started",
+  nameLabel: "Full Name",
+  namePlaceholder: "Enter your full name",
+  emailLabel: "Email",
+  emailPlaceholder: "Enter your email",
+  passwordLabel: "Password",
+  passwordPlaceholder: "Create a password",
+  confirmPasswordLabel: "Confirm Password",
+  confirmPasswordPlaceholder: "Confirm your password",
+  passwordHint:
+    "Password must be at least 8 characters with uppercase, lowercase, and a number.",
+  submitButton: "Create Account",
+  hasAccount: "Already have an account?",
+  signInLink: "Sign In",
+};
 
 export function EmailRegisterForm({
   onSuccess,
   onLoginPress,
   containerStyle,
+  strings,
+  styles: styleSlots,
   testID = "email-register-form",
 }: EmailRegisterFormProps): React.ReactElement {
+  const { colors, spacing, typography } = useCedrosTheme();
+  const copy = { ...DEFAULT_STRINGS, ...strings };
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -111,7 +177,7 @@ export function EmailRegisterForm({
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[{ flex: 1 }, containerStyle]}
+      style={[{ flex: 1 }, containerStyle, styleSlots?.containerStyle]}
     >
       <ScrollView
         contentContainerStyle={{
@@ -121,24 +187,32 @@ export function EmailRegisterForm({
         keyboardShouldPersistTaps="handled"
         testID={testID}
       >
-        <View style={{ marginBottom: spacing.xl }}>
+        <View
+          style={[{ marginBottom: spacing.xl }, styleSlots?.headerStyle]}
+        >
           <Text
-            style={{
-              fontSize: typography.sizes["3xl"],
-              fontWeight: typography.weights.bold,
-              color: colors.gray[900],
-              marginBottom: spacing.sm,
-            }}
+            style={[
+              {
+                fontSize: typography.sizes["3xl"],
+                fontWeight: typography.weights.bold,
+                color: colors.gray[900],
+                marginBottom: spacing.sm,
+              },
+              styleSlots?.titleStyle,
+            ]}
           >
-            Create Account
+            {copy.title}
           </Text>
           <Text
-            style={{
-              fontSize: typography.sizes.base,
-              color: colors.gray[600],
-            }}
+            style={[
+              {
+                fontSize: typography.sizes.base,
+                color: colors.gray[600],
+              },
+              styleSlots?.subtitleStyle,
+            ]}
           >
-            Fill in your details to get started
+            {copy.subtitle}
           </Text>
         </View>
 
@@ -146,10 +220,12 @@ export function EmailRegisterForm({
           <ErrorMessage error={error} style={{ marginBottom: spacing.md }} />
         )}
 
-        <View style={{ gap: spacing.md }}>
+        <View
+          style={[{ gap: spacing.md }, styleSlots?.fieldContainerStyle]}
+        >
           <Input
-            label="Full Name"
-            placeholder="Enter your full name"
+            label={copy.nameLabel}
+            placeholder={copy.namePlaceholder}
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
@@ -159,8 +235,8 @@ export function EmailRegisterForm({
           />
 
           <Input
-            label="Email"
-            placeholder="Enter your email"
+            label={copy.emailLabel}
+            placeholder={copy.emailPlaceholder}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -172,8 +248,8 @@ export function EmailRegisterForm({
           />
 
           <Input
-            label="Password"
-            placeholder="Create a password"
+            label={copy.passwordLabel}
+            placeholder={copy.passwordPlaceholder}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -183,8 +259,8 @@ export function EmailRegisterForm({
           />
 
           <Input
-            label="Confirm Password"
-            placeholder="Confirm your password"
+            label={copy.confirmPasswordLabel}
+            placeholder={copy.confirmPasswordPlaceholder}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
@@ -200,15 +276,14 @@ export function EmailRegisterForm({
               marginTop: spacing.xs,
             }}
           >
-            Password must be at least 8 characters with uppercase, lowercase,
-            and a number.
+            {copy.passwordHint}
           </Text>
 
           {isLoading ? (
             <LoadingSpinner style={{ marginTop: spacing.md }} />
           ) : (
             <Button
-              title="Create Account"
+              title={copy.submitButton}
               onPress={handleRegister}
               variant="primary"
               size="lg"
@@ -219,19 +294,20 @@ export function EmailRegisterForm({
 
           {onLoginPress && (
             <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: spacing.lg,
-                gap: spacing.xs,
-              }}
+              style={[
+                {
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: spacing.lg,
+                  gap: spacing.xs,
+                },
+                styleSlots?.footerStyle,
+              ]}
             >
-              <Text style={{ color: colors.gray[600] }}>
-                Already have an account?
-              </Text>
+              <Text style={{ color: colors.gray[600] }}>{copy.hasAccount}</Text>
               <Button
-                title="Sign In"
+                title={copy.signInLink}
                 onPress={onLoginPress}
                 variant="ghost"
                 size="sm"

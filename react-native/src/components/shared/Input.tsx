@@ -8,9 +8,7 @@ import {
   TextInputProps,
   StyleProp,
 } from "react-native";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
+import { useCedrosTheme } from "../../context/ThemeContext";
 
 export interface InputProps extends Omit<TextInputProps, "style"> {
   label?: string;
@@ -37,6 +35,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     },
     ref,
   ): React.ReactElement => {
+    const { colors, spacing, typography } = useCedrosTheme();
     const [isFocused, setIsFocused] = useState(false);
 
     return (

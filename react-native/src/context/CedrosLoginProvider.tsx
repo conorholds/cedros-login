@@ -16,6 +16,10 @@ import type {
 import { initializeApiServices, getAuthApi } from "../services/api";
 import { TokenManager } from "../utils/tokenManager";
 import { useAutoFeatures } from "../hooks/useAutoFeatures";
+import {
+  CedrosThemeProvider,
+  type CedrosThemeOverrides,
+} from "./ThemeContext";
 
 export const AUTH_USER_ENDPOINT = "/auth/user";
 
@@ -49,11 +53,14 @@ export type CedrosLoginProviderConfig = Omit<CedrosLoginConfig, "features"> & {
 
 export interface CedrosLoginProviderProps {
   config: CedrosLoginProviderConfig;
+  /** Optional React Native theme overrides merged with the default theme. */
+  themeOverrides?: CedrosThemeOverrides;
   children: React.ReactNode;
 }
 
 export function CedrosLoginProvider({
   config,
+  themeOverrides,
   children,
 }: CedrosLoginProviderProps): React.ReactElement {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -198,9 +205,11 @@ export function CedrosLoginProvider({
   if (isAutoFeatures && featuresLoading) return <>{null}</>;
 
   return (
-    <CedrosLoginContext.Provider value={value}>
-      {children}
-    </CedrosLoginContext.Provider>
+    <CedrosThemeProvider overrides={themeOverrides}>
+      <CedrosLoginContext.Provider value={value}>
+        {children}
+      </CedrosLoginContext.Provider>
+    </CedrosThemeProvider>
   );
 }
 

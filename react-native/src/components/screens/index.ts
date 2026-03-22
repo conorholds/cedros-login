@@ -1,2 +1,6 @@
 export { LoginScreen } from "./LoginScreen";
-export type { LoginScreenProps } from "./LoginScreen";
+export type {
+  LoginScreenProps,
+  LoginScreenStrings,
+  LoginScreenStyleProps,
+} from "./LoginScreen";

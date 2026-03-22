@@ -1,6 +1,6 @@
 {
   "name": "@cedros/login-react-native",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "React Native authentication library for Cedros with email/password, social login, and crypto wallet support",
   "type": "module",
   "main": "./src/index.ts",
@@ -15,6 +15,26 @@
       "require": {
         "types": "./src/index.ts",
         "default": "./src/index.ts"
+      }
+    },
+    "./wallet": {
+      "import": {
+        "types": "./src/wallet.ts",
+        "default": "./src/wallet.ts"
+      },
+      "require": {
+        "types": "./src/wallet.ts",
+        "default": "./src/wallet.ts"
+      }
+    },
+    "./crypto": {
+      "import": {
+        "types": "./src/crypto/index.ts",
+        "default": "./src/crypto/index.ts"
+      },
+      "require": {
+        "types": "./src/crypto/index.ts",
+        "default": "./src/crypto/index.ts"
       }
     }
   },

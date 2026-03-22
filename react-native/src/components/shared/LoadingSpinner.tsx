@@ -1,6 +1,6 @@
 import React from "react";
 import { ActivityIndicator, View, ViewStyle, StyleProp } from "react-native";
-import { colors } from "../../theme/colors";
+import { useCedrosTheme } from "../../context/ThemeContext";
 
 export interface LoadingSpinnerProps {
   size?: "small" | "large";
@@ -11,13 +11,16 @@ export interface LoadingSpinnerProps {
 
 export function LoadingSpinner({
   size = "large",
-  color = colors.primary[600],
+  color,
   style,
   testID = "loading-spinner",
 }: LoadingSpinnerProps): React.ReactElement {
+  const { colors } = useCedrosTheme();
+  const resolvedColor = color ?? colors.primary[600];
+
   return (
     <View style={[{ justifyContent: "center", alignItems: "center" }, style]}>
-      <ActivityIndicator size={size} color={color} testID={testID} />
+      <ActivityIndicator size={size} color={resolvedColor} testID={testID} />
     </View>
   );
 }

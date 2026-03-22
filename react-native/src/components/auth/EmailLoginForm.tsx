@@ -6,34 +6,86 @@ import {
   Platform,
   ScrollView,
   ViewStyle,
+  TextStyle,
   StyleProp,
 } from "react-native";
 import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
-
+import { useCedrosTheme } from "../../context/ThemeContext";
 import { useEmailAuth } from "../../hooks/useEmailAuth";
 import { validateEmail, validatePassword } from "../../utils/validation";
+
+export interface EmailLoginFormStrings {
+  /** Form title. Default: "Sign In" */
+  title?: string;
+  /** Subtitle below the title. Default: "Enter your email and password to continue" */
+  subtitle?: string;
+  /** Email field label. Default: "Email" */
+  emailLabel?: string;
+  /** Email field placeholder. Default: "Enter your email" */
+  emailPlaceholder?: string;
+  /** Password field label. Default: "Password" */
+  passwordLabel?: string;
+  /** Password field placeholder. Default: "Enter your password" */
+  passwordPlaceholder?: string;
+  /** Submit button text. Default: "Sign In" */
+  submitButton?: string;
+  /** Forgot password link text. Default: "Forgot Password?" */
+  forgotPassword?: string;
+  /** "No account" prompt text. Default: "Don't have an account?" */
+  noAccount?: string;
+  /** Sign-up link text. Default: "Sign Up" */
+  signUpLink?: string;
+}
+
+export interface EmailLoginFormStyleProps {
+  containerStyle?: StyleProp<ViewStyle>;
+  headerStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  subtitleStyle?: StyleProp<TextStyle>;
+  fieldContainerStyle?: StyleProp<ViewStyle>;
+  footerStyle?: StyleProp<ViewStyle>;
+}
 
 export interface EmailLoginFormProps {
   onSuccess?: () => void;
   onRegisterPress?: () => void;
   onForgotPasswordPress?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
+  /** Override any subset of user-facing strings. */
+  strings?: EmailLoginFormStrings;
+  /** Override style slots for layout sections. */
+  styles?: EmailLoginFormStyleProps;
   testID?: string;
 }
+
+const DEFAULT_STRINGS: Required<EmailLoginFormStrings> = {
+  title: "Sign In",
+  subtitle: "Enter your email and password to continue",
+  emailLabel: "Email",
+  emailPlaceholder: "Enter your email",
+  passwordLabel: "Password",
+  passwordPlaceholder: "Enter your password",
+  submitButton: "Sign In",
+  forgotPassword: "Forgot Password?",
+  noAccount: "Don't have an account?",
+  signUpLink: "Sign Up",
+};
 
 export function EmailLoginForm({
   onSuccess,
   onRegisterPress,
   onForgotPasswordPress,
   containerStyle,
+  strings,
+  styles: styleSlots,
   testID = "email-login-form",
 }: EmailLoginFormProps): React.ReactElement {
+  const { colors, spacing, typography } = useCedrosTheme();
+  const copy = { ...DEFAULT_STRINGS, ...strings };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>();
@@ -89,7 +141,7 @@ export function EmailLoginForm({
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[{ flex: 1 }, containerStyle]}
+      style={[{ flex: 1 }, containerStyle, styleSlots?.containerStyle]}
     >
       <ScrollView
         contentContainerStyle={{
@@ -99,24 +151,32 @@ export function EmailLoginForm({
         keyboardShouldPersistTaps="handled"
         testID={testID}
       >
-        <View style={{ marginBottom: spacing.xl }}>
+        <View
+          style={[{ marginBottom: spacing.xl }, styleSlots?.headerStyle]}
+        >
           <Text
-            style={{
-              fontSize: typography.sizes["3xl"],
-              fontWeight: typography.weights.bold,
-              color: colors.gray[900],
-              marginBottom: spacing.sm,
-            }}
+            style={[
+              {
+                fontSize: typography.sizes["3xl"],
+                fontWeight: typography.weights.bold,
+                color: colors.gray[900],
+                marginBottom: spacing.sm,
+              },
+              styleSlots?.titleStyle,
+            ]}
           >
-            Sign In
+            {copy.title}
           </Text>
           <Text
-            style={{
-              fontSize: typography.sizes.base,
-              color: colors.gray[600],
-            }}
+            style={[
+              {
+                fontSize: typography.sizes.base,
+                color: colors.gray[600],
+              },
+              styleSlots?.subtitleStyle,
+            ]}
           >
-            Enter your email and password to continue
+            {copy.subtitle}
           </Text>
         </View>
 
@@ -124,10 +184,12 @@ export function EmailLoginForm({
           <ErrorMessage error={error} style={{ marginBottom: spacing.md }} />
         )}
 
-        <View style={{ gap: spacing.md }}>
+        <View
+          style={[{ gap: spacing.md }, styleSlots?.fieldContainerStyle]}
+        >
           <Input
-            label="Email"
-            placeholder="Enter your email"
+            label={copy.emailLabel}
+            placeholder={copy.emailPlaceholder}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -139,8 +201,8 @@ export function EmailLoginForm({
           />
 
           <Input
-            label="Password"
-            placeholder="Enter your password"
+            label={copy.passwordLabel}
+            placeholder={copy.passwordPlaceholder}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -151,7 +213,7 @@ export function EmailLoginForm({
 
           {onForgotPasswordPress && (
             <Button
-              title="Forgot Password?"
+              title={copy.forgotPassword}
               onPress={onForgotPasswordPress}
               variant="ghost"
               size="sm"
@@ -164,7 +226,7 @@ export function EmailLoginForm({
             <LoadingSpinner style={{ marginTop: spacing.md }} />
           ) : (
             <Button
-              title="Sign In"
+              title={copy.submitButton}
               onPress={handleLogin}
               variant="primary"
               size="lg"
@@ -175,19 +237,20 @@ export function EmailLoginForm({
 
           {onRegisterPress && (
             <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: spacing.lg,
-                gap: spacing.xs,
-              }}
+              style={[
+                {
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: spacing.lg,
+                  gap: spacing.xs,
+                },
+                styleSlots?.footerStyle,
+              ]}
             >
-              <Text style={{ color: colors.gray[600] }}>
-                Don't have an account?
-              </Text>
+              <Text style={{ color: colors.gray[600] }}>{copy.noAccount}</Text>
               <Button
-                title="Sign Up"
+                title={copy.signUpLink}
                 onPress={onRegisterPress}
                 variant="ghost"
                 size="sm"

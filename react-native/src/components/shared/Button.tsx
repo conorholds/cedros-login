@@ -7,9 +7,7 @@ import {
   StyleProp,
   ActivityIndicator,
 } from "react-native";
-import { colors } from "../../theme/colors";
-import { spacing } from "../../theme/spacing";
-import { typography } from "../../theme/typography";
+import { useCedrosTheme } from "../../context/ThemeContext";
 
 export interface ButtonProps {
   title: string;
@@ -34,6 +32,8 @@ export function Button({
   textStyle,
   testID = "button",
 }: ButtonProps): React.ReactElement {
+  const { colors, spacing, typography } = useCedrosTheme();
+
   const getBackgroundColor = (): string => {
     if (disabled || loading) {
       return colors.gray[300];
