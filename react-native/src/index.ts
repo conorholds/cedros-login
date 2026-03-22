@@ -2,7 +2,16 @@
  * @cedros/login-react-native
  *
  * React Native authentication library with email/password, Google/Apple Sign-In,
- * Solana wallet support, and embedded SSS wallets.
+ * and Solana wallet support.
+ *
+ * ## Subpath imports
+ *
+ * The root entry exports only auth-safe components and hooks that do NOT
+ * depend on Node crypto or Web Crypto APIs.
+ *
+ * - `@cedros/login-react-native` — Auth hooks, login components, orgs, sessions, deposits
+ * - `@cedros/login-react-native/wallet` — Wallet hooks + components (requires crypto backend)
+ * - `@cedros/login-react-native/crypto` — Shamir, AES-GCM, Argon2, BIP-39 (requires crypto backend)
  *
  * @example
  * ```tsx
@@ -18,10 +27,6 @@
  * ```
  */
 
-// Crypto utilities are NOT exported from the root to avoid eagerly loading
-// secrets.js-grempe, which imports Node's `crypto` module and crashes React
-// Native at startup. Import from '@cedros/login-react-native/crypto' instead.
-
 // Types (admin types excluded)
 export * from "./types";
 
@@ -33,7 +38,7 @@ export type {
   CedrosLoginContextValue,
 } from "./context";
 
-// Hooks
+// Auth hooks (NO crypto dependencies)
 export {
   useAuth,
   useEmailAuth,
@@ -42,13 +47,6 @@ export {
   useSolanaAuth,
   useMobileWalletAuth,
   useOrgs,
-  useWallet,
-  useWalletMaterial,
-  useWalletDiscovery,
-  useWalletEnrollment,
-  useWalletRecovery,
-  useWalletSigning,
-  useWallets,
   useDeposit,
   useCredits,
 } from "./hooks";
@@ -61,8 +59,6 @@ export type {
   UseMobileWalletAuthReturn,
   MobileWalletCredentials,
   UseOrgsReturn,
-  UseWalletReturn,
-  UseWalletDiscoveryReturn,
 } from "./hooks";
 
 // Components - Shared
@@ -79,7 +75,7 @@ export type {
   InputProps,
 } from "./components/shared";
 
-// Components - Auth
+// Components - Auth (NO crypto dependencies)
 export {
   EmailLoginForm,
   EmailRegisterForm,
@@ -119,28 +115,6 @@ export type { InviteFormProps, InviteListProps } from "./components/invites";
 export { SessionList } from "./components/sessions";
 export type { SessionListProps } from "./components/sessions";
 
-// Components - Wallet
-export {
-  WalletStatus,
-  WalletUnlock,
-  RecoveryPhraseDisplay,
-  WalletAddressRow,
-  RecoveryPhraseInput,
-  WalletEnrollment,
-  WalletRecovery,
-  WalletManager,
-} from "./components/wallet";
-export type {
-  WalletStatusProps,
-  WalletUnlockProps,
-  RecoveryPhraseDisplayProps,
-  WalletAddressRowProps,
-  RecoveryPhraseInputProps,
-  WalletEnrollmentProps,
-  WalletRecoveryProps,
-  WalletManagerProps,
-} from "./components/wallet";
-
 // Components - TOTP
 export { TotpSetup, TotpVerify, OtpInput } from "./components/totp";
 export type {
@@ -149,7 +123,7 @@ export type {
   OtpInputProps,
 } from "./components/totp";
 
-// Components - Deposit
+// Components - Deposit (NO crypto dependencies)
 export {
   DepositForm,
   CreditBalance,
@@ -191,7 +165,7 @@ export type {
   Token,
 } from "./components/deposit";
 
-// Utilities
+// Utilities (NO crypto dependencies)
 export {
   storage,
   getItem,
