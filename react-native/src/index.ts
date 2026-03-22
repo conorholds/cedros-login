@@ -18,8 +18,9 @@
  * ```
  */
 
-// Crypto utilities (100% reusable)
-export * from "./crypto";
+// Crypto utilities are NOT exported from the root to avoid eagerly loading
+// secrets.js-grempe, which imports Node's `crypto` module and crashes React
+// Native at startup. Import from '@cedros/login-react-native/crypto' instead.
 
 // Types (admin types excluded)
 export * from "./types";
