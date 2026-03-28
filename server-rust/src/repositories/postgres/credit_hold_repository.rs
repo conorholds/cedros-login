@@ -480,12 +480,7 @@ impl CreditHoldRepository for PostgresCreditHoldRepository {
                 WHERE cb.user_id = et.user_id AND cb.currency = et.currency
                 "#,
             )
-            .bind(
-                expired
-                    .iter()
-                    .map(|h| h.id)
-                    .collect::<Vec<uuid::Uuid>>(),
-            )
+            .bind(expired.iter().map(|h| h.id).collect::<Vec<uuid::Uuid>>())
             .execute(&mut *tx)
             .await
             .map_err(|e| AppError::Internal(e.into()))?;

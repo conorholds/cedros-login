@@ -3,7 +3,7 @@
 use crate::errors::AppError;
 use crate::models::{KdfParamsDto, WalletEnrollRequest, WalletRecoverRequest, WalletRotateRequest};
 
-use super::{is_valid_base58, MIN_SOLANA_PUBKEY_LEN, MAX_SOLANA_PUBKEY_LEN};
+use super::{is_valid_base58, MAX_SOLANA_PUBKEY_LEN, MIN_SOLANA_PUBKEY_LEN};
 
 // Nonce / salt sizes
 const NONCE_LEN: usize = 12;

@@ -46,7 +46,6 @@ impl RedisRateLimitStore {
     /// Returns error if the URL is invalid
     pub fn new(redis_url: &str) -> Result<Self, redis::RedisError> {
         let client = redis::Client::open(redis_url)?;
-        tracing::info!("Redis rate limiter initialized (shared across instances)");
         Ok(Self {
             client,
             connection: Arc::new(OnceCell::new()),
@@ -63,6 +62,13 @@ impl RedisRateLimitStore {
             })
             .await
             .cloned()
+    }
+
+    /// Verify the Redis backend is reachable.
+    pub async fn ping(&self) -> Result<(), redis::RedisError> {
+        let mut conn = self.get_connection().await?;
+        let _: String = redis::cmd("PING").query_async(&mut conn).await?;
+        Ok(())
     }
 
     /// Check if request is allowed and record it using sliding window counter.

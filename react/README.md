@@ -206,19 +206,20 @@ function AuthStatus() {
 |-----------|-------------|
 | `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections. **Auto-detects first run and shows SetupWizard.** |
 | `SetupWizard` | First-run setup wizard — creates the first admin account (email, password, name, org). Shown automatically by `CedrosAdminDashboard` when no admin exists. |
-| `AdminShell` | Plugin host for combining multiple admin dashboards (cedros-login + cedros-pay) |
+| `cedrosLoginPlugin` | Admin plugin for use with the shared `AdminShell` from `@cedros/data-react/admin` |
 | `AdminPanel` | Legacy admin dashboard with tabs for members, invites, sessions, system settings |
 | `SystemSettings` | System settings editor (privacy, withdrawal, rate limits) - system admin only |
 
 #### Admin Plugin System
 
-The admin dashboard supports a plugin architecture for creating unified dashboards that combine sections from multiple Cedros packages (e.g., cedros-login + cedros-pay).
+The admin dashboard supports a plugin architecture for creating unified dashboards that combine sections from multiple Cedros packages (e.g., cedros-login + cedros-pay). The shared host now lives in `@cedros/data-react/admin`.
 
 | Export | Description |
 |--------|-------------|
 | `cedrosLoginPlugin` | Plugin definition for cedros-login admin sections |
-| `AdminShell` | Host component that renders plugins with unified sidebar |
-| `useAdminShell` | Hook for accessing admin shell context |
+| `CedrosLoginAdminSectionWrapper` | Temporary wrapper that recreates `CedrosLoginContext` inside the shared shell |
+| `AdminShell` | Import from `@cedros/data-react/admin` |
+| `useAdminShell` | Import from `@cedros/data-react/admin` |
 
 ### Shared
 
@@ -774,6 +775,93 @@ features: { webauthn: false }
 </CedrosLoginProvider>
 ```
 
+### Package Feature Flags
+
+Package feature flags are defined in one registry: [`ui/src/featureFlags.ts`](./src/featureFlags.ts).
+
+Resolution precedence:
+
+1. `config.features`
+2. `CEDROS_FEATURE_*` environment variables
+3. Registry defaults
+
+Consumer config example:
+
+```tsx
+<CedrosLoginProvider
+  config={{
+    serverUrl: 'https://auth.example.com',
+    features: {
+      instantLink: true,
+    },
+  }}
+>
+  <App />
+</CedrosLoginProvider>
+```
+
+Environment variable example:
+
+```bash
+CEDROS_FEATURE_INSTANT_LINK=true
+CEDROS_FEATURE_WEBAUTHN=off
+```
+
+If your app runtime does not expose `process.env` to the package, pass the env
+object through config:
+
+```tsx
+<CedrosLoginProvider
+  config={{
+    serverUrl: 'https://auth.example.com',
+    featureFlagEnv: import.meta.env,
+  }}
+>
+  <App />
+</CedrosLoginProvider>
+```
+
+Supported boolean env values:
+
+- truthy: `1`, `true`, `yes`, `on`
+- falsy: `0`, `false`, `no`, `off`
+
+Inspect available flags:
+
+```ts
+import { FEATURE_FLAG_REGISTRY, getFeatureFlagDefinitions } from '@cedros/login-react';
+
+console.log(FEATURE_FLAG_REGISTRY.instantLink.defaultEnabled);
+console.table(getFeatureFlagDefinitions());
+```
+
+Define a new flag:
+
+```ts
+export const FEATURE_FLAG_REGISTRY = {
+  ...,
+  newParser: {
+    name: 'newParser',
+    description: 'Enable the new parser implementation.',
+    defaultEnabled: false,
+    status: 'experimental',
+    envVar: 'CEDROS_FEATURE_NEW_PARSER',
+    autoDiscoverable: false,
+  },
+} as const;
+```
+
+Flip a feature from opt-in to on-by-default:
+
+```ts
+newParser: {
+  ...,
+  defaultEnabled: true,
+}
+```
+
+That rollout pattern keeps the flag name stable. Consumers can opt in while the feature is experimental, and later opt out temporarily after the default flips, without any flag rename or call-site rewrite.
+
 ## Bundle Optimization
 
 Import only the auth methods you need to reduce bundle size:
@@ -791,49 +879,76 @@ import { SolanaLoginButton, useSolanaAuth } from '@cedros/login-react/solana-onl
 
 ## Styling
 
+`@cedros/login-react` follows the same styling contract as Cedros Pay:
+
+- wrap your app in `CedrosLoginProvider`
+- import `@cedros/login-react/style.css` once
+- customize through `theme`, `themeOverrides`, and `unstyled`
+
 ### Using Default Styles
 
 ```tsx
 import '@cedros/login-react/style.css';
 ```
 
-### CSS Variables
+```tsx
+<CedrosLoginProvider
+  config={{
+    serverUrl: '/api/auth',
+    theme: 'dark',
+    themeOverrides: {
+      '--cedros-primary': '#0f766e',
+      '--cedros-card': '#042f2e',
+      '--cedros-ring': '#14b8a6',
+    },
+  }}
+>
+  <App />
+</CedrosLoginProvider>
+```
 
-Customize the theme using CSS variables:
+Set `unstyled: true` to opt out of all default Cedros theme application and supply your own design system.
+
+### Theme Tokens
+
+The shipped stylesheet and built-in templates all read from the same Cedros theme tokens:
 
 ```css
 :root {
-  /* Colors */
-  --cedros-primary: #6366f1;
-  --cedros-primary-hover: #4f46e5;
-  --cedros-error: #ef4444;
-  --cedros-success: #22c55e;
-  --cedros-text: #1f2937;
-  --cedros-text-muted: #6b7280;
-  --cedros-bg: #ffffff;
-  --cedros-bg-muted: #f3f4f6;
+  --cedros-primary: #111827;
+  --cedros-primary-foreground: #f9fafb;
+  --cedros-background: #ffffff;
+  --cedros-foreground: #111827;
+  --cedros-card: #ffffff;
+  --cedros-card-foreground: #111827;
+  --cedros-muted: #f3f4f6;
+  --cedros-muted-foreground: #6b7280;
+  --cedros-accent: #e5e7eb;
+  --cedros-accent-foreground: #111827;
   --cedros-border: #e5e7eb;
-
-  /* Typography */
-  --cedros-font-family: system-ui, sans-serif;
-  --cedros-font-size-sm: 0.875rem;
-  --cedros-font-size-base: 1rem;
-  --cedros-font-size-lg: 1.125rem;
-
-  /* Spacing */
+  --cedros-input: #e5e7eb;
+  --cedros-ring: #111827;
   --cedros-radius: 0.5rem;
-  --cedros-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --cedros-destructive: #dc2626;
+  --cedros-destructive-foreground: #f9fafb;
+  --cedros-warning: #f59e0b;
+  --cedros-success: #22c55e;
+  --cedros-link: #2563eb;
 }
 
-/* Dark mode */
-[data-theme='dark'] {
-  --cedros-text: #f9fafb;
-  --cedros-text-muted: #9ca3af;
-  --cedros-bg: #1f2937;
-  --cedros-bg-muted: #374151;
-  --cedros-border: #4b5563;
+.cedros-dark {
+  --cedros-background: #09090b;
+  --cedros-foreground: #fafafa;
+  --cedros-card: #09090b;
+  --cedros-card-foreground: #fafafa;
+  --cedros-muted: #27272a;
+  --cedros-muted-foreground: #a1a1aa;
+  --cedros-border: #27272a;
+  --cedros-input: #27272a;
 }
 ```
+
+If you build host components around Cedros UI, `useCedrosTheme()` exposes the same `className` and `style` pair used internally by the provider.
 
 ## Internationalization
 
@@ -1431,10 +1546,15 @@ function AdminApp() {
 When using both `@cedros/login-react` and `@cedros/pay-react`, you can create a unified admin dashboard that combines sections from both packages using the plugin architecture:
 
 ```tsx
-import { AdminShell, cedrosLoginPlugin } from '@cedros/login-react';
+import { AdminShell } from '@cedros/data-react/admin';
+import '@cedros/data-react/admin/styles.css';
 import { cedrosPayPlugin } from '@cedros/pay-react'; // hypothetical
 import { useCedrosLogin } from '@cedros/login-react';
 import { useOrgs } from '@cedros/login-react';
+import {
+  CedrosLoginAdminSectionWrapper,
+  cedrosLoginPlugin,
+} from '@cedros/login-react/admin-only';
 
 function UnifiedAdminDashboard() {
   const { user, getAccessToken } = useCedrosLogin();
@@ -1466,6 +1586,7 @@ function UnifiedAdminDashboard() {
       defaultSection="cedros-login:users"
       pageSize={20}
       refreshInterval={30000}
+      sectionWrappers={[CedrosLoginAdminSectionWrapper]}
     />
   );
 }
@@ -1474,7 +1595,7 @@ function UnifiedAdminDashboard() {
 **How it works:**
 
 1. Each package exports an `AdminPlugin` that defines its sections and components
-2. `AdminShell` aggregates sections from all plugins into a unified sidebar
+2. `AdminShell` from `@cedros/data-react/admin` aggregates sections from all plugins into a unified sidebar
 3. Sections are grouped (Users, Store, Configuration) and sorted by order
 4. Each plugin's CSS is isolated via namespace scoping
 

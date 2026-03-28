@@ -4,8 +4,8 @@ mod audit;
 mod credit_refunds;
 mod credits;
 mod dashboard_permissions;
-mod disposable_domains;
 pub(crate) mod deposits;
+mod disposable_domains;
 mod orgs;
 mod referral_payouts;
 mod referral_stats;
@@ -20,12 +20,12 @@ pub use credit_refunds::reject_credit_refund_request;
 pub use credit_refunds::{list_credit_refund_requests, process_credit_refund_request};
 pub use credits::{adjust_credits, get_stats as get_credit_stats};
 pub use dashboard_permissions::{get_dashboard_permissions, update_dashboard_permissions};
-pub use disposable_domains::{get_disposable_domains, update_disposable_domains};
 pub use deposits::{
     get_stats as get_deposit_stats, get_status as get_privacy_status,
     list_deposits as list_admin_deposits, list_in_privacy_period, list_pending_withdrawals,
     process_all_withdrawals, process_withdrawal,
 };
+pub use disposable_domains::{get_disposable_domains, update_disposable_domains};
 pub use orgs::{get_org, list_orgs};
 pub use referral_payouts::{
     cancel_payout, list_all_payouts, list_referral_payouts, process_referral_payouts,

@@ -123,15 +123,14 @@ impl EncryptionService {
         type HmacSha256 = Hmac<Sha256>;
 
         // HKDF Extract (salt = empty for simplicity; secret is expected to be high-entropy)
-        let extract: HmacSha256 = Mac::new_from_slice(b"cedros-encryption-service")
-            .expect("HMAC key length is valid");
+        let extract: HmacSha256 =
+            Mac::new_from_slice(b"cedros-encryption-service").expect("HMAC key length is valid");
         let mut extract = extract;
         extract.update(secret.as_bytes());
         let prk = extract.finalize().into_bytes();
 
         // HKDF Expand
-        let mut expand: HmacSha256 =
-            Mac::new_from_slice(&prk).expect("HMAC key length is valid");
+        let mut expand: HmacSha256 = Mac::new_from_slice(&prk).expect("HMAC key length is valid");
         expand.update(b"cedros-encryption-aes256gcm");
         expand.update(&[1u8]);
         let okm = expand.finalize().into_bytes();

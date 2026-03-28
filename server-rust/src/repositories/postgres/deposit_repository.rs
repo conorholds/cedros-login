@@ -836,7 +836,11 @@ impl DepositRepository for PostgresDepositRepository {
         const USDT_MINT: &str = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 
         // M-13: Use REPEATABLE READ transaction for consistent snapshot across queries
-        let mut tx = self.pool.begin().await.map_err(|e| AppError::Internal(e.into()))?;
+        let mut tx = self
+            .pool
+            .begin()
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
         sqlx::query("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
             .execute(&mut *tx)
             .await
@@ -894,7 +898,9 @@ impl DepositRepository for PostgresDepositRepository {
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-        tx.commit().await.map_err(|e| AppError::Internal(e.into()))?;
+        tx.commit()
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
 
         Ok(crate::repositories::DepositStats {
             total_deposits: basic.0 as u64,
@@ -963,7 +969,10 @@ impl DepositRepository for PostgresDepositRepository {
         Ok(count as u64)
     }
 
-    async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError> {
+    async fn get_pending_batch_deposits(
+        &self,
+        limit: i64,
+    ) -> Result<Vec<DepositSessionEntity>, AppError> {
         // H-06: batch_id IS NULL ensures deposits already claimed by a concurrent
         // batch worker are excluded. mark_batch_complete (H-05) also guards via
         // AND status = 'pending_batch', providing a second defense against double-swap.

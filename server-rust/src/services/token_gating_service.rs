@@ -200,11 +200,7 @@ impl TokenGatingService {
     /// # Errors
     /// - `Forbidden` if any matching rule fails.
     /// - `Forbidden` if token gating is enabled but the user has no wallet.
-    pub async fn check_enforcement(
-        &self,
-        user_id: Uuid,
-        action: &str,
-    ) -> Result<(), AppError> {
+    pub async fn check_enforcement(&self, user_id: Uuid, action: &str) -> Result<(), AppError> {
         let enabled = self
             .settings_service
             .get_bool("token_gating_enabled")
@@ -318,9 +314,8 @@ impl TokenGatingService {
             return Ok(vec![]);
         }
 
-        serde_json::from_str::<Vec<TokenGateRule>>(&raw).map_err(|e| {
-            AppError::Config(format!("Invalid token_gating_rules JSON: {}", e))
-        })
+        serde_json::from_str::<Vec<TokenGateRule>>(&raw)
+            .map_err(|e| AppError::Config(format!("Invalid token_gating_rules JSON: {}", e)))
     }
 
     /// Resolve the Solana wallet address for `user_id`.
@@ -345,9 +340,8 @@ impl TokenGatingService {
             .await?
             .ok_or_else(|| AppError::NotFound("User not found".into()))?;
 
-        user.wallet_address.ok_or_else(|| {
-            AppError::Forbidden("Wallet required for token-gated access".into())
-        })
+        user.wallet_address
+            .ok_or_else(|| AppError::Forbidden("Wallet required for token-gated access".into()))
     }
 
     /// Ensure the holdings cache for `wallet` is fresh, refreshing if stale.
@@ -423,11 +417,7 @@ impl TokenGatingService {
     ///
     /// Paginates automatically until all assets are fetched or the
     /// safety cap (10 000 assets) is reached.
-    async fn fetch_nfts(
-        &self,
-        rpc_url: &str,
-        wallet: &str,
-    ) -> Result<Vec<DasAsset>, AppError> {
+    async fn fetch_nfts(&self, rpc_url: &str, wallet: &str) -> Result<Vec<DasAsset>, AppError> {
         const PAGE_SIZE: u32 = 1000;
         const MAX_ASSETS: usize = 10_000;
 
@@ -478,7 +468,10 @@ impl TokenGatingService {
             // Stop if: last page was incomplete, hit safety cap, or no total info
             if (page_count as u32) < PAGE_SIZE
                 || all_items.len() >= MAX_ASSETS
-                || result.total.map(|t| all_items.len() >= t as usize).unwrap_or(false)
+                || result
+                    .total
+                    .map(|t| all_items.len() >= t as usize)
+                    .unwrap_or(false)
             {
                 break;
             }
@@ -520,10 +513,7 @@ impl TokenGatingService {
             .send()
             .await
             .map_err(|e| {
-                AppError::Internal(anyhow::anyhow!(
-                    "getTokenAccountsByOwner failed: {}",
-                    e
-                ))
+                AppError::Internal(anyhow::anyhow!("getTokenAccountsByOwner failed: {}", e))
             })?;
 
         if !resp.status().is_success() {
@@ -533,13 +523,12 @@ impl TokenGatingService {
             )));
         }
 
-        let parsed: RpcResponse<TokenAccountsResult> =
-            resp.json().await.map_err(|e| {
-                AppError::Internal(anyhow::anyhow!(
-                    "Failed to parse token accounts response: {}",
-                    e
-                ))
-            })?;
+        let parsed: RpcResponse<TokenAccountsResult> = resp.json().await.map_err(|e| {
+            AppError::Internal(anyhow::anyhow!(
+                "Failed to parse token accounts response: {}",
+                e
+            ))
+        })?;
 
         let mut balances: HashMap<String, u64> = HashMap::new();
         if let Some(result) = parsed.result {
@@ -563,11 +552,7 @@ impl TokenGatingService {
 /// Evaluate a single gate rule against cached holdings.
 ///
 /// Returns `true` if the user's holdings satisfy the rule.
-fn evaluate_rule(
-    rule: &TokenGateRule,
-    nfts: &[DasAsset],
-    tokens: &HashMap<String, u64>,
-) -> bool {
+fn evaluate_rule(rule: &TokenGateRule, nfts: &[DasAsset], tokens: &HashMap<String, u64>) -> bool {
     match rule.rule_type.as_str() {
         "nft_collection" => {
             let collection = match rule.collection_address.as_deref() {
@@ -578,9 +563,12 @@ fn evaluate_rule(
             let count = nfts
                 .iter()
                 .filter(|asset| {
-                    asset.grouping.as_deref().unwrap_or(&[]).iter().any(|g| {
-                        g.group_key == "collection" && g.group_value == collection
-                    })
+                    asset
+                        .grouping
+                        .as_deref()
+                        .unwrap_or(&[])
+                        .iter()
+                        .any(|g| g.group_key == "collection" && g.group_value == collection)
                 })
                 .count() as u64;
             count >= min

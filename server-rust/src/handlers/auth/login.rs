@@ -209,10 +209,7 @@ pub async fn login<C: AuthCallback, E: EmailService>(
     }
 
     // Successful login - clear failed attempts
-    let _ = state
-        .login_attempt_repo
-        .clear_failed_attempts(&email)
-        .await;
+    let _ = state.login_attempt_repo.clear_failed_attempts(&email).await;
 
     // Check if MFA is enabled - if so, return MFA required response
     let has_mfa = state.totp_repo.has_mfa_enabled(user.id).await?;
@@ -290,7 +287,15 @@ pub async fn login<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     // Build response with optional cookies
@@ -393,7 +398,11 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
             // SRV-10: Audit log failed MFA attempt
             let _ = state
                 .audit_service
-                .log_user_event(AuditEventType::MfaVerificationFailed, user_id, Some(&headers))
+                .log_user_event(
+                    AuditEventType::MfaVerificationFailed,
+                    user_id,
+                    Some(&headers),
+                )
                 .await;
 
             // Record failed attempt and enforce lockout.
@@ -471,7 +480,15 @@ pub async fn complete_mfa_login<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     // Build response with optional cookies
@@ -498,7 +515,8 @@ async fn complete_login_flow<C: AuthCallback, E: EmailService>(
     AppError,
 > {
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     let session_id = uuid::Uuid::new_v4();
     let token_pair =

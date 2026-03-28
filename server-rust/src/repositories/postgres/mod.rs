@@ -1,7 +1,7 @@
 //! PostgreSQL repository implementations
 
-mod accreditation_repository;
 mod access_code_repository;
+mod accreditation_repository;
 mod api_key_repository;
 mod audit_repository;
 mod credential_repository;
@@ -20,9 +20,9 @@ mod org_repository;
 mod outbox_repository;
 mod pending_wallet_recovery_repository;
 mod policy_repository;
+mod privacy_note_repository;
 mod referral_code_history_repository;
 mod referral_payout_repository;
-mod privacy_note_repository;
 mod session_repository;
 mod sso_repository;
 mod system_settings_repository;
@@ -36,8 +36,8 @@ mod wallet_rotation_history_repository;
 mod webauthn_repository;
 mod withdrawal_history_repository;
 
-pub use accreditation_repository::PostgresAccreditationRepository;
 pub use access_code_repository::PostgresAccessCodeRepository;
+pub use accreditation_repository::PostgresAccreditationRepository;
 pub use api_key_repository::PostgresApiKeyRepository;
 pub use audit_repository::PostgresAuditLogRepository;
 pub use credential_repository::PostgresCredentialRepository;
@@ -56,9 +56,9 @@ pub use org_repository::PostgresOrgRepository;
 pub use outbox_repository::PostgresOutboxRepository;
 pub use pending_wallet_recovery_repository::PostgresPendingWalletRecoveryRepository;
 pub use policy_repository::PostgresPolicyRepository;
+pub use privacy_note_repository::PostgresPrivacyNoteRepository;
 pub use referral_code_history_repository::PostgresReferralCodeHistoryRepository;
 pub use referral_payout_repository::PostgresReferralPayoutRepository;
-pub use privacy_note_repository::PostgresPrivacyNoteRepository;
 pub use session_repository::PostgresSessionRepository;
 pub use sso_repository::PostgresSsoRepository;
 pub use system_settings_repository::PostgresSystemSettingsRepository;

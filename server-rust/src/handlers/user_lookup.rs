@@ -270,16 +270,11 @@ pub async fn get_user_compliance<C: AuthCallback, E: EmailService>(
         false
     };
 
-    let accredited_verified_at = user
-        .accreditation_verified_at
-        .map(|dt| dt.to_rfc3339());
+    let accredited_verified_at = user.accreditation_verified_at.map(|dt| dt.to_rfc3339());
 
     // Evaluate token gate rules — fail-open on RPC errors so compliance
     // endpoint remains available even when the Solana RPC is unreachable.
-    let token_gated = state
-        .token_gating_service
-        .evaluate_all_rules(user_id)
-        .await;
+    let token_gated = state.token_gating_service.evaluate_all_rules(user_id).await;
 
     Ok(Json(ComplianceStatusResponse {
         kyc_status,

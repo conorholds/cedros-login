@@ -329,7 +329,8 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
 
     // Get memberships for token context
     let memberships = state.membership_repo.find_by_user(verified_user_id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
     let session_id = Uuid::new_v4();
@@ -390,7 +391,15 @@ pub async fn auth_verify<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

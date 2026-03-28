@@ -81,8 +81,6 @@ pub enum StripeError {
     Api(String),
     /// Response body could not be deserialized.
     Parse(String),
-    /// Webhook `Stripe-Signature` header failed HMAC validation.
-    SignatureInvalid,
 }
 
 impl std::fmt::Display for StripeError {
@@ -91,7 +89,6 @@ impl std::fmt::Display for StripeError {
             StripeError::Network(s) => write!(f, "Stripe network error: {s}"),
             StripeError::Api(s) => write!(f, "Stripe API error: {s}"),
             StripeError::Parse(s) => write!(f, "Stripe parse error: {s}"),
-            StripeError::SignatureInvalid => write!(f, "Stripe webhook signature invalid"),
         }
     }
 }
@@ -182,27 +179,6 @@ impl StripeIdentityClient {
             .post(STRIPE_IDENTITY_BASE)
             .bearer_auth(&self.api_key)
             .form(&params)
-            .send()
-            .await
-            .map_err(|e| StripeError::Network(e.to_string()))?;
-
-        parse_response(resp).await
-    }
-
-    /// Retrieve an existing VerificationSession by ID.
-    ///
-    /// # Errors
-    /// Same error variants as [`create_session`](Self::create_session).
-    pub async fn retrieve_session(
-        &self,
-        session_id: &str,
-    ) -> Result<StripeVerificationSession, StripeError> {
-        let url = format!("{}/{}", STRIPE_IDENTITY_BASE, session_id);
-
-        let resp = self
-            .client
-            .get(&url)
-            .bearer_auth(&self.api_key)
             .send()
             .await
             .map_err(|e| StripeError::Network(e.to_string()))?;
@@ -312,9 +288,7 @@ fn parse_stripe_signature_header(header: &str) -> Option<(String, String)> {
 
 /// Parse a `reqwest::Response` into `T`, mapping Stripe error bodies to
 /// [`StripeError::Api`].
-async fn parse_response(
-    resp: reqwest::Response,
-) -> Result<StripeVerificationSession, StripeError> {
+async fn parse_response(resp: reqwest::Response) -> Result<StripeVerificationSession, StripeError> {
     let status = resp.status();
 
     if status.is_success() {
@@ -375,7 +349,9 @@ mod tests {
         let ts = now_ts();
         let sig = make_signature(&ts, body, secret);
         let header = format!("t={ts},v1={sig}");
-        assert!(StripeIdentityClient::verify_webhook_signature(body, &header, secret));
+        assert!(StripeIdentityClient::verify_webhook_signature(
+            body, &header, secret
+        ));
     }
 
     #[test]
@@ -412,7 +388,9 @@ mod tests {
         let ts = now_ts();
         let sig = make_signature(&ts, body, "");
         let header = format!("t={ts},v1={sig}");
-        assert!(!StripeIdentityClient::verify_webhook_signature(body, &header, ""));
+        assert!(!StripeIdentityClient::verify_webhook_signature(
+            body, &header, ""
+        ));
     }
 
     #[test]
@@ -422,16 +400,16 @@ mod tests {
         let stale_ts = (chrono::Utc::now().timestamp() - 600).to_string(); // 10 min ago
         let sig = make_signature(&stale_ts, body, secret);
         let header = format!("t={stale_ts},v1={sig}");
-        assert!(!StripeIdentityClient::verify_webhook_signature(body, &header, secret));
+        assert!(!StripeIdentityClient::verify_webhook_signature(
+            body, &header, secret
+        ));
     }
 
     #[test]
     fn verify_webhook_signature_missing_v1_rejected() {
         let header = "t=1700000004,v0=abcdef";
         assert!(!StripeIdentityClient::verify_webhook_signature(
-            b"body",
-            header,
-            "secret"
+            b"body", header, "secret"
         ));
     }
 
@@ -439,9 +417,7 @@ mod tests {
     fn verify_webhook_signature_missing_timestamp_rejected() {
         let header = "v1=abcdef1234567890";
         assert!(!StripeIdentityClient::verify_webhook_signature(
-            b"body",
-            header,
-            "secret"
+            b"body", header, "secret"
         ));
     }
 
@@ -482,7 +458,14 @@ mod tests {
         assert_eq!(event.data.object.id, "vs_123");
         assert_eq!(event.data.object.status, "verified");
         assert_eq!(
-            event.data.object.metadata.as_ref().unwrap().get("user_id").unwrap(),
+            event
+                .data
+                .object
+                .metadata
+                .as_ref()
+                .unwrap()
+                .get("user_id")
+                .unwrap(),
             "u_abc"
         );
     }

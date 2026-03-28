@@ -16,9 +16,7 @@ use crate::utils::authenticate;
 use crate::AppState;
 
 use super::validation;
-use super::{
-    convert_auth_method, decode_base64, process_auth_method_fields, AuthMethodFields,
-};
+use super::{convert_auth_method, decode_base64, process_auth_method_fields, AuthMethodFields};
 
 /// POST /wallet/recover - Recover wallet with recovery phrase
 ///

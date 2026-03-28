@@ -6,9 +6,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::errors::AppError;
-use crate::repositories::{
-    ReferralPayoutEntity, ReferralPayoutRepository, ReferrerPayoutSummary,
-};
+use crate::repositories::{ReferralPayoutEntity, ReferralPayoutRepository, ReferrerPayoutSummary};
 
 /// PostgreSQL referral payout repository
 pub struct PostgresReferralPayoutRepository {
@@ -67,10 +65,7 @@ struct ReferrerPayoutSummaryRow {
 
 #[async_trait]
 impl ReferralPayoutRepository for PostgresReferralPayoutRepository {
-    async fn create(
-        &self,
-        payout: ReferralPayoutEntity,
-    ) -> Result<ReferralPayoutEntity, AppError> {
+    async fn create(&self, payout: ReferralPayoutEntity) -> Result<ReferralPayoutEntity, AppError> {
         let row: ReferralPayoutRow = sqlx::query_as(
             r#"
             INSERT INTO referral_payouts (
@@ -389,13 +384,11 @@ impl ReferralPayoutRepository for PostgresReferralPayoutRepository {
 
     async fn count_all(&self, status_filter: Option<&str>) -> Result<u64, AppError> {
         let count: i64 = if let Some(status) = status_filter {
-            sqlx::query_scalar(
-                "SELECT COUNT(*) FROM referral_payouts WHERE status = $1",
-            )
-            .bind(status)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| AppError::Internal(e.into()))?
+            sqlx::query_scalar("SELECT COUNT(*) FROM referral_payouts WHERE status = $1")
+                .bind(status)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?
         } else {
             sqlx::query_scalar("SELECT COUNT(*) FROM referral_payouts")
                 .fetch_one(&self.pool)
@@ -468,13 +461,11 @@ impl ReferralPayoutRepository for PostgresReferralPayoutRepository {
             .await
             .map_err(|e| AppError::Internal(e.into()))?
         } else {
-            sqlx::query_scalar(
-                "SELECT COUNT(*) FROM referral_payouts WHERE referrer_id = $1",
-            )
-            .bind(referrer_id)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| AppError::Internal(e.into()))?
+            sqlx::query_scalar("SELECT COUNT(*) FROM referral_payouts WHERE referrer_id = $1")
+                .bind(referrer_id)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?
         };
         Ok(count.max(0) as u64)
     }

@@ -30,10 +30,8 @@ pub struct KycSessionEntity {
 #[async_trait]
 pub trait KycRepository: Send + Sync {
     /// Persist a new KYC session record. Returns the stored entity.
-    async fn create_session(
-        &self,
-        session: KycSessionEntity,
-    ) -> Result<KycSessionEntity, AppError>;
+    async fn create_session(&self, session: KycSessionEntity)
+        -> Result<KycSessionEntity, AppError>;
 
     /// Look up a session by its internal ID. Returns `None` if not found.
     async fn find_session_by_id(&self, id: Uuid) -> Result<Option<KycSessionEntity>, AppError>;

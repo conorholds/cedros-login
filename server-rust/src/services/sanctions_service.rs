@@ -124,14 +124,9 @@ impl SanctionsService {
 
         let url = format!("{}/v1/lists", api_url.trim_end_matches('/'));
 
-        let response = self
-            .client
-            .get(&url)
-            .send()
-            .await
-            .map_err(|e| {
-                AppError::Internal(anyhow::anyhow!("Sanctions API request failed: {}", e))
-            })?;
+        let response = self.client.get(&url).send().await.map_err(|e| {
+            AppError::Internal(anyhow::anyhow!("Sanctions API request failed: {}", e))
+        })?;
 
         if !response.status().is_success() {
             return Err(AppError::Internal(anyhow::anyhow!(
@@ -449,11 +444,7 @@ mod tests {
     #[tokio::test]
     async fn stats_returns_counts_when_cache_seeded() {
         let svc = make_service();
-        seed_cache(
-            &svc,
-            vec!["Wallet1".to_string(), "Wallet2".to_string()],
-        )
-        .await;
+        seed_cache(&svc, vec!["Wallet1".to_string(), "Wallet2".to_string()]).await;
         let stats = svc.stats().await;
         assert_eq!(stats.address_count, 2);
         assert_eq!(stats.country_count, 2); // KP + IR seeded above

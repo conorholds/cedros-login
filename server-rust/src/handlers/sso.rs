@@ -42,6 +42,8 @@ pub struct StartSsoRequest {
     pub org_id: Uuid,
     /// Optional redirect URI after authentication
     pub redirect_uri: Option<String>,
+    /// Optional signup access code. Required when `signup_access_code_enabled` is true.
+    pub access_code: Option<String>,
     /// Optional referral code to attribute new user signups
     pub referral: Option<String>,
 }
@@ -148,6 +150,7 @@ pub async fn start_sso<C: AuthCallback, E: EmailService>(
             &provider,
             &client_secret,
             redirect_uri,
+            request.access_code,
             request.referral,
             &state.storage.sso_repo,
         )
@@ -182,7 +185,10 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
     }
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // Check for errors from provider
     if let Some(error) = query.error {
@@ -200,6 +206,7 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         .get_auth_state(query.state)
         .await?
         .ok_or_else(|| AppError::Validation("Invalid or expired SSO state".into()))?;
+    let access_code = auth_state.access_code.clone();
     let referral_code = auth_state.referral.clone();
 
     // Find the provider
@@ -254,10 +261,11 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                 ));
             }
 
-            // TODO: SSO signup gating is not yet implemented.
-            // When adding it, call `state.signup_gating_service.check_signup(...)` here
-            // and `mark_code_used` after creation. SSO uses provider-level `allow_registration`
-            // as its own gate, so the access-code flow needs careful UX design.
+            // Enforce the shared signup gate before creating a new SSO user.
+            let gate_result = state
+                .signup_gating_service
+                .check_signup(access_code.as_deref())
+                .await?;
 
             // Create new user (SSO users have no password)
             let now = Utc::now();
@@ -313,8 +321,11 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                     }
                 }
             }
-            let membership =
-                MembershipEntity::new(new_user.id, provider.org_id, crate::repositories::OrgRole::Member);
+            let membership = MembershipEntity::new(
+                new_user.id,
+                provider.org_id,
+                crate::repositories::OrgRole::Member,
+            );
             let raw_api_key = generate_api_key();
             let api_key_entity = ApiKeyEntity::new(new_user.id, &raw_api_key, "default");
 
@@ -342,6 +353,17 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
                 state.api_key_repo.create(api_key_entity).await?;
                 created
             };
+
+            if let Some(code_id) = gate_result.access_code_id {
+                if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
+                    tracing::warn!(
+                        user_id = %user.id,
+                        code_id = %code_id,
+                        error = %e,
+                        "Failed to mark SSO access code as used"
+                    );
+                }
+            }
 
             (user, true, Some(raw_api_key))
         }
@@ -382,7 +404,8 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
 
     // Get memberships for token context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
     let session_id = Uuid::new_v4();
@@ -471,7 +494,15 @@ pub async fn sso_callback<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(
@@ -659,5 +690,4 @@ mod tests {
         assert_eq!(creds.len(), 1);
         assert_eq!(creds[0].credential_type, CredentialType::SsoOidc);
     }
-
 }

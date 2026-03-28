@@ -36,6 +36,7 @@ pub use services::{
 pub use webauthn::{default_challenge_ttl, WebAuthnConfig};
 
 use crate::errors::AppError;
+use crate::middleware::rate_limit::RateLimitStore;
 use loader::*;
 use serde::Deserialize;
 
@@ -168,6 +169,11 @@ impl Config {
             );
         }
 
+        let env_lc = self.notification.environment.trim().to_ascii_lowercase();
+        let is_production_strict = matches!(env_lc.as_str(), "production" | "prod");
+        let is_production_like =
+            !matches!(env_lc.as_str(), "dev" | "development" | "local" | "test");
+
         // Rate limits must be reasonable
         if self.rate_limit.enabled {
             if self.rate_limit.auth_limit == 0 {
@@ -181,7 +187,14 @@ impl Config {
                 ));
             }
             match self.rate_limit.store.as_str() {
-                "memory" => {}
+                "memory" => {
+                    if is_production_like && RateLimitStore::is_multi_instance_environment() {
+                        return Err(AppError::Config(
+                            "RATE_LIMIT_STORE=memory is not allowed in production-like multi-instance deployments. Use RATE_LIMIT_STORE=redis."
+                                .into(),
+                        ));
+                    }
+                }
                 "redis" => {
                     #[cfg(not(feature = "redis-rate-limit"))]
                     return Err(AppError::Config(
@@ -240,11 +253,6 @@ impl Config {
             // Validate webhook URL to prevent SSRF attacks
             self.validate_webhook_url(url_str)?;
         }
-
-        let env_lc = self.notification.environment.trim().to_ascii_lowercase();
-        let is_production_strict = matches!(env_lc.as_str(), "production" | "prod");
-        let is_production_like =
-            !matches!(env_lc.as_str(), "dev" | "development" | "local" | "test");
 
         if self.cookie.enabled && !self.cookie.secure {
             if is_production_like {
@@ -929,6 +937,23 @@ mod tests {
         config.rate_limit.store = "redis".to_string();
         config.rate_limit.redis_url = Some("redis://localhost:6379".to_string());
         assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn test_rate_limit_memory_rejected_in_production_multi_instance() {
+        let _lock = ENV_LOCK.lock().unwrap();
+        let _replicas = set_env("REPLICAS", "2");
+
+        let mut config = base_config();
+        config.notification.environment = "production".to_string();
+        config.cookie.secure = true;
+        config.jwt.rsa_private_key_pem = Some(test_rsa_private_key_pem());
+        config.cors.allowed_origins = vec!["https://app.example.com".to_string()];
+        config.rate_limit.store = "memory".to_string();
+        config.rate_limit.redis_url = None;
+
+        let err = config.validate().unwrap_err().to_string();
+        assert!(err.contains("RATE_LIMIT_STORE=memory is not allowed"));
     }
 
     struct EnvGuard {

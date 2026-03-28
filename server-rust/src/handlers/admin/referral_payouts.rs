@@ -21,7 +21,9 @@ use super::users::validate_system_admin;
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
 use crate::repositories::ReferrerPayoutSummary;
-use crate::services::payout_transfer::{decrypt_treasury_key, execute_transfer, resolve_payout_services};
+use crate::services::payout_transfer::{
+    decrypt_treasury_key, execute_transfer, resolve_payout_services,
+};
 use crate::services::EmailService;
 use crate::AppState;
 
@@ -113,7 +115,10 @@ pub async fn retry_failed_payouts<C: AuthCallback, E: EmailService>(
 
     let reset_count = state.referral_payout_repo.reset_failed().await?;
 
-    tracing::info!(reset_count = reset_count, "Reset failed referral payouts to pending");
+    tracing::info!(
+        reset_count = reset_count,
+        "Reset failed referral payouts to pending"
+    );
 
     Ok(Json(RetryFailedPayoutsResponse { reset_count }))
 }
@@ -141,8 +146,10 @@ pub async fn process_referral_payouts<C: AuthCallback, E: EmailService>(
 ) -> Result<Json<ProcessReferralPayoutsResponse>, AppError> {
     validate_system_admin(&state, &headers).await?;
 
-    let (sidecar, note_encryption) =
-        resolve_payout_services(&state.privacy_sidecar_client, &state.note_encryption_service)?;
+    let (sidecar, note_encryption) = resolve_payout_services(
+        &state.privacy_sidecar_client,
+        &state.note_encryption_service,
+    )?;
 
     // Fetch treasury (global)
     let treasury = state
@@ -207,20 +214,17 @@ pub async fn process_referral_payouts<C: AuthCallback, E: EmailService>(
             );
             // Release claimed payouts back to pending
             for id in &claimed_ids {
-                let _ = state.referral_payout_repo.mark_failed(*id, "zero amount").await;
+                let _ = state
+                    .referral_payout_repo
+                    .mark_failed(*id, "zero amount")
+                    .await;
             }
             skipped_no_wallet += 1;
             continue;
         }
 
-        let tx_result = execute_transfer(
-            &sidecar,
-            &private_key,
-            &dest,
-            &summary.currency,
-            amount_sum,
-        )
-        .await;
+        let tx_result =
+            execute_transfer(&sidecar, &private_key, &dest, &summary.currency, amount_sum).await;
 
         match tx_result {
             Ok(tx_sig) => {
@@ -252,11 +256,7 @@ pub async fn process_referral_payouts<C: AuthCallback, E: EmailService>(
                     "Referral payout failed"
                 );
                 for id in &claimed_ids {
-                    if let Err(e) = state
-                        .referral_payout_repo
-                        .mark_failed(*id, &err_str)
-                        .await
-                    {
+                    if let Err(e) = state.referral_payout_repo.mark_failed(*id, &err_str).await {
                         tracing::error!(payout_id = %id, error = %e, "Failed to mark payout as failed");
                     }
                 }
@@ -292,10 +292,7 @@ pub async fn list_all_payouts<C: AuthCallback, E: EmailService>(
     let offset = query.offset.unwrap_or(0);
     let status_filter = query.status.as_deref();
 
-    let total = state
-        .referral_payout_repo
-        .count_all(status_filter)
-        .await?;
+    let total = state.referral_payout_repo.count_all(status_filter).await?;
     let entities = state
         .referral_payout_repo
         .list_all(status_filter, limit, offset)
@@ -376,8 +373,10 @@ pub async fn process_single_payout<C: AuthCallback, E: EmailService>(
         .payout_wallet_address
         .ok_or_else(|| AppError::Validation("Referrer has no payout wallet address".into()))?;
 
-    let (sidecar, note_encryption) =
-        resolve_payout_services(&state.privacy_sidecar_client, &state.note_encryption_service)?;
+    let (sidecar, note_encryption) = resolve_payout_services(
+        &state.privacy_sidecar_client,
+        &state.note_encryption_service,
+    )?;
 
     let treasury = state
         .treasury_config_repo
@@ -387,7 +386,15 @@ pub async fn process_single_payout<C: AuthCallback, E: EmailService>(
 
     let private_key = decrypt_treasury_key(&note_encryption, &treasury.encrypted_private_key)?;
 
-    match execute_transfer(&sidecar, &private_key, &dest, &payout.currency, payout.amount).await {
+    match execute_transfer(
+        &sidecar,
+        &private_key,
+        &dest,
+        &payout.currency,
+        payout.amount,
+    )
+    .await
+    {
         Ok(tx_sig) => {
             state
                 .referral_payout_repo
@@ -400,14 +407,13 @@ pub async fn process_single_payout<C: AuthCallback, E: EmailService>(
                 tx_sig = %tx_sig,
                 "Single referral payout processed"
             );
-            Ok(Json(ProcessSingleResponse { tx_signature: tx_sig }))
+            Ok(Json(ProcessSingleResponse {
+                tx_signature: tx_sig,
+            }))
         }
         Err(e) => {
             let err_str = e.to_string();
-            let _ = state
-                .referral_payout_repo
-                .mark_failed(id, &err_str)
-                .await;
+            let _ = state.referral_payout_repo.mark_failed(id, &err_str).await;
             Err(e)
         }
     }

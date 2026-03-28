@@ -337,7 +337,9 @@ impl TieredDepositService {
                     return Ok(MicroDepositResult {
                         session_id: existing.session_id,
                         tx_signature: tx_signature.to_string(),
-                        amount_lamports: existing.detected_amount_lamports.unwrap_or(amount_lamports),
+                        amount_lamports: existing
+                            .detected_amount_lamports
+                            .unwrap_or(amount_lamports),
                     });
                 }
                 // Not a duplicate — re-raise the original error

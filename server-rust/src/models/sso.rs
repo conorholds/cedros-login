@@ -76,6 +76,8 @@ pub struct SsoAuthState {
     pub nonce: String,
     /// Redirect URL after authentication
     pub redirect_uri: Option<String>,
+    /// Optional signup access code provided at SSO start; used if the callback creates a user
+    pub access_code: Option<String>,
     /// Optional referral code provided at SSO start; carried through the redirect
     pub referral: Option<String>,
     pub created_at: DateTime<Utc>,
@@ -100,6 +102,7 @@ impl SsoAuthState {
             pkce_verifier,
             nonce,
             redirect_uri,
+            access_code: None,
             referral: None,
             created_at: now,
             expires_at: now + chrono::Duration::seconds(ttl_seconds),
@@ -140,5 +143,19 @@ mod tests {
         );
 
         assert!(state.expires_at > state.created_at);
+    }
+
+    #[test]
+    fn test_sso_auth_state_defaults_to_no_access_code() {
+        let state = SsoAuthState::new(
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            "verifier".into(),
+            "nonce".into(),
+            None,
+            300,
+        );
+
+        assert!(state.access_code.is_none());
     }
 }

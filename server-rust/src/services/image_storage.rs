@@ -73,14 +73,11 @@ impl S3ImageStorageService {
             None,
             None,
         )
-        .map_err(|e| {
-            AppError::Internal(anyhow::anyhow!("Invalid S3 credentials: {}", e))
-        })?;
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("Invalid S3 credentials: {}", e)))?;
 
-        let bucket =
-            Bucket::new(&config.bucket, region, credentials).map_err(|e| {
-                AppError::Internal(anyhow::anyhow!("Failed to create S3 bucket handle: {}", e))
-            })?;
+        let bucket = Bucket::new(&config.bucket, region, credentials).map_err(|e| {
+            AppError::Internal(anyhow::anyhow!("Failed to create S3 bucket handle: {}", e))
+        })?;
 
         let cdn_url = config
             .cdn_url

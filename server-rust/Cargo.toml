@@ -1,6 +1,6 @@
 [package]
 name = "cedros-login-server"
-version = "0.0.41"
+version = "0.0.42"
 edition = "2021"
 rust-version = "1.75"
 description = "Authentication server for cedros-login with email/password, Google OAuth, and Solana wallet sign-in"
@@ -112,6 +112,6 @@ http-body-util = "0.1"
 tower = { version = "0.5", features = ["util"] }
 
 [features]
-default = ["postgres"]
+default = ["postgres", "redis-rate-limit"]
 postgres = ["sqlx"]
 redis-rate-limit = ["redis"]

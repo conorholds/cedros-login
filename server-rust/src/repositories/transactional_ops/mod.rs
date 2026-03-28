@@ -377,9 +377,7 @@ impl TransactionalOps {
             .bind(material.user_id)
             .execute(&mut *tx)
             .await
-            .map_err(|e| {
-                AppError::Database(format!("Failed to delete wallet material: {}", e))
-            })?;
+            .map_err(|e| AppError::Database(format!("Failed to delete wallet material: {}", e)))?;
 
         // Step 2: Insert new wallet material
         sqlx::query(

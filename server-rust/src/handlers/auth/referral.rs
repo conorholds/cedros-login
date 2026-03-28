@@ -1,7 +1,7 @@
 //! Referral code endpoints (user-facing)
 
-use axum::{extract::State, http::HeaderMap, Json};
 use axum::extract::Query;
+use axum::{extract::State, http::HeaderMap, Json};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -134,27 +134,39 @@ pub async fn set_referral_code<C: AuthCallback, E: EmailService>(
     // Check uniqueness — someone else might already hold this code.
     if let Some(existing) = state.user_repo.find_by_referral_code(&code).await? {
         if existing.id != auth.user_id {
-            return Err(AppError::Validation("Referral code is already taken".into()));
+            return Err(AppError::Validation(
+                "Referral code is already taken".into(),
+            ));
         }
         // They already own this exact code — return it without mutation.
-        return Ok(Json(RegenerateReferralResponse { referral_code: code }));
+        return Ok(Json(RegenerateReferralResponse {
+            referral_code: code,
+        }));
     }
 
     // set_referral_code archives the old code to history internally.
-    state.user_repo.set_referral_code(auth.user_id, &code).await?;
+    state
+        .user_repo
+        .set_referral_code(auth.user_id, &code)
+        .await?;
 
-    Ok(Json(RegenerateReferralResponse { referral_code: code }))
+    Ok(Json(RegenerateReferralResponse {
+        referral_code: code,
+    }))
 }
 
 /// Validate a vanity referral code: 4–16 uppercase alphanumeric characters.
 fn validate_vanity_code(code: &str) -> Result<(), AppError> {
     let len = code.len();
-    if len < 4 || len > 16 {
+    if !(4..=16).contains(&len) {
         return Err(AppError::Validation(
             "Referral code must be 4–16 characters".into(),
         ));
     }
-    if !code.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit()) {
+    if !code
+        .chars()
+        .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
+    {
         return Err(AppError::Validation(
             "Referral code must contain only uppercase letters and digits (A-Z, 0-9)".into(),
         ));

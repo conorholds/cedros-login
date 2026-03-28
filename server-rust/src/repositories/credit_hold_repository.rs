@@ -492,7 +492,14 @@ mod tests {
         let tx_id = Uuid::new_v4();
 
         let credit_tx = CreditTransactionEntity::from_captured_hold(
-            user_id, 100_000, "SOL", hold_id, "order-123", None, None, None,
+            user_id,
+            100_000,
+            "SOL",
+            hold_id,
+            "order-123",
+            None,
+            None,
+            None,
         );
         let (captured, _balance) = repo.capture_hold(hold_id, tx_id, credit_tx).await.unwrap();
         assert_eq!(captured.status, HoldStatus::Captured);
@@ -546,7 +553,14 @@ mod tests {
 
         // Try to capture - should fail
         let credit_tx = CreditTransactionEntity::from_captured_hold(
-            user_id, 100_000, "SOL", hold_id, "order-123", None, None, None,
+            user_id,
+            100_000,
+            "SOL",
+            hold_id,
+            "order-123",
+            None,
+            None,
+            None,
         );
         let capture_result = repo.capture_hold(hold_id, Uuid::new_v4(), credit_tx).await;
         assert!(capture_result.is_err());

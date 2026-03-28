@@ -21,7 +21,6 @@ use std::sync::Arc;
 use super::call_logout_callback_with_timeout;
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
-use axum::http::StatusCode;
 use crate::models::{MessageResponse, UserResponse};
 use crate::repositories::AuditEventType;
 use crate::services::EmailService;
@@ -30,6 +29,7 @@ use crate::utils::{
     user_entity_to_auth_user,
 };
 use crate::AppState;
+use axum::http::StatusCode;
 
 /// POST /auth/logout - Logout current session only
 ///
@@ -308,13 +308,16 @@ pub async fn update_profile<C: AuthCallback, E: EmailService>(
             // Basic Solana address validation: 32-44 base58 chars
             if trimmed.len() < 32 || trimmed.len() > 44 {
                 return Err(AppError::Validation(
-                    "Payout wallet address must be a valid Solana address (32-44 characters)".into(),
+                    "Payout wallet address must be a valid Solana address (32-44 characters)"
+                        .into(),
                 ));
             }
             // Validate base58 character set (no 0, O, I, l)
-            if !trimmed.chars().all(|c| matches!(c,
-                '1'..='9' | 'A'..='H' | 'J'..='N' | 'P'..='Z' | 'a'..='k' | 'm'..='z'
-            )) {
+            if !trimmed.chars().all(|c| {
+                matches!(c,
+                    '1'..='9' | 'A'..='H' | 'J'..='N' | 'P'..='Z' | 'a'..='k' | 'm'..='z'
+                )
+            }) {
                 return Err(AppError::Validation(
                     "Payout wallet address contains invalid characters (must be base58)".into(),
                 ));
@@ -349,7 +352,15 @@ pub async fn update_profile<C: AuthCallback, E: EmailService>(
 
 /// Reserved usernames that cannot be claimed
 const RESERVED_USERNAMES: &[&str] = &[
-    "admin", "system", "support", "help", "root", "moderator", "mod", "staff", "cedros",
+    "admin",
+    "system",
+    "support",
+    "help",
+    "root",
+    "moderator",
+    "mod",
+    "staff",
+    "cedros",
 ];
 
 /// Validate a username: 3-30 chars, lowercase alphanumeric + underscores,
@@ -394,10 +405,7 @@ pub async fn welcome_completed<C: AuthCallback, E: EmailService>(
 ) -> Result<impl IntoResponse, AppError> {
     let auth = authenticate(&state, &headers).await?;
 
-    state
-        .user_repo
-        .set_welcome_completed(auth.user_id)
-        .await?;
+    state.user_repo.set_welcome_completed(auth.user_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }

@@ -108,7 +108,12 @@ impl KycService {
 
         let client = StripeIdentityClient::new(api_key);
         let stripe_session = client
-            .create_session(&user_id.to_string(), &redirect_url, &doc_types, require_selfie)
+            .create_session(
+                &user_id.to_string(),
+                &redirect_url,
+                &doc_types,
+                require_selfie,
+            )
             .await
             .map_err(|e| AppError::Internal(anyhow::anyhow!("Stripe Identity error: {}", e)))?;
 
@@ -156,9 +161,7 @@ impl KycService {
             .ok_or_else(|| AppError::Config("KYC webhook secret not configured".into()))?;
 
         if !StripeIdentityClient::verify_webhook_signature(payload, signature, &webhook_secret) {
-            return Err(AppError::Unauthorized(
-                "Invalid webhook signature".into(),
-            ));
+            return Err(AppError::Unauthorized("Invalid webhook signature".into()));
         }
 
         let event = StripeIdentityClient::parse_webhook_event(payload)
@@ -326,16 +329,12 @@ impl KycService {
             .ok_or_else(|| AppError::NotFound("User not found".into()))?;
 
         if user.kyc_status != "verified" {
-            return Err(AppError::Forbidden(
-                "KYC verification required".into(),
-            ));
+            return Err(AppError::Forbidden("KYC verification required".into()));
         }
 
         if let Some(expires) = user.kyc_expires_at {
             if expires <= Utc::now() {
-                return Err(AppError::Forbidden(
-                    "KYC verification has expired".into(),
-                ));
+                return Err(AppError::Forbidden("KYC verification has expired".into()));
             }
         }
 
@@ -365,9 +364,7 @@ impl KycService {
     /// Load and validate required provider settings.
     ///
     /// Returns `(api_key, redirect_url, document_types, require_selfie)`.
-    async fn load_provider_config(
-        &self,
-    ) -> Result<(String, String, Vec<String>, bool), AppError> {
+    async fn load_provider_config(&self) -> Result<(String, String, Vec<String>, bool), AppError> {
         let api_key = self
             .settings_service
             .get_secret("kyc_api_secret_key")
@@ -406,10 +403,7 @@ impl KycService {
         Ok((api_key, redirect_url, doc_types, require_selfie))
     }
 
-    async fn process_webhook_event(
-        &self,
-        event: StripeWebhookEvent,
-    ) -> Result<(), AppError> {
+    async fn process_webhook_event(&self, event: StripeWebhookEvent) -> Result<(), AppError> {
         let provider_session_id = &event.data.object.id;
 
         let kyc_session = match self
@@ -453,11 +447,8 @@ impl KycService {
             )
             .await?;
 
-        self.apply_user_status_from_webhook(
-            kyc_session.user_id,
-            new_status,
-        )
-        .await
+        self.apply_user_status_from_webhook(kyc_session.user_id, new_status)
+            .await
     }
 
     async fn apply_user_status_from_webhook(
@@ -488,9 +479,7 @@ impl KycService {
         Ok(())
     }
 
-    async fn compute_expiry(
-        &self,
-    ) -> Result<Option<chrono::DateTime<Utc>>, AppError> {
+    async fn compute_expiry(&self) -> Result<Option<chrono::DateTime<Utc>>, AppError> {
         let expiry_days = self
             .settings_service
             .get("kyc_expiry_days")
@@ -599,10 +588,7 @@ mod tests {
     #[test]
     fn verified_with_past_expiry_becomes_expired() {
         let past = Utc::now() - Duration::days(1);
-        assert_eq!(
-            compute_effective_status("verified", Some(past)),
-            "expired"
-        );
+        assert_eq!(compute_effective_status("verified", Some(past)), "expired");
     }
 
     #[test]

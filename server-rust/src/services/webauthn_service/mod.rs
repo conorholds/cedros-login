@@ -171,10 +171,7 @@ impl WebAuthnService {
         // Fast path: read lock, check if cached instance matches
         {
             let cache = self.cached_webauthn.read().await;
-            if cache.rp_id == rp_id
-                && cache.rp_origin == rp_origin
-                && cache.rp_name == rp_name
-            {
+            if cache.rp_id == rp_id && cache.rp_origin == rp_origin && cache.rp_name == rp_name {
                 if let Some(ref w) = cache.webauthn {
                     return Ok(Arc::clone(w));
                 }

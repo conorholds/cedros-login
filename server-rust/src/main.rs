@@ -7,6 +7,8 @@
 //! cedros-login-server
 //! ```
 
+#[cfg(feature = "redis-rate-limit")]
+use cedros_login::middleware::rate_limit::RedisRateLimitStore;
 use cedros_login::services::{
     init_logging, init_metrics, DiscordNotificationService, LogEmailService,
     LogNotificationService, OutboxWorker, OutboxWorkerConfig, PostmarkEmailService,
@@ -27,6 +29,41 @@ use tracing::info;
 fn is_production_like_environment(environment: &str) -> bool {
     let env_lc = environment.trim().to_ascii_lowercase();
     !matches!(env_lc.as_str(), "dev" | "development" | "local" | "test")
+}
+
+#[cfg(feature = "redis-rate-limit")]
+async fn verify_rate_limit_backend(config: &Config) -> Result<(), std::io::Error> {
+    if !config.rate_limit.enabled || config.rate_limit.store != "redis" {
+        return Ok(());
+    }
+
+    let redis_url = config.rate_limit.redis_url.as_deref().ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "REDIS_URL is required when RATE_LIMIT_STORE=redis",
+        )
+    })?;
+
+    let store = RedisRateLimitStore::new(redis_url).map_err(|e| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            format!("Failed to configure Redis rate limit backend: {}", e),
+        )
+    })?;
+
+    store.ping().await.map_err(|e| {
+        std::io::Error::new(
+            std::io::ErrorKind::ConnectionRefused,
+            format!("Failed to connect to Redis rate limit backend: {}", e),
+        )
+    })?;
+
+    Ok(())
+}
+
+#[cfg(not(feature = "redis-rate-limit"))]
+async fn verify_rate_limit_backend(_config: &Config) -> Result<(), std::io::Error> {
+    Ok(())
 }
 
 #[tokio::main]
@@ -51,6 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .into());
     }
+    verify_rate_limit_backend(&config).await?;
 
     let addr = format!("{}:{}", config.server.host, config.server.port);
 

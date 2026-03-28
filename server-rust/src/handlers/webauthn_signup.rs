@@ -22,13 +22,11 @@ use crate::repositories::{
     generate_api_key, normalize_email, ApiKeyEntity, AuditEventType, CredentialEntity,
     CredentialType, MembershipEntity, SessionEntity, UserEntity,
 };
-use crate::services::{
-    webauthn_service::VerifyRegistrationRequest, EmailService,
-};
+use crate::services::{webauthn_service::VerifyRegistrationRequest, EmailService};
 use crate::utils::{
     build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
-    get_default_org_context, hash_refresh_token, resolve_org_assignment,
-    user_entity_to_auth_user, PeerIp,
+    get_default_org_context, hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user,
+    PeerIp,
 };
 use crate::AppState;
 
@@ -120,7 +118,10 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
     }
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // Parse the credential from JSON
     let credential: webauthn_rs::prelude::RegisterPublicKeyCredential =
@@ -241,12 +242,14 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         .await?;
 
     // Best-effort unified credential entry
-    let unified_cred = CredentialEntity::new(
-        user_id,
-        CredentialType::WebauthnPasskey,
-        request.label,
-    );
-    if let Err(e) = state.storage.credential_repository().create(unified_cred).await {
+    let unified_cred =
+        CredentialEntity::new(user_id, CredentialType::WebauthnPasskey, request.label);
+    if let Err(e) = state
+        .storage
+        .credential_repository()
+        .create(unified_cred)
+        .await
+    {
         tracing::warn!(
             user_id = %user_id,
             error = %e,
@@ -295,9 +298,10 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     let session_id = Uuid::new_v4();
-    let token_pair = state
-        .jwt_service
-        .generate_token_pair_with_context(user_id, session_id, &token_context)?;
+    let token_pair =
+        state
+            .jwt_service
+            .generate_token_pair_with_context(user_id, session_id, &token_context)?;
     let refresh_expiry =
         Utc::now() + Duration::seconds(state.jwt_service.refresh_expiry_secs() as i64);
 
@@ -351,7 +355,15 @@ pub async fn signup_verify<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: Some(raw_api_key),
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

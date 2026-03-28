@@ -225,6 +225,7 @@ pub fn create_router<C: AuthCallback + 'static, E: EmailService + 'static>(
 
     let root_routes = Router::new()
         .route("/health", get(handlers::health_check::<C, E>))
+        .route("/ready", get(handlers::readiness_check::<C, E>))
         .route("/metrics", get(handlers::prometheus_metrics::<C, E>))
         .route("/.well-known/jwks.json", get(handlers::jwks::<C, E>))
         // Setup routes (unauthenticated - for first-run configuration)
@@ -362,10 +363,7 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             get(handlers::withdraw_history::<C, E>),
         )
         // Username availability check
-        .route(
-            "/username/available",
-            get(handlers::check_username::<C, E>),
-        )
+        .route("/username/available", get(handlers::check_username::<C, E>))
         // Referral mutation endpoints — stricter rate limit to prevent code squatting
         .route(
             "/referral/regenerate",
@@ -829,10 +827,7 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/webhook/deposit",
             post(handlers::handle_deposit_webhook::<C, E>),
         )
-        .route(
-            "/webhook/kyc",
-            post(handlers::handle_kyc_webhook::<C, E>),
-        )
+        .route("/webhook/kyc", post(handlers::handle_kyc_webhook::<C, E>))
         // Admin KYC routes
         .route(
             "/admin/users/{user_id}/kyc",
@@ -886,15 +881,11 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
             "/access-codes/generate",
             post(handlers::generate_user_code::<C, E>),
         )
-        .route(
-            "/access-codes/mine",
-            get(handlers::list_my_codes::<C, E>),
-        )
+        .route("/access-codes/mine", get(handlers::list_my_codes::<C, E>))
         // Admin access code routes
         .route(
             "/admin/access-codes",
-            get(handlers::admin_list_codes::<C, E>)
-                .post(handlers::admin_create_code::<C, E>),
+            get(handlers::admin_list_codes::<C, E>).post(handlers::admin_create_code::<C, E>),
         )
         .route(
             "/admin/access-codes/{id}",
@@ -936,26 +927,16 @@ fn create_rate_limit_backend(config: &crate::config::RateLimitConfig) -> RateLim
     match config.store.as_str() {
         #[cfg(feature = "redis-rate-limit")]
         "redis" => {
-            let redis_url = match config.redis_url.as_deref() {
-                Some(url) => url,
-                None => {
-                    tracing::error!(
-                        "RATE_LIMIT_STORE=redis but REDIS_URL is missing; falling back to in-memory"
-                    );
-                    return RateLimitBackend::Memory(RateLimitStore::new());
-                }
-            };
+            let redis_url = config
+                .redis_url
+                .as_deref()
+                .expect("REDIS_URL must be configured when RATE_LIMIT_STORE=redis");
 
-            match RedisRateLimitStore::new(redis_url) {
-                Ok(store) => RateLimitBackend::Redis(store),
-                Err(e) => {
-                    tracing::error!(
-                        error = %e,
-                        "Failed to create Redis rate limit store, falling back to in-memory"
-                    );
-                    RateLimitBackend::Memory(RateLimitStore::new())
-                }
-            }
+            let store = RedisRateLimitStore::new(redis_url).unwrap_or_else(|e| {
+                panic!("Failed to create Redis rate limit store: {}", e);
+            });
+            tracing::info!("Redis rate limiter initialized (shared across instances)");
+            RateLimitBackend::Redis(store)
         }
         _ => RateLimitBackend::Memory(RateLimitStore::new()),
     }
@@ -964,7 +945,8 @@ fn create_rate_limit_backend(config: &crate::config::RateLimitConfig) -> RateLim
 #[cfg(all(test, feature = "redis-rate-limit"))]
 mod tests {
     #[test]
-    fn test_create_rate_limit_backend_redis_missing_url_falls_back() {
+    #[should_panic(expected = "REDIS_URL must be configured when RATE_LIMIT_STORE=redis")]
+    fn test_create_rate_limit_backend_redis_missing_url_panics() {
         let config = crate::config::RateLimitConfig {
             enabled: true,
             auth_limit: 1,
@@ -975,10 +957,6 @@ mod tests {
             redis_url: None,
         };
 
-        let backend = super::create_rate_limit_backend(&config);
-        match backend {
-            super::RateLimitBackend::Memory(_) => {}
-            _ => panic!("expected in-memory backend fallback"),
-        }
+        let _ = super::create_rate_limit_backend(&config);
     }
 }

@@ -141,9 +141,7 @@ pub async fn start_kyc<C: AuthCallback, E: EmailService>(
         .as_ref()
         .ok_or_else(|| AppError::NotFound("KYC not available".into()))?;
 
-    let result = kyc_service
-        .start_verification(auth_user.user_id)
-        .await?;
+    let result = kyc_service.start_verification(auth_user.user_id).await?;
 
     tracing::info!(
         user_id = %auth_user.user_id,
@@ -246,9 +244,7 @@ pub async fn get_user_kyc<C: AuthCallback, E: EmailService>(
         .ok_or(AppError::NotFound("User not found".into()))?;
 
     use crate::repositories::KycSessionEntity;
-    let sessions: Vec<KycSessionEntity> = kyc_service
-        .list_sessions(user_id, 20, 0)
-        .await?;
+    let sessions: Vec<KycSessionEntity> = kyc_service.list_sessions(user_id, 20, 0).await?;
     let total_sessions: u64 = kyc_service.count_sessions(user_id).await?;
 
     let session_items = sessions

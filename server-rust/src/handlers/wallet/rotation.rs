@@ -157,10 +157,7 @@ pub async fn wallet_rotate<C: AuthCallback, E: EmailService>(
         .await?;
 
     // New master seed means all HKDF-derived pubkeys are now invalid.
-    state
-        .derived_wallet_repo
-        .delete_by_user_id(user_id)
-        .await?;
+    state.derived_wallet_repo.delete_by_user_id(user_id).await?;
 
     let create_params = CreateWalletMaterial {
         user_id,

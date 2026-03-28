@@ -41,7 +41,10 @@ pub async fn wallet_enroll<C: AuthCallback, E: EmailService>(
     validation::validate_enroll_request(&req)?;
 
     // Sanctions check on the wallet being enrolled
-    state.sanctions_service.check_address(&req.solana_pubkey).await?;
+    state
+        .sanctions_service
+        .check_address(&req.solana_pubkey)
+        .await?;
 
     // Check user doesn't already have wallet material
     if state.wallet_material_repo.exists_for_user(user_id).await? {

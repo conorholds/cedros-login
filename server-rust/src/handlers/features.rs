@@ -164,7 +164,11 @@ pub async fn auth_features<C: AuthCallback + 'static, E: EmailService + 'static>
         .ok()
         .flatten()
         .filter(|s| !s.is_empty())
-        .map(|s| s.split(',').map(|p| p.trim().to_string()).collect::<Vec<_>>())
+        .map(|s| {
+            s.split(',')
+                .map(|p| p.trim().to_string())
+                .collect::<Vec<_>>()
+        })
         .unwrap_or(default_order);
 
     let kyc_enabled = ss

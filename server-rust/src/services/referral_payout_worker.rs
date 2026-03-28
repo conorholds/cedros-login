@@ -187,9 +187,7 @@ impl ReferralPayoutWorker {
                 .list_pending(500, 0)
                 .await?
                 .into_iter()
-                .filter(|p| {
-                    p.referrer_id == summary.referrer_id && p.currency == summary.currency
-                })
+                .filter(|p| p.referrer_id == summary.referrer_id && p.currency == summary.currency)
                 .collect::<Vec<_>>();
 
             let all_ids: Vec<uuid::Uuid> = payouts.iter().map(|p| p.id).collect();
@@ -237,10 +235,7 @@ impl ReferralPayoutWorker {
             match tx_result {
                 Ok(tx_sig) => {
                     for id in &claimed_ids {
-                        if let Err(e) = self
-                            .referral_payout_repo
-                            .mark_completed(*id, &tx_sig)
-                            .await
+                        if let Err(e) = self.referral_payout_repo.mark_completed(*id, &tx_sig).await
                         {
                             error!(payout_id = %id, error = %e, "Failed to mark payout completed");
                         }
@@ -262,11 +257,7 @@ impl ReferralPayoutWorker {
                         "Auto-payout failed"
                     );
                     for id in &claimed_ids {
-                        if let Err(e) = self
-                            .referral_payout_repo
-                            .mark_failed(*id, &err_str)
-                            .await
-                        {
+                        if let Err(e) = self.referral_payout_repo.mark_failed(*id, &err_str).await {
                             error!(payout_id = %id, error = %e, "Failed to mark payout failed");
                         }
                     }

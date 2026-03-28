@@ -44,9 +44,9 @@ pub async fn create_derived_wallet<C: AuthCallback, E: EmailService>(
     let material = resolve_wallet(&state, &auth).await?;
 
     // Must be unlocked to derive the pubkey (need to reconstruct master seed)
-    let session_id = auth
-        .session_id
-        .ok_or_else(|| AppError::Unauthorized("Session required to create derived wallet".into()))?;
+    let session_id = auth.session_id.ok_or_else(|| {
+        AppError::Unauthorized("Session required to create derived wallet".into())
+    })?;
 
     let cached_key = state
         .wallet_unlock_cache

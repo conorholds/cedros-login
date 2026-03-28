@@ -90,7 +90,10 @@ impl CreditService {
         }
         // Always include SOL even if zero
         if balances.is_empty() {
-            let sol = self.credit_repo.get_or_create_balance(user_id, "SOL").await?;
+            let sol = self
+                .credit_repo
+                .get_or_create_balance(user_id, "SOL")
+                .await?;
             balances.push(CreditBalance::from_entity(sol));
         }
         Ok(balances)
@@ -386,8 +389,7 @@ impl CreditService {
 
         // SRV-02: Capture hold + deduct balance + insert transaction record
         // in a single DB transaction to prevent inconsistency on crash.
-        let (_captured, new_balance) =
-            self.hold_repo.capture_hold(hold_id, tx_id, tx).await?;
+        let (_captured, new_balance) = self.hold_repo.capture_hold(hold_id, tx_id, tx).await?;
 
         Ok(SpendResult {
             transaction_id: tx_id,

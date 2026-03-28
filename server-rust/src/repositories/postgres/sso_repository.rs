@@ -67,6 +67,7 @@ struct SsoAuthStateRow {
     pkce_verifier: String,
     nonce: String,
     redirect_uri: Option<String>,
+    access_code: Option<String>,
     referral: Option<String>,
     created_at: DateTime<Utc>,
     expires_at: DateTime<Utc>,
@@ -81,6 +82,7 @@ impl From<SsoAuthStateRow> for SsoAuthState {
             pkce_verifier: row.pkce_verifier,
             nonce: row.nonce,
             redirect_uri: row.redirect_uri,
+            access_code: row.access_code,
             referral: row.referral,
             created_at: row.created_at,
             expires_at: row.expires_at,
@@ -365,9 +367,9 @@ impl SsoRepository for PostgresSsoRepository {
             r#"
             INSERT INTO sso_auth_states (
                 state_id, provider_id, org_id, pkce_verifier, nonce,
-                redirect_uri, referral, created_at, expires_at
+                redirect_uri, access_code, referral, created_at, expires_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             "#,
         )
         .bind(state.state_id)
@@ -376,6 +378,7 @@ impl SsoRepository for PostgresSsoRepository {
         .bind(&state.pkce_verifier)
         .bind(&state.nonce)
         .bind(&state.redirect_uri)
+        .bind(&state.access_code)
         .bind(&state.referral)
         .bind(state.created_at)
         .bind(state.expires_at)
@@ -390,7 +393,7 @@ impl SsoRepository for PostgresSsoRepository {
         let row: Option<SsoAuthStateRow> = sqlx::query_as(
             r#"
             SELECT state_id, provider_id, org_id, pkce_verifier, nonce,
-                   redirect_uri, referral, created_at, expires_at
+                   redirect_uri, access_code, referral, created_at, expires_at
             FROM sso_auth_states
             WHERE state_id = $1 AND expires_at > NOW()
             "#,
@@ -410,7 +413,7 @@ impl SsoRepository for PostgresSsoRepository {
             DELETE FROM sso_auth_states
             WHERE state_id = $1 AND expires_at > NOW()
             RETURNING state_id, provider_id, org_id, pkce_verifier, nonce,
-                      redirect_uri, referral, created_at, expires_at
+                      redirect_uri, access_code, referral, created_at, expires_at
             "#,
         )
         .bind(state_id)

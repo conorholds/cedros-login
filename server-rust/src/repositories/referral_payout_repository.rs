@@ -43,10 +43,7 @@ pub struct ReferrerPayoutSummary {
 #[async_trait]
 pub trait ReferralPayoutRepository: Send + Sync {
     /// Create a new payout record
-    async fn create(
-        &self,
-        payout: ReferralPayoutEntity,
-    ) -> Result<ReferralPayoutEntity, AppError>;
+    async fn create(&self, payout: ReferralPayoutEntity) -> Result<ReferralPayoutEntity, AppError>;
 
     /// List pending payouts (for admin review or retry)
     async fn list_pending(
@@ -185,10 +182,7 @@ impl Default for InMemoryReferralPayoutRepository {
 
 #[async_trait]
 impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
-    async fn create(
-        &self,
-        payout: ReferralPayoutEntity,
-    ) -> Result<ReferralPayoutEntity, AppError> {
+    async fn create(&self, payout: ReferralPayoutEntity) -> Result<ReferralPayoutEntity, AppError> {
         let mut payouts = self.payouts.write().await;
         payouts.insert(payout.id, payout.clone());
         Ok(payout)
@@ -276,13 +270,15 @@ impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
 
         let mut summaries: Vec<ReferrerPayoutSummary> = groups
             .into_iter()
-            .map(|((referrer_id, currency), (total, count))| ReferrerPayoutSummary {
-                referrer_id,
-                payout_wallet_address: None, // not available in-memory without user lookup
-                total_pending_amount: total,
-                pending_count: count,
-                currency,
-            })
+            .map(
+                |((referrer_id, currency), (total, count))| ReferrerPayoutSummary {
+                    referrer_id,
+                    payout_wallet_address: None, // not available in-memory without user lookup
+                    total_pending_amount: total,
+                    pending_count: count,
+                    currency,
+                },
+            )
             .collect();
 
         summaries.sort_by(|a, b| b.total_pending_amount.cmp(&a.total_pending_amount));
@@ -334,8 +330,7 @@ impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
     ) -> Result<bool, AppError> {
         let payouts = self.payouts.read().await;
         Ok(payouts.values().any(|p| {
-            p.referrer_id == referrer_id
-                && p.spend_transaction_id == Some(spend_transaction_id)
+            p.referrer_id == referrer_id && p.spend_transaction_id == Some(spend_transaction_id)
         }))
     }
 
@@ -417,8 +412,7 @@ impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
         let mut items: Vec<_> = payouts
             .values()
             .filter(|p| {
-                p.referrer_id == referrer_id
-                    && status_filter.map_or(true, |s| p.status == s)
+                p.referrer_id == referrer_id && status_filter.map_or(true, |s| p.status == s)
             })
             .cloned()
             .collect();
@@ -439,8 +433,7 @@ impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
         Ok(payouts
             .values()
             .filter(|p| {
-                p.referrer_id == referrer_id
-                    && status_filter.map_or(true, |s| p.status == s)
+                p.referrer_id == referrer_id && status_filter.map_or(true, |s| p.status == s)
             })
             .count() as u64)
     }
@@ -463,7 +456,11 @@ impl ReferralPayoutRepository for InMemoryReferralPayoutRepository {
 mod tests {
     use super::*;
 
-    fn make_payout(referrer_id: Uuid, referred_user_id: Uuid, trigger: &str) -> ReferralPayoutEntity {
+    fn make_payout(
+        referrer_id: Uuid,
+        referred_user_id: Uuid,
+        trigger: &str,
+    ) -> ReferralPayoutEntity {
         ReferralPayoutEntity {
             id: Uuid::new_v4(),
             referrer_id,

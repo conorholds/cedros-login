@@ -608,14 +608,13 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn set_username(&self, id: Uuid, username: &str) -> Result<(), AppError> {
-        let result = sqlx::query(
-            "UPDATE users SET username = $2, updated_at = NOW() WHERE id = $1",
-        )
-        .bind(id)
-        .bind(username)
-        .execute(&self.pool)
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        let result =
+            sqlx::query("UPDATE users SET username = $2, updated_at = NOW() WHERE id = $1")
+                .bind(id)
+                .bind(username)
+                .execute(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?;
 
         if result.rows_affected() == 0 {
             return Err(AppError::NotFound("User not found".into()));
@@ -657,12 +656,11 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn count_referrals(&self, user_id: Uuid) -> Result<u64, AppError> {
-        let count: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE referred_by = $1")
-                .bind(user_id)
-                .fetch_one(&self.pool)
-                .await
-                .map_err(|e| AppError::Internal(e.into()))?;
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE referred_by = $1")
+            .bind(user_id)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
 
         Ok(count.max(0) as u64)
     }
@@ -825,7 +823,9 @@ impl UserRepository for PostgresUserRepository {
             Err(e) => {
                 let err_str = e.to_string();
                 if err_str.contains("unique") || err_str.contains("duplicate") {
-                    return Err(AppError::Validation("Referral code is already taken".into()));
+                    return Err(AppError::Validation(
+                        "Referral code is already taken".into(),
+                    ));
                 }
                 return Err(AppError::Internal(e.into()));
             }
@@ -881,12 +881,11 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn count_referred_by(&self, referrer_id: Uuid) -> Result<u64, AppError> {
-        let count: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE referred_by = $1")
-                .bind(referrer_id)
-                .fetch_one(&self.pool)
-                .await
-                .map_err(|e| AppError::Internal(e.into()))?;
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE referred_by = $1")
+            .bind(referrer_id)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
         Ok(count.max(0) as u64)
     }
 
@@ -941,12 +940,11 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn count_created_since(&self, since: DateTime<Utc>) -> Result<u64, AppError> {
-        let count: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE created_at >= $1")
-                .bind(since)
-                .fetch_one(&self.pool)
-                .await
-                .map_err(|e| AppError::Internal(e.into()))?;
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE created_at >= $1")
+            .bind(since)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
         Ok(count.max(0) as u64)
     }
 }

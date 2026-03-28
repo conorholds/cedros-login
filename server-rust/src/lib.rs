@@ -205,10 +205,7 @@ fn auto_generate_sidecar_secrets(
 
 /// Read a sidecar secret from system_settings, decrypting it.
 /// Returns None if the key doesn't exist or is empty.
-fn read_sidecar_secret_sync(
-    settings_service: &Arc<SettingsService>,
-    key: &str,
-) -> Option<String> {
+fn read_sidecar_secret_sync(settings_service: &Arc<SettingsService>, key: &str) -> Option<String> {
     let Ok(handle) = tokio::runtime::Handle::try_current() else {
         return None;
     };

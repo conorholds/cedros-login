@@ -146,12 +146,7 @@ impl WebAuthnService {
 
         let exclude_credentials: Vec<CredentialID> = exclude_credential_ids
             .iter()
-            .filter_map(|id| {
-                URL_SAFE_NO_PAD
-                    .decode(id)
-                    .ok()
-                    .map(CredentialID::from)
-            })
+            .filter_map(|id| URL_SAFE_NO_PAD.decode(id).ok().map(CredentialID::from))
             .collect();
 
         let exclude = if exclude_credentials.is_empty() {

@@ -462,7 +462,7 @@ mod tests {
     async fn test_get_auth_state_does_not_consume() {
         let repo = InMemorySsoRepository::new();
 
-        let state = SsoAuthState::new(
+        let mut state = SsoAuthState::new(
             Uuid::new_v4(),
             Uuid::new_v4(),
             "verifier".into(),
@@ -470,12 +470,17 @@ mod tests {
             None,
             300,
         );
+        state.access_code = Some("ACCESS123".into());
+        state.referral = Some("REFERRAL1".into());
         let state_id = state.state_id;
 
         repo.store_auth_state(state).await.unwrap();
 
         let fetched = repo.get_auth_state(state_id).await.unwrap();
         assert!(fetched.is_some());
+        let fetched = fetched.unwrap();
+        assert_eq!(fetched.access_code.as_deref(), Some("ACCESS123"));
+        assert_eq!(fetched.referral.as_deref(), Some("REFERRAL1"));
 
         let consumed = repo.consume_auth_state(state_id).await.unwrap();
         assert!(consumed.is_some());

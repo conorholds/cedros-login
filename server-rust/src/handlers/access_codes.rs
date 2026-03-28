@@ -158,7 +158,10 @@ pub async fn list_my_codes<C: AuthCallback, E: EmailService>(
     let total = state
         .storage
         .access_code_repo
-        .count_by_creator_since(auth_user.user_id, DateTime::<Utc>::from_timestamp(0, 0).unwrap())
+        .count_by_creator_since(
+            auth_user.user_id,
+            DateTime::<Utc>::from_timestamp(0, 0).unwrap(),
+        )
         .await?;
 
     Ok(Json(AccessCodeListResponse {
@@ -189,11 +192,7 @@ pub async fn admin_list_codes<C: AuthCallback, E: EmailService>(
         .list_all(limit, query.offset, code_type)
         .await?;
 
-    let total = state
-        .storage
-        .access_code_repo
-        .count_all(code_type)
-        .await?;
+    let total = state.storage.access_code_repo.count_all(code_type).await?;
 
     Ok(Json(AccessCodeListResponse {
         items: items.into_iter().map(entity_to_response).collect(),

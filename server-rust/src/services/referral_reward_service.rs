@@ -72,7 +72,10 @@ async fn read_reward_settings(settings: &SettingsService) -> (i64, String, Rewar
 
     // Reject negative amounts (admin config error)
     if amount < 0 {
-        tracing::error!(amount = amount, "Referral reward amount is negative; treating as disabled");
+        tracing::error!(
+            amount = amount,
+            "Referral reward amount is negative; treating as disabled"
+        );
         return (0, "credits".to_string(), RewardTrigger::OnSignup);
     }
 
@@ -123,11 +126,7 @@ async fn is_capped(
         payout_repo.sum_for_referrer(referrer_id).await.unwrap_or(0)
     } else {
         credit_repo
-            .sum_adjustments_by_reference_type_prefix(
-                referrer_id,
-                company_currency,
-                "referral_",
-            )
+            .sum_adjustments_by_reference_type_prefix(referrer_id, company_currency, "referral_")
             .await
             .unwrap_or(0)
     };
@@ -193,7 +192,17 @@ pub async fn issue_signup_reward(
 
     if reward_type == "direct_payout" {
         // Cap check
-        if is_capped(settings, credit_repo, payout_repo, referrer_id, amount, &reward_type, company_currency).await {
+        if is_capped(
+            settings,
+            credit_repo,
+            payout_repo,
+            referrer_id,
+            amount,
+            &reward_type,
+            company_currency,
+        )
+        .await
+        {
             return Ok(());
         }
 
@@ -236,7 +245,17 @@ pub async fn issue_signup_reward(
     let credit_currency = to_credit_currency(company_currency);
 
     // Cap check for credits mode
-    if is_capped(settings, credit_repo, payout_repo, referrer_id, amount, &reward_type, credit_currency).await {
+    if is_capped(
+        settings,
+        credit_repo,
+        payout_repo,
+        referrer_id,
+        amount,
+        &reward_type,
+        credit_currency,
+    )
+    .await
+    {
         return Ok(());
     }
 
@@ -372,7 +391,17 @@ pub async fn issue_spend_reward(
         };
 
         // Cap check
-        if is_capped(settings, credit_repo, payout_repo, referrer_id, amount, &reward_type, company_currency).await {
+        if is_capped(
+            settings,
+            credit_repo,
+            payout_repo,
+            referrer_id,
+            amount,
+            &reward_type,
+            company_currency,
+        )
+        .await
+        {
             return Ok(());
         }
 
@@ -416,7 +445,17 @@ pub async fn issue_spend_reward(
     let credit_currency = to_credit_currency(company_currency);
 
     // Cap check for credits mode
-    if is_capped(settings, credit_repo, payout_repo, referrer_id, amount, &reward_type, credit_currency).await {
+    if is_capped(
+        settings,
+        credit_repo,
+        payout_repo,
+        referrer_id,
+        amount,
+        &reward_type,
+        credit_currency,
+    )
+    .await
+    {
         return Ok(());
     }
 
@@ -658,7 +697,10 @@ mod tests {
         .await
         .unwrap();
 
-        assert_eq!(credit_repo.get_balance(referrer_id, "SOL").await.unwrap(), 0);
+        assert_eq!(
+            credit_repo.get_balance(referrer_id, "SOL").await.unwrap(),
+            0
+        );
         assert_eq!(payout_repo.count_pending().await.unwrap(), 0);
     }
 
@@ -683,7 +725,10 @@ mod tests {
         .await
         .unwrap();
 
-        assert_eq!(credit_repo.get_balance(referrer_id, "SOL").await.unwrap(), 0);
+        assert_eq!(
+            credit_repo.get_balance(referrer_id, "SOL").await.unwrap(),
+            0
+        );
         assert_eq!(payout_repo.count_pending().await.unwrap(), 0);
     }
 
@@ -790,7 +835,10 @@ mod tests {
         assert_eq!(p.currency, "SOL");
 
         // No credit balance in payout mode.
-        assert_eq!(credit_repo.get_balance(referrer_id, "SOL").await.unwrap(), 0);
+        assert_eq!(
+            credit_repo.get_balance(referrer_id, "SOL").await.unwrap(),
+            0
+        );
     }
 
     #[tokio::test]
@@ -847,7 +895,10 @@ mod tests {
         .await
         .unwrap();
 
-        assert_eq!(credit_repo.get_balance(referrer_id, "SOL").await.unwrap(), 0);
+        assert_eq!(
+            credit_repo.get_balance(referrer_id, "SOL").await.unwrap(),
+            0
+        );
         assert_eq!(payout_repo.count_pending().await.unwrap(), 0);
     }
 

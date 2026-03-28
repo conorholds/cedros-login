@@ -85,12 +85,17 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
     Json(request): Json<PrivacyDepositRequest>,
 ) -> Result<Json<PrivacyDepositResponse>, AppError> {
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // KYC enforcement gate
     if let Some(kyc_service) = &state.kyc_service {
         let auth_user = authenticate(&state, &headers).await?;
-        kyc_service.check_enforcement(auth_user.user_id, "deposits").await?;
+        kyc_service
+            .check_enforcement(auth_user.user_id, "deposits")
+            .await?;
     }
 
     // Verify privacy deposits are enabled
@@ -117,8 +122,7 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
             .get_sol_price_usd()
             .await
             .unwrap_or(0.0);
-        let deposit_usd =
-            (request.amount_lamports as f64 / 1_000_000_000.0) * sol_price;
+        let deposit_usd = (request.amount_lamports as f64 / 1_000_000_000.0) * sol_price;
         let prior_usd = state
             .credit_repo
             .get_user_stats(auth_user.user_id, "SOL")
@@ -126,12 +130,7 @@ pub async fn execute_deposit<C: AuthCallback, E: EmailService>(
             .map(|s| (s.total_deposited as f64 / 1_000_000_000.0) * sol_price)
             .unwrap_or(0.0);
         kyc_service
-            .check_threshold(
-                auth_user.user_id,
-                "deposit",
-                deposit_usd,
-                Some(prior_usd),
-            )
+            .check_threshold(auth_user.user_id, "deposit", deposit_usd, Some(prior_usd))
             .await?;
     }
 
@@ -296,13 +295,29 @@ pub async fn deposit_config<C: AuthCallback, E: EmailService>(
     ) = tokio::try_join!(
         state.settings_service.get_u64("privacy_period_secs"),
         state.sol_price_service.get_sol_price_usd(),
-        state.settings_service.get_u64("private_deposit_min_lamports"),
-        async { state.treasury_config_repo.find_for_org(None).await.map(Some) },
+        state
+            .settings_service
+            .get_u64("private_deposit_min_lamports"),
+        async {
+            state
+                .treasury_config_repo
+                .find_for_org(None)
+                .await
+                .map(Some)
+        },
         state.settings_service.get_u64("micro_batch_threshold_usd"),
         state.deposit_credit_service.get_fee_config(),
         state.settings_service.get("deposit_quick_action_tokens"),
         state.settings_service.get("deposit_custom_tokens"),
-        async { Ok::<_, AppError>(state.sol_price_service.get_token_prices(token_mints).await.unwrap_or_default()) },
+        async {
+            Ok::<_, AppError>(
+                state
+                    .sol_price_service
+                    .get_token_prices(token_mints)
+                    .await
+                    .unwrap_or_default(),
+            )
+        },
         state.settings_service.get_bool("deposit_show_explainer"),
         state.settings_service.get("deposit_custom_tokens_json"),
     )?;
@@ -337,10 +352,10 @@ pub async fn deposit_config<C: AuthCallback, E: EmailService>(
         crate::services::FeePolicy::UserPaysAll => "user_pays_all",
     };
 
-    let quick_action_tokens = quick_action_tokens_opt
-        .unwrap_or_else(|| DEFAULT_QUICK_ACTION_TOKENS.to_string());
-    let custom_token_symbols = custom_token_symbols_opt
-        .unwrap_or_else(|| DEFAULT_CUSTOM_TOKENS.to_string());
+    let quick_action_tokens =
+        quick_action_tokens_opt.unwrap_or_else(|| DEFAULT_QUICK_ACTION_TOKENS.to_string());
+    let custom_token_symbols =
+        custom_token_symbols_opt.unwrap_or_else(|| DEFAULT_CUSTOM_TOKENS.to_string());
 
     // Build symbol -> price map
     let mut token_prices = std::collections::HashMap::new();
@@ -362,8 +377,8 @@ pub async fn deposit_config<C: AuthCallback, E: EmailService>(
     let show_explainer = show_explainer_opt.unwrap_or(false);
 
     // Parse custom token definitions from JSON
-    let custom_tokens: Option<Vec<crate::models::CustomTokenDefinition>> = custom_tokens_json_opt
-        .and_then(|json_str| serde_json::from_str(&json_str).ok());
+    let custom_tokens: Option<Vec<crate::models::CustomTokenDefinition>> =
+        custom_tokens_json_opt.and_then(|json_str| serde_json::from_str(&json_str).ok());
 
     Ok(Json(DepositConfigResponse {
         enabled: state.config.privacy.enabled,

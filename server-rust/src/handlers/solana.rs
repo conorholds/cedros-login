@@ -17,8 +17,8 @@ use crate::repositories::{
 use crate::services::{EmailService, SolanaService};
 use crate::utils::{
     build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
-    get_default_org_context, hash_refresh_token, resolve_org_assignment,
-    user_entity_to_auth_user, PeerIp,
+    get_default_org_context, hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user,
+    PeerIp,
 };
 use crate::AppState;
 
@@ -67,9 +67,10 @@ pub async fn solana_challenge<C: AuthCallback, E: EmailService>(
 
     // Generate challenge with domain binding to prevent cross-site phishing
     let domain = state.config.server.frontend_url.as_deref();
-    let challenge = state
-        .solana_service
-        .generate_challenge(&req.public_key, challenge_expiry, domain)?;
+    let challenge =
+        state
+            .solana_service
+            .generate_challenge(&req.public_key, challenge_expiry, domain)?;
 
     // Store nonce for replay protection
     let nonce_entity = NonceEntity::new(
@@ -124,10 +125,16 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
 
     // Sanctions check — runs after signature verification to avoid exposing the
     // check to unauthenticated callers while still blocking before user creation.
-    state.sanctions_service.check_address(&req.public_key).await?;
+    state
+        .sanctions_service
+        .check_address(&req.public_key)
+        .await?;
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // Check if user exists by wallet address
     let existing_user = state.user_repo.find_by_wallet(&req.public_key).await?;
@@ -256,7 +263,8 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();
@@ -327,7 +335,15 @@ pub async fn solana_auth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

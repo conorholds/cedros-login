@@ -48,9 +48,7 @@ pub(super) fn decode_base64(input: &str, field_name: &str) -> Result<Vec<u8>, Ap
         .map_err(|_| AppError::Validation(format!("Invalid base64 in {}", field_name)))
 }
 
-pub(super) fn convert_auth_method(
-    m: ShareAAuthMethod,
-) -> crate::repositories::ShareAAuthMethod {
+pub(super) fn convert_auth_method(m: ShareAAuthMethod) -> crate::repositories::ShareAAuthMethod {
     match m {
         ShareAAuthMethod::Password => crate::repositories::ShareAAuthMethod::Password,
         ShareAAuthMethod::Pin => crate::repositories::ShareAAuthMethod::Pin,
@@ -88,7 +86,15 @@ pub(super) async fn process_auth_method_fields<
     state: &std::sync::Arc<crate::AppState<C, E>>,
     auth_method: &ShareAAuthMethod,
     fields: &AuthMethodFields,
-) -> Result<(Option<Vec<u8>>, Option<KdfParams>, Option<Vec<u8>>, Option<String>), AppError> {
+) -> Result<
+    (
+        Option<Vec<u8>>,
+        Option<KdfParams>,
+        Option<Vec<u8>>,
+        Option<String>,
+    ),
+    AppError,
+> {
     match auth_method {
         ShareAAuthMethod::Password | ShareAAuthMethod::ApiKey => {
             let kdf_salt_str = fields.share_a_kdf_salt.as_ref().ok_or_else(|| {

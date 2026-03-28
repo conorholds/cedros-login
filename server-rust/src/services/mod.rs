@@ -47,12 +47,12 @@ mod email;
 mod encrypted_payload;
 mod encryption_service;
 mod google_service;
-mod image_storage;
-pub(crate) mod kyc_stripe;
-mod kyc_service;
 mod hold_expiration_worker;
+mod image_storage;
 mod jupiter_swap_service;
 mod jwt_service;
+mod kyc_service;
+pub(crate) mod kyc_stripe;
 mod logging_service;
 mod metrics_service;
 mod mfa_attempt_service;
@@ -62,19 +62,19 @@ mod notification_service;
 pub mod oidc_service;
 mod outbox_worker;
 mod password_service;
-mod policy_service;
 pub mod payout_transfer;
-pub(crate) mod referral_reward_service;
-mod referral_payout_worker;
+mod policy_service;
 mod privacy_sidecar_client;
+mod referral_payout_worker;
+pub(crate) mod referral_reward_service;
 mod sanctions_service;
 mod settings_service;
-mod signup_gating_service;
-mod token_gating_service;
 mod sidecar_types;
+mod signup_gating_service;
 mod sol_price_service;
 mod solana_service;
 mod step_up_service;
+mod token_gating_service;
 mod totp_service;
 mod wallet_signing_service;
 mod wallet_unlock_cache;
@@ -109,14 +109,14 @@ pub use email::{
 pub(crate) use encrypted_payload::decrypt_base64_payload;
 pub use encryption_service::EncryptionService;
 pub use google_service::{GoogleService, GoogleTokenClaims};
-pub use image_storage::{ImageStorageService, S3ImageStorageConfig, S3ImageStorageService};
-pub use kyc_service::{KycService, KycStartResponse, KycStatusResponse};
 pub use hold_expiration_worker::{HoldExpirationConfig, HoldExpirationWorker};
+pub use image_storage::{ImageStorageService, S3ImageStorageConfig, S3ImageStorageService};
 pub use jupiter_swap_service::{
     ExecuteResult as JupiterExecuteResult, JupiterSwapService, OrderParams as JupiterOrderParams,
     SwapOrder as JupiterSwapOrder,
 };
 pub use jwt_service::{AccessTokenClaims, JwtService, TokenContext};
+pub use kyc_service::{KycService, KycStartResponse, KycStatusResponse};
 pub use logging_service::{init_logging, LogLevel, LoggingService};
 pub use metrics_service::{
     get_prometheus_handle, init_metrics, record_auth_duration, record_auth_failure,
@@ -141,23 +141,23 @@ pub use privacy_sidecar_client::{
     BalanceResponse as SidecarBalanceResponse, DepositResponse as SidecarDepositResponse,
     PrivacySidecarClient, SidecarClientConfig, WithdrawResponse as SidecarWithdrawResponse,
 };
+pub use referral_payout_worker::ReferralPayoutWorker;
 pub use sanctions_service::{SanctionsService, SanctionsStats};
-pub use token_gating_service::{TokenGateRule, TokenGatingService};
 pub use settings_service::SettingsService;
-pub use signup_gating_service::{SignupGateResult, SignupGatingService};
 pub(crate) use signup_gating_service::period_start;
+pub use signup_gating_service::{SignupGateResult, SignupGatingService};
 pub use sol_price_service::SolPriceService;
 pub use solana_service::SolanaService;
 pub use step_up_service::{StepUpService, DEFAULT_STEP_UP_MAX_AGE_SECS};
+pub use token_gating_service::{TokenGateRule, TokenGatingService};
 pub use totp_service::TotpService;
+pub(crate) use wallet_signing_service::derive_pubkey_from_seed;
 pub use wallet_signing_service::{
     derive_child_seed_from_bytes, derive_pubkey_at_index,
     UnlockCredential as WalletUnlockCredential, WalletSigningService,
 };
-pub(crate) use wallet_signing_service::derive_pubkey_from_seed;
 pub use wallet_unlock_cache::{
     create_wallet_unlock_cache, WalletUnlockCache, WalletUnlockCacheConfig,
 };
 pub use webauthn_service::WebAuthnService;
-pub use referral_payout_worker::ReferralPayoutWorker;
 pub use withdrawal_worker::{WithdrawalWorker, WithdrawalWorkerConfig};

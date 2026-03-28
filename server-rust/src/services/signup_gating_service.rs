@@ -98,9 +98,8 @@ impl SignupGatingService {
         let mut code_bypasses_limit = false;
 
         if code_required {
-            let provided = access_code.ok_or_else(|| {
-                AppError::Forbidden("Access code required to sign up".into())
-            })?;
+            let provided = access_code
+                .ok_or_else(|| AppError::Forbidden("Access code required to sign up".into()))?;
 
             // Check global / master code first (stored in system_settings)
             let global_code = self
@@ -118,9 +117,7 @@ impl SignupGatingService {
                     .access_code_repo
                     .find_by_code(provided)
                     .await?
-                    .ok_or_else(|| {
-                        AppError::Forbidden("Invalid or expired access code".into())
-                    })?;
+                    .ok_or_else(|| AppError::Forbidden("Invalid or expired access code".into()))?;
 
                 validate_code_usable(&entity)?;
 
@@ -282,8 +279,7 @@ pub(crate) fn period_start(period: &str) -> DateTime<Utc> {
             Utc.from_utc_datetime(&monday.and_hms_opt(0, 0, 0).unwrap())
         }
         "month" => {
-            let first =
-                chrono::NaiveDate::from_ymd_opt(now.year(), now.month(), 1).unwrap();
+            let first = chrono::NaiveDate::from_ymd_opt(now.year(), now.month(), 1).unwrap();
             Utc.from_utc_datetime(&first.and_hms_opt(0, 0, 0).unwrap())
         }
         _ => {

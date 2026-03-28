@@ -149,9 +149,7 @@ pub async fn forgot_password<C: AuthCallback, E: EmailService>(
             default_expiry(TokenType::InstantLink),
         )
         .await
-        .map_err(|e| {
-            AppError::Internal(anyhow::anyhow!("Failed to create IL token: {}", e))
-        })?;
+        .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to create IL token: {}", e)))?;
 
     // Queue password reset email via outbox for async delivery
     state

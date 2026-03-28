@@ -11,10 +11,7 @@ use crate::services::{
 use crate::utils::TokenCipher;
 
 /// Read a custom email subject from settings, returning None if empty or unavailable.
-async fn get_custom_subject(
-    settings: &Option<Arc<SettingsService>>,
-    key: &str,
-) -> Option<String> {
+async fn get_custom_subject(settings: &Option<Arc<SettingsService>>, key: &str) -> Option<String> {
     let ss = settings.as_ref()?;
     match ss.get(key).await {
         Ok(Some(v)) if !v.is_empty() => Some(v),

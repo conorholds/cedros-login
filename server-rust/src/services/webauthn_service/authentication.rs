@@ -145,9 +145,7 @@ impl WebAuthnService {
         );
 
         // Find the credential and user
-        let stored_credential = repo
-            .find_by_credential_id(&cred_id)
-            .await?;
+        let stored_credential = repo.find_by_credential_id(&cred_id).await?;
 
         if stored_credential.is_none() {
             tracing::warn!(

@@ -28,9 +28,9 @@ use crate::utils::{
     user_entity_to_auth_user, DeviceInfo, PeerIp,
 };
 use crate::AppState;
-use uuid::Uuid;
 use serde_json::json;
 use tokio::time::{Duration as TokioDuration, Instant as TokioInstant};
+use uuid::Uuid;
 
 /// Request to send instant link email
 #[derive(Debug, Deserialize)]
@@ -183,9 +183,7 @@ pub async fn send_instant_link<C: AuthCallback, E: EmailService>(
                         .find_by_email(&email)
                         .await?
                         .ok_or_else(|| {
-                            AppError::Internal(anyhow::anyhow!(
-                                "User vanished after EmailExists"
-                            ))
+                            AppError::Internal(anyhow::anyhow!("User vanished after EmailExists"))
                         })?
                 }
                 Err(e) => return Err(e),
@@ -271,7 +269,10 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
     }
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // H-08: Always hash and lookup to prevent timing attacks.
     // Don't do early format validation - just hash whatever we got.
@@ -397,7 +398,8 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
     } else {
         memberships
     };
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session
     let session_id = uuid::Uuid::new_v4();
@@ -503,7 +505,15 @@ pub async fn verify_instant_link<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: raw_api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

@@ -12,14 +12,13 @@ use crate::handlers::auth::{
 use crate::models::{AuthMethod, AuthResponse, GoogleAuthRequest};
 use crate::repositories::normalize_email;
 use crate::repositories::{
-    generate_api_key, ApiKeyEntity, AuditEventType, MembershipEntity, SessionEntity,
-    UserEntity,
+    generate_api_key, ApiKeyEntity, AuditEventType, MembershipEntity, SessionEntity, UserEntity,
 };
 use crate::services::EmailService;
 use crate::utils::{
     build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
-    get_default_org_context, hash_refresh_token, resolve_org_assignment,
-    user_entity_to_auth_user, PeerIp,
+    get_default_org_context, hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user,
+    PeerIp,
 };
 use crate::AppState;
 
@@ -54,7 +53,10 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
         .ok_or_else(|| AppError::Config("Google client ID not configured".into()))?;
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // Verify the Google token (ID token from One Tap, or access token from popup)
     let claims = match (&req.id_token, &req.access_token) {
@@ -70,7 +72,11 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
                 .verify_access_token(access_token)
                 .await?
         }
-        _ => return Err(AppError::Validation("Either idToken or accessToken is required".into())),
+        _ => {
+            return Err(AppError::Validation(
+                "Either idToken or accessToken is required".into(),
+            ))
+        }
     };
 
     let email = claims
@@ -218,7 +224,8 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();
@@ -289,7 +296,15 @@ pub async fn google_auth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

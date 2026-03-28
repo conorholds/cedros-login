@@ -148,6 +148,7 @@ These endpoints are served at the root path, not under `AUTH_BASE_PATH`. They re
 | `GET` | `/setup/status` | Check if first-run setup is needed |
 | `POST` | `/setup/admin` | Create the first admin user (one-time only, 403 if admin exists) |
 | `GET` | `/health` | Health check |
+| `GET` | `/ready` | Readiness check (503 when critical dependencies are degraded) |
 
 ### Authentication
 
@@ -586,6 +587,7 @@ Response:
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/health` | Health check |
+| `GET` | `/ready` | Readiness check |
 
 ## Usage Examples
 
@@ -738,7 +740,8 @@ All configuration is via environment variables. See `.env.example` for the compl
 | `JWT_RSA_PRIVATE_KEY` | - | RSA private key (PKCS#1 PEM). Required in production for stable JWT signing across restarts/instances |
 | `CORS_ORIGINS` | `http://localhost:3000` | Allowed origins (comma-separated) |
 | `RATE_LIMIT_ENABLED` | `true` | Enable rate limiting |
-| `RATE_LIMIT_STORE` | `memory` | Rate limit store backend (`memory` only) |
+| `RATE_LIMIT_STORE` | `memory` | Rate limit store backend (`memory` or `redis`) |
+| `REDIS_URL` | - | Redis connection URL. Required when `RATE_LIMIT_STORE=redis` |
 | `COOKIE_ENABLED` | `true` | Enable cookie-based token storage |
 | `EMAIL_ENABLED` | `true` | Enable email/password auth |
 | `EMAIL_REQUIRE_VERIFICATION` | `false` | Require email verification (defaults to true in production) |
@@ -771,6 +774,19 @@ All configuration is via environment variables. See `.env.example` for the compl
 
 - Issuer URLs must use `https` in production.
 - Provider scopes must include `openid` and `email`.
+- `POST /auth/sso/start` accepts `accessCode` and `referral` in addition to `orgId` and `redirectUri`.
+- When `signup_access_code_enabled` is true, embedders must forward `accessCode` on the SSO start request so the callback can apply the normal signup gate before creating a new SSO user.
+
+Example SSO start request:
+
+```json
+{
+  "orgId": "00000000-0000-0000-0000-000000000000",
+  "redirectUri": "https://app.example.com/auth/callback",
+  "accessCode": "INVITE123",
+  "referral": "REFERRAL1"
+}
+```
 
 ## Library Usage
 
@@ -1067,22 +1083,22 @@ Rate-limited responses return `429 Too Many Requests` with headers:
 - `X-RateLimit-Reset`
 - `Retry-After`
 
-Note: Rate limiting is enforced in-memory per server instance. `RATE_LIMIT_STORE`
-accepts only `memory` today. In multi-instance deployments, limits are not shared
-across nodes. For distributed rate limiting, use a shared store (e.g., Redis) or
-front the service with a gateway that enforces global limits.
+By default the server binary includes both in-memory and Redis-backed rate limit
+stores. Single-instance deployments can use `RATE_LIMIT_STORE=memory`. Multi-instance
+deployments should use `RATE_LIMIT_STORE=redis` with `REDIS_URL` configured so
+limits are shared across nodes.
 
 ## Testing
 
 ```bash
-# Run all tests (515+ tests)
-cargo test
+# Run all tests
+cargo test --all-features
 
 # Run with logging
-RUST_LOG=debug cargo test -- --nocapture
+RUST_LOG=debug cargo test --all-features -- --nocapture
 
 # Run specific test
-cargo test test_name
+cargo test --all-features test_name
 ```
 
 ## License

@@ -335,9 +335,15 @@ mod tests {
         let user_id = Uuid::new_v4();
         let other_id = Uuid::new_v4();
 
-        repo.create_submission(make_submission(user_id)).await.unwrap();
-        repo.create_submission(make_submission(user_id)).await.unwrap();
-        repo.create_submission(make_submission(other_id)).await.unwrap();
+        repo.create_submission(make_submission(user_id))
+            .await
+            .unwrap();
+        repo.create_submission(make_submission(user_id))
+            .await
+            .unwrap();
+        repo.create_submission(make_submission(other_id))
+            .await
+            .unwrap();
 
         assert_eq!(repo.count_submissions_by_user(user_id).await.unwrap(), 2);
         assert_eq!(repo.count_submissions_by_user(other_id).await.unwrap(), 1);
@@ -401,7 +407,10 @@ mod tests {
         let doc_id = doc.id;
         repo.add_document(doc).await.unwrap();
 
-        let docs = repo.list_documents_by_submission(submission_id).await.unwrap();
+        let docs = repo
+            .list_documents_by_submission(submission_id)
+            .await
+            .unwrap();
         assert_eq!(docs.len(), 1);
         assert_eq!(docs[0].id, doc_id);
 

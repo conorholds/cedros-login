@@ -19,17 +19,17 @@ use chrono::{DateTime, Utc};
 use std::sync::Arc;
 use uuid::Uuid;
 
-use axum::body::Bytes;
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
 use crate::models::ListUsersQueryParams;
 use crate::repositories::{
-    AccreditationDocumentEntity, AccreditationSubmissionEntity, pagination::cap_limit,
-    pagination::cap_offset,
+    pagination::cap_limit, pagination::cap_offset, AccreditationDocumentEntity,
+    AccreditationSubmissionEntity,
 };
 use crate::services::{EmailService, ImageStorageService};
 use crate::utils::authenticate;
 use crate::AppState;
+use axum::body::Bytes;
 
 use crate::handlers::admin::validate_system_admin;
 use crate::handlers::upload::build_storage_service;
@@ -316,9 +316,7 @@ pub async fn accreditation_status<C: AuthCallback, E: EmailService>(
         .as_ref()
         .ok_or_else(|| AppError::NotFound("Accreditation not available".into()))?;
 
-    let status = accreditation_service
-        .get_status(auth_user.user_id)
-        .await?;
+    let status = accreditation_service.get_status(auth_user.user_id).await?;
 
     Ok(Json(AccreditationStatusApiResponse {
         status: status.status,
@@ -416,24 +414,20 @@ pub async fn upload_accreditation_document<C: AuthCallback, E: EmailService>(
         let field_name = field.name().unwrap_or("").to_string();
         match field_name.as_str() {
             "submissionId" => {
-                let val = field
-                    .text()
-                    .await
-                    .map_err(|e| AppError::Validation(format!("Failed to read submissionId: {}", e)))?;
+                let val = field.text().await.map_err(|e| {
+                    AppError::Validation(format!("Failed to read submissionId: {}", e))
+                })?;
                 submission_id_str = Some(val);
             }
             "documentType" => {
-                let val = field
-                    .text()
-                    .await
-                    .map_err(|e| AppError::Validation(format!("Failed to read documentType: {}", e)))?;
+                let val = field.text().await.map_err(|e| {
+                    AppError::Validation(format!("Failed to read documentType: {}", e))
+                })?;
                 document_type = Some(val);
             }
             "file" => {
                 filename = field.file_name().map(str::to_string);
-                content_type_str = field
-                    .content_type()
-                    .map(|ct| ct.to_string());
+                content_type_str = field.content_type().map(|ct| ct.to_string());
                 let data = field
                     .bytes()
                     .await
@@ -447,14 +441,13 @@ pub async fn upload_accreditation_document<C: AuthCallback, E: EmailService>(
         }
     }
 
-    let submission_id_str = submission_id_str
-        .ok_or_else(|| AppError::Validation("submissionId is required".into()))?;
+    let submission_id_str =
+        submission_id_str.ok_or_else(|| AppError::Validation("submissionId is required".into()))?;
     let submission_id = Uuid::parse_str(&submission_id_str)
         .map_err(|_| AppError::Validation("submissionId must be a valid UUID".into()))?;
-    let doc_type = document_type
-        .ok_or_else(|| AppError::Validation("documentType is required".into()))?;
-    let file_data = file_bytes
-        .ok_or_else(|| AppError::Validation("file is required".into()))?;
+    let doc_type =
+        document_type.ok_or_else(|| AppError::Validation("documentType is required".into()))?;
+    let file_data = file_bytes.ok_or_else(|| AppError::Validation("file is required".into()))?;
 
     // Validate content type (must be one of the allowed document formats)
     let content_type_validated = content_type_str
@@ -712,7 +705,11 @@ pub async fn review_accreditation<C: AuthCallback, E: EmailService>(
         )
         .await?;
 
-    let outcome = if request.approved { "approved" } else { "rejected" };
+    let outcome = if request.approved {
+        "approved"
+    } else {
+        "rejected"
+    };
     tracing::info!(
         admin_id = %admin_id,
         submission_id = %submission_id,

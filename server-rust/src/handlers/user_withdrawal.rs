@@ -228,11 +228,16 @@ pub async fn withdraw_sol<C: AuthCallback, E: EmailService>(
     // KYC enforcement gate
     if let Some(kyc_service) = &state.kyc_service {
         let auth_user = crate::utils::authenticate(&state, &headers).await?;
-        kyc_service.check_enforcement(auth_user.user_id, "withdrawals").await?;
+        kyc_service
+            .check_enforcement(auth_user.user_id, "withdrawals")
+            .await?;
     }
 
     validate_destination(&request.destination)?;
-    state.sanctions_service.check_address(&request.destination).await?;
+    state
+        .sanctions_service
+        .check_address(&request.destination)
+        .await?;
 
     // Token gate enforcement
     {
@@ -327,11 +332,16 @@ pub async fn withdraw_spl<C: AuthCallback, E: EmailService>(
     // KYC enforcement gate
     if let Some(kyc_service) = &state.kyc_service {
         let auth_user = crate::utils::authenticate(&state, &headers).await?;
-        kyc_service.check_enforcement(auth_user.user_id, "withdrawals").await?;
+        kyc_service
+            .check_enforcement(auth_user.user_id, "withdrawals")
+            .await?;
     }
 
     validate_destination(&request.destination)?;
-    state.sanctions_service.check_address(&request.destination).await?;
+    state
+        .sanctions_service
+        .check_address(&request.destination)
+        .await?;
 
     // Token gate enforcement
     {

@@ -1,11 +1,9 @@
 //! HTTP request handlers
 
+mod access_codes;
+mod accreditation;
 pub mod admin;
 pub mod ai_discovery;
-pub mod upload;
-mod accreditation;
-mod access_codes;
-mod kyc;
 mod api_keys;
 mod apple;
 mod auth;
@@ -20,23 +18,25 @@ mod discovery;
 mod email_verification;
 mod features;
 mod google;
-mod link_oauth;
 mod health;
 mod instant_link;
 pub mod invites;
+mod kyc;
+mod link_oauth;
 pub mod members;
 mod metrics;
 mod mfa;
 pub mod orgs;
 mod password_change;
 mod password_reset;
-mod set_password;
 mod policies;
 mod prices;
 mod sessions;
+mod set_password;
 pub mod setup;
 mod solana;
 mod sso;
+pub mod upload;
 mod user_lookup;
 mod user_withdrawal;
 mod username;
@@ -45,21 +45,30 @@ mod webauthn;
 mod webauthn_signup;
 mod webhook;
 
+pub use access_codes::{
+    admin_create_code, admin_delete_code, admin_list_codes, admin_signup_stats, generate_user_code,
+    list_my_codes,
+};
+pub use accreditation::{
+    accreditation_status, get_accreditation_submission, get_document_presigned_url,
+    get_user_accreditation, list_accreditation_submissions, list_pending_accreditations,
+    override_accreditation_status as override_accreditation, review_accreditation,
+    submit_accreditation, upload_accreditation_document,
+};
 pub use admin::{
-    adjust_credits, authorize_treasury, create_sso_provider, delete_sso_provider, delete_user,
-    force_password_reset, get_credit_stats, get_dashboard_permissions, get_deposit_stats,
-    get_disposable_domains, get_org as get_admin_org, get_org_audit_logs, get_privacy_status,
-    get_sso_provider, get_system_audit_logs, get_treasury, get_user as get_admin_user,
-    get_referral_stats, get_sanctions_stats, get_user_credits, get_user_deposits,
-    get_user_referrals, get_user_stats,
-    get_user_withdrawal_history, list_admin_deposits, list_credit_refund_requests,
-    list_in_privacy_period, list_orgs as list_admin_orgs, list_pending_withdrawals,
-    cancel_payout, list_all_payouts, list_referral_payouts, list_settings, list_sso_providers,
-    list_users, process_all_withdrawals, process_credit_refund_request,
-    process_referral_payouts, process_single_payout, process_withdrawal, retry_failed_payouts,
-    refresh_sanctions, reject_credit_refund_request, revoke_treasury,
-    set_system_admin, update_dashboard_permissions, regenerate_setting, update_disposable_domains,
-    update_settings, update_sso_provider, update_user,
+    adjust_credits, authorize_treasury, cancel_payout, create_sso_provider, delete_sso_provider,
+    delete_user, force_password_reset, get_credit_stats, get_dashboard_permissions,
+    get_deposit_stats, get_disposable_domains, get_org as get_admin_org, get_org_audit_logs,
+    get_privacy_status, get_referral_stats, get_sanctions_stats, get_sso_provider,
+    get_system_audit_logs, get_treasury, get_user as get_admin_user, get_user_credits,
+    get_user_deposits, get_user_referrals, get_user_stats, get_user_withdrawal_history,
+    list_admin_deposits, list_all_payouts, list_credit_refund_requests, list_in_privacy_period,
+    list_orgs as list_admin_orgs, list_pending_withdrawals, list_referral_payouts, list_settings,
+    list_sso_providers, list_users, process_all_withdrawals, process_credit_refund_request,
+    process_referral_payouts, process_single_payout, process_withdrawal, refresh_sanctions,
+    regenerate_setting, reject_credit_refund_request, retry_failed_payouts, revoke_treasury,
+    set_system_admin, update_dashboard_permissions, update_disposable_domains, update_settings,
+    update_sso_provider, update_user,
 };
 pub use ai_discovery::{
     agent_json, agent_md, ai_discovery_index, ai_plugin_json, ai_txt, heartbeat_json, heartbeat_md,
@@ -96,10 +105,11 @@ pub use discovery::{auth_config, jwks, openapi_spec};
 pub use email_verification::{send_verification, verify_email};
 pub use features::auth_features;
 pub use google::google_auth;
-pub use link_oauth::link_oauth;
-pub use health::health_check;
+pub use health::{health_check, readiness_check};
 pub use instant_link::{send_instant_link, verify_instant_link};
 pub use invites::{accept_invite, cancel_invite, create_invite, list_invites, resend_invite};
+pub use kyc::{get_user_kyc, handle_kyc_webhook, kyc_status, override_kyc_status, start_kyc};
+pub use link_oauth::link_oauth;
 pub use members::{list_members, remove_member, update_member_role};
 pub use metrics::prometheus_metrics;
 pub use mfa::{
@@ -109,10 +119,10 @@ pub use mfa::{
 pub use orgs::{create_org, delete_org, get_org, list_orgs, switch_org, update_org};
 pub use password_change::change_password;
 pub use password_reset::{forgot_password, reset_password};
-pub use set_password::set_password;
 pub use policies::{create_policy, delete_policy, get_policy, list_policies, update_policy};
 pub use prices::token_prices;
 pub use sessions::{list_sessions, revoke_all_sessions};
+pub use set_password::set_password;
 pub use setup::{create_first_admin, setup_status};
 pub use solana::{solana_auth, solana_challenge};
 pub use sso::{sso_callback, start_sso};
@@ -120,30 +130,18 @@ pub use user_lookup::{
     get_user_compliance, link_stripe_customer, lookup_by_stripe_customer, lookup_by_wallet,
 };
 pub use user_withdrawal::{withdraw_balances, withdraw_history, withdraw_sol, withdraw_spl};
+pub use username::check_username;
 pub use wallet::{
     acknowledge_recovery, create_derived_wallet, delete_derived_wallet, get_pending_recovery,
     get_share_b_for_recovery, get_wallet_material, list_all_wallets, list_wallets,
-    rotate_user_secret, sign_transaction, wallet_enroll, wallet_lock, wallet_recover, wallet_rotate,
-    wallet_status, wallet_unlock,
+    rotate_user_secret, sign_transaction, wallet_enroll, wallet_lock, wallet_recover,
+    wallet_rotate, wallet_status, wallet_unlock,
 };
 pub use webauthn::{
     auth_options as webauthn_auth_options, auth_verify as webauthn_auth_verify,
     register_options as webauthn_register_options, register_verify as webauthn_register_verify,
 };
-pub use username::check_username;
 pub use webauthn_signup::{
     signup_options as webauthn_signup_options, signup_verify as webauthn_signup_verify,
 };
 pub use webhook::handle_deposit_webhook;
-pub use kyc::{get_user_kyc, handle_kyc_webhook, kyc_status, override_kyc_status, start_kyc};
-pub use accreditation::{
-    accreditation_status, submit_accreditation, upload_accreditation_document,
-    list_accreditation_submissions, list_pending_accreditations, get_user_accreditation,
-    get_accreditation_submission, review_accreditation,
-    override_accreditation_status as override_accreditation,
-    get_document_presigned_url,
-};
-pub use access_codes::{
-    admin_create_code, admin_delete_code, admin_list_codes, admin_signup_stats,
-    generate_user_code, list_my_codes,
-};

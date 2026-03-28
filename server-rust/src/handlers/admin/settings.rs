@@ -238,7 +238,10 @@ pub async fn regenerate_setting<C: AuthCallback, E: EmailService>(
         updated_by: Some(admin_id),
     };
 
-    state.system_settings_repo.upsert_many(vec![setting]).await?;
+    state
+        .system_settings_repo
+        .upsert_many(vec![setting])
+        .await?;
     state.settings_service.refresh().await?;
 
     tracing::info!(

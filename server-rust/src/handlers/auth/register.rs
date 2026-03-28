@@ -55,7 +55,10 @@ pub async fn register<C: AuthCallback, E: EmailService>(
     }
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // Validate email format
     if !is_valid_email(&req.email) {
@@ -324,7 +327,15 @@ pub async fn register<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: raw_api_key,
         email_queued,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     // Build response with optional cookies

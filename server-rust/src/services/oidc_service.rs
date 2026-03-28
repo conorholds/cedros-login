@@ -154,6 +154,7 @@ impl OidcService {
         provider: &SsoProvider,
         client_secret: &str,
         redirect_uri: Option<String>,
+        access_code: Option<String>,
         referral: Option<String>,
         sso_repo: &Arc<dyn SsoRepository>,
     ) -> Result<SsoAuthStart, AppError> {
@@ -214,6 +215,7 @@ impl OidcService {
             AUTH_STATE_TTL_SECS,
         );
         auth_state.state_id = state_id;
+        auth_state.access_code = access_code;
         auth_state.referral = referral;
 
         sso_repo.store_auth_state(auth_state).await?;
@@ -309,8 +311,12 @@ impl OidcService {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::sso::SsoProvider;
+    use crate::repositories::{InMemorySsoRepository, SsoRepository};
     use openidconnect::core::{CoreJwsSigningAlgorithm, CoreSubjectIdentifierType};
     use openidconnect::{AuthUrl, JsonWebKeySetUrl, ResponseTypes};
+    use std::sync::Arc;
+    use uuid::Uuid;
 
     #[test]
     fn test_oidc_service_creation() {
@@ -351,6 +357,61 @@ mod tests {
         let fetched_json = serde_json::to_string(&fetched).unwrap();
         let metadata_json = serde_json::to_string(&metadata).unwrap();
         assert_eq!(fetched_json, metadata_json);
+    }
+
+    #[tokio::test]
+    async fn test_start_auth_persists_access_code_and_referral() {
+        let service = OidcService::new("https://api.example.com/auth/sso/callback".into());
+        let issuer = "https://issuer.example.com";
+        let provider = SsoProvider::new(
+            Uuid::new_v4(),
+            "Okta".into(),
+            issuer.to_string(),
+            "client-id".into(),
+            "encrypted-secret".into(),
+        );
+        let repo: Arc<dyn SsoRepository> = Arc::new(InMemorySsoRepository::new());
+
+        let metadata = CoreProviderMetadata::new(
+            IssuerUrl::new(issuer.to_string()).unwrap(),
+            AuthUrl::new("https://issuer.example.com/auth".to_string()).unwrap(),
+            JsonWebKeySetUrl::new("https://issuer.example.com/jwks".to_string()).unwrap(),
+            vec![ResponseTypes::new(vec![CoreResponseType::Code])],
+            vec![CoreSubjectIdentifierType::Public],
+            vec![CoreJwsSigningAlgorithm::RsaSsaPkcs1V15Sha256],
+            Default::default(),
+        );
+
+        {
+            let mut cache = service.metadata_cache.write().await;
+            cache.insert(
+                issuer.to_string(),
+                CachedProviderMetadata {
+                    metadata,
+                    expires_at: std::time::Instant::now() + Duration::from_secs(60),
+                },
+            );
+        }
+
+        let result = service
+            .start_auth(
+                &provider,
+                "client-secret",
+                Some("https://app.example.com/after-login".into()),
+                Some("ACCESS123".into()),
+                Some("REFERRAL1".into()),
+                &repo,
+            )
+            .await
+            .unwrap();
+
+        let auth_state = repo.get_auth_state(result.state_id).await.unwrap().unwrap();
+        assert_eq!(auth_state.access_code.as_deref(), Some("ACCESS123"));
+        assert_eq!(auth_state.referral.as_deref(), Some("REFERRAL1"));
+        assert_eq!(
+            auth_state.redirect_uri.as_deref(),
+            Some("https://app.example.com/after-login")
+        );
     }
 
     // S-01: Tests for email domain validation

@@ -440,7 +440,10 @@ pub trait DepositRepository: Send + Sync {
     // ==================== Micro Batch Methods ====================
 
     /// Get micro deposits with PendingBatch status, bounded by limit
-    async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError>;
+    async fn get_pending_batch_deposits(
+        &self,
+        limit: i64,
+    ) -> Result<Vec<DepositSessionEntity>, AppError>;
 
     /// Sum total lamports of all pending batch deposits
     async fn sum_pending_batch_lamports(&self) -> Result<i64, AppError>;
@@ -1036,7 +1039,10 @@ impl DepositRepository for InMemoryDepositRepository {
             .count() as u64)
     }
 
-    async fn get_pending_batch_deposits(&self, limit: i64) -> Result<Vec<DepositSessionEntity>, AppError> {
+    async fn get_pending_batch_deposits(
+        &self,
+        limit: i64,
+    ) -> Result<Vec<DepositSessionEntity>, AppError> {
         let sessions = self.sessions.read().await;
         Ok(sessions
             .values()

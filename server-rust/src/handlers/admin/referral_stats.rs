@@ -53,7 +53,13 @@ pub async fn get_referral_stats<C: AuthCallback, E: EmailService>(
 
     let since_30_days = Utc::now() - chrono::Duration::days(30);
 
-    let (total_referrals, referrals_this_month, total_pending_payouts, total_completed_payouts, top_rows) = tokio::try_join!(
+    let (
+        total_referrals,
+        referrals_this_month,
+        total_pending_payouts,
+        total_completed_payouts,
+        top_rows,
+    ) = tokio::try_join!(
         state.user_repo.count_referred(),
         state.user_repo.count_referred_since(since_30_days),
         state.referral_payout_repo.sum_by_status("pending"),

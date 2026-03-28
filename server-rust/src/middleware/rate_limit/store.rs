@@ -8,19 +8,10 @@
 //!
 //! ## Production Recommendations
 //!
-//! For multi-instance deployments, consider:
-//! - **Redis backend** (preferred): Implement a Redis-backed store using the same
-//!   `check_rate_limit` interface. See TODO below.
-//! - **Adjusted limits**: Divide configured limits by expected instance count
-//! - **Sticky sessions**: Route by IP at load balancer (not recommended for security)
-//!
-//! ## TODO: Redis Implementation (SEC-01)
-//!
-//! To implement a Redis-backed rate limiter:
-//! 1. Create `RedisRateLimitStore` implementing the same interface as `RateLimitStore`
-//! 2. Use Redis MULTI/EXEC or Lua scripts for atomic increment + expiry
-//! 3. Configure via `RATE_LIMIT_BACKEND=redis` environment variable
-//! 4. Ensure connection pooling for performance
+//! For multi-instance deployments, prefer the Redis-backed store in
+//! `redis_store.rs` with `RATE_LIMIT_STORE=redis` and `REDIS_URL` configured.
+//! If memory is used across multiple replicas, divide configured limits by the
+//! expected instance count and treat that as a temporary fallback only.
 //!
 //! # Memory Bounds
 //!
@@ -81,6 +72,14 @@ impl RateLimitStore {
         Self::parse_replicas_hint(std::env::var("REPLICAS").ok().as_deref())
     }
 
+    pub(crate) fn is_multi_instance_environment() -> bool {
+        Self::replicas_hint() > 1
+            || std::env::var("KUBERNETES_SERVICE_HOST").is_ok()
+            || std::env::var("DYNO").is_ok()
+            || std::env::var("FLY_APP_NAME").is_ok()
+            || std::env::var("RENDER").is_ok()
+    }
+
     /// Create a new rate limit store with default settings
     pub fn new() -> Self {
         Self::with_max_entries(DEFAULT_MAX_ENTRIES)
@@ -101,11 +100,7 @@ impl RateLimitStore {
 
         // MW-06: Elevated warning for detected multi-instance environments
         let replicas_hint = Self::replicas_hint();
-        let is_multi_instance = replicas_hint > 1
-            || std::env::var("KUBERNETES_SERVICE_HOST").is_ok()
-            || std::env::var("DYNO").is_ok() // Heroku
-            || std::env::var("FLY_APP_NAME").is_ok() // Fly.io
-            || std::env::var("RENDER").is_ok(); // Render
+        let is_multi_instance = Self::is_multi_instance_environment();
 
         if is_multi_instance {
             tracing::warn!(

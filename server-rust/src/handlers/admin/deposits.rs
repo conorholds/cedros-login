@@ -454,13 +454,16 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
                 }
             }
 
-            Ok((StatusCode::OK, Json(ProcessWithdrawalResponse {
-                success: true,
-                session_id: session_id.to_string(),
-                tx_signature: Some(tx_signature),
-                error: None,
-                early_withdrawal,
-            })))
+            Ok((
+                StatusCode::OK,
+                Json(ProcessWithdrawalResponse {
+                    success: true,
+                    session_id: session_id.to_string(),
+                    tx_signature: Some(tx_signature),
+                    error: None,
+                    early_withdrawal,
+                }),
+            ))
         }
         Err(e) => {
             tracing::error!(
@@ -469,13 +472,16 @@ pub async fn process_withdrawal<C: AuthCallback, E: EmailService>(
                 "Admin withdrawal failed"
             );
             // H-10: Return 502 (upstream sidecar failure) instead of 200
-            Ok((StatusCode::BAD_GATEWAY, Json(ProcessWithdrawalResponse {
-                success: false,
-                session_id: session_id.to_string(),
-                tx_signature: None,
-                error: Some(e.to_string()),
-                early_withdrawal,
-            })))
+            Ok((
+                StatusCode::BAD_GATEWAY,
+                Json(ProcessWithdrawalResponse {
+                    success: false,
+                    session_id: session_id.to_string(),
+                    tx_signature: None,
+                    error: Some(e.to_string()),
+                    early_withdrawal,
+                }),
+            ))
         }
     }
 }

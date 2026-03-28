@@ -12,8 +12,8 @@ use crate::services::EmailService;
 use crate::AppState;
 
 const ADJECTIVES: &[&str] = &[
-    "swift", "bright", "calm", "bold", "keen", "noble", "vivid", "brave", "cool", "fair",
-    "glad", "kind", "pure", "rare", "sage", "true", "warm", "wise", "deep", "free",
+    "swift", "bright", "calm", "bold", "keen", "noble", "vivid", "brave", "cool", "fair", "glad",
+    "kind", "pure", "rare", "sage", "true", "warm", "wise", "deep", "free",
 ];
 
 const NOUNS: &[&str] = &[
@@ -126,11 +126,7 @@ fn random_candidate(large_suffix: bool) -> String {
 async fn generate_unique_username(user_repo: &dyn UserRepository) -> String {
     for _ in 0..5 {
         let candidate = random_candidate(false);
-        if !user_repo
-            .username_exists(&candidate)
-            .await
-            .unwrap_or(true)
-        {
+        if !user_repo.username_exists(&candidate).await.unwrap_or(true) {
             return candidate;
         }
     }
@@ -180,7 +176,10 @@ mod tests {
     fn test_random_candidate_format() {
         for _ in 0..10 {
             let name = random_candidate(false);
-            assert!(validate_format(&name).is_ok(), "Generated name '{name}' should be valid");
+            assert!(
+                validate_format(&name).is_ok(),
+                "Generated name '{name}' should be valid"
+            );
         }
     }
 }

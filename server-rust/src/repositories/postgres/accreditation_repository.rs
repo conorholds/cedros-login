@@ -228,13 +228,12 @@ impl AccreditationRepository for PostgresAccreditationRepository {
     }
 
     async fn count_submissions_by_user(&self, user_id: Uuid) -> Result<u64, AppError> {
-        let count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM accreditation_submissions WHERE user_id = $1",
-        )
-        .bind(user_id)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        let count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM accreditation_submissions WHERE user_id = $1")
+                .bind(user_id)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| AppError::Internal(e.into()))?;
 
         Ok(count.max(0) as u64)
     }

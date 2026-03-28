@@ -120,12 +120,10 @@
 //!
 //! This is a significant architectural change tracked for future work.
 
-mod accreditation_repository;
 mod access_code_repository;
+mod accreditation_repository;
 mod api_key_repository;
 mod audit_repository;
-mod referral_code_history_repository;
-mod referral_payout_repository;
 mod credential_repository;
 mod credit_hold_repository;
 mod credit_refund_request_repository;
@@ -143,6 +141,8 @@ mod outbox_repository;
 mod pending_wallet_recovery_repository;
 mod policy_repository;
 mod privacy_note_repository;
+mod referral_code_history_repository;
+mod referral_payout_repository;
 mod session_repository;
 mod sso_repository;
 mod system_settings_repository;
@@ -166,12 +166,12 @@ pub mod postgres;
 #[cfg(test)]
 mod tests;
 
+pub use access_code_repository::{
+    AccessCodeEntity, AccessCodeRepository, InMemoryAccessCodeRepository,
+};
 pub use accreditation_repository::{
     AccreditationDocumentEntity, AccreditationRepository, AccreditationSubmissionEntity,
     InMemoryAccreditationRepository,
-};
-pub use access_code_repository::{
-    AccessCodeEntity, AccessCodeRepository, InMemoryAccessCodeRepository,
 };
 pub use api_key_repository::{
     generate_api_key, hash_api_key, ApiKeyEntity, ApiKeyRepository, InMemoryApiKeyRepository,
@@ -233,6 +233,13 @@ pub use policy_repository::{
 pub use privacy_note_repository::{
     InMemoryPrivacyNoteRepository, NoteStatus, PrivacyNoteEntity, PrivacyNoteRepository,
 };
+pub use referral_code_history_repository::{
+    InMemoryReferralCodeHistoryRepository, ReferralCodeHistoryRepository,
+};
+pub use referral_payout_repository::{
+    InMemoryReferralPayoutRepository, ReferralPayoutEntity, ReferralPayoutRepository,
+    ReferrerPayoutSummary,
+};
 pub use session_repository::{InMemorySessionRepository, SessionEntity, SessionRepository};
 pub use sso_repository::{InMemorySsoRepository, SsoRepository};
 pub use system_settings_repository::{
@@ -242,13 +249,6 @@ pub use totp_repository::{InMemoryTotpRepository, RecoveryCode, TotpRepository, 
 pub use transactional_ops::TransactionalOps;
 pub use treasury_config_repository::{
     InMemoryTreasuryConfigRepository, TreasuryConfigEntity, TreasuryConfigRepository,
-};
-pub use referral_code_history_repository::{
-    InMemoryReferralCodeHistoryRepository, ReferralCodeHistoryRepository,
-};
-pub use referral_payout_repository::{
-    InMemoryReferralPayoutRepository, ReferralPayoutEntity, ReferralPayoutRepository,
-    ReferrerPayoutSummary,
 };
 pub use user_repository::{
     generate_referral_code, normalize_email, validate_email_ascii_local, InMemoryUserRepository,
@@ -262,13 +262,13 @@ pub use verification_repository::{
     InMemoryVerificationRepository, RepositoryError, TokenType, VerificationRepository,
     VerificationToken,
 };
-pub use wallet_rotation_history_repository::{
-    CreateWalletRotationHistory, InMemoryWalletRotationHistoryRepository, WalletRemovalReason,
-    WalletRotationHistoryEntity, WalletRotationHistoryRepository,
-};
 pub use wallet_material_repository::{
     CreateWalletMaterial, InMemoryWalletMaterialRepository, KdfParams, RotateUserSecret,
     ShareAAuthMethod, WalletMaterialEntity, WalletMaterialRepository,
+};
+pub use wallet_rotation_history_repository::{
+    CreateWalletRotationHistory, InMemoryWalletRotationHistoryRepository, WalletRemovalReason,
+    WalletRotationHistoryEntity, WalletRotationHistoryRepository,
 };
 pub use webauthn_repository::{
     InMemoryWebAuthnRepository, WebAuthnChallenge, WebAuthnCredential, WebAuthnRepository,
@@ -279,21 +279,17 @@ pub use withdrawal_history_repository::{
 
 #[cfg(feature = "postgres")]
 pub use postgres::{
-    PostgresAccreditationRepository,
-    PostgresAccessCodeRepository,
-    PostgresApiKeyRepository, PostgresAuditLogRepository, PostgresCredentialRepository,
-    PostgresCreditHoldRepository, PostgresCreditRefundRequestRepository, PostgresCreditRepository,
-    PostgresCustomRoleRepository, PostgresDerivedWalletRepository, PostgresDepositRepository,
-    PostgresInviteRepository,
-    PostgresKycRepository,
-    PostgresLoginAttemptRepository, PostgresMembershipRepository, PostgresNonceRepository,
-    PostgresOrgRepository, PostgresOutboxRepository, PostgresPendingWalletRecoveryRepository,
-    PostgresPolicyRepository, PostgresPrivacyNoteRepository, PostgresReferralCodeHistoryRepository,
-    PostgresReferralPayoutRepository,
-    PostgresSessionRepository,
-    PostgresSsoRepository, PostgresSystemSettingsRepository, PostgresTotpRepository,
-    PostgresTreasuryConfigRepository, PostgresUserRepository, PostgresUserWithdrawalLogRepository,
-    PostgresVerificationRepository, PostgresWalletMaterialRepository,
-    PostgresWalletRotationHistoryRepository, PostgresWebAuthnRepository,
-    PostgresWithdrawalHistoryRepository,
+    PostgresAccessCodeRepository, PostgresAccreditationRepository, PostgresApiKeyRepository,
+    PostgresAuditLogRepository, PostgresCredentialRepository, PostgresCreditHoldRepository,
+    PostgresCreditRefundRequestRepository, PostgresCreditRepository, PostgresCustomRoleRepository,
+    PostgresDepositRepository, PostgresDerivedWalletRepository, PostgresInviteRepository,
+    PostgresKycRepository, PostgresLoginAttemptRepository, PostgresMembershipRepository,
+    PostgresNonceRepository, PostgresOrgRepository, PostgresOutboxRepository,
+    PostgresPendingWalletRecoveryRepository, PostgresPolicyRepository,
+    PostgresPrivacyNoteRepository, PostgresReferralCodeHistoryRepository,
+    PostgresReferralPayoutRepository, PostgresSessionRepository, PostgresSsoRepository,
+    PostgresSystemSettingsRepository, PostgresTotpRepository, PostgresTreasuryConfigRepository,
+    PostgresUserRepository, PostgresUserWithdrawalLogRepository, PostgresVerificationRepository,
+    PostgresWalletMaterialRepository, PostgresWalletRotationHistoryRepository,
+    PostgresWebAuthnRepository, PostgresWithdrawalHistoryRepository,
 };

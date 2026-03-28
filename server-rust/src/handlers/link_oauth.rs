@@ -59,9 +59,10 @@ pub async fn link_oauth<C: AuthCallback, E: EmailService>(
             (AuthMethod::Google, claims.sub, normalize_email(&email))
         }
         "apple" => {
-            let id_token = req.id_token.as_ref().ok_or(AppError::Validation(
-                "idToken is required for Apple".into(),
-            ))?;
+            let id_token = req
+                .id_token
+                .as_ref()
+                .ok_or(AppError::Validation("idToken is required for Apple".into()))?;
             let client_id = resolve_apple_client_id(&state).await?;
             let claims = state
                 .apple_service
@@ -214,7 +215,15 @@ pub async fn link_oauth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key: None,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

@@ -74,9 +74,8 @@ pub fn decrypt_treasury_key(
         "Failed to decode treasury private key",
         "Treasury private key payload too short",
     )?;
-    String::from_utf8(private_key_bytes).map_err(|_| {
-        AppError::Internal(anyhow::anyhow!("Treasury private key is not valid UTF-8"))
-    })
+    String::from_utf8(private_key_bytes)
+        .map_err(|_| AppError::Internal(anyhow::anyhow!("Treasury private key is not valid UTF-8")))
 }
 
 /// Resolve sidecar and note encryption services from optional Arc references.

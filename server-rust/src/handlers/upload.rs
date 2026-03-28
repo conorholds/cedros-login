@@ -11,7 +11,9 @@ use std::sync::Arc;
 
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
-use crate::services::{EmailService, S3ImageStorageConfig, S3ImageStorageService, ImageStorageService};
+use crate::services::{
+    EmailService, ImageStorageService, S3ImageStorageConfig, S3ImageStorageService,
+};
 use crate::utils::{authenticate, process_avatar, user_entity_to_auth_user};
 use crate::AppState;
 
@@ -61,9 +63,10 @@ pub async fn upload_avatar<C: AuthCallback, E: EmailService>(
     }
 
     // Read file bytes
-    let data = field.bytes().await.map_err(|e| {
-        AppError::Validation(format!("Failed to read upload data: {}", e))
-    })?;
+    let data = field
+        .bytes()
+        .await
+        .map_err(|e| AppError::Validation(format!("Failed to read upload data: {}", e)))?;
 
     // Process image (resize + convert to WebP)
     let processed = process_avatar(&data)?;
@@ -72,7 +75,9 @@ pub async fn upload_avatar<C: AuthCallback, E: EmailService>(
     let storage_service = build_storage_service(&state).await?;
 
     // Upload
-    let url = storage_service.upload_avatar(auth.user_id, &processed).await?;
+    let url = storage_service
+        .upload_avatar(auth.user_id, &processed)
+        .await?;
 
     // Update user.picture in database
     let mut user = state
@@ -109,8 +114,14 @@ pub(crate) async fn build_storage_service<C: AuthCallback, E: EmailService>(
     let cdn_url = ss.get("image_storage_cdn_url").await?.unwrap_or_default();
 
     // Secrets are encrypted — use get_secret for decryption
-    let access_key = ss.get_secret("image_storage_access_key").await?.unwrap_or_default();
-    let secret_key = ss.get_secret("image_storage_secret_key").await?.unwrap_or_default();
+    let access_key = ss
+        .get_secret("image_storage_access_key")
+        .await?
+        .unwrap_or_default();
+    let secret_key = ss
+        .get_secret("image_storage_secret_key")
+        .await?
+        .unwrap_or_default();
 
     if bucket.is_empty() {
         return Err(AppError::Validation(

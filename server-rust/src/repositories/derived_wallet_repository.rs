@@ -81,9 +81,9 @@ impl DerivedWalletRepository for InMemoryDerivedWalletRepository {
         let mut wallets = self.wallets.write().await;
 
         // Check unique constraints
-        let dup_index = wallets.values().any(|w| {
-            w.user_id == params.user_id && w.derivation_index == params.derivation_index
-        });
+        let dup_index = wallets
+            .values()
+            .any(|w| w.user_id == params.user_id && w.derivation_index == params.derivation_index);
         if dup_index {
             return Err(AppError::Validation(
                 "Derivation index already in use".into(),
@@ -125,10 +125,7 @@ impl DerivedWalletRepository for InMemoryDerivedWalletRepository {
         user_id: Uuid,
     ) -> Result<Option<DerivedWalletEntity>, AppError> {
         let wallets = self.wallets.read().await;
-        Ok(wallets
-            .get(&id)
-            .filter(|w| w.user_id == user_id)
-            .cloned())
+        Ok(wallets.get(&id).filter(|w| w.user_id == user_id).cloned())
     }
 
     async fn next_index(&self, user_id: Uuid) -> Result<i32, AppError> {

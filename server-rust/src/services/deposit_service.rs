@@ -123,7 +123,9 @@ impl DepositService {
     ) -> Self {
         // M-02: Log when max_deposit_lamports=0 (no limit) for visibility
         if config.max_deposit_lamports == 0 {
-            tracing::info!("Deposit service configured with no maximum deposit limit (max_deposit_lamports=0)");
+            tracing::info!(
+                "Deposit service configured with no maximum deposit limit (max_deposit_lamports=0)"
+            );
         }
 
         Self {
@@ -359,9 +361,9 @@ impl DepositService {
         validate_privacy_period(privacy_period_secs)?;
 
         // H-07: Validate SPL deposit amount is positive
-        let parsed_amount: f64 = amount.parse().map_err(|_| {
-            AppError::Validation(format!("Invalid deposit amount: {}", amount))
-        })?;
+        let parsed_amount: f64 = amount
+            .parse()
+            .map_err(|_| AppError::Validation(format!("Invalid deposit amount: {}", amount)))?;
         if parsed_amount <= 0.0 {
             return Err(AppError::Validation(
                 "Deposit amount must be positive".into(),

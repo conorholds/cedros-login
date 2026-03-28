@@ -388,7 +388,14 @@ pub async fn force_password_reset<C: AuthCallback, E: EmailService>(
     // Queue password reset email via comms service
     state
         .comms_service
-        .queue_password_reset_email(&email, user.name.as_deref(), &token, Some(user_id), None, user.password_hash.is_some())
+        .queue_password_reset_email(
+            &email,
+            user.name.as_deref(),
+            &token,
+            Some(user_id),
+            None,
+            user.password_hash.is_some(),
+        )
         .await?;
 
     Ok(Json(MessageResponse {
@@ -927,23 +934,19 @@ mod tests {
             referral_code_history_repo: storage.referral_code_history_repo.clone(),
             kyc_service: None,
             accreditation_service: None,
-            sanctions_service: std::sync::Arc::new(
-                crate::services::SanctionsService::new(settings_service.clone()),
-            ),
-            token_gating_service: std::sync::Arc::new(
-                crate::services::TokenGatingService::new(
-                    settings_service.clone(),
-                    storage.user_repo.clone(),
-                    storage.wallet_material_repo.clone(),
-                ),
-            ),
-            signup_gating_service: std::sync::Arc::new(
-                crate::services::SignupGatingService::new(
-                    storage.access_code_repo.clone(),
-                    storage.user_repo.clone(),
-                    settings_service.clone(),
-                ),
-            ),
+            sanctions_service: std::sync::Arc::new(crate::services::SanctionsService::new(
+                settings_service.clone(),
+            )),
+            token_gating_service: std::sync::Arc::new(crate::services::TokenGatingService::new(
+                settings_service.clone(),
+                storage.user_repo.clone(),
+                storage.wallet_material_repo.clone(),
+            )),
+            signup_gating_service: std::sync::Arc::new(crate::services::SignupGatingService::new(
+                storage.access_code_repo.clone(),
+                storage.user_repo.clone(),
+                settings_service.clone(),
+            )),
             #[cfg(feature = "postgres")]
             postgres_pool: storage.pg_pool.clone(),
             storage,

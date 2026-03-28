@@ -141,7 +141,10 @@ pub async fn execute_public_deposit<C: AuthCallback, E: EmailService>(
     }
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     let auth_user = authenticate(&state, &headers).await?;
 
@@ -174,9 +177,7 @@ pub async fn execute_public_deposit<C: AuthCallback, E: EmailService>(
         // Convert input_amount to USD. USDC/USDT use 6 decimals (stablecoins);
         // SOL uses 9 decimals (lamports). Anything else falls back to SOL scale.
         use crate::config::privacy::{USDC_MINT, USDT_MINT};
-        let deposit_usd = if request.input_mint == USDC_MINT
-            || request.input_mint == USDT_MINT
-        {
+        let deposit_usd = if request.input_mint == USDC_MINT || request.input_mint == USDT_MINT {
             request.input_amount as f64 / 1_000_000.0
         } else {
             (request.input_amount as f64 / LAMPORTS_PER_SOL) * sol_price
@@ -196,12 +197,7 @@ pub async fn execute_public_deposit<C: AuthCallback, E: EmailService>(
             })
             .unwrap_or(0.0);
         kyc_service
-            .check_threshold(
-                auth_user.user_id,
-                "deposit",
-                deposit_usd,
-                Some(prior_usd),
-            )
+            .check_threshold(auth_user.user_id, "deposit", deposit_usd, Some(prior_usd))
             .await?;
     }
 
@@ -287,7 +283,10 @@ pub async fn execute_micro_deposit<C: AuthCallback, E: EmailService>(
     }
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     let auth_user = authenticate(&state, &headers).await?;
 
@@ -305,8 +304,7 @@ pub async fn execute_micro_deposit<C: AuthCallback, E: EmailService>(
             .get_sol_price_usd()
             .await
             .unwrap_or(0.0);
-        let deposit_usd =
-            (request.amount_lamports as f64 / LAMPORTS_PER_SOL) * sol_price;
+        let deposit_usd = (request.amount_lamports as f64 / LAMPORTS_PER_SOL) * sol_price;
         let prior_usd = state
             .credit_repo
             .get_user_stats(auth_user.user_id, "SOL")
@@ -314,12 +312,7 @@ pub async fn execute_micro_deposit<C: AuthCallback, E: EmailService>(
             .map(|s| (s.total_deposited as f64 / LAMPORTS_PER_SOL) * sol_price)
             .unwrap_or(0.0);
         kyc_service
-            .check_threshold(
-                auth_user.user_id,
-                "deposit",
-                deposit_usd,
-                Some(prior_usd),
-            )
+            .check_threshold(auth_user.user_id, "deposit", deposit_usd, Some(prior_usd))
             .await?;
     }
 

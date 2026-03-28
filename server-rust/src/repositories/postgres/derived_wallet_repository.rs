@@ -119,26 +119,22 @@ impl DerivedWalletRepository for PostgresDerivedWalletRepository {
     }
 
     async fn delete_by_id(&self, id: Uuid, user_id: Uuid) -> Result<bool, AppError> {
-        let result = sqlx::query(
-            "DELETE FROM derived_wallets WHERE id = $1 AND user_id = $2",
-        )
-        .bind(id)
-        .bind(user_id)
-        .execute(&self.pool)
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        let result = sqlx::query("DELETE FROM derived_wallets WHERE id = $1 AND user_id = $2")
+            .bind(id)
+            .bind(user_id)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
 
         Ok(result.rows_affected() > 0)
     }
 
     async fn delete_by_user_id(&self, user_id: Uuid) -> Result<u64, AppError> {
-        let result = sqlx::query(
-            "DELETE FROM derived_wallets WHERE user_id = $1",
-        )
-        .bind(user_id)
-        .execute(&self.pool)
-        .await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        let result = sqlx::query("DELETE FROM derived_wallets WHERE user_id = $1")
+            .bind(user_id)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?;
 
         Ok(result.rows_affected())
     }

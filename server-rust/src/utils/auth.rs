@@ -135,7 +135,11 @@ async fn authenticate_api_key<C: AuthCallback, E: EmailService>(
         is_api_key_auth: true,
         api_key_id: Some(api_key_entity.id),
         raw_api_key: Some(api_key.to_string()),
-        is_system_admin: if user.is_system_admin { Some(true) } else { None },
+        is_system_admin: if user.is_system_admin {
+            Some(true)
+        } else {
+            None
+        },
         email_verified: Some(user.email_verified),
     })
 }

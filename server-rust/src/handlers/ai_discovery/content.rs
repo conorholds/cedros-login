@@ -706,7 +706,6 @@ pub fn get_mcp_discovery(config: &ContentConfig) -> McpDiscovery {
     }
 }
 
-
 // ============================================================================
 // Individual Skill Content (delegated to submodules to respect size limits)
 // ============================================================================

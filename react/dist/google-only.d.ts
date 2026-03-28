@@ -62,6 +62,8 @@ export declare type AuthState = 'idle' | 'loading' | 'authenticated' | 'unauthen
  */
 declare interface AuthStateContextValue {
     config: CedrosLoginConfig;
+    featureFlags: ResolvedFeatureFlags;
+    isFeatureEnabled: (name: FeatureFlagName) => boolean;
     user: AuthUser | null;
     authState: AuthState;
     logout: () => Promise<void>;
@@ -150,8 +152,22 @@ export declare interface CedrosLoginConfig {
     appleClientId?: string;
     /** Solana configuration options */
     solana?: SolanaConfig;
-    /** Enable/disable auth methods */
+    /**
+     * Package feature flag overrides.
+     *
+     * Resolution precedence is:
+     * 1. `config.features`
+     * 2. `CEDROS_FEATURE_*` environment variables
+     * 3. Registry defaults in `FEATURE_FLAG_REGISTRY`
+     */
     features?: FeatureFlags;
+    /**
+     * Optional environment source for feature flags.
+     *
+     * Use this in browser bundlers that expose env through objects like
+     * `import.meta.env` instead of `process.env`.
+     */
+    featureFlagEnv?: Record<string, unknown>;
     /** Form behavior configuration (forgot password, terms, email opt-in) */
     forms?: FormConfig;
     /** TOTP/2FA configuration (app-based authenticator) */
@@ -286,25 +302,89 @@ declare interface ErrorMessageProps {
     autoFocus?: boolean;
 }
 
+export declare const FEATURE_FLAG_ENV_PREFIX = "CEDROS_FEATURE_";
+
 /**
- * Feature flags to enable/disable auth methods
+ * Single source of truth for package feature flags.
+ *
+ * To roll out a feature:
+ * 1. Add it here with a positive name.
+ * 2. Ship it with `defaultEnabled: false`.
+ * 3. Flip only `defaultEnabled` to `true` when ready.
  */
-export declare interface FeatureFlags {
-    /** Enable email/password auth. Default: true */
-    email?: boolean;
-    /** Enable Google OAuth. Default: true (requires googleClientId) */
-    google?: boolean;
-    /** Enable Apple Sign In. Default: true (requires appleClientId) */
-    apple?: boolean;
-    /** Enable Solana wallet sign-in. Default: true */
-    solana?: boolean;
-    /** Enable WebAuthn passkeys (server-managed). Default: true */
-    webauthn?: boolean;
-    /** Enable instant-link passwordless sign-in. Default: false */
-    instantLink?: boolean;
-    /** Enable embedded wallet auto-enrollment on registration. Default: true */
-    walletEnrollment?: boolean;
+export declare const FEATURE_FLAG_REGISTRY: {
+    readonly email: {
+        readonly name: "email";
+        readonly description: "Enable email/password authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_EMAIL";
+        readonly autoDiscoverable: true;
+    };
+    readonly google: {
+        readonly name: "google";
+        readonly description: "Enable Google OAuth authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_GOOGLE";
+        readonly autoDiscoverable: true;
+    };
+    readonly apple: {
+        readonly name: "apple";
+        readonly description: "Enable Apple Sign In authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_APPLE";
+        readonly autoDiscoverable: true;
+    };
+    readonly solana: {
+        readonly name: "solana";
+        readonly description: "Enable Solana wallet authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_SOLANA";
+        readonly autoDiscoverable: true;
+    };
+    readonly webauthn: {
+        readonly name: "webauthn";
+        readonly description: "Enable passkey authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_WEBAUTHN";
+        readonly autoDiscoverable: true;
+    };
+    readonly instantLink: {
+        readonly name: "instantLink";
+        readonly description: "Enable passwordless instant-link sign-in.";
+        readonly defaultEnabled: false;
+        readonly status: "experimental";
+        readonly envVar: "CEDROS_FEATURE_INSTANT_LINK";
+        readonly autoDiscoverable: true;
+    };
+    readonly walletEnrollment: {
+        readonly name: "walletEnrollment";
+        readonly description: "Enable embedded wallet auto-enrollment after registration.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_WALLET_ENROLLMENT";
+        readonly autoDiscoverable: false;
+    };
+};
+
+export declare interface FeatureFlagDefinition {
+    name: string;
+    description: string;
+    defaultEnabled: boolean;
+    status: FeatureFlagStatus;
+    envVar: string;
+    autoDiscoverable: boolean;
 }
+
+export declare type FeatureFlagName = keyof typeof FEATURE_FLAG_REGISTRY;
+
+export declare type FeatureFlags = Partial<Record<FeatureFlagName, boolean>>;
+
+export declare type FeatureFlagStatus = 'stable' | 'experimental';
 
 /**
  * Forgot password behavior configuration
@@ -331,6 +411,12 @@ declare interface FormConfig {
     emailOptIn?: EmailOptInConfig;
 }
 
+export declare function getFeatureFlagDefinition(name: FeatureFlagName): FeatureFlagDefinition;
+
+export declare function getFeatureFlagDefinitions(): FeatureFlagDefinition[];
+
+export declare function getFeatureFlagEnvVar(name: FeatureFlagName): string;
+
 /**
  * Google OAuth login button
  */
@@ -346,6 +432,10 @@ declare interface GoogleLoginButtonProps {
     /** Access code forwarded to the server when this flow creates a new account. */
     accessCode?: string;
 }
+
+export declare function isFeatureEnabled(name: FeatureFlagName, options?: ResolveFeatureFlagsOptions & {
+    flags?: FeatureFlags | ResolvedFeatureFlags;
+}): boolean;
 
 /**
  * Accessible loading spinner component.
@@ -364,6 +454,8 @@ declare interface LoadingSpinnerProps {
     announce?: boolean;
 }
 
+export declare function parseFeatureFlagBoolean(value: unknown): boolean | undefined;
+
 /**
  * Post-login action returned by the server after authentication
  */
@@ -372,6 +464,21 @@ declare interface PostLoginAction {
     action: 'setup_mfa' | 'enroll_wallet' | 'acknowledge_recovery' | 'choose_username' | 'welcome' | 'complete_profile' | 'redirect';
     /** URL/route for redirect or welcome page */
     redirectUrl?: string;
+}
+
+export declare function readFeatureFlagEnv(envSource?: Record<string, unknown> | undefined): FeatureFlags;
+
+export declare type ResolvedFeatureFlags = Record<FeatureFlagName, boolean>;
+
+export declare function resolveFeatureFlags(options?: ResolveFeatureFlagsOptions): ResolvedFeatureFlags;
+
+declare interface ResolveFeatureFlagsOptions {
+    config?: FeatureFlags;
+    env?: Record<string, unknown>;
+    /**
+     * Lower-precedence flag values from another source, such as server discovery.
+     */
+    base?: FeatureFlags;
 }
 
 /**
@@ -459,16 +566,31 @@ export declare type ThemeMode = 'light' | 'dark' | 'auto';
 export declare interface ThemeOverrides {
     '--cedros-primary'?: string;
     '--cedros-primary-foreground'?: string;
+    '--cedros-card'?: string;
+    '--cedros-card-foreground'?: string;
     '--cedros-background'?: string;
     '--cedros-foreground'?: string;
     '--cedros-muted'?: string;
     '--cedros-muted-foreground'?: string;
+    '--cedros-accent'?: string;
+    '--cedros-accent-foreground'?: string;
     '--cedros-border'?: string;
     '--cedros-input'?: string;
     '--cedros-ring'?: string;
     '--cedros-radius'?: string;
     '--cedros-destructive'?: string;
     '--cedros-destructive-foreground'?: string;
+    '--cedros-warning'?: string;
+    '--cedros-warning-light'?: string;
+    '--cedros-success'?: string;
+    '--cedros-success-light'?: string;
+    '--cedros-link'?: string;
+    '--cedros-ease-out'?: string;
+    '--cedros-ease-in-out'?: string;
+    '--cedros-ease-spring'?: string;
+    '--cedros-duration-fast'?: string;
+    '--cedros-duration-normal'?: string;
+    '--cedros-duration-slow'?: string;
     [key: string]: string | undefined;
 }
 

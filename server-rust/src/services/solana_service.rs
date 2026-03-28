@@ -56,7 +56,11 @@ impl SolanaService {
 
         // Truncate pubkey to first6...last6 for readability in wallet popup
         let pk_display = if public_key.len() > 12 {
-            format!("{}...{}", &public_key[..6], &public_key[public_key.len() - 6..])
+            format!(
+                "{}...{}",
+                &public_key[..6],
+                &public_key[public_key.len() - 6..]
+            )
         } else {
             public_key.to_string()
         };
@@ -64,9 +68,7 @@ impl SolanaService {
         // Format the message for wallet popup — friendly, non-technical.
         // Domain binding prevents phishing sites from tricking users into
         // signing a message that could be replayed on the real site.
-        let domain_clause = domain
-            .map(|d| format!(" on {d}"))
-            .unwrap_or_default();
+        let domain_clause = domain.map(|d| format!(" on {d}")).unwrap_or_default();
 
         let message = format!(
             "Sign in with wallet {pk_display}{domain_clause}. This message confirms ownership of your wallet and costs nothing to sign. Expires: {}. Nonce: {nonce}.",
@@ -212,7 +214,9 @@ mod tests {
     fn test_extract_nonce_from_generated_message() {
         let service = SolanaService::new(&test_config());
         // Without domain
-        let challenge = service.generate_challenge("test_pubkey", 300, None).unwrap();
+        let challenge = service
+            .generate_challenge("test_pubkey", 300, None)
+            .unwrap();
         let extracted = SolanaService::extract_nonce(&challenge.message);
         assert_eq!(extracted, Some(challenge.nonce));
 

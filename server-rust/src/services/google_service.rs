@@ -329,7 +329,9 @@ impl GoogleService {
         )
         .await
         .map_err(|_| AppError::Internal(anyhow::anyhow!("Google userinfo request timed out")))?
-        .map_err(|e| AppError::Internal(anyhow::anyhow!("Google userinfo request failed: {}", e)))?;
+        .map_err(|e| {
+            AppError::Internal(anyhow::anyhow!("Google userinfo request failed: {}", e))
+        })?;
 
         if !resp.status().is_success() {
             return Err(AppError::InvalidToken);
@@ -341,7 +343,9 @@ impl GoogleService {
             .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to parse userinfo: {}", e)))?;
 
         if info.email_verified != Some(true) {
-            return Err(AppError::Validation("Email not verified with Google".into()));
+            return Err(AppError::Validation(
+                "Email not verified with Google".into(),
+            ));
         }
 
         Ok(GoogleTokenClaims {

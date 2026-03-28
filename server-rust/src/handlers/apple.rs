@@ -19,8 +19,8 @@ use crate::repositories::{
 use crate::services::EmailService;
 use crate::utils::{
     build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
-    get_default_org_context, hash_refresh_token, resolve_org_assignment,
-    user_entity_to_auth_user, PeerIp,
+    get_default_org_context, hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user,
+    PeerIp,
 };
 use crate::AppState;
 
@@ -66,7 +66,10 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         .ok_or_else(|| AppError::Config("Apple team ID not configured".into()))?;
 
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
-    state.sanctions_service.check_country_from_request(&headers).await?;
+    state
+        .sanctions_service
+        .check_country_from_request(&headers)
+        .await?;
 
     // Verify the Apple ID token
     let claims = state
@@ -81,7 +84,9 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         match &claims.nonce {
             Some(token_nonce) if token_nonce == &expected_hash => { /* OK */ }
             Some(_) => {
-                tracing::warn!("Apple nonce mismatch: token nonce does not match client nonce hash");
+                tracing::warn!(
+                    "Apple nonce mismatch: token nonce does not match client nonce hash"
+                );
                 return Err(AppError::InvalidToken);
             }
             None => {
@@ -140,97 +145,98 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             let user = state.user_repo.update(existing).await?;
             (user, false, None)
         } else {
-        // Signup gating: enforce access codes and/or rate limits for new users
-        let gate_result = state
-            .signup_gating_service
-            .check_signup(req.access_code.as_deref())
-            .await?;
+            // Signup gating: enforce access codes and/or rate limits for new users
+            let gate_result = state
+                .signup_gating_service
+                .check_signup(req.access_code.as_deref())
+                .await?;
 
-        // Create new user
-        // Note: Apple may not provide email in rare edge cases (legacy accounts).
-        // Users created without email can only authenticate via Apple ID.
-        // This is acceptable as the apple_id field uniquely identifies them.
-        let now = Utc::now();
-        let mut user = UserEntity {
-            id: uuid::Uuid::new_v4(),
-            email: normalized_email.clone(),
-            email_verified: claims.is_email_verified(),
-            password_hash: None,
-            // Use name from request (Apple only provides on first sign-in)
-            name: req.name,
-            username: None,
-            picture: None, // Apple doesn't provide profile pictures
-            wallet_address: None,
-            google_id: None,
-            apple_id: Some(claims.sub),
-            stripe_customer_id: None,
-            auth_methods: vec![AuthMethod::Apple],
-            is_system_admin: false,
-            created_at: now,
-            updated_at: now,
-            last_login_at: Some(now),
-            welcome_completed_at: None,
-            referral_code: crate::repositories::generate_referral_code(),
-            referred_by: None,
-            payout_wallet_address: None,
-            kyc_status: "none".to_string(),
-            kyc_verified_at: None,
-            kyc_expires_at: None,
-            accreditation_status: "none".to_string(),
-            accreditation_verified_at: None,
-            accreditation_expires_at: None,
-        };
+            // Create new user
+            // Note: Apple may not provide email in rare edge cases (legacy accounts).
+            // Users created without email can only authenticate via Apple ID.
+            // This is acceptable as the apple_id field uniquely identifies them.
+            let now = Utc::now();
+            let mut user = UserEntity {
+                id: uuid::Uuid::new_v4(),
+                email: normalized_email.clone(),
+                email_verified: claims.is_email_verified(),
+                password_hash: None,
+                // Use name from request (Apple only provides on first sign-in)
+                name: req.name,
+                username: None,
+                picture: None, // Apple doesn't provide profile pictures
+                wallet_address: None,
+                google_id: None,
+                apple_id: Some(claims.sub),
+                stripe_customer_id: None,
+                auth_methods: vec![AuthMethod::Apple],
+                is_system_admin: false,
+                created_at: now,
+                updated_at: now,
+                last_login_at: Some(now),
+                welcome_completed_at: None,
+                referral_code: crate::repositories::generate_referral_code(),
+                referred_by: None,
+                payout_wallet_address: None,
+                kyc_status: "none".to_string(),
+                kyc_verified_at: None,
+                kyc_expires_at: None,
+                accreditation_status: "none".to_string(),
+                accreditation_verified_at: None,
+                accreditation_expires_at: None,
+            };
 
-        // Resolve referral: if feature enabled and referral code provided, link referrer
-        let referrals_enabled = state
-            .settings_service
-            .get_bool("feature_referrals_enabled")
-            .await
-            .ok()
-            .flatten()
-            .unwrap_or(false);
-        if referrals_enabled {
-            if let Some(ref code) = req.referral {
-                match state.user_repo.find_by_referral_code(code).await {
-                    Ok(Some(referrer)) => {
-                        user.referred_by = Some(referrer.id);
-                    }
-                    Ok(None) => {
-                        tracing::debug!(referral_code = %code, "Referral code not found, ignoring");
-                    }
-                    Err(e) => {
-                        tracing::warn!(error = %e, "Failed to look up referral code, ignoring");
+            // Resolve referral: if feature enabled and referral code provided, link referrer
+            let referrals_enabled = state
+                .settings_service
+                .get_bool("feature_referrals_enabled")
+                .await
+                .ok()
+                .flatten()
+                .unwrap_or(false);
+            if referrals_enabled {
+                if let Some(ref code) = req.referral {
+                    match state.user_repo.find_by_referral_code(code).await {
+                        Ok(Some(referrer)) => {
+                            user.referred_by = Some(referrer.id);
+                        }
+                        Ok(None) => {
+                            tracing::debug!(referral_code = %code, "Referral code not found, ignoring");
+                        }
+                        Err(e) => {
+                            tracing::warn!(error = %e, "Failed to look up referral code, ignoring");
+                        }
                     }
                 }
             }
-        }
 
-        // Persist user FIRST — org resolution may auto-create a "Default" org
-        // whose owner_id FK references users.id, so the user row must exist.
-        let user = state.user_repo.create(user).await?;
+            // Persist user FIRST — org resolution may auto-create a "Default" org
+            // whose owner_id FK references users.id, so the user row must exist.
+            let user = state.user_repo.create(user).await?;
 
-        // NOW resolve org assignment — user exists in DB, FK satisfied
-        let org_assignment = resolve_org_assignment(&state, user.id).await?;
-        let membership = MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
-        let raw_api_key = generate_api_key();
-        let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key, "default");
+            // NOW resolve org assignment — user exists in DB, FK satisfied
+            let org_assignment = resolve_org_assignment(&state, user.id).await?;
+            let membership =
+                MembershipEntity::new(user.id, org_assignment.org_id, org_assignment.role);
+            let raw_api_key = generate_api_key();
+            let api_key_entity = ApiKeyEntity::new(user.id, &raw_api_key, "default");
 
-        state.membership_repo.create(membership).await?;
-        state.api_key_repo.create(api_key_entity).await?;
+            state.membership_repo.create(membership).await?;
+            state.api_key_repo.create(api_key_entity).await?;
 
-        // Mark access code as used (non-fatal)
-        if let Some(code_id) = gate_result.access_code_id {
-            if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
-                tracing::warn!(
-                    user_id = %user.id,
-                    code_id = %code_id,
-                    error = %e,
-                    "Failed to mark access code as used"
-                );
+            // Mark access code as used (non-fatal)
+            if let Some(code_id) = gate_result.access_code_id {
+                if let Err(e) = state.signup_gating_service.mark_code_used(code_id).await {
+                    tracing::warn!(
+                        user_id = %user.id,
+                        code_id = %code_id,
+                        error = %e,
+                        "Failed to mark access code as used"
+                    );
+                }
             }
-        }
 
-        (user, true, Some(raw_api_key))
+            (user, true, Some(raw_api_key))
         }
     };
 
@@ -261,7 +267,8 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
 
     // Get user's memberships to find default org context
     let memberships = state.membership_repo.find_by_user(user.id).await?;
-    let token_context = get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
+    let token_context =
+        get_default_org_context(&memberships, user.is_system_admin, user.email_verified);
 
     // Create session with org context
     let session_id = uuid::Uuid::new_v4();
@@ -332,7 +339,15 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         callback_data,
         api_key,
         email_queued: None,
-        post_login: compute_post_login(&user, &state.settings_service, &*state.totp_repo, &*state.credential_repo, &*state.wallet_material_repo, &*state.storage.pending_wallet_recovery_repo).await,
+        post_login: compute_post_login(
+            &user,
+            &state.settings_service,
+            &*state.totp_repo,
+            &*state.credential_repo,
+            &*state.wallet_material_repo,
+            &*state.storage.pending_wallet_recovery_repo,
+        )
+        .await,
     };
 
     Ok(build_json_response_with_cookies(

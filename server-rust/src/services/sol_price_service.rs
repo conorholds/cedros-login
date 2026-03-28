@@ -153,12 +153,9 @@ impl SolPriceService {
 
         // L-07: The HTTP client already has a timeout (JUPITER_HTTP_TIMEOUT_SECS).
         // No outer tokio::time::timeout needed — that was a redundant double-timeout.
-        let response = self
-            .http_client
-            .get(&url)
-            .send()
-            .await
-            .map_err(|e| AppError::Internal(anyhow::anyhow!("Jupiter API request failed: {}", e)))?;
+        let response = self.http_client.get(&url).send().await.map_err(|e| {
+            AppError::Internal(anyhow::anyhow!("Jupiter API request failed: {}", e))
+        })?;
 
         if !response.status().is_success() {
             return Err(AppError::Internal(anyhow::anyhow!(

@@ -1,24 +1,24 @@
 //! Utility modules
 
 pub mod auth;
-pub mod image_processing;
 pub mod auto_enroll_wallet;
 pub mod converters;
 pub mod cookies;
 pub mod device_detection;
 pub mod extraction;
+pub mod image_processing;
 pub mod post_login;
 pub mod signup_org;
 pub mod tokens;
 pub mod validation;
 
 pub use auth::*;
-pub use image_processing::*;
 pub use auto_enroll_wallet::*;
 pub use converters::*;
 pub use cookies::*;
 pub use device_detection::*;
 pub use extraction::*;
+pub use image_processing::*;
 pub use post_login::*;
 pub use signup_org::*;
 pub use tokens::*;

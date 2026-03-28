@@ -348,6 +348,12 @@ pub struct HealthResponse {
     /// Database connectivity status (only present when postgres feature enabled)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub database: Option<String>,
+    /// Active rate limit backend when rate limiting is enabled.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rate_limit_backend: Option<String>,
+    /// Readiness of the configured rate limit backend.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rate_limit_status: Option<String>,
 }
 
 /// Authorization check request (supports both RBAC and ABAC)
@@ -588,6 +594,8 @@ mod tests {
             status: "healthy".to_string(),
             version: "1.0.0".to_string(),
             database: None,
+            rate_limit_backend: None,
+            rate_limit_status: None,
         };
         let json = serde_json::to_string(&response).unwrap();
         assert!(json.contains("\"status\":\"healthy\""));
@@ -600,9 +608,13 @@ mod tests {
             status: "healthy".to_string(),
             version: "1.0.0".to_string(),
             database: Some("connected".to_string()),
+            rate_limit_backend: Some("redis".to_string()),
+            rate_limit_status: Some("connected".to_string()),
         };
         let json = serde_json::to_string(&response).unwrap();
         assert!(json.contains("\"database\":\"connected\""));
+        assert!(json.contains("\"rateLimitBackend\":\"redis\""));
+        assert!(json.contains("\"rateLimitStatus\":\"connected\""));
     }
 
     #[test]

@@ -13,9 +13,7 @@ use rand::RngCore;
 
 use crate::callback::AuthCallback;
 use crate::errors::AppError;
-use crate::repositories::{
-    AuditEventType, CreateWalletMaterial, KdfParams, ShareAAuthMethod,
-};
+use crate::repositories::{AuditEventType, CreateWalletMaterial, KdfParams, ShareAAuthMethod};
 use crate::services::derive_pubkey_from_seed;
 use crate::services::EmailService;
 use crate::AppState;
@@ -59,11 +57,7 @@ pub async fn auto_enroll_wallet<C: AuthCallback, E: EmailService>(
     }
 
     // Idempotent: skip if user already has a wallet
-    if state
-        .wallet_material_repo
-        .exists_for_user(user_id)
-        .await?
-    {
+    if state.wallet_material_repo.exists_for_user(user_id).await? {
         return Ok(());
     }
 
@@ -72,8 +66,7 @@ pub async fn auto_enroll_wallet<C: AuthCallback, E: EmailService>(
     OsRng.fill_bytes(&mut seed);
 
     // 2. Split into 3 Shamir shares (threshold 2)
-    let (mut share_a, share_b, _share_c) =
-        state.wallet_signing_service.split_secret(&seed)?;
+    let (mut share_a, share_b, _share_c) = state.wallet_signing_service.split_secret(&seed)?;
 
     // 3. Derive Solana pubkey from seed
     let solana_pubkey = derive_pubkey_from_seed(&seed)?;

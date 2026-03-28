@@ -174,7 +174,10 @@ fn generate_skill_contents(base: &str) -> Vec<(&'static str, String)> {
         ("mfa", generate_mfa_skill(base)),
         ("wallet", generate_wallet_skill(base)),
         ("kyc", bundle_compliance::generate_kyc_skill(base)),
-        ("compliance", bundle_compliance::generate_compliance_skill(base)),
+        (
+            "compliance",
+            bundle_compliance::generate_compliance_skill(base),
+        ),
         ("rewards", bundle_compliance::generate_rewards_skill(base)),
         ("admin", generate_admin_skill(base)),
     ]

@@ -1,7 +1,5 @@
 import { Component } from 'react';
-import { ComponentType } from 'react';
 import { CSSProperties } from 'react';
-import { default as default_2 } from 'react';
 import { ErrorInfo } from 'react';
 import { InputHTMLAttributes } from 'react';
 import { JSX } from 'react/jsx-runtime';
@@ -374,81 +372,6 @@ export declare interface AdminDepositStatsResponse {
 }
 
 /**
- * Group configuration for sidebar organization.
- *
- * **Ordering rules:**
- * - Groups are keyed by `label` (not `id`) when merging across plugins.
- * - The first plugin to declare a given label wins the `order` number.
- * - Later plugins adding sections with `group: 'Same Label'` merge into
- *   the existing group without overriding the order.
- * - Groups without an explicit config default to `order: 99` (sink to bottom).
- * - cedros-login declares `Users` at order 0 and `Configuration` at order 2,
- *   leaving order 1 available for other plugins to insert between them.
- */
-export declare interface AdminGroupConfig {
-    /** Group identifier */
-    id: string;
-    /** Display label — used as the merge key across plugins */
-    label: string;
-    /** Sort order (lower = higher in sidebar). First plugin to declare a label wins. */
-    order: number;
-    /** Icon for the group header */
-    icon?: ReactNode;
-    /** Whether group starts collapsed */
-    defaultCollapsed?: boolean;
-}
-
-export declare const AdminIcons: Record<string, ReactNode>;
-
-/**
- * Plugin definition — the main export from each admin module.
- *
- * **Plugin merge order:** Plugins are iterated in registration order (insertion
- * order of the registry `Map`). Sections from later plugins are appended after
- * sections from earlier plugins. There is no cross-plugin section dedup — each
- * plugin's section IDs are namespaced via `qualifiedId` (`pluginId:sectionId`).
- *
- * **Section visibility:** Each section passes two filters:
- * 1. `checkPermission(section.requiredPermission, hostContext)` — role-based.
- * 2. `hostContext.dashboardPermissions?.canAccess(section.id)` — owner RBAC.
- *
- * Register at the composition root:
- * ```tsx
- * <AdminShell plugins={[cedrosLoginPlugin, cedrosPayPlugin]} hostContext={ctx}>
- *   {children}
- * </AdminShell>
- * ```
- */
-export declare interface AdminPlugin {
-    /** Unique plugin identifier */
-    id: PluginId;
-    /** Display name for the plugin */
-    name: string;
-    /** Plugin version (semver) */
-    version: string;
-    /** Sections this plugin contributes */
-    sections: AdminSectionConfig[];
-    /** Sidebar groups with display order */
-    groups?: AdminGroupConfig[];
-    /** Map of section ID to component */
-    components: Record<SectionId, ComponentType<AdminSectionProps>>;
-    /**
-     * Context bridge - converts host context to plugin-specific context.
-     */
-    createPluginContext: (hostContext: HostContext) => PluginContext;
-    /**
-     * Permission resolver - maps plugin permissions to host permission checks.
-     */
-    checkPermission: (permission: PluginPermission, hostContext: HostContext) => boolean;
-    /** CSS class prefix for all plugin styles */
-    cssNamespace: string;
-    /** Called when plugin is registered */
-    onRegister?: (registry: PluginRegistry) => void;
-    /** Called when plugin is unregistered */
-    onUnregister?: () => void;
-}
-
-/**
  * Admin privacy period deposits display
  *
  * Shows deposits that are still in the privacy period (not yet available for withdrawal).
@@ -519,79 +442,6 @@ export declare function AdminSanctionsPanel({ className }: AdminSanctionsPanelPr
  * Requires system admin privileges.
  */
 export declare interface AdminSanctionsPanelProps {
-    className?: string;
-}
-
-/**
- * Section configuration for sidebar navigation.
- *
- * **Ordering:** Sections within a group are sorted by `order` (ascending).
- * Sections with the same order are shown in plugin registration order.
- * Sections without a `group` fall into the implicit `'Menu'` group.
- */
-export declare interface AdminSectionConfig {
-    /** Section ID unique within the plugin */
-    id: SectionId;
-    /** Display label for sidebar */
-    label: string;
-    /** React node for the icon (SVG or component) */
-    icon: ReactNode;
-    /** Sidebar group name — must match an {@link AdminGroupConfig.label} to merge into that group */
-    group?: string;
-    /** Sort order within group (lower = higher). Default: 0 */
-    order?: number;
-    /** Permission required to see this section */
-    requiredPermission?: PluginPermission;
-    /** Badge content (e.g., notification count) */
-    badge?: ReactNode;
-}
-
-/**
- * Props passed to section components by AdminShell.
- */
-export declare interface AdminSectionProps {
-    /** Plugin context with auth and API access */
-    pluginContext: PluginContext;
-    /** Page size for lists */
-    pageSize: number;
-    /** Refresh interval for auto-updating data (0 = disabled) */
-    refreshInterval: number;
-}
-
-export declare function AdminShell({ title, plugins: initialPlugins, hostContext, defaultSection, pageSize, refreshInterval, onSectionChange, logo, sidebarFooter, onSettingsClick, onLogoutClick, className, }: AdminShellProps): default_2.JSX.Element;
-
-declare interface AdminShellContextValue {
-    registry: PluginRegistry;
-    hostContext: HostContext;
-    activeSection: QualifiedSectionId | null;
-    setActiveSection: (section: QualifiedSectionId) => void;
-    getPluginContext: (pluginId: string) => PluginContext | null;
-}
-
-export declare interface AdminShellProps {
-    /** Dashboard title */
-    title?: string;
-    /** Plugins to load */
-    plugins?: AdminPlugin[];
-    /** Host context from parent providers */
-    hostContext: HostContext;
-    /** Default active section (qualified ID) */
-    defaultSection?: QualifiedSectionId;
-    /** Page size for lists */
-    pageSize?: number;
-    /** Refresh interval in ms (0 to disable) */
-    refreshInterval?: number;
-    /** Callback when section changes */
-    onSectionChange?: (section: QualifiedSectionId) => void;
-    /** Custom logo/header content */
-    logo?: ReactNode;
-    /** Additional sidebar footer content */
-    sidebarFooter?: ReactNode;
-    /** Callback when user clicks Settings in profile dropdown */
-    onSettingsClick?: () => void;
-    /** Callback when user clicks Logout in profile dropdown */
-    onLogoutClick?: () => void;
-    /** Additional CSS class */
     className?: string;
 }
 
@@ -942,6 +792,8 @@ export declare type AuthState = 'idle' | 'loading' | 'authenticated' | 'unauthen
  */
 export declare interface AuthStateContextValue {
     config: CedrosLoginConfig;
+    featureFlags: ResolvedFeatureFlags;
+    isFeatureEnabled: (name: FeatureFlagName) => boolean;
     user: AuthUser | null;
     authState: AuthState;
     logout: () => Promise<void>;
@@ -1004,27 +856,6 @@ export declare interface CapabilityWarningProps {
     /** Optional class name */
     className?: string;
 }
-
-/**
- * All section IDs registered by the cedros-login plugin.
- *
- * Use these to reference specific sections when configuring
- * `dashboardPermissions.canAccess()` or navigating programmatically.
- *
- * Qualified IDs (for multi-plugin use) are prefixed: `cedros-login:{id}`.
- */
-export declare const CEDROS_LOGIN_SECTION_IDS: {
-    readonly users: "users";
-    readonly team: "team";
-    readonly deposits: "deposits";
-    readonly withdrawals: "withdrawals";
-    readonly settingsAuth: "settings-auth";
-    readonly settingsEmail: "settings-email";
-    readonly settingsWebhooks: "settings-webhooks";
-    readonly settingsWallet: "settings-wallet";
-    readonly settingsCredits: "settings-credits";
-    readonly settingsServer: "settings-server";
-};
 
 /**
  * Unified Admin Dashboard
@@ -1097,8 +928,22 @@ export declare interface CedrosLoginConfig {
     appleClientId?: string;
     /** Solana configuration options */
     solana?: SolanaConfig;
-    /** Enable/disable auth methods */
+    /**
+     * Package feature flag overrides.
+     *
+     * Resolution precedence is:
+     * 1. `config.features`
+     * 2. `CEDROS_FEATURE_*` environment variables
+     * 3. Registry defaults in `FEATURE_FLAG_REGISTRY`
+     */
     features?: FeatureFlags;
+    /**
+     * Optional environment source for feature flags.
+     *
+     * Use this in browser bundlers that expose env through objects like
+     * `import.meta.env` instead of `process.env`.
+     */
+    featureFlagEnv?: Record<string, unknown>;
     /** Form behavior configuration (forgot password, terms, email opt-in) */
     forms?: FormConfig;
     /** TOTP/2FA configuration (app-based authenticator) */
@@ -1136,10 +981,6 @@ declare interface CedrosLoginInternalAPI {
     /** Get the referral code captured from the ?ref= URL parameter (if any) */
     getReferralCode: () => string | null;
 }
-
-declare const cedrosLoginPlugin: AdminPlugin;
-export { cedrosLoginPlugin }
-export { cedrosLoginPlugin as loginPlugin }
 
 /**
  * Provider component that wraps your app and provides authentication context.
@@ -1885,25 +1726,89 @@ export declare interface ExternalSignOptions {
     onExternalSign?: (transaction: Uint8Array) => Promise<Uint8Array>;
 }
 
+export declare const FEATURE_FLAG_ENV_PREFIX = "CEDROS_FEATURE_";
+
 /**
- * Feature flags to enable/disable auth methods
+ * Single source of truth for package feature flags.
+ *
+ * To roll out a feature:
+ * 1. Add it here with a positive name.
+ * 2. Ship it with `defaultEnabled: false`.
+ * 3. Flip only `defaultEnabled` to `true` when ready.
  */
-export declare interface FeatureFlags {
-    /** Enable email/password auth. Default: true */
-    email?: boolean;
-    /** Enable Google OAuth. Default: true (requires googleClientId) */
-    google?: boolean;
-    /** Enable Apple Sign In. Default: true (requires appleClientId) */
-    apple?: boolean;
-    /** Enable Solana wallet sign-in. Default: true */
-    solana?: boolean;
-    /** Enable WebAuthn passkeys (server-managed). Default: true */
-    webauthn?: boolean;
-    /** Enable instant-link passwordless sign-in. Default: false */
-    instantLink?: boolean;
-    /** Enable embedded wallet auto-enrollment on registration. Default: true */
-    walletEnrollment?: boolean;
+export declare const FEATURE_FLAG_REGISTRY: {
+    readonly email: {
+        readonly name: "email";
+        readonly description: "Enable email/password authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_EMAIL";
+        readonly autoDiscoverable: true;
+    };
+    readonly google: {
+        readonly name: "google";
+        readonly description: "Enable Google OAuth authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_GOOGLE";
+        readonly autoDiscoverable: true;
+    };
+    readonly apple: {
+        readonly name: "apple";
+        readonly description: "Enable Apple Sign In authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_APPLE";
+        readonly autoDiscoverable: true;
+    };
+    readonly solana: {
+        readonly name: "solana";
+        readonly description: "Enable Solana wallet authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_SOLANA";
+        readonly autoDiscoverable: true;
+    };
+    readonly webauthn: {
+        readonly name: "webauthn";
+        readonly description: "Enable passkey authentication.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_WEBAUTHN";
+        readonly autoDiscoverable: true;
+    };
+    readonly instantLink: {
+        readonly name: "instantLink";
+        readonly description: "Enable passwordless instant-link sign-in.";
+        readonly defaultEnabled: false;
+        readonly status: "experimental";
+        readonly envVar: "CEDROS_FEATURE_INSTANT_LINK";
+        readonly autoDiscoverable: true;
+    };
+    readonly walletEnrollment: {
+        readonly name: "walletEnrollment";
+        readonly description: "Enable embedded wallet auto-enrollment after registration.";
+        readonly defaultEnabled: true;
+        readonly status: "stable";
+        readonly envVar: "CEDROS_FEATURE_WALLET_ENROLLMENT";
+        readonly autoDiscoverable: false;
+    };
+};
+
+export declare interface FeatureFlagDefinition {
+    name: string;
+    description: string;
+    defaultEnabled: boolean;
+    status: FeatureFlagStatus;
+    envVar: string;
+    autoDiscoverable: boolean;
 }
+
+export declare type FeatureFlagName = keyof typeof FEATURE_FLAG_REGISTRY;
+
+export declare type FeatureFlags = Partial<Record<FeatureFlagName, boolean>>;
+
+export declare type FeatureFlagStatus = 'stable' | 'experimental';
 
 /** Fee policy options - who pays the deposit fees */
 declare type FeePolicy = 'company_pays_all' | 'user_pays_swap' | 'user_pays_privacy' | 'user_pays_all';
@@ -1989,6 +1894,12 @@ export declare interface FullPageLayoutProps {
     className?: string;
 }
 
+export declare function getAutoDiscoverableFeatureDefaults(): FeatureFlags;
+
+export declare function getAutoDiscoverableFeatureFlagNames(): FeatureFlagName[];
+
+export declare function getDefaultFeatureFlags(): ResolvedFeatureFlags;
+
 /**
  * Get embedded wallet info
  *
@@ -1997,6 +1908,12 @@ export declare interface FullPageLayoutProps {
  * @returns Wallet info or null if not exposed
  */
 export declare function getEmbeddedWalletInfo(): EmbeddedWalletInfo | null;
+
+export declare function getFeatureFlagDefinition(name: FeatureFlagName): FeatureFlagDefinition;
+
+export declare function getFeatureFlagDefinitions(): FeatureFlagDefinition[];
+
+export declare function getFeatureFlagEnvVar(name: FeatureFlagName): string;
 
 /**
  * Determine which tier an amount falls into
@@ -2044,91 +1961,6 @@ export declare interface HistoryProps {
     onLoad?: (history: CreditHistoryResponse) => void;
     /** Callback when a transaction is clicked */
     onTransactionClick?: (transaction: CreditTransactionResponse) => void;
-}
-
-/**
- * Host context provided by the application to `<AdminShell>`.
- *
- * Each field is optional — omit fields your app doesn't use.
- * Plugins read the fields they need and degrade gracefully when absent.
- *
- * **Which plugin reads what:**
- * - `cedros-login` plugin: requires `cedrosLogin` (throws if missing).
- *   Uses `user`, `getAccessToken`, `serverUrl` for all API calls.
- *   Reads `org` for role-based section filtering.
- * - `cedros-pay` plugin: requires `cedrosPay`. Uses `walletAddress`,
- *   `jwtToken`, `serverUrl`.
- * - Both plugins: respect `dashboardPermissions` for section-level RBAC.
- *
- * **Missing field behavior:**
- * - `cedrosLogin` missing → cedros-login plugin throws at `createPluginContext()`.
- * - `cedrosPay` missing → cedros-pay plugin throws at `createPluginContext()`.
- * - `org` missing → all authenticated users are treated as global admins
- *   (all permission checks pass).
- * - `dashboardPermissions` missing → all sections visible (no owner-level filtering).
- * - `custom` → pass-through bag, not read by built-in plugins.
- */
-export declare interface HostContext {
-    /**
-     * Cedros Login auth context.
-     *
-     * **Required by:** `cedros-login` plugin.
-     * **Missing behavior:** plugin throws `'cedros-login plugin requires cedrosLogin in hostContext'`.
-     */
-    cedrosLogin?: {
-        /** Authenticated user, or null if not signed in */
-        user: {
-            id: string;
-            email?: string;
-            name?: string;
-            picture?: string;
-        } | null;
-        /** Returns current JWT access token, or null */
-        getAccessToken: () => string | null;
-        /** Base URL of the cedros-login server (e.g., `https://api.example.com`) */
-        serverUrl: string;
-    };
-    /**
-     * Cedros Pay context.
-     *
-     * **Required by:** `cedros-pay` plugin.
-     * **Missing behavior:** pay plugin throws at context creation.
-     */
-    cedrosPay?: {
-        /** Connected wallet public key */
-        walletAddress?: string;
-        /** JWT for cedros-pay API */
-        jwtToken?: string;
-        /** Base URL of the cedros-pay server */
-        serverUrl: string;
-    };
-    /**
-     * Organization context for multi-tenant role-based access.
-     *
-     * **Missing behavior:** all permission checks pass (global admin assumed).
-     */
-    org?: {
-        /** Current organization ID */
-        orgId: string;
-        /** User's role in this org (e.g., 'owner', 'admin', 'member') */
-        role: string;
-        /** Granular permission strings (e.g., 'member:read', 'invite:create') */
-        permissions: string[];
-    };
-    /**
-     * Owner-configured section-level access control.
-     *
-     * Applied *after* plugin permission checks — a section must pass both
-     * `plugin.checkPermission()` and `canAccess()` to be visible.
-     *
-     * **Missing behavior:** all sections visible (no owner-level filtering).
-     */
-    dashboardPermissions?: {
-        /** Check if current user can access a section by its `SectionId` */
-        canAccess: (sectionId: string) => boolean;
-    };
-    /** Generic extension point for custom plugins. Not read by built-in plugins. */
-    custom?: Record<string, unknown>;
 }
 
 /**
@@ -2282,6 +2114,10 @@ declare type InviteRole = Exclude<OrgRole, 'owner'>;
  * @returns true if embedded wallet is enrolled and available
  */
 export declare function isEmbeddedWalletAvailable(): boolean;
+
+export declare function isFeatureEnabled(name: FeatureFlagName, options?: ResolveFeatureFlagsOptions & {
+    flags?: FeatureFlags | ResolvedFeatureFlags;
+}): boolean;
 
 /** Argon2id KDF parameters (OWASP recommended) */
 export declare interface KdfParams {
@@ -2817,6 +2653,8 @@ export declare interface OtpInputProps {
     className?: string;
 }
 
+export declare function parseFeatureFlagBoolean(value: unknown): boolean | undefined;
+
 export declare function PasskeyLoginButton({ onSuccess, onError, className, children, disabled, accessCode, }: PasskeyLoginButtonProps): JSX.Element;
 
 export declare interface PasskeyLoginButtonProps {
@@ -2910,46 +2748,6 @@ export declare interface PendingWalletRecoveryResponse {
  * Permission types for RBAC
  */
 export declare type Permission = 'org:delete' | 'org:update' | 'org:read' | 'member:invite' | 'member:remove' | 'member:role_change' | 'member:read' | 'invite:create' | 'invite:cancel' | 'invite:read' | 'audit:read';
-
-/**
- * Context provided to each plugin's section components.
- */
-export declare interface PluginContext {
-    /** Server URL for API calls */
-    serverUrl: string;
-    /** Current authenticated user ID (if any) */
-    userId?: string;
-    /** Function to get current access token */
-    getAccessToken: () => string | null;
-    /** Permission check function */
-    hasPermission: (permission: PluginPermission) => boolean;
-    /** Current organization ID (if applicable) */
-    orgId?: string;
-    /** Plugin-specific context data */
-    pluginData?: Record<string, unknown>;
-}
-
-/** Unique identifier for a plugin */
-export declare type PluginId = string;
-
-/** Permission identifier for capability checking */
-export declare type PluginPermission = string;
-
-/**
- * Plugin registry for runtime management.
- */
-export declare interface PluginRegistry {
-    /** Register a plugin */
-    register(plugin: AdminPlugin): void;
-    /** Unregister a plugin by ID */
-    unregister(pluginId: PluginId): void;
-    /** Get registered plugin by ID */
-    get(pluginId: PluginId): AdminPlugin | undefined;
-    /** Get all registered plugins */
-    getAll(): AdminPlugin[];
-    /** Listen for registration changes */
-    subscribe(listener: (plugins: AdminPlugin[]) => void): () => void;
-}
 
 /**
  * Post-login action returned by the server after authentication
@@ -3079,8 +2877,7 @@ export declare interface PublicDepositRequest {
     walletAddress: string;
 }
 
-/** Fully qualified section ID: `pluginId:sectionId` */
-export declare type QualifiedSectionId = `${PluginId}:${SectionId}`;
+export declare function readFeatureFlagEnv(envSource?: Record<string, unknown> | undefined): FeatureFlags;
 
 /**
  * Display recovery phrase with security warnings
@@ -3217,6 +3014,19 @@ export declare interface ResetPasswordFormProps {
     className?: string;
 }
 
+export declare type ResolvedFeatureFlags = Record<FeatureFlagName, boolean>;
+
+export declare function resolveFeatureFlags(options?: ResolveFeatureFlagsOptions): ResolvedFeatureFlags;
+
+declare interface ResolveFeatureFlagsOptions {
+    config?: FeatureFlags;
+    env?: Record<string, unknown>;
+    /**
+     * Lower-precedence flag values from another source, such as server discovery.
+     */
+    base?: FeatureFlags;
+}
+
 /**
  * Response from revoking all sessions
  */
@@ -3308,9 +3118,6 @@ export declare interface SanctionsStats {
     lastRefreshedAt?: string;
     configured: boolean;
 }
-
-/** Section identifier, unique within a plugin */
-export declare type SectionId = string;
 
 export declare function SecuritySettings({ className }: SecuritySettingsProps): JSX.Element;
 
@@ -3817,16 +3624,31 @@ export declare type ThemeMode = 'light' | 'dark' | 'auto';
 export declare interface ThemeOverrides {
     '--cedros-primary'?: string;
     '--cedros-primary-foreground'?: string;
+    '--cedros-card'?: string;
+    '--cedros-card-foreground'?: string;
     '--cedros-background'?: string;
     '--cedros-foreground'?: string;
     '--cedros-muted'?: string;
     '--cedros-muted-foreground'?: string;
+    '--cedros-accent'?: string;
+    '--cedros-accent-foreground'?: string;
     '--cedros-border'?: string;
     '--cedros-input'?: string;
     '--cedros-ring'?: string;
     '--cedros-radius'?: string;
     '--cedros-destructive'?: string;
     '--cedros-destructive-foreground'?: string;
+    '--cedros-warning'?: string;
+    '--cedros-warning-light'?: string;
+    '--cedros-success'?: string;
+    '--cedros-success-light'?: string;
+    '--cedros-link'?: string;
+    '--cedros-ease-out'?: string;
+    '--cedros-ease-in-out'?: string;
+    '--cedros-ease-spring'?: string;
+    '--cedros-duration-fast'?: string;
+    '--cedros-duration-normal'?: string;
+    '--cedros-duration-slow'?: string;
     [key: string]: string | undefined;
 }
 
@@ -4444,8 +4266,6 @@ export declare interface UseAdminDepositsReturn {
     /** Clear error */
     clearError: () => void;
 }
-
-export declare function useAdminShell(): AdminShellContextValue;
 
 /**
  * Hook for admin user management operations

@@ -694,8 +694,14 @@ mod tests {
     #[test]
     fn test_disposable_email_custom_domains() {
         let custom = HashSet::from(["blocked.example.com".to_string()]);
-        assert!(is_disposable_email("user@blocked.example.com", Some(&custom)));
-        assert!(!is_disposable_email("user@allowed.example.com", Some(&custom)));
+        assert!(is_disposable_email(
+            "user@blocked.example.com",
+            Some(&custom)
+        ));
+        assert!(!is_disposable_email(
+            "user@allowed.example.com",
+            Some(&custom)
+        ));
     }
 
     #[test]

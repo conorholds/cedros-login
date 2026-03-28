@@ -124,9 +124,7 @@ impl AccreditationService {
                 None => true,
             };
             if still_valid {
-                return Err(AppError::Validation(
-                    "User is already accredited".into(),
-                ));
+                return Err(AppError::Validation("User is already accredited".into()));
             }
         }
 
@@ -228,10 +226,7 @@ impl AccreditationService {
     ///
     /// # Errors
     /// - `NotFound` if the user does not exist.
-    pub async fn get_status(
-        &self,
-        user_id: Uuid,
-    ) -> Result<AccreditationStatusResponse, AppError> {
+    pub async fn get_status(&self, user_id: Uuid) -> Result<AccreditationStatusResponse, AppError> {
         let user = self
             .user_repo
             .find_by_id(user_id)
@@ -288,10 +283,7 @@ impl AccreditationService {
             .accreditation_repo
             .list_pending_submissions(limit, offset)
             .await?;
-        let total = self
-            .accreditation_repo
-            .count_pending_submissions()
-            .await?;
+        let total = self.accreditation_repo.count_pending_submissions().await?;
         Ok((submissions, total))
     }
 
@@ -350,9 +342,7 @@ impl AccreditationService {
             .ok_or_else(|| AppError::NotFound("Submission not found".into()))?;
 
         if submission.status != "pending" {
-            return Err(AppError::Validation(
-                "Submission is not pending".into(),
-            ));
+            return Err(AppError::Validation("Submission is not pending".into()));
         }
 
         if approved {
@@ -427,16 +417,12 @@ impl AccreditationService {
             .ok_or_else(|| AppError::NotFound("User not found".into()))?;
 
         if user.accreditation_status != "approved" {
-            return Err(AppError::Forbidden(
-                "Accreditation required".into(),
-            ));
+            return Err(AppError::Forbidden("Accreditation required".into()));
         }
 
         if let Some(expires) = user.accreditation_expires_at {
             if expires <= Utc::now() {
-                return Err(AppError::Forbidden(
-                    "Accreditation has expired".into(),
-                ));
+                return Err(AppError::Forbidden("Accreditation has expired".into()));
             }
         }
 
@@ -710,10 +696,7 @@ mod tests {
             "subscription_agreement",
             "other",
         ] {
-            assert!(
-                validate_doc_type(dt).is_ok(),
-                "expected '{dt}' to be valid"
-            );
+            assert!(validate_doc_type(dt).is_ok(), "expected '{dt}' to be valid");
         }
     }
 
