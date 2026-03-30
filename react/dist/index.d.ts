@@ -35,7 +35,7 @@ export declare interface AccessCode {
     createdAt: string;
 }
 
-export declare function AccountSettings({ defaultTab, onClose, onPasswordChange, onTotpChange, onLinkGoogle, onLinkApple, onAddPasskey, onLinkSolana, className, }: AccountSettingsProps): JSX.Element;
+export declare function AccountSettings({ defaultTab, onClose, onPasswordChange, onTotpChange, onAccountDeleted, onLinkGoogle, onLinkApple, onAddPasskey, onLinkSolana, className, }: AccountSettingsProps): JSX.Element;
 
 export declare interface AccountSettingsProps extends ProfileTabProps, LinkedAccountsProps {
     /** Which tab to show initially */
@@ -44,6 +44,8 @@ export declare interface AccountSettingsProps extends ProfileTabProps, LinkedAcc
     onClose?: () => void;
     /** Called when 2FA status changes */
     onTotpChange?: (enabled: boolean) => void;
+    /** Called after the current account is deleted */
+    onAccountDeleted?: () => void;
 }
 
 declare type AccountTab = 'profile' | 'security' | 'linked';
@@ -1294,6 +1296,13 @@ declare type DeepPartial_2<T> = {
 };
 
 export declare const defaultTranslations: Translations;
+
+export declare function DeleteAccountSection({ onDeleted, className, }: DeleteAccountSectionProps): JSX.Element;
+
+export declare interface DeleteAccountSectionProps {
+    onDeleted?: () => void;
+    className?: string;
+}
 
 /** Deposit configuration with tiered thresholds */
 export declare interface DepositConfigResponse {
@@ -4161,6 +4170,17 @@ export declare interface UseAccessCodesReturn {
     isLoading: boolean;
     /** Error from the last operation */
     error: Error | null;
+}
+
+export declare function useAccountDeletion(): UseAccountDeletionReturn;
+
+export declare interface UseAccountDeletionReturn {
+    isLoading: boolean;
+    error: AuthError | null;
+    accountDeletionUrl: string;
+    requestDeletionEmail: (email: string) => Promise<void>;
+    deleteAccount: (confirmText?: string) => Promise<void>;
+    clearError: () => void;
 }
 
 /**

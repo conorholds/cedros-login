@@ -50,6 +50,7 @@ Production-ready authentication server with multi-tenancy, flexible auth methods
 - **Sanctions Screening**: OFAC/SDN sanctions list screening with automatic refresh
 - **Token Gating**: Require token holdings for access (configured via admin system settings)
 - **Compliance API**: Server-to-server endpoint for aggregated compliance status (KYC + accreditation + sanctions)
+- **Account Deletion**: In-app deletion API plus hosted public deletion portal for Apple App Store / Google Play requirements
 
 ### Referrals & Rewards
 - **Referral Codes**: Auto-generated or custom referral codes per user
@@ -754,6 +755,11 @@ All configuration is via environment variables. See `.env.example` for the compl
 | `WEBAUTHN_ALLOW_CROSS_PLATFORM` | `true` | Allow cross-platform authenticators (security keys) |
 | `WEBAUTHN_REQUIRE_UV` | `true` | Require user verification (biometric/PIN) |
 | `GOOGLE_CLIENT_ID` | - | Google OAuth client ID |
+| `APPLE_CLIENT_ID` | - | Primary Apple client ID / Services ID |
+| `APPLE_ALLOWED_CLIENT_IDS` | - | Additional Apple audiences allowed for token verification (comma-separated, useful for native iOS bundle IDs) |
+| `APPLE_TEAM_ID` | - | Apple team ID |
+| `APPLE_KEY_ID` | - | Apple Sign In private key ID used for token exchange/revocation |
+| `APPLE_PRIVATE_KEY_PEM` | - | Apple Sign In private key PEM used to mint client secrets |
 | `SMTP_HOST` | - | SMTP server for emails |
 | `SMTP_USERNAME` | - | SMTP username |
 | `SMTP_PASSWORD` | - | SMTP password |
@@ -769,6 +775,14 @@ All configuration is via environment variables. See `.env.example` for the compl
 | `PARTIAL_WITHDRAWAL_COUNT` | `0` | Max partial withdrawals per batch (0=disabled) |
 | `PARTIAL_WITHDRAWAL_MIN_LAMPORTS` | `500000000` | Min balance for partial withdrawal (0.5 SOL) |
 | `DEPOSIT_WEBHOOK_SECRET` | - | HMAC secret for Helius/Quicknode webhooks |
+
+### Store Publishing Notes
+
+- Hosted public deletion portal: `GET {auth_base_path}/account-deletion`
+- Public deletion request endpoint: `POST {auth_base_path}/account-deletion/request`
+- Token-confirmed deletion endpoint: `POST {auth_base_path}/account-deletion/confirm`
+- In-app authenticated deletion endpoint: `POST {auth_base_path}/account-deletion/me`
+- For Apple Sign In revocation, configure `APPLE_TEAM_ID`, `APPLE_KEY_ID`, and `APPLE_PRIVATE_KEY_PEM`, and have clients forward the Apple `authorizationCode`.
 
 ### SSO (OIDC) Notes
 

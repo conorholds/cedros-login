@@ -76,6 +76,7 @@ fn parse_event_type(s: &str) -> Result<OutboxEventType, AppError> {
         "email.invite" => Ok(OutboxEventType::EmailInvite),
         "email.instant_link" => Ok(OutboxEventType::EmailInstantLink),
         "email.security_alert" => Ok(OutboxEventType::EmailSecurityAlert),
+        "email.account_deletion" => Ok(OutboxEventType::EmailAccountDeletion),
         "notify.login_threshold" => Ok(OutboxEventType::NotifyLoginThreshold),
         "notify.token_reuse" => Ok(OutboxEventType::NotifyTokenReuse),
         "notify.role_change" => Ok(OutboxEventType::NotifyRoleChange),

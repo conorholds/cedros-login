@@ -15,6 +15,8 @@ pub enum TokenType {
     InstantLink,
     /// Pending MFA verification during login (short-lived, 5 minutes)
     MfaPending,
+    /// Email confirmation for external account deletion requests.
+    AccountDeletion,
 }
 
 impl TokenType {
@@ -24,6 +26,7 @@ impl TokenType {
             TokenType::PasswordReset => "password_reset",
             TokenType::InstantLink => "instant_link",
             TokenType::MfaPending => "mfa_pending",
+            TokenType::AccountDeletion => "account_deletion",
         }
     }
 
@@ -35,6 +38,7 @@ impl TokenType {
             "password_reset" => Some(TokenType::PasswordReset),
             "instant_link" => Some(TokenType::InstantLink),
             "mfa_pending" => Some(TokenType::MfaPending),
+            "account_deletion" => Some(TokenType::AccountDeletion),
             _ => None,
         }
     }
@@ -238,6 +242,7 @@ pub fn default_expiry(token_type: TokenType) -> DateTime<Utc> {
         TokenType::PasswordReset => Utc::now() + Duration::hours(1),
         TokenType::InstantLink => Utc::now() + Duration::minutes(15),
         TokenType::MfaPending => Utc::now() + Duration::minutes(5),
+        TokenType::AccountDeletion => Utc::now() + Duration::hours(24),
     }
 }
 

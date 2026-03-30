@@ -2,6 +2,7 @@
 
 mod access_codes;
 mod accreditation;
+mod account_deletion;
 pub mod admin;
 pub mod ai_discovery;
 mod api_keys;
@@ -54,6 +55,10 @@ pub use accreditation::{
     get_user_accreditation, list_accreditation_submissions, list_pending_accreditations,
     override_accreditation_status as override_accreditation, review_accreditation,
     submit_accreditation, upload_accreditation_document,
+};
+pub use account_deletion::{
+    account_deletion_page, confirm_account_deletion, delete_current_account,
+    request_account_deletion,
 };
 pub use admin::{
     adjust_credits, authorize_treasury, cancel_payout, create_sso_provider, delete_sso_provider,

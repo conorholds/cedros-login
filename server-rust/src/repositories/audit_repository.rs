@@ -22,6 +22,8 @@ pub enum AuditEventType {
     UserPasswordChanged,
     UserEmailVerified,
     UserProfileUpdated,
+    AccountDeletionRequested,
+    AccountDeleted,
 
     // Session events
     SessionCreated,
@@ -90,6 +92,8 @@ impl AuditEventType {
             Self::UserPasswordChanged => "user.password_changed",
             Self::UserEmailVerified => "user.email_verified",
             Self::UserProfileUpdated => "user.profile_updated",
+            Self::AccountDeletionRequested => "account.deletion_requested",
+            Self::AccountDeleted => "account.deleted",
             Self::SessionCreated => "session.created",
             Self::SessionRevoked => "session.revoked",
             Self::SessionRevokedAll => "session.revoked_all",
@@ -140,6 +144,8 @@ impl AuditEventType {
             "user.password_changed" => Some(Self::UserPasswordChanged),
             "user.email_verified" => Some(Self::UserEmailVerified),
             "user.profile_updated" => Some(Self::UserProfileUpdated),
+            "account.deletion_requested" => Some(Self::AccountDeletionRequested),
+            "account.deleted" => Some(Self::AccountDeleted),
             "session.created" => Some(Self::SessionCreated),
             "session.revoked" => Some(Self::SessionRevoked),
             "session.revoked_all" => Some(Self::SessionRevokedAll),

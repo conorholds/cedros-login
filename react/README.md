@@ -206,6 +206,7 @@ function AuthStatus() {
 |-----------|-------------|
 | `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections. **Auto-detects first run and shows SetupWizard.** |
 | `SetupWizard` | First-run setup wizard — creates the first admin account (email, password, name, org). Shown automatically by `CedrosAdminDashboard` when no admin exists. |
+| `cedrosLoginInstalledExtension` | Ready-made installed-extension descriptor for manifest-aware `AdminShell` composition |
 | `cedrosLoginPlugin` | Admin plugin for use with the shared `AdminShell` from `@cedros/data-react/admin` |
 | `AdminPanel` | Legacy admin dashboard with tabs for members, invites, sessions, system settings |
 | `SystemSettings` | System settings editor (privacy, withdrawal, rate limits) - system admin only |
@@ -216,6 +217,7 @@ The admin dashboard supports a plugin architecture for creating unified dashboar
 
 | Export | Description |
 |--------|-------------|
+| `cedrosLoginInstalledExtension` | Ready-made installed-extension bundle for the preferred `installedExtensions` host path |
 | `cedrosLoginPlugin` | Plugin definition for cedros-login admin sections |
 | `CedrosLoginAdminSectionWrapper` | Temporary wrapper that recreates `CedrosLoginContext` inside the shared shell |
 | `AdminShell` | Import from `@cedros/data-react/admin` |
@@ -329,6 +331,15 @@ const {
   isLoading,
   error,
 } = useAppleAuth();
+
+// Account deletion
+const {
+  deleteAccount,
+  requestDeletionEmail,
+  accountDeletionUrl,
+  isLoading,
+  error,
+} = useAccountDeletion();
 
 // WebAuthn / Passkeys
 const {
@@ -1546,15 +1557,15 @@ function AdminApp() {
 When using both `@cedros/login-react` and `@cedros/pay-react`, you can create a unified admin dashboard that combines sections from both packages using the plugin architecture:
 
 ```tsx
-import { AdminShell } from '@cedros/data-react/admin';
+import { AdminShell, HOST_SERVICE_IDS } from '@cedros/data-react/admin';
 import '@cedros/data-react/admin/styles.css';
-import { cedrosPayPlugin } from '@cedros/pay-react'; // hypothetical
 import { useCedrosLogin } from '@cedros/login-react';
 import { useOrgs } from '@cedros/login-react';
 import {
   CedrosLoginAdminSectionWrapper,
-  cedrosLoginPlugin,
+  cedrosLoginInstalledExtension,
 } from '@cedros/login-react/admin-only';
+import { cedrosPayInstalledExtension } from '@cedros/pay-react';
 
 function UnifiedAdminDashboard() {
   const { user, getAccessToken } = useCedrosLogin();
@@ -1562,14 +1573,16 @@ function UnifiedAdminDashboard() {
 
   // Build host context from all auth providers
   const hostContext = {
-    cedrosLogin: {
-      user,
-      getAccessToken,
-      serverUrl: 'https://api.example.com/auth',
-    },
-    cedrosPay: {
-      serverUrl: 'https://api.example.com/pay',
-      // Add wallet/JWT context if using cedros-pay
+    services: {
+      [HOST_SERVICE_IDS.cedrosLogin]: {
+        user,
+        getAccessToken,
+        serverUrl: 'https://api.example.com/auth',
+      },
+      [HOST_SERVICE_IDS.cedrosPay]: {
+        serverUrl: 'https://api.example.com/pay',
+        // Add wallet/JWT context if using cedros-pay
+      },
     },
     org: activeOrg ? {
       orgId: activeOrg.id,
@@ -1581,7 +1594,7 @@ function UnifiedAdminDashboard() {
   return (
     <AdminShell
       title="Admin Dashboard"
-      plugins={[cedrosLoginPlugin, cedrosPayPlugin]}
+      installedExtensions={[cedrosLoginInstalledExtension, cedrosPayInstalledExtension]}
       hostContext={hostContext}
       defaultSection="cedros-login:users"
       pageSize={20}
@@ -1594,8 +1607,8 @@ function UnifiedAdminDashboard() {
 
 **How it works:**
 
-1. Each package exports an `AdminPlugin` that defines its sections and components
-2. `AdminShell` from `@cedros/data-react/admin` aggregates sections from all plugins into a unified sidebar
+1. Each package exports a static extension manifest plus a ready-made installed-extension adapter
+2. `AdminShell` from `@cedros/data-react/admin` aggregates sections from all installed extensions into a unified sidebar
 3. Sections are grouped (Users, Store, Configuration) and sorted by order
 4. Each plugin's CSS is isolated via namespace scoping
 

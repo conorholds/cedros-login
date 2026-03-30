@@ -226,9 +226,9 @@ impl Config {
 
         // Apple requires client_id and team_id if enabled
         if self.apple.enabled {
-            if self.apple.client_id.is_none() {
+            if self.apple.client_id.is_none() && self.apple.allowed_client_ids.is_empty() {
                 return Err(AppError::Config(
-                    "APPLE_CLIENT_ID is required when Apple auth is enabled".into(),
+                    "APPLE_CLIENT_ID or APPLE_ALLOWED_CLIENT_IDS is required when Apple auth is enabled".into(),
                 ));
             }
             if self.apple.team_id.is_none() {
@@ -602,10 +602,33 @@ impl Config {
                 tracing::debug!("DB override: auth_apple_client_id");
             }
         }
+        if let Some(client_ids) = settings.get("auth_apple_allowed_client_ids").await? {
+            let parsed: Vec<String> = client_ids
+                .split(',')
+                .map(|value| value.trim().to_string())
+                .filter(|value| !value.is_empty())
+                .collect();
+            if !parsed.is_empty() {
+                self.apple.allowed_client_ids = parsed;
+                tracing::debug!("DB override: auth_apple_allowed_client_ids");
+            }
+        }
         if let Some(team_id) = settings.get("auth_apple_team_id").await? {
             if !team_id.is_empty() {
                 self.apple.team_id = Some(team_id);
                 tracing::debug!("DB override: auth_apple_team_id");
+            }
+        }
+        if let Some(key_id) = settings.get("auth_apple_key_id").await? {
+            if !key_id.is_empty() {
+                self.apple.key_id = Some(key_id);
+                tracing::debug!("DB override: auth_apple_key_id");
+            }
+        }
+        if let Some(private_key_pem) = settings.get("auth_apple_private_key_pem").await? {
+            if !private_key_pem.is_empty() {
+                self.apple.private_key_pem = Some(private_key_pem);
+                tracing::debug!("DB override: auth_apple_private_key_pem");
             }
         }
 
@@ -795,6 +818,7 @@ mod tests {
                 enabled: false,
                 client_id: None,
                 team_id: None,
+                ..AppleConfig::default()
             },
             solana: SolanaConfig::default(),
             webauthn: WebAuthnConfig::default(),
@@ -1109,7 +1133,11 @@ mod tests {
         config.server.frontend_url = Some("http://example.com".to_string());
         config.server.sso_callback_url = None;
         let err = config.validate().unwrap_err().to_string();
-        assert!(err.contains("SSO_CALLBACK_URL must be set to an HTTPS URL in production"));
+        assert!(
+            err.contains(
+                "SSO_CALLBACK_URL must be set to an HTTPS URL in production when FRONTEND_URL is not https"
+            )
+        );
     }
 
     #[test]

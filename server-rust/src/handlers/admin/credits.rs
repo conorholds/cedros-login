@@ -229,6 +229,7 @@ mod tests {
                 enabled: false,
                 client_id: None,
                 team_id: None,
+                ..AppleConfig::default()
             },
             solana: SolanaConfig::default(),
             webauthn: WebAuthnConfig::default(),

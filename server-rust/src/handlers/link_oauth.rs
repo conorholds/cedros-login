@@ -12,7 +12,10 @@ use crate::errors::AppError;
 use crate::handlers::auth::call_authenticated_callback_with_timeout;
 use crate::models::{AuthMethod, AuthResponse, LinkOAuthRequest};
 use crate::repositories::{normalize_email, AuditEventType, SessionEntity};
-use crate::services::EmailService;
+use crate::services::{
+    exchange_and_encrypt_refresh_token, sync_apple_credential,
+    verify_apple_id_token_for_allowed_clients, EmailService,
+};
 use crate::utils::{
     build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
     get_default_org_context, hash_refresh_token, user_entity_to_auth_user, PeerIp,
@@ -31,7 +34,7 @@ pub async fn link_oauth<C: AuthCallback, E: EmailService>(
 ) -> Result<impl IntoResponse, AppError> {
     // Validate provider — accept either id_token or access_token (Google popup
     // flow only returns access_token via initTokenClient).
-    let (auth_method, oauth_sub, oauth_email) = match req.provider.as_str() {
+    let (auth_method, oauth_sub, oauth_email, apple_refresh_token) = match req.provider.as_str() {
         "google" => {
             let client_id = resolve_google_client_id(&state).await?;
             let claims = match (&req.id_token, &req.access_token) {
@@ -56,22 +59,44 @@ pub async fn link_oauth<C: AuthCallback, E: EmailService>(
             let email = claims
                 .email
                 .ok_or(AppError::Validation("Email not provided by Google".into()))?;
-            (AuthMethod::Google, claims.sub, normalize_email(&email))
+            (
+                AuthMethod::Google,
+                claims.sub,
+                normalize_email(&email),
+                None,
+            )
         }
         "apple" => {
             let id_token = req
                 .id_token
                 .as_ref()
                 .ok_or(AppError::Validation("idToken is required for Apple".into()))?;
-            let client_id = resolve_apple_client_id(&state).await?;
-            let claims = state
-                .apple_service
-                .verify_id_token(id_token, &client_id)
-                .await?;
+            let verified = verify_apple_id_token_for_allowed_clients(
+                &state.apple_service,
+                &state.settings_service,
+                &state.config.apple,
+                id_token,
+            )
+            .await?;
+            let claims = verified.claims;
+            let client_id = verified.client_id;
             let email = claims
                 .email
                 .ok_or(AppError::Validation("Email not provided by Apple".into()))?;
-            (AuthMethod::Apple, claims.sub, normalize_email(&email))
+            let refresh_token = exchange_and_encrypt_refresh_token(
+                &state.settings_service,
+                &state.config.apple,
+                &state.config.jwt.secret,
+                req.authorization_code.as_deref(),
+                &client_id,
+            )
+            .await?;
+            (
+                AuthMethod::Apple,
+                claims.sub,
+                normalize_email(&email),
+                Some((refresh_token, client_id)),
+            )
         }
         _ => {
             return Err(AppError::Validation(
@@ -151,6 +176,16 @@ pub async fn link_oauth<C: AuthCallback, E: EmailService>(
     }
 
     let user = state.user_repo.update(updated).await?;
+
+    if let Some((refresh_token, client_id)) = apple_refresh_token {
+        sync_apple_credential(
+            state.credential_repo.as_ref(),
+            user.id,
+            refresh_token,
+            &client_id,
+        )
+        .await?;
+    }
 
     // Create session + return AuthResponse (mirrors google.rs / apple.rs)
     let memberships = state.membership_repo.find_by_user(user.id).await?;
@@ -247,19 +282,4 @@ async fn resolve_google_client_id<C: AuthCallback, E: EmailService>(
         .filter(|s| !s.is_empty())
         .or_else(|| state.config.google.client_id.clone())
         .ok_or_else(|| AppError::Config("Google client ID not configured".into()))
-}
-
-/// Resolve Apple client_id from runtime settings or static config.
-async fn resolve_apple_client_id<C: AuthCallback, E: EmailService>(
-    state: &AppState<C, E>,
-) -> Result<String, AppError> {
-    state
-        .settings_service
-        .get("auth_apple_client_id")
-        .await
-        .ok()
-        .flatten()
-        .filter(|s| !s.is_empty())
-        .or_else(|| state.config.apple.client_id.clone())
-        .ok_or_else(|| AppError::Config("Apple client ID not configured".into()))
 }

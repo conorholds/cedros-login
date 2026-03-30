@@ -98,7 +98,17 @@ pub fn load_apple_config() -> AppleConfig {
     AppleConfig {
         enabled: parse_bool("APPLE_ENABLED", true),
         client_id: std::env::var("APPLE_CLIENT_ID").ok(),
+        allowed_client_ids: std::env::var("APPLE_ALLOWED_CLIENT_IDS")
+            .map(|v| {
+                v.split(',')
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+                    .collect()
+            })
+            .unwrap_or_default(),
         team_id: std::env::var("APPLE_TEAM_ID").ok(),
+        key_id: std::env::var("APPLE_KEY_ID").ok(),
+        private_key_pem: std::env::var("APPLE_PRIVATE_KEY_PEM").ok(),
     }
 }
 

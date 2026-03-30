@@ -56,8 +56,15 @@ pub struct AppleConfig {
     pub enabled: bool,
     /// Apple Services ID (client_id) - e.g., "com.yourapp.service"
     pub client_id: Option<String>,
+    /// Additional allowed Apple audiences (for native iOS bundle IDs, etc.)
+    #[serde(default)]
+    pub allowed_client_ids: Vec<String>,
     /// Apple Team ID - 10-character identifier
     pub team_id: Option<String>,
+    /// Apple Sign In private key identifier for REST token exchange/revocation
+    pub key_id: Option<String>,
+    /// Apple Sign In private key PEM used to mint client_secret values
+    pub private_key_pem: Option<String>,
 }
 
 impl Default for AppleConfig {
@@ -65,7 +72,10 @@ impl Default for AppleConfig {
         Self {
             enabled: true,
             client_id: None,
+            allowed_client_ids: Vec::new(),
             team_id: None,
+            key_id: None,
+            private_key_pem: None,
         }
     }
 }
@@ -122,6 +132,9 @@ mod tests {
         let config = AppleConfig::default();
         assert!(config.enabled);
         assert!(config.client_id.is_none());
+        assert!(config.allowed_client_ids.is_empty());
         assert!(config.team_id.is_none());
+        assert!(config.key_id.is_none());
+        assert!(config.private_key_pem.is_none());
     }
 }

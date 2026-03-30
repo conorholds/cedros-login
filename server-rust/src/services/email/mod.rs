@@ -21,6 +21,7 @@ pub enum EmailType {
     Invite,
     InstantLink,
     SecurityAlert,
+    AccountDeletion,
 }
 
 /// Email to be sent
@@ -83,6 +84,14 @@ pub struct SecurityAlertEmailData {
     pub action_url: Option<String>,
 }
 
+/// Email template data for account deletion confirmation emails.
+#[derive(Debug, Clone)]
+pub struct AccountDeletionEmailData {
+    pub user_name: Option<String>,
+    pub confirmation_url: String,
+    pub expires_in_hours: u32,
+}
+
 /// Trait for email service implementations
 #[async_trait]
 pub trait EmailService: Send + Sync {
@@ -141,6 +150,17 @@ pub trait EmailService: Send + Sync {
         subject_override: Option<&str>,
     ) -> Result<(), AppError> {
         let email = templates::security_alert_email_with_subject(to, data, subject_override);
+        self.send(email).await
+    }
+
+    /// Send account deletion confirmation email with optional custom subject.
+    async fn send_account_deletion(
+        &self,
+        to: &str,
+        data: AccountDeletionEmailData,
+        subject_override: Option<&str>,
+    ) -> Result<(), AppError> {
+        let email = templates::account_deletion_email_with_subject(to, data, subject_override);
         self.send(email).await
     }
 }

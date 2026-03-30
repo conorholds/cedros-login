@@ -195,6 +195,33 @@ impl CommsService {
         Ok(created.id)
     }
 
+    /// Queue an account deletion confirmation email.
+    pub async fn queue_account_deletion_email(
+        &self,
+        to: &str,
+        user_name: Option<&str>,
+        token: &str,
+        confirmation_base_url: &str,
+        user_id: Uuid,
+    ) -> Result<Uuid, AppError> {
+        let token_enc = self.token_cipher.encrypt(token)?;
+
+        let event = OutboxEvent::new(
+            OutboxEventType::EmailAccountDeletion,
+            serde_json::json!({
+                "to": to,
+                "user_name": user_name,
+                "token_enc": token_enc,
+                "confirmation_base_url": confirmation_base_url,
+                "expires_in_hours": 24
+            }),
+        )
+        .with_user_id(user_id);
+
+        let created = self.outbox_repo.create(event).await?;
+        Ok(created.id)
+    }
+
     // ==================== Admin Notification Methods ====================
 
     /// Queue a notification for failed login threshold

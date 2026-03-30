@@ -16,7 +16,10 @@ use crate::repositories::{
     generate_api_key, normalize_email, ApiKeyEntity, AuditEventType, MembershipEntity,
     SessionEntity, UserEntity,
 };
-use crate::services::EmailService;
+use crate::services::{
+    exchange_and_encrypt_refresh_token, sync_apple_credential,
+    verify_apple_id_token_for_allowed_clients, EmailService,
+};
 use crate::utils::{
     build_json_response_with_cookies, compute_post_login, extract_client_ip_with_fallback,
     get_default_org_context, hash_refresh_token, resolve_org_assignment, user_entity_to_auth_user,
@@ -43,28 +46,6 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         return Err(AppError::NotFound("Apple auth disabled".into()));
     }
 
-    // Resolve client_id: runtime setting > static config
-    let client_id = state
-        .settings_service
-        .get("auth_apple_client_id")
-        .await
-        .ok()
-        .flatten()
-        .filter(|s| !s.is_empty())
-        .or_else(|| state.config.apple.client_id.clone())
-        .ok_or_else(|| AppError::Config("Apple client ID not configured".into()))?;
-
-    // Resolve team_id: runtime setting > static config
-    let _team_id = state
-        .settings_service
-        .get("auth_apple_team_id")
-        .await
-        .ok()
-        .flatten()
-        .filter(|s| !s.is_empty())
-        .or_else(|| state.config.apple.team_id.clone())
-        .ok_or_else(|| AppError::Config("Apple team ID not configured".into()))?;
-
     // GeoIP country screening (fail-open: skipped when header not configured or absent)
     state
         .sanctions_service
@@ -72,10 +53,15 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
         .await?;
 
     // Verify the Apple ID token
-    let claims = state
-        .apple_service
-        .verify_id_token(&req.id_token, &client_id)
-        .await?;
+    let verified = verify_apple_id_token_for_allowed_clients(
+        &state.apple_service,
+        &state.settings_service,
+        &state.config.apple,
+        &req.id_token,
+    )
+    .await?;
+    let claims = verified.claims;
+    let matched_client_id = verified.client_id;
 
     // Verify nonce for replay protection. If the client sent a nonce,
     // Apple embeds SHA-256(nonce) in the token. We recompute and compare.
@@ -239,6 +225,22 @@ pub async fn apple_auth<C: AuthCallback, E: EmailService>(
             (user, true, Some(raw_api_key))
         }
     };
+
+    let encrypted_refresh_token = exchange_and_encrypt_refresh_token(
+        &state.settings_service,
+        &state.config.apple,
+        &state.config.jwt.secret,
+        req.authorization_code.as_deref(),
+        &matched_client_id,
+    )
+    .await?;
+    sync_apple_credential(
+        state.credential_repo.as_ref(),
+        user.id,
+        encrypted_refresh_token,
+        &matched_client_id,
+    )
+    .await?;
 
     // Issue referral signup reward for new users (non-fatal)
     if is_new_user {

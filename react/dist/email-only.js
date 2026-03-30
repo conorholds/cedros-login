@@ -1,7 +1,7 @@
 import { C as r, u as s } from "./useAuth-C_KXXke1.js";
 import { u as t } from "./useCedrosLogin-aNpnZjyZ.js";
 import { F as i, a as g, g as u, b as E, c as n, i as l, p as m, r as d, d as p } from "./featureFlags-_5x_2FxU.js";
-import { E as L, a as v, P as x, u as A } from "./EmailRegisterForm-CVqTtT3a.js";
+import { E as L, a as v, P as x, u as A } from "./EmailRegisterForm-BA0xf4kY.js";
 import { E as P, L as _ } from "./ErrorMessage-59nRkszi.js";
 import { v as G } from "./validation-B8kMV3BL.js";
 export {

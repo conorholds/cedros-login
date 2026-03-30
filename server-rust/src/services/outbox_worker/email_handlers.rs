@@ -5,8 +5,8 @@ use std::sync::Arc;
 use crate::errors::AppError;
 use crate::repositories::{OutboxEvent, OutboxEventType};
 use crate::services::{
-    EmailService, InstantLinkEmailData, InviteEmailData, PasswordResetEmailData,
-    SecurityAlertEmailData, SettingsService, VerificationEmailData,
+    AccountDeletionEmailData, EmailService, InstantLinkEmailData, InviteEmailData,
+    PasswordResetEmailData, SecurityAlertEmailData, SettingsService, VerificationEmailData,
 };
 use crate::utils::TokenCipher;
 
@@ -45,6 +45,9 @@ pub async fn process_email_event(
         }
         OutboxEventType::EmailSecurityAlert => {
             process_security_alert_email(event, email_service, &settings).await
+        }
+        OutboxEventType::EmailAccountDeletion => {
+            process_account_deletion_email(event, email_service, token_cipher, &settings).await
         }
         _ => Err(AppError::Internal(anyhow::anyhow!(
             "Unknown email event type: {}",
@@ -232,5 +235,37 @@ async fn process_security_alert_email(
     let subject = get_custom_subject(settings, "email_subject_security_alert").await;
     email_service
         .send_security_alert(to, data, subject.as_deref())
+        .await
+}
+
+async fn process_account_deletion_email(
+    event: &OutboxEvent,
+    email_service: &dyn EmailService,
+    token_cipher: &TokenCipher,
+    settings: &Option<Arc<SettingsService>>,
+) -> Result<(), AppError> {
+    let to = event.payload["to"]
+        .as_str()
+        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("Missing 'to' field")))?;
+
+    let confirmation_base_url = event.payload["confirmation_base_url"]
+        .as_str()
+        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("Missing 'confirmation_base_url' field")))?;
+
+    let token_enc = event.payload["token_enc"]
+        .as_str()
+        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("Missing 'token_enc' field")))?;
+    let token = token_cipher.decrypt(token_enc)?;
+    let confirmation_url = format!("{confirmation_base_url}?token={token}");
+
+    let data = AccountDeletionEmailData {
+        user_name: event.payload["user_name"].as_str().map(String::from),
+        confirmation_url,
+        expires_in_hours: event.payload["expires_in_hours"].as_u64().unwrap_or(24) as u32,
+    };
+
+    let subject = get_custom_subject(settings, "email_subject_account_deletion").await;
+    email_service
+        .send_account_deletion(to, data, subject.as_deref())
         .await
 }

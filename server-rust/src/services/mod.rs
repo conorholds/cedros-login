@@ -32,6 +32,10 @@
 //! - Add `/metrics` endpoint in router for scraping
 
 mod accreditation_service;
+mod account_deletion_service;
+#[cfg(test)]
+mod account_deletion_service_tests;
+mod apple_oauth_service;
 mod apple_service;
 mod audit_service;
 mod authorization_service;
@@ -85,6 +89,13 @@ pub use accreditation_service::{
     AccreditationService, AccreditationStatusResponse, SubmitAccreditationData,
     SubmitAccreditationResponse,
 };
+pub use account_deletion_service::{delete_account, AccountDeletionOutcome};
+pub use apple_oauth_service::{
+    exchange_and_encrypt_refresh_token, extract_apple_refresh_token_metadata,
+    revoke_encrypted_refresh_token, sync_apple_credential,
+    verify_apple_id_token_for_allowed_clients,
+    VerifiedAppleToken,
+};
 pub use apple_service::{AppleService, AppleTokenClaims};
 pub use audit_service::AuditService;
 pub use authorization_service::{
@@ -102,9 +113,9 @@ pub use deposit_tiered_service::{
     execute_admin_withdrawal, MicroDepositResult, PublicDepositResult, TieredDepositService,
 };
 pub use email::{
-    Email, EmailService, EmailType, InstantLinkEmailData, InviteEmailData, LogEmailService,
-    NoopEmailService, PasswordResetEmailData, PostmarkEmailService, SecurityAlertEmailData,
-    VerificationEmailData,
+    AccountDeletionEmailData, Email, EmailService, EmailType, InstantLinkEmailData,
+    InviteEmailData, LogEmailService, NoopEmailService, PasswordResetEmailData,
+    PostmarkEmailService, SecurityAlertEmailData, VerificationEmailData,
 };
 pub(crate) use encrypted_payload::decrypt_base64_payload;
 pub use encryption_service::EncryptionService;

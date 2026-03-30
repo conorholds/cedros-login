@@ -1,8 +1,8 @@
 //! Email HTML/text template generation
 
 use super::{
-    Email, EmailType, InstantLinkEmailData, InviteEmailData, PasswordResetEmailData,
-    SecurityAlertEmailData, VerificationEmailData,
+    AccountDeletionEmailData, Email, EmailType, InstantLinkEmailData, InviteEmailData,
+    PasswordResetEmailData, SecurityAlertEmailData, VerificationEmailData,
 };
 
 /// Escape HTML special characters to prevent injection attacks.
@@ -282,5 +282,47 @@ pub fn security_alert_email_with_subject(
             name, login_time, device, browser, location, ip
         ),
         email_type: EmailType::SecurityAlert,
+    }
+}
+
+/// Generate account deletion confirmation email with optional custom subject.
+pub fn account_deletion_email_with_subject(
+    to: &str,
+    data: AccountDeletionEmailData,
+    subject_override: Option<&str>,
+) -> Email {
+    let name = escape_html(data.user_name.as_deref().unwrap_or("there"));
+    Email {
+        to: to.to_string(),
+        subject: subject_override
+            .filter(|s| !s.is_empty())
+            .unwrap_or("Confirm account deletion")
+            .to_string(),
+        html_body: format!(
+            r#"<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+<h1 style="color: #333;">Confirm account deletion</h1>
+<p>Hi {name},</p>
+<p>Use the button below to confirm permanent deletion of your account.</p>
+<p style="text-align: center;">
+<a href="{url}" rel="noreferrer noopener" referrerpolicy="no-referrer" style="display: inline-block; background-color: #B91C1C; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Delete Account</a>
+</p>
+<p>Or copy and paste this link into your browser:</p>
+<p style="word-break: break-all; color: #666;">{url}</p>
+<p style="color: #666; font-size: 14px;">This confirmation link expires in {expires} hours.</p>
+<p style="color: #999; font-size: 12px;">Financial and audit records required by law may be retained, but your login profile and credentials will be removed.</p>
+</body>
+</html>"#,
+            url = data.confirmation_url,
+            expires = data.expires_in_hours,
+        ),
+        text_body: format!(
+            "Hi {name},\n\nConfirm permanent account deletion:\n{url}\n\nThis link expires in {expires} hours.\n\nFinancial and audit records required by law may be retained, but your login profile and credentials will be removed.",
+            url = data.confirmation_url,
+            expires = data.expires_in_hours,
+        ),
+        email_type: EmailType::AccountDeletion,
     }
 }

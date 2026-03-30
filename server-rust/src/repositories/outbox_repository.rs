@@ -41,6 +41,7 @@ pub enum OutboxEventType {
     EmailInvite,
     EmailInstantLink,
     EmailSecurityAlert,
+    EmailAccountDeletion,
     // Admin notification events
     NotifyLoginThreshold,
     NotifyTokenReuse,
@@ -62,6 +63,7 @@ impl OutboxEventType {
             Self::EmailInvite => "email.invite",
             Self::EmailInstantLink => "email.instant_link",
             Self::EmailSecurityAlert => "email.security_alert",
+            Self::EmailAccountDeletion => "email.account_deletion",
             Self::NotifyLoginThreshold => "notify.login_threshold",
             Self::NotifyTokenReuse => "notify.token_reuse",
             Self::NotifyRoleChange => "notify.role_change",
@@ -82,6 +84,7 @@ impl OutboxEventType {
                 | Self::EmailInvite
                 | Self::EmailInstantLink
                 | Self::EmailSecurityAlert
+                | Self::EmailAccountDeletion
         )
     }
 

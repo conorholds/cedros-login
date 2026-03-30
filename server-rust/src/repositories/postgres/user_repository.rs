@@ -542,6 +542,58 @@ impl UserRepository for PostgresUserRepository {
         Ok(())
     }
 
+    async fn anonymize_for_deletion(
+        &self,
+        id: Uuid,
+        replacement_referral_code: &str,
+    ) -> Result<UserEntity, AppError> {
+        let empty_methods: Vec<String> = Vec::new();
+        let row: UserRow = sqlx::query_as(
+            r#"
+            UPDATE users SET
+                email = NULL,
+                email_verified = false,
+                password_hash = NULL,
+                name = 'Deleted Account',
+                username = NULL,
+                picture = NULL,
+                wallet_address = NULL,
+                google_id = NULL,
+                apple_id = NULL,
+                stripe_customer_id = NULL,
+                auth_methods = $2,
+                is_system_admin = false,
+                updated_at = NOW(),
+                last_login_at = NULL,
+                welcome_completed_at = NULL,
+                referral_code = $3,
+                referred_by = NULL,
+                payout_wallet_address = NULL,
+                kyc_status = 'none',
+                kyc_verified_at = NULL,
+                kyc_expires_at = NULL,
+                accreditation_status = 'none',
+                accreditation_verified_at = NULL,
+                accreditation_expires_at = NULL
+            WHERE id = $1
+            RETURNING id, email, email_verified, password_hash, name, username, picture,
+                      wallet_address, google_id, apple_id, stripe_customer_id, auth_methods, is_system_admin,
+                      created_at, updated_at, last_login_at, welcome_completed_at,
+                      referral_code, referred_by, payout_wallet_address,
+                      kyc_status, kyc_verified_at, kyc_expires_at,
+                      accreditation_status, accreditation_verified_at, accreditation_expires_at
+            "#,
+        )
+        .bind(id)
+        .bind(&empty_methods)
+        .bind(replacement_referral_code)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+        Ok(row.into())
+    }
+
     async fn count_by_auth_methods(
         &self,
     ) -> Result<std::collections::HashMap<String, u64>, AppError> {
@@ -652,7 +704,9 @@ impl UserRepository for PostgresUserRepository {
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-        Ok(row.map(Into::into))
+        Ok(row
+            .map(Into::into)
+            .filter(|user: &UserEntity| !user.is_deleted()))
     }
 
     async fn count_referrals(&self, user_id: Uuid) -> Result<u64, AppError> {

@@ -123,6 +123,10 @@ async fn authenticate_api_key<C: AuthCallback, E: EmailService>(
         .await?
         .ok_or(AppError::InvalidToken)?;
 
+    if user.is_deleted() {
+        return Err(AppError::InvalidToken);
+    }
+
     if state.config.email.require_verification && user.email.is_some() && !user.email_verified {
         return Err(AppError::Forbidden("Email not verified".into()));
     }
@@ -172,6 +176,15 @@ async fn authenticate_jwt<C: AuthCallback, E: EmailService>(
     }
 
     if session.user_id != claims.sub || session.is_revoked() {
+        return Err(AppError::InvalidToken);
+    }
+
+    let user = state
+        .user_repo
+        .find_by_id(claims.sub)
+        .await?
+        .ok_or(AppError::InvalidToken)?;
+    if user.is_deleted() {
         return Err(AppError::InvalidToken);
     }
 

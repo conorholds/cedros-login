@@ -295,6 +295,18 @@ fn auth_sensitive_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/solana", post(handlers::solana_auth::<C, E>))
         .route("/forgot-password", post(handlers::forgot_password::<C, E>))
         .route("/reset-password", post(handlers::reset_password::<C, E>))
+        .route(
+            "/account-deletion/request",
+            post(handlers::request_account_deletion::<C, E>),
+        )
+        .route(
+            "/account-deletion/confirm",
+            post(handlers::confirm_account_deletion::<C, E>),
+        )
+        .route(
+            "/account-deletion/me",
+            post(handlers::delete_current_account::<C, E>),
+        )
         .route("/change-password", post(handlers::change_password::<C, E>))
         .route("/set-password", post(handlers::set_password::<C, E>))
         .route("/link-oauth", post(handlers::link_oauth::<C, E>))
@@ -409,6 +421,10 @@ fn general_routes<C: AuthCallback + 'static, E: EmailService + 'static>(
         .route("/discovery", get(handlers::auth_config::<C, E>))
         .route("/features", get(handlers::auth_features::<C, E>))
         .route("/openapi.json", get(handlers::openapi_spec))
+        .route(
+            "/account-deletion",
+            get(handlers::account_deletion_page::<C, E>),
+        )
         // AI-friendly discovery endpoints
         .route("/ai.txt", get(handlers::ai_txt::<C, E>))
         .route("/llms.txt", get(handlers::llms_txt::<C, E>))

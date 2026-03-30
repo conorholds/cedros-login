@@ -250,6 +250,8 @@ pub struct GoogleAuthRequest {
 pub struct AppleAuthRequest {
     /// Apple ID token (JWT)
     pub id_token: String,
+    /// Short-lived Apple authorization code used to exchange for a refresh token.
+    pub authorization_code: Option<String>,
     /// User's name (only provided on first sign-in, optional thereafter)
     pub name: Option<String>,
     /// Client-generated nonce (unhashed). Server computes SHA-256 and
@@ -279,6 +281,7 @@ pub struct LinkOAuthRequest {
     pub access_token: Option<String>,
     #[zeroize(skip)]
     pub provider: String,
+    pub authorization_code: Option<String>,
     pub password: String,
 }
 

@@ -358,6 +358,7 @@ mod tests {
             enabled: true,
             client_id: Some("com.example.service".to_string()),
             team_id: Some("ABCD123456".to_string()),
+            ..AppleConfig::default()
         };
         let service = AppleService::new(&config);
         assert!(service.client_id.is_some());
@@ -370,6 +371,7 @@ mod tests {
             enabled: true,
             client_id: None,
             team_id: None,
+            ..AppleConfig::default()
         };
         let service = AppleService::new(&config);
         assert!(service.client_id.is_none());
@@ -446,6 +448,7 @@ mod tests {
             enabled: true,
             client_id: Some("client-id".to_string()),
             team_id: Some("team-id".to_string()),
+            ..AppleConfig::default()
         });
         let header = jsonwebtoken::Header {
             alg: Algorithm::RS256,
@@ -467,6 +470,7 @@ mod tests {
             enabled: true,
             client_id: Some("client-id".to_string()),
             team_id: Some("team-id".to_string()),
+            ..AppleConfig::default()
         });
         let jwks_json = r#"{
             "keys": [

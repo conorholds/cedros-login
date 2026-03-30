@@ -174,6 +174,9 @@ pub async fn refresh<C: AuthCallback, E: EmailService>(
         .find_by_id(session.user_id)
         .await?
         .ok_or(AppError::InvalidToken)?;
+    if user.is_deleted() {
+        return Err(AppError::InvalidToken);
+    }
 
     // Preserve org context: look up user's memberships and select default org
     let memberships = state.membership_repo.find_by_user(session.user_id).await?;

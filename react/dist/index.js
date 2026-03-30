@@ -1,44 +1,44 @@
-import { D as lt, v as aa, a as ia, w as En, t as ze, b as xn, c as Sn, u as Ut, g as ca, d as la, e as Xe, f as da, h as _n, i as Ln, j as xe, k as Pn, l as Tn, m as $r, n as Rn, o as ua, p as Bn, q as Dt, r as ha } from "./useAuth-C_KXXke1.js";
-import { C as Gm, s as Qm, x as Km } from "./useAuth-C_KXXke1.js";
-import { u as Z, A as re, h as z, a as je } from "./useCedrosLogin-aNpnZjyZ.js";
-import { b as Zm, c as Xm } from "./useCedrosLogin-aNpnZjyZ.js";
-import { F as ep, a as tp, h as rp, j as sp, f as np, g as op, b as ap, c as ip, i as cp, p as lp, r as dp, d as up } from "./featureFlags-_5x_2FxU.js";
-import { jsx as t, jsxs as i, Fragment as Y } from "react/jsx-runtime";
-import { useState as x, useRef as ee, useMemo as q, useEffect as O, useCallback as P, useId as In, Fragment as ma, Component as pa, createContext as fa, useContext as Mn } from "react";
-import { L as H, E as ne } from "./ErrorMessage-59nRkszi.js";
-import { a as Un, u as Dn, s as ga } from "./useServerFeatures-CPyyddZV.js";
-import { b as Fn, E as wa, a as ba, P as ve, O as On } from "./EmailRegisterForm-CVqTtT3a.js";
-import { T as mp, u as pp, c as fp } from "./EmailRegisterForm-CVqTtT3a.js";
-import { b as Wn, v as Ft } from "./validation-B8kMV3BL.js";
-import { G as ya } from "./GoogleLoginButton-BvQFOqRo.js";
-import { u as wp } from "./GoogleLoginButton-BvQFOqRo.js";
-import { d as ps, S as va } from "./SolanaLoginButton-Bcj5pDbE.js";
-import { r as yp, u as vp } from "./SolanaLoginButton-Bcj5pDbE.js";
-import { u as Aa, a as Na, M as ka, I as Ca, b as Ea, P as xa, c as Sa } from "./PermissionsSection-ClAJX6LR.js";
-import { u as qn } from "./useSystemSettings-ex2pVrb0.js";
-import { C as _a, S as Vr, a as La, u as zn, A as jn } from "./AutosaveStatus-DOyrYcZE.js";
-import { A as Pa, a as Ta } from "./AdminDepositList-N8_YXdbq.js";
-import { A as Ra, a as Ba, b as Ia, c as Ma } from "./AdminWithdrawalHistory-DOKvENRc.js";
-import { u as Ua, A as Da, a as Fa, b as Hr } from "./useUsersStatsSummary-C3qu7ReC.js";
-import { c as Np } from "./useUsersStatsSummary-C3qu7ReC.js";
-import { S as $n } from "./StatsBar-BX-hHtTq.js";
-import { u as Oa, O as Wa } from "./useOrgs-BJCtoCJH.js";
-import { A as qa } from "./AuthenticationSettings-DukM7sAX.js";
-import { E as za } from "./EmbeddedWalletSettings-CLW9GbnT.js";
-import { A as ja, S as $a, P as Va } from "./EmailSettings-D_NDrmdK.js";
-import { E as Cp } from "./EmailSettings-D_NDrmdK.js";
-import { C as Ha } from "./CreditSystemSettings-Dn_flTLa.js";
-import { S as Ga } from "./ServerSettings-CYixJVmJ.js";
-import { S as Ot } from "./WebhookSettings-EXuNMT3L.js";
-import { W as xp } from "./WebhookSettings-EXuNMT3L.js";
-import { u as _p } from "./useAdminDeposits-BOmlIPkR.js";
-async function Vn(e, r, s = lt) {
-  return aa(s), ia(e, r, s);
+import { D as lt, v as ca, a as la, w as Sn, t as ze, b as _n, c as Ln, u as Dt, g as da, d as ua, e as Xe, f as ha, h as Tn, i as Pn, j as xe, k as Rn, l as Bn, m as Hr, n as In, o as ma, p as Mn, q as Ft, r as pa } from "./useAuth-C_KXXke1.js";
+import { C as Xm, s as Jm, x as ep } from "./useAuth-C_KXXke1.js";
+import { u as ee, A as te, h as z, a as je } from "./useCedrosLogin-aNpnZjyZ.js";
+import { b as rp, c as sp } from "./useCedrosLogin-aNpnZjyZ.js";
+import { F as op, a as ap, h as ip, j as cp, f as lp, g as dp, b as up, c as hp, i as mp, p as pp, r as fp, d as gp } from "./featureFlags-_5x_2FxU.js";
+import { jsx as t, jsxs as i, Fragment as K } from "react/jsx-runtime";
+import { useState as x, useRef as J, useMemo as q, useEffect as O, useCallback as T, useId as Un, Fragment as fa, Component as ga, createContext as wa, useContext as Dn } from "react";
+import { L as H, E as se } from "./ErrorMessage-59nRkszi.js";
+import { a as Fn, u as On, s as ya } from "./useServerFeatures-CnThdmAr.js";
+import { b as Wn, E as ba, a as va, P as ve, O as qn } from "./EmailRegisterForm-BA0xf4kY.js";
+import { T as yp, u as bp, c as vp } from "./EmailRegisterForm-BA0xf4kY.js";
+import { b as zn, v as Ot } from "./validation-B8kMV3BL.js";
+import { G as Aa } from "./GoogleLoginButton-BvQFOqRo.js";
+import { u as Np } from "./GoogleLoginButton-BvQFOqRo.js";
+import { d as gs, S as Na } from "./SolanaLoginButton-Bcj5pDbE.js";
+import { r as Cp, u as Ep } from "./SolanaLoginButton-Bcj5pDbE.js";
+import { u as ka, a as Ca, M as Ea, I as xa, b as Sa, P as _a, c as La } from "./PermissionsSection-BhHwtSlw.js";
+import { u as jn, a as dt } from "./useSystemSettings--h-KXzo0.js";
+import { C as Ta, S as Gr, a as Pa, u as $n, A as Vn } from "./AutosaveStatus-DHETHwkf.js";
+import { A as Ra, a as Ba } from "./AdminDepositList-N8_YXdbq.js";
+import { A as Ia, a as Ma, b as Ua, c as Da } from "./AdminWithdrawalHistory-DOKvENRc.js";
+import { u as Fa, A as Oa, a as Wa, b as Qr } from "./useUsersStatsSummary-BJNnRptf.js";
+import { c as Sp } from "./useUsersStatsSummary-BJNnRptf.js";
+import { S as Hn } from "./StatsBar-BX-hHtTq.js";
+import { u as qa, O as za } from "./useOrgs-D-8bxH0h.js";
+import { A as ja } from "./AuthenticationSettings-jKRYgogU.js";
+import { E as $a } from "./EmbeddedWalletSettings-maQfyK9-.js";
+import { A as Va, S as Ha, P as Ga } from "./EmailSettings-CQczytm9.js";
+import { E as Lp } from "./EmailSettings-CQczytm9.js";
+import { C as Qa } from "./CreditSystemSettings-DV6dBzu2.js";
+import { S as Ka } from "./ServerSettings-D2O75Vi_.js";
+import { S as Wt } from "./WebhookSettings-C4h27yxx.js";
+import { W as Pp } from "./WebhookSettings-C4h27yxx.js";
+import { u as Bp } from "./useAdminDeposits-BOmlIPkR.js";
+async function Gn(e, r, s = lt) {
+  return ca(s), la(e, r, s);
 }
-function Hn(e) {
+function Qn(e) {
   return e && e.__esModule && Object.prototype.hasOwnProperty.call(e, "default") ? e.default : e;
 }
-function Qa(e) {
+function Ya(e) {
   if (Object.prototype.hasOwnProperty.call(e, "__esModule")) return e;
   var r = e.default;
   if (typeof r == "function") {
@@ -62,23 +62,23 @@ function Qa(e) {
     });
   }), s;
 }
-var kt = { exports: {} };
-const Ka = globalThis.crypto, Ya = globalThis.crypto, Za = globalThis.crypto.subtle, Xa = globalThis.crypto.getRandomValues.bind(globalThis.crypto), Ja = globalThis.crypto.randomUUID.bind(globalThis.crypto), ei = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+var Ct = { exports: {} };
+const Za = globalThis.crypto, Xa = globalThis.crypto, Ja = globalThis.crypto.subtle, ei = globalThis.crypto.getRandomValues.bind(globalThis.crypto), ti = globalThis.crypto.randomUUID.bind(globalThis.crypto), ri = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Ka,
-  getRandomValues: Xa,
-  randomUUID: Ja,
-  subtle: Za,
-  webcrypto: Ya
-}, Symbol.toStringTag, { value: "Module" })), ti = /* @__PURE__ */ Qa(ei);
-var ri = kt.exports, fs;
-function si() {
-  return fs || (fs = 1, (function(e, r) {
+  default: Za,
+  getRandomValues: ei,
+  randomUUID: ti,
+  subtle: Ja,
+  webcrypto: Xa
+}, Symbol.toStringTag, { value: "Module" })), si = /* @__PURE__ */ Ya(ri);
+var ni = Ct.exports, ws;
+function oi() {
+  return ws || (ws = 1, (function(e, r) {
     (function(s, o) {
-      e.exports = o(ti);
-    })(ri, function(s) {
-      var o, n, a, c, d;
-      function l() {
+      e.exports = o(si);
+    })(ni, function(s) {
+      var o, n, a, c, l;
+      function d() {
         o = {
           bits: 8,
           // default number of bits
@@ -126,7 +126,7 @@ function si() {
             5,
             83
           ]
-        }, n = {}, a = new Array(1024).join("0"), c = !0, d = [
+        }, n = {}, a = new Array(1024).join("0"), c = !0, l = [
           "nodeCryptoRandomBytes",
           "browserCryptoGetRandomValues",
           "testRandom"
@@ -135,50 +135,50 @@ function si() {
       function h() {
         return !!(n && n.rng && typeof n.rng == "function");
       }
-      function m(p, v) {
-        var y;
+      function m(f, v) {
+        var b;
         if (v === 0 || v === 1)
-          return p;
+          return f;
         if (v && v > 1024)
           throw new Error(
             "Padding must be multiples of no larger than 1024 bits."
           );
-        return v = v || n.bits, p && (y = p.length % v), y ? (a + p).slice(
-          -(v - y + p.length)
-        ) : p;
+        return v = v || n.bits, f && (b = f.length % v), b ? (a + f).slice(
+          -(v - b + f.length)
+        ) : f;
       }
-      function u(p) {
-        var v = "", y, k;
-        for (k = p.length - 1; k >= 0; k--) {
-          if (y = parseInt(p[k], 16), isNaN(y))
+      function u(f) {
+        var v = "", b, k;
+        for (k = f.length - 1; k >= 0; k--) {
+          if (b = parseInt(f[k], 16), isNaN(b))
             throw new Error("Invalid hex character.");
-          v = m(y.toString(2), 4) + v;
+          v = m(b.toString(2), 4) + v;
         }
         return v;
       }
-      function f(p) {
-        var v = "", y, k;
-        for (p = m(p, 4), k = p.length; k >= 4; k -= 4) {
-          if (y = parseInt(p.slice(k - 4, k), 2), isNaN(y))
+      function p(f) {
+        var v = "", b, k;
+        for (f = m(f, 4), k = f.length; k >= 4; k -= 4) {
+          if (b = parseInt(f.slice(k - 4, k), 2), isNaN(b))
             throw new Error("Invalid binary character.");
-          v = y.toString(16) + v;
+          v = b.toString(16) + v;
         }
         return v;
       }
       function g() {
         return !!(s && typeof s == "object" && (typeof s.getRandomValues == "function" || typeof s.getRandomValues == "object") && (typeof Uint32Array == "function" || typeof Uint32Array == "object"));
       }
-      function b() {
+      function w() {
         return typeof s == "object" && typeof s.randomBytes == "function";
       }
-      function w(p) {
+      function y(f) {
         function v(_, B, R, I) {
           var M = 0, U, W = "", j;
           for (B && (U = B.length - 1); M < U || W.length < _; )
             j = Math.abs(parseInt(B[M], R)), W = W + m(j.toString(2), I), M++;
           return W = W.substr(-_), (W.match(/0/g) || []).length === W.length ? null : W;
         }
-        function y(_) {
+        function b(_) {
           var B, R, I, M, U = null;
           for (I = 16, M = 4, R = Math.ceil(_ / 8); U === null; )
             B = s.randomBytes(R), U = v(_, B.toString("hex"), I, M);
@@ -195,7 +195,7 @@ function si() {
             );
           return M;
         }
-        function T(_) {
+        function P(_) {
           var B, R, I, M, U, W = null;
           M = 10, U = 32, R = Math.ceil(_ / 32), I = 123456789, B = new Uint32Array(R);
           for (var j = 0; j < B.length; j++)
@@ -204,86 +204,86 @@ function si() {
             W = v(_, B, M, U);
           return W;
         }
-        if (p && p === "testRandom")
-          return n.typeCSPRNG = p, T;
-        if (p && p === "nodeCryptoRandomBytes")
-          return n.typeCSPRNG = p, y;
-        if (p && p === "browserCryptoGetRandomValues")
-          return n.typeCSPRNG = p, k;
-        if (b())
-          return n.typeCSPRNG = "nodeCryptoRandomBytes", y;
+        if (f && f === "testRandom")
+          return n.typeCSPRNG = f, P;
+        if (f && f === "nodeCryptoRandomBytes")
+          return n.typeCSPRNG = f, b;
+        if (f && f === "browserCryptoGetRandomValues")
+          return n.typeCSPRNG = f, k;
+        if (w())
+          return n.typeCSPRNG = "nodeCryptoRandomBytes", b;
         if (g())
           return n.typeCSPRNG = "browserCryptoGetRandomValues", k;
       }
-      function C(p, v) {
-        var y = [], k;
-        for (v && (p = m(p, v)), k = p.length; k > n.bits; k -= n.bits)
-          y.push(parseInt(p.slice(k - n.bits, k), 2));
-        return y.push(parseInt(p.slice(0, k), 2)), y;
+      function C(f, v) {
+        var b = [], k;
+        for (v && (f = m(f, v)), k = f.length; k > n.bits; k -= n.bits)
+          b.push(parseInt(f.slice(k - n.bits, k), 2));
+        return b.push(parseInt(f.slice(0, k), 2)), b;
       }
-      function N(p, v) {
-        var y = n.logs[p], k = 0, T;
-        for (T = v.length - 1; T >= 0; T--)
-          k !== 0 ? k = n.exps[(y + n.logs[k]) % n.maxShares] ^ v[T] : k = v[T];
+      function N(f, v) {
+        var b = n.logs[f], k = 0, P;
+        for (P = v.length - 1; P >= 0; P--)
+          k !== 0 ? k = n.exps[(b + n.logs[k]) % n.maxShares] ^ v[P] : k = v[P];
         return k;
       }
-      function A(p, v, y) {
-        var k = 0, T, _, B, R;
-        for (B = 0, T = v.length; B < T; B++)
-          if (y[B]) {
-            for (_ = n.logs[y[B]], R = 0; R < T; R++)
+      function A(f, v, b) {
+        var k = 0, P, _, B, R;
+        for (B = 0, P = v.length; B < P; B++)
+          if (b[B]) {
+            for (_ = n.logs[b[B]], R = 0; R < P; R++)
               if (B !== R) {
-                if (p === v[R]) {
+                if (f === v[R]) {
                   _ = -1;
                   break;
                 }
-                _ = (_ + n.logs[p ^ v[R]] - n.logs[v[B] ^ v[R]] + n.maxShares) % n.maxShares;
+                _ = (_ + n.logs[f ^ v[R]] - n.logs[v[B] ^ v[R]] + n.maxShares) % n.maxShares;
               }
             k = _ === -1 ? k : k ^ n.exps[_];
           }
         return k;
       }
-      function E(p, v, y) {
-        var k = [], T = [p], _, B;
-        for (_ = 1; _ < y; _++)
-          T[_] = parseInt(n.rng(n.bits), 2);
+      function E(f, v, b) {
+        var k = [], P = [f], _, B;
+        for (_ = 1; _ < b; _++)
+          P[_] = parseInt(n.rng(n.bits), 2);
         for (_ = 1, B = v + 1; _ < B; _++)
           k[_ - 1] = {
             x: _,
-            y: N(_, T)
+            y: N(_, P)
           };
         return k;
       }
-      function S(p, v, y) {
-        var k, T, _, B, R;
-        if (v = parseInt(v, n.radix), p = parseInt(p, 10) || n.bits, k = p.toString(36).toUpperCase(), _ = Math.pow(2, p) - 1, B = _.toString(n.radix).length, T = m(v.toString(n.radix), B), typeof v != "number" || v % 1 !== 0 || v < 1 || v > _)
+      function S(f, v, b) {
+        var k, P, _, B, R;
+        if (v = parseInt(v, n.radix), f = parseInt(f, 10) || n.bits, k = f.toString(36).toUpperCase(), _ = Math.pow(2, f) - 1, B = _.toString(n.radix).length, P = m(v.toString(n.radix), B), typeof v != "number" || v % 1 !== 0 || v < 1 || v > _)
           throw new Error(
             "Share id must be an integer between 1 and " + _ + ", inclusive."
           );
-        return R = k + T + y, R;
+        return R = k + P + b, R;
       }
       var L = {
-        init: function(p, v) {
-          var y = [], k = [], T = 1, _, B;
-          if (l(), p && (typeof p != "number" || p % 1 !== 0 || p < o.minBits || p > o.maxBits))
+        init: function(f, v) {
+          var b = [], k = [], P = 1, _, B;
+          if (d(), f && (typeof f != "number" || f % 1 !== 0 || f < o.minBits || f > o.maxBits))
             throw new Error(
               "Number of bits must be an integer between " + o.minBits + " and " + o.maxBits + ", inclusive."
             );
-          if (v && d.indexOf(v) === -1)
+          if (v && l.indexOf(v) === -1)
             throw new Error("Invalid RNG type argument : '" + v + "'");
-          for (n.radix = o.radix, n.bits = p || o.bits, n.size = Math.pow(2, n.bits), n.maxShares = n.size - 1, _ = o.primitivePolynomials[n.bits], B = 0; B < n.size; B++)
-            k[B] = T, y[T] = B, T = T << 1, T >= n.size && (T = T ^ _, T = T & n.maxShares);
-          if (n.logs = y, n.exps = k, v && this.setRNG(v), h() || this.setRNG(), !h() || !n.bits || !n.size || !n.maxShares || !n.logs || !n.exps || n.logs.length !== n.size || n.exps.length !== n.size)
+          for (n.radix = o.radix, n.bits = f || o.bits, n.size = Math.pow(2, n.bits), n.maxShares = n.size - 1, _ = o.primitivePolynomials[n.bits], B = 0; B < n.size; B++)
+            k[B] = P, b[P] = B, P = P << 1, P >= n.size && (P = P ^ _, P = P & n.maxShares);
+          if (n.logs = b, n.exps = k, v && this.setRNG(v), h() || this.setRNG(), !h() || !n.bits || !n.size || !n.maxShares || !n.logs || !n.exps || n.logs.length !== n.size || n.exps.length !== n.size)
             throw new Error("Initialization failed.");
         },
         // Evaluates the Lagrange interpolation polynomial at x=`at` for
         // individual config.bits-length segments of each share in the `shares`
         // Array. Each share is expressed in base `inputRadix`. The output
         // is expressed in base `outputRadix'.
-        combine: function(p, v) {
-          var y, k, T, _, B = "", R, I, M, U = [], W = [];
-          for (v = v || 0, y = 0, T = p.length; y < T; y++) {
-            if (I = this.extractShareComponents(p[y]), R === void 0)
+        combine: function(f, v) {
+          var b, k, P, _, B = "", R, I, M, U = [], W = [];
+          for (v = v || 0, b = 0, P = f.length; b < P; b++) {
+            if (I = this.extractShareComponents(f[b]), R === void 0)
               R = I.bits;
             else if (I.bits !== R)
               throw new Error(
@@ -293,156 +293,156 @@ function si() {
               for (U.push(I.id), M = C(u(I.data)), k = 0, _ = M.length; k < _; k++)
                 W[k] = W[k] || [], W[k][U.length - 1] = M[k];
           }
-          for (y = 0, T = W.length; y < T; y++)
-            B = m(A(v, U, W[y]).toString(2)) + B;
-          return f(
+          for (b = 0, P = W.length; b < P; b++)
+            B = m(A(v, U, W[b]).toString(2)) + B;
+          return p(
             v >= 1 ? B : B.slice(B.indexOf("1") + 1)
           );
         },
         getConfig: function() {
-          var p = {};
-          return p.radix = n.radix, p.bits = n.bits, p.maxShares = n.maxShares, p.hasCSPRNG = h(), p.typeCSPRNG = n.typeCSPRNG, p;
+          var f = {};
+          return f.radix = n.radix, f.bits = n.bits, f.maxShares = n.maxShares, f.hasCSPRNG = h(), f.typeCSPRNG = n.typeCSPRNG, f;
         },
         // Given a public share, extract the bits (Integer), share ID (Integer), and share data (Hex)
         // and return an Object containing those components.
-        extractShareComponents: function(p) {
-          var v, y, k, T, _ = {}, B, R;
-          if (v = parseInt(p.substr(0, 1), 36), v && (typeof v != "number" || v % 1 !== 0 || v < o.minBits || v > o.maxBits))
+        extractShareComponents: function(f) {
+          var v, b, k, P, _ = {}, B, R;
+          if (v = parseInt(f.substr(0, 1), 36), v && (typeof v != "number" || v % 1 !== 0 || v < o.minBits || v > o.maxBits))
             throw new Error(
               "Invalid share : Number of bits must be an integer between " + o.minBits + " and " + o.maxBits + ", inclusive."
             );
-          if (T = Math.pow(2, v) - 1, k = (Math.pow(2, v) - 1).toString(n.radix).length, B = "^([a-kA-K3-9]{1})([a-fA-F0-9]{" + k + "})([a-fA-F0-9]+)$", R = new RegExp(B).exec(p), R && (y = parseInt(R[2], n.radix)), typeof y != "number" || y % 1 !== 0 || y < 1 || y > T)
+          if (P = Math.pow(2, v) - 1, k = (Math.pow(2, v) - 1).toString(n.radix).length, B = "^([a-kA-K3-9]{1})([a-fA-F0-9]{" + k + "})([a-fA-F0-9]+)$", R = new RegExp(B).exec(f), R && (b = parseInt(R[2], n.radix)), typeof b != "number" || b % 1 !== 0 || b < 1 || b > P)
             throw new Error(
               "Invalid share : Share id must be an integer between 1 and " + n.maxShares + ", inclusive."
             );
           if (R && R[3])
-            return _.bits = v, _.id = y, _.data = R[3], _;
-          throw new Error("The share data provided is invalid : " + p);
+            return _.bits = v, _.id = b, _.data = R[3], _;
+          throw new Error("The share data provided is invalid : " + f);
         },
         // Set the PRNG to use. If no RNG function is supplied, pick a default using getRNG()
-        setRNG: function(p) {
-          var v = "Random number generator is invalid ", y = " Supply an CSPRNG of the form function(bits){} that returns a string containing 'bits' number of random 1's and 0's.";
-          if (p && typeof p == "string" && d.indexOf(p) === -1)
-            throw new Error("Invalid RNG type argument : '" + p + "'");
-          if (p || (p = w()), p && typeof p == "string" && (p = w(p)), c) {
-            if (p && typeof p != "function")
-              throw new Error(v + "(Not a function)." + y);
-            if (p && typeof p(n.bits) != "string")
+        setRNG: function(f) {
+          var v = "Random number generator is invalid ", b = " Supply an CSPRNG of the form function(bits){} that returns a string containing 'bits' number of random 1's and 0's.";
+          if (f && typeof f == "string" && l.indexOf(f) === -1)
+            throw new Error("Invalid RNG type argument : '" + f + "'");
+          if (f || (f = y()), f && typeof f == "string" && (f = y(f)), c) {
+            if (f && typeof f != "function")
+              throw new Error(v + "(Not a function)." + b);
+            if (f && typeof f(n.bits) != "string")
               throw new Error(
-                v + "(Output is not a string)." + y
+                v + "(Output is not a string)." + b
               );
-            if (p && !parseInt(p(n.bits), 2))
+            if (f && !parseInt(f(n.bits), 2))
               throw new Error(
-                v + "(Binary string output not parseable to an Integer)." + y
+                v + "(Binary string output not parseable to an Integer)." + b
               );
-            if (p && p(n.bits).length > n.bits)
+            if (f && f(n.bits).length > n.bits)
               throw new Error(
-                v + "(Output length is greater than config.bits)." + y
+                v + "(Output length is greater than config.bits)." + b
               );
-            if (p && p(n.bits).length < n.bits)
+            if (f && f(n.bits).length < n.bits)
               throw new Error(
-                v + "(Output length is less than config.bits)." + y
+                v + "(Output length is less than config.bits)." + b
               );
           }
-          return n.rng = p, !0;
+          return n.rng = f, !0;
         },
         // Converts a given UTF16 character string to the HEX representation.
         // Each character of the input string is represented by
         // `bytesPerChar` bytes in the output string which defaults to 2.
-        str2hex: function(p, v) {
-          var y, k, T = "", _, B, R, I;
-          if (typeof p != "string")
+        str2hex: function(f, v) {
+          var b, k, P = "", _, B, R, I;
+          if (typeof f != "string")
             throw new Error("Input must be a character string.");
           if (v || (v = o.bytesPerChar), typeof v != "number" || v < 1 || v > o.maxBytesPerChar || v % 1 !== 0)
             throw new Error(
               "Bytes per character must be an integer between 1 and " + o.maxBytesPerChar + ", inclusive."
             );
-          for (y = 2 * v, k = Math.pow(16, y) - 1, R = 0, I = p.length; R < I; R++) {
-            if (B = p[R].charCodeAt(), isNaN(B))
-              throw new Error("Invalid character: " + p[R]);
+          for (b = 2 * v, k = Math.pow(16, b) - 1, R = 0, I = f.length; R < I; R++) {
+            if (B = f[R].charCodeAt(), isNaN(B))
+              throw new Error("Invalid character: " + f[R]);
             if (B > k)
               throw _ = Math.ceil(Math.log(B + 1) / Math.log(256)), new Error(
                 "Invalid character code (" + B + "). Maximum allowable is 256^bytes-1 (" + k + "). To convert this character, use at least " + _ + " bytes."
               );
-            T = m(B.toString(16), y) + T;
+            P = m(B.toString(16), b) + P;
           }
-          return T;
+          return P;
         },
         // Converts a given HEX number string to a UTF16 character string.
-        hex2str: function(p, v) {
-          var y, k = "", T, _;
-          if (typeof p != "string")
+        hex2str: function(f, v) {
+          var b, k = "", P, _;
+          if (typeof f != "string")
             throw new Error("Input must be a hexadecimal string.");
           if (v = v || o.bytesPerChar, typeof v != "number" || v % 1 !== 0 || v < 1 || v > o.maxBytesPerChar)
             throw new Error(
               "Bytes per character must be an integer between 1 and " + o.maxBytesPerChar + ", inclusive."
             );
-          for (y = 2 * v, p = m(p, y), T = 0, _ = p.length; T < _; T += y)
+          for (b = 2 * v, f = m(f, b), P = 0, _ = f.length; P < _; P += b)
             k = String.fromCharCode(
-              parseInt(p.slice(T, T + y), 16)
+              parseInt(f.slice(P, P + b), 16)
             ) + k;
           return k;
         },
         // Generates a random bits-length number string using the PRNG
-        random: function(p) {
-          if (typeof p != "number" || p % 1 !== 0 || p < 2 || p > 65536)
+        random: function(f) {
+          if (typeof f != "number" || f % 1 !== 0 || f < 2 || f > 65536)
             throw new Error(
               "Number of bits must be an Integer between 1 and 65536."
             );
-          return f(n.rng(p));
+          return p(n.rng(f));
         },
         // Divides a `secret` number String str expressed in radix `inputRadix` (optional, default 16)
         // into `numShares` shares, each expressed in radix `outputRadix` (optional, default to `inputRadix`),
         // requiring `threshold` number of shares to reconstruct the secret.
         // Optionally, zero-pads the secret to a length that is a multiple of padLength before sharing.
-        share: function(p, v, y, k) {
-          var T, _, B = new Array(v), R = new Array(v), I, M, U;
-          if (k = k || 128, typeof p != "string")
+        share: function(f, v, b, k) {
+          var P, _, B = new Array(v), R = new Array(v), I, M, U;
+          if (k = k || 128, typeof f != "string")
             throw new Error("Secret must be a string.");
           if (typeof v != "number" || v % 1 !== 0 || v < 2)
             throw new Error(
               "Number of shares must be an integer between 2 and 2^bits-1 (" + n.maxShares + "), inclusive."
             );
           if (v > n.maxShares)
-            throw T = Math.ceil(Math.log(v + 1) / Math.LN2), new Error(
-              "Number of shares must be an integer between 2 and 2^bits-1 (" + n.maxShares + "), inclusive. To create " + v + " shares, use at least " + T + " bits."
+            throw P = Math.ceil(Math.log(v + 1) / Math.LN2), new Error(
+              "Number of shares must be an integer between 2 and 2^bits-1 (" + n.maxShares + "), inclusive. To create " + v + " shares, use at least " + P + " bits."
             );
-          if (typeof y != "number" || y % 1 !== 0 || y < 2)
+          if (typeof b != "number" || b % 1 !== 0 || b < 2)
             throw new Error(
               "Threshold number of shares must be an integer between 2 and 2^bits-1 (" + n.maxShares + "), inclusive."
             );
-          if (y > n.maxShares)
-            throw T = Math.ceil(Math.log(y + 1) / Math.LN2), new Error(
-              "Threshold number of shares must be an integer between 2 and 2^bits-1 (" + n.maxShares + "), inclusive.  To use a threshold of " + y + ", use at least " + T + " bits."
+          if (b > n.maxShares)
+            throw P = Math.ceil(Math.log(b + 1) / Math.LN2), new Error(
+              "Threshold number of shares must be an integer between 2 and 2^bits-1 (" + n.maxShares + "), inclusive.  To use a threshold of " + b + ", use at least " + P + " bits."
             );
-          if (y > v)
+          if (b > v)
             throw new Error(
-              "Threshold number of shares was " + y + " but must be less than or equal to the " + v + " shares specified as the total to generate."
+              "Threshold number of shares was " + b + " but must be less than or equal to the " + v + " shares specified as the total to generate."
             );
           if (typeof k != "number" || k % 1 !== 0 || k < 0 || k > 1024)
             throw new Error(
               "Zero-pad length must be an integer between 0 and 1024 inclusive."
             );
-          for (p = "1" + u(p), p = C(p, k), I = 0, U = p.length; I < U; I++)
-            for (_ = E(p[I], v, y), M = 0; M < v; M++)
+          for (f = "1" + u(f), f = C(f, k), I = 0, U = f.length; I < U; I++)
+            for (_ = E(f[I], v, b), M = 0; M < v; M++)
               B[M] = B[M] || _[M].x.toString(n.radix), R[M] = m(_[M].y.toString(2)) + (R[M] || "");
           for (I = 0; I < v; I++)
             B[I] = S(
               n.bits,
               B[I],
-              f(R[I])
+              p(R[I])
             );
           return B;
         },
         // Generate a new share with id `id` (a number between 1 and 2^bits-1)
         // `id` can be a Number or a String in the default radix (16)
-        newShare: function(p, v) {
-          var y, k;
-          if (p && typeof p == "string" && (p = parseInt(p, n.radix)), k = p.toString(n.radix), p && k && v && v[0])
-            return y = this.extractShareComponents(v[0]), S(
-              y.bits,
+        newShare: function(f, v) {
+          var b, k;
+          if (f && typeof f == "string" && (f = parseInt(f, n.radix)), k = f.toString(n.radix), f && k && v && v[0])
+            return b = this.extractShareComponents(v[0]), S(
+              b.bits,
               k,
-              this.combine(v, p)
+              this.combine(v, f)
             );
           throw new Error(
             "Invalid 'id' or 'shares' Array argument to newShare()."
@@ -450,13 +450,13 @@ function si() {
         },
         /* test-code */
         // export private functions so they can be unit tested directly.
-        _reset: l,
+        _reset: d,
         _padLeft: m,
         _hex2bin: u,
-        _bin2hex: f,
+        _bin2hex: p,
         _hasCryptoGetRandomValues: g,
-        _hasCryptoRandomBytes: b,
-        _getRNG: w,
+        _hasCryptoRandomBytes: w,
+        _getRNG: y,
         _isSetRNG: h,
         _splitNumStringToIntArray: C,
         _horner: N,
@@ -467,57 +467,57 @@ function si() {
       };
       return L.init(), L;
     });
-  })(kt)), kt.exports;
+  })(Ct)), Ct.exports;
 }
-var ni = si();
-const Gn = /* @__PURE__ */ Hn(ni);
-function Qn(e) {
+var ai = oi();
+const Kn = /* @__PURE__ */ Qn(ai);
+function Yn(e) {
   return e instanceof Uint8Array || ArrayBuffer.isView(e) && e.constructor.name === "Uint8Array";
 }
-function Gr(e, r = "") {
+function Kr(e, r = "") {
   if (!Number.isSafeInteger(e) || e < 0) {
     const s = r && `"${r}" `;
     throw new Error(`${s}expected integer >= 0, got ${e}`);
   }
 }
 function de(e, r, s = "") {
-  const o = Qn(e), n = e?.length, a = r !== void 0;
+  const o = Yn(e), n = e?.length, a = r !== void 0;
   if (!o || a && n !== r) {
-    const c = s && `"${s}" `, d = a ? ` of length ${r}` : "", l = o ? `length=${n}` : `type=${typeof e}`;
-    throw new Error(c + "expected Uint8Array" + d + ", got " + l);
+    const c = s && `"${s}" `, l = a ? ` of length ${r}` : "", d = o ? `length=${n}` : `type=${typeof e}`;
+    throw new Error(c + "expected Uint8Array" + l + ", got " + d);
   }
   return e;
 }
-function gs(e, r = !0) {
+function ys(e, r = !0) {
   if (e.destroyed)
     throw new Error("Hash instance has been destroyed");
   if (r && e.finished)
     throw new Error("Hash#digest() has already been called");
 }
-function oi(e, r) {
+function ii(e, r) {
   de(e, void 0, "digestInto() output");
   const s = r.outputLen;
   if (e.length < s)
     throw new Error('"digestInto() output" expected to be of length >=' + s);
 }
-function Br(...e) {
+function Mr(...e) {
   for (let r = 0; r < e.length; r++)
     e[r].fill(0);
 }
-function Gt(e) {
+function Qt(e) {
   return new DataView(e.buffer, e.byteOffset, e.byteLength);
 }
-const Kn = /* @ts-ignore */ typeof Uint8Array.from([]).toHex == "function" && typeof Uint8Array.fromHex == "function", ai = /* @__PURE__ */ Array.from({ length: 256 }, (e, r) => r.toString(16).padStart(2, "0"));
-function Qr(e) {
-  if (de(e), Kn)
+const Zn = /* @ts-ignore */ typeof Uint8Array.from([]).toHex == "function" && typeof Uint8Array.fromHex == "function", ci = /* @__PURE__ */ Array.from({ length: 256 }, (e, r) => r.toString(16).padStart(2, "0"));
+function Yr(e) {
+  if (de(e), Zn)
     return e.toHex();
   let r = "";
   for (let s = 0; s < e.length; s++)
-    r += ai[e[s]];
+    r += ci[e[s]];
   return r;
 }
 const Ce = { _0: 48, _9: 57, A: 65, F: 70, a: 97, f: 102 };
-function ws(e) {
+function bs(e) {
   if (e >= Ce._0 && e <= Ce._9)
     return e - Ce._0;
   if (e >= Ce.A && e <= Ce.F)
@@ -525,26 +525,26 @@ function ws(e) {
   if (e >= Ce.a && e <= Ce.f)
     return e - (Ce.a - 10);
 }
-function Yn(e) {
+function Xn(e) {
   if (typeof e != "string")
     throw new Error("hex string expected, got " + typeof e);
-  if (Kn)
+  if (Zn)
     return Uint8Array.fromHex(e);
   const r = e.length, s = r / 2;
   if (r % 2)
     throw new Error("hex string expected, got unpadded hex of length " + r);
   const o = new Uint8Array(s);
   for (let n = 0, a = 0; n < s; n++, a += 2) {
-    const c = ws(e.charCodeAt(a)), d = ws(e.charCodeAt(a + 1));
-    if (c === void 0 || d === void 0) {
-      const l = e[a] + e[a + 1];
-      throw new Error('hex string expected, got non-hex character "' + l + '" at index ' + a);
+    const c = bs(e.charCodeAt(a)), l = bs(e.charCodeAt(a + 1));
+    if (c === void 0 || l === void 0) {
+      const d = e[a] + e[a + 1];
+      throw new Error('hex string expected, got non-hex character "' + d + '" at index ' + a);
     }
-    o[n] = c * 16 + d;
+    o[n] = c * 16 + l;
   }
   return o;
 }
-function bs(...e) {
+function vs(...e) {
   let r = 0;
   for (let o = 0; o < e.length; o++) {
     const n = e[o];
@@ -557,20 +557,20 @@ function bs(...e) {
   }
   return s;
 }
-function ii(e, r = {}) {
+function li(e, r = {}) {
   const s = (n, a) => e(a).update(n).digest(), o = e(void 0);
   return s.outputLen = o.outputLen, s.blockLen = o.blockLen, s.create = (n) => e(n), Object.assign(s, r), Object.freeze(s);
 }
-function ci(e = 32) {
+function di(e = 32) {
   const r = typeof globalThis == "object" ? globalThis.crypto : null;
   if (typeof r?.getRandomValues != "function")
     throw new Error("crypto.getRandomValues must be defined");
   return r.getRandomValues(new Uint8Array(e));
 }
-const li = (e) => ({
+const ui = (e) => ({
   oid: Uint8Array.from([6, 9, 96, 134, 72, 1, 101, 3, 4, 2, e])
 });
-let di = class {
+let hi = class {
   blockLen;
   outputLen;
   padOffset;
@@ -583,39 +583,39 @@ let di = class {
   pos = 0;
   destroyed = !1;
   constructor(r, s, o, n) {
-    this.blockLen = r, this.outputLen = s, this.padOffset = o, this.isLE = n, this.buffer = new Uint8Array(r), this.view = Gt(this.buffer);
+    this.blockLen = r, this.outputLen = s, this.padOffset = o, this.isLE = n, this.buffer = new Uint8Array(r), this.view = Qt(this.buffer);
   }
   update(r) {
-    gs(this), de(r);
+    ys(this), de(r);
     const { view: s, buffer: o, blockLen: n } = this, a = r.length;
     for (let c = 0; c < a; ) {
-      const d = Math.min(n - this.pos, a - c);
-      if (d === n) {
-        const l = Gt(r);
+      const l = Math.min(n - this.pos, a - c);
+      if (l === n) {
+        const d = Qt(r);
         for (; n <= a - c; c += n)
-          this.process(l, c);
+          this.process(d, c);
         continue;
       }
-      o.set(r.subarray(c, c + d), this.pos), this.pos += d, c += d, this.pos === n && (this.process(s, 0), this.pos = 0);
+      o.set(r.subarray(c, c + l), this.pos), this.pos += l, c += l, this.pos === n && (this.process(s, 0), this.pos = 0);
     }
     return this.length += r.length, this.roundClean(), this;
   }
   digestInto(r) {
-    gs(this), oi(r, this), this.finished = !0;
+    ys(this), ii(r, this), this.finished = !0;
     const { buffer: s, view: o, blockLen: n, isLE: a } = this;
     let { pos: c } = this;
-    s[c++] = 128, Br(this.buffer.subarray(c)), this.padOffset > n - c && (this.process(o, 0), c = 0);
+    s[c++] = 128, Mr(this.buffer.subarray(c)), this.padOffset > n - c && (this.process(o, 0), c = 0);
     for (let u = c; u < n; u++)
       s[u] = 0;
     o.setBigUint64(n - 8, BigInt(this.length * 8), a), this.process(o, 0);
-    const d = Gt(r), l = this.outputLen;
-    if (l % 4)
+    const l = Qt(r), d = this.outputLen;
+    if (d % 4)
       throw new Error("_sha2: outputLen must be aligned to 32bit");
-    const h = l / 4, m = this.get();
+    const h = d / 4, m = this.get();
     if (h > m.length)
       throw new Error("_sha2: outputLen bigger than state");
     for (let u = 0; u < h; u++)
-      d.setUint32(4 * u, m[u], a);
+      l.setUint32(4 * u, m[u], a);
   }
   digest() {
     const { buffer: r, outputLen: s } = this;
@@ -625,8 +625,8 @@ let di = class {
   }
   _cloneInto(r) {
     r ||= new this.constructor(), r.set(...this.get());
-    const { blockLen: s, buffer: o, length: n, finished: a, destroyed: c, pos: d } = this;
-    return r.destroyed = c, r.finished = a, r.length = n, r.pos = d, n % s && r.buffer.set(o), r;
+    const { blockLen: s, buffer: o, length: n, finished: a, destroyed: c, pos: l } = this;
+    return r.destroyed = c, r.finished = a, r.length = n, r.pos = l, n % s && r.buffer.set(o), r;
   }
   clone() {
     return this._cloneInto();
@@ -649,25 +649,25 @@ const ue = /* @__PURE__ */ Uint32Array.from([
   4215389547,
   1541459225,
   327033209
-]), ht = /* @__PURE__ */ BigInt(2 ** 32 - 1), ys = /* @__PURE__ */ BigInt(32);
-function ui(e, r = !1) {
-  return r ? { h: Number(e & ht), l: Number(e >> ys & ht) } : { h: Number(e >> ys & ht) | 0, l: Number(e & ht) | 0 };
+]), mt = /* @__PURE__ */ BigInt(2 ** 32 - 1), As = /* @__PURE__ */ BigInt(32);
+function mi(e, r = !1) {
+  return r ? { h: Number(e & mt), l: Number(e >> As & mt) } : { h: Number(e >> As & mt) | 0, l: Number(e & mt) | 0 };
 }
-function hi(e, r = !1) {
+function pi(e, r = !1) {
   const s = e.length;
   let o = new Uint32Array(s), n = new Uint32Array(s);
   for (let a = 0; a < s; a++) {
-    const { h: c, l: d } = ui(e[a], r);
-    [o[a], n[a]] = [c, d];
+    const { h: c, l } = mi(e[a], r);
+    [o[a], n[a]] = [c, l];
   }
   return [o, n];
 }
-const vs = (e, r, s) => e >>> s, As = (e, r, s) => e << 32 - s | r >>> s, Ge = (e, r, s) => e >>> s | r << 32 - s, Qe = (e, r, s) => e << 32 - s | r >>> s, mt = (e, r, s) => e << 64 - s | r >>> s - 32, pt = (e, r, s) => e >>> s - 32 | r << 64 - s;
+const Ns = (e, r, s) => e >>> s, ks = (e, r, s) => e << 32 - s | r >>> s, Ge = (e, r, s) => e >>> s | r << 32 - s, Qe = (e, r, s) => e << 32 - s | r >>> s, pt = (e, r, s) => e << 64 - s | r >>> s - 32, ft = (e, r, s) => e >>> s - 32 | r << 64 - s;
 function Ee(e, r, s, o) {
   const n = (r >>> 0) + (o >>> 0);
   return { h: e + s + (n / 2 ** 32 | 0) | 0, l: n | 0 };
 }
-const mi = (e, r, s) => (e >>> 0) + (r >>> 0) + (s >>> 0), pi = (e, r, s, o) => r + s + o + (e / 2 ** 32 | 0) | 0, fi = (e, r, s, o) => (e >>> 0) + (r >>> 0) + (s >>> 0) + (o >>> 0), gi = (e, r, s, o, n) => r + s + o + n + (e / 2 ** 32 | 0) | 0, wi = (e, r, s, o, n) => (e >>> 0) + (r >>> 0) + (s >>> 0) + (o >>> 0) + (n >>> 0), bi = (e, r, s, o, n, a) => r + s + o + n + a + (e / 2 ** 32 | 0) | 0, Zn = hi([
+const fi = (e, r, s) => (e >>> 0) + (r >>> 0) + (s >>> 0), gi = (e, r, s, o) => r + s + o + (e / 2 ** 32 | 0) | 0, wi = (e, r, s, o) => (e >>> 0) + (r >>> 0) + (s >>> 0) + (o >>> 0), yi = (e, r, s, o, n) => r + s + o + n + (e / 2 ** 32 | 0) | 0, bi = (e, r, s, o, n) => (e >>> 0) + (r >>> 0) + (s >>> 0) + (o >>> 0) + (n >>> 0), vi = (e, r, s, o, n, a) => r + s + o + n + a + (e / 2 ** 32 | 0) | 0, Jn = pi([
   "0x428a2f98d728ae22",
   "0x7137449123ef65cd",
   "0xb5c0fbcfec4d3b2f",
@@ -748,44 +748,44 @@ const mi = (e, r, s) => (e >>> 0) + (r >>> 0) + (s >>> 0), pi = (e, r, s, o) => 
   "0x597f299cfc657e2a",
   "0x5fcb6fab3ad6faec",
   "0x6c44198c4a475817"
-].map((e) => BigInt(e))), yi = Zn[0], vi = Zn[1], Te = /* @__PURE__ */ new Uint32Array(80), Re = /* @__PURE__ */ new Uint32Array(80);
-class Ai extends di {
+].map((e) => BigInt(e))), Ai = Jn[0], Ni = Jn[1], Pe = /* @__PURE__ */ new Uint32Array(80), Re = /* @__PURE__ */ new Uint32Array(80);
+class ki extends hi {
   constructor(r) {
     super(128, r, 16, !1);
   }
   // prettier-ignore
   get() {
-    const { Ah: r, Al: s, Bh: o, Bl: n, Ch: a, Cl: c, Dh: d, Dl: l, Eh: h, El: m, Fh: u, Fl: f, Gh: g, Gl: b, Hh: w, Hl: C } = this;
-    return [r, s, o, n, a, c, d, l, h, m, u, f, g, b, w, C];
+    const { Ah: r, Al: s, Bh: o, Bl: n, Ch: a, Cl: c, Dh: l, Dl: d, Eh: h, El: m, Fh: u, Fl: p, Gh: g, Gl: w, Hh: y, Hl: C } = this;
+    return [r, s, o, n, a, c, l, d, h, m, u, p, g, w, y, C];
   }
   // prettier-ignore
-  set(r, s, o, n, a, c, d, l, h, m, u, f, g, b, w, C) {
-    this.Ah = r | 0, this.Al = s | 0, this.Bh = o | 0, this.Bl = n | 0, this.Ch = a | 0, this.Cl = c | 0, this.Dh = d | 0, this.Dl = l | 0, this.Eh = h | 0, this.El = m | 0, this.Fh = u | 0, this.Fl = f | 0, this.Gh = g | 0, this.Gl = b | 0, this.Hh = w | 0, this.Hl = C | 0;
+  set(r, s, o, n, a, c, l, d, h, m, u, p, g, w, y, C) {
+    this.Ah = r | 0, this.Al = s | 0, this.Bh = o | 0, this.Bl = n | 0, this.Ch = a | 0, this.Cl = c | 0, this.Dh = l | 0, this.Dl = d | 0, this.Eh = h | 0, this.El = m | 0, this.Fh = u | 0, this.Fl = p | 0, this.Gh = g | 0, this.Gl = w | 0, this.Hh = y | 0, this.Hl = C | 0;
   }
   process(r, s) {
     for (let E = 0; E < 16; E++, s += 4)
-      Te[E] = r.getUint32(s), Re[E] = r.getUint32(s += 4);
+      Pe[E] = r.getUint32(s), Re[E] = r.getUint32(s += 4);
     for (let E = 16; E < 80; E++) {
-      const S = Te[E - 15] | 0, L = Re[E - 15] | 0, p = Ge(S, L, 1) ^ Ge(S, L, 8) ^ vs(S, L, 7), v = Qe(S, L, 1) ^ Qe(S, L, 8) ^ As(S, L, 7), y = Te[E - 2] | 0, k = Re[E - 2] | 0, T = Ge(y, k, 19) ^ mt(y, k, 61) ^ vs(y, k, 6), _ = Qe(y, k, 19) ^ pt(y, k, 61) ^ As(y, k, 6), B = fi(v, _, Re[E - 7], Re[E - 16]), R = gi(B, p, T, Te[E - 7], Te[E - 16]);
-      Te[E] = R | 0, Re[E] = B | 0;
+      const S = Pe[E - 15] | 0, L = Re[E - 15] | 0, f = Ge(S, L, 1) ^ Ge(S, L, 8) ^ Ns(S, L, 7), v = Qe(S, L, 1) ^ Qe(S, L, 8) ^ ks(S, L, 7), b = Pe[E - 2] | 0, k = Re[E - 2] | 0, P = Ge(b, k, 19) ^ pt(b, k, 61) ^ Ns(b, k, 6), _ = Qe(b, k, 19) ^ ft(b, k, 61) ^ ks(b, k, 6), B = wi(v, _, Re[E - 7], Re[E - 16]), R = yi(B, f, P, Pe[E - 7], Pe[E - 16]);
+      Pe[E] = R | 0, Re[E] = B | 0;
     }
-    let { Ah: o, Al: n, Bh: a, Bl: c, Ch: d, Cl: l, Dh: h, Dl: m, Eh: u, El: f, Fh: g, Fl: b, Gh: w, Gl: C, Hh: N, Hl: A } = this;
+    let { Ah: o, Al: n, Bh: a, Bl: c, Ch: l, Cl: d, Dh: h, Dl: m, Eh: u, El: p, Fh: g, Fl: w, Gh: y, Gl: C, Hh: N, Hl: A } = this;
     for (let E = 0; E < 80; E++) {
-      const S = Ge(u, f, 14) ^ Ge(u, f, 18) ^ mt(u, f, 41), L = Qe(u, f, 14) ^ Qe(u, f, 18) ^ pt(u, f, 41), p = u & g ^ ~u & w, v = f & b ^ ~f & C, y = wi(A, L, v, vi[E], Re[E]), k = bi(y, N, S, p, yi[E], Te[E]), T = y | 0, _ = Ge(o, n, 28) ^ mt(o, n, 34) ^ mt(o, n, 39), B = Qe(o, n, 28) ^ pt(o, n, 34) ^ pt(o, n, 39), R = o & a ^ o & d ^ a & d, I = n & c ^ n & l ^ c & l;
-      N = w | 0, A = C | 0, w = g | 0, C = b | 0, g = u | 0, b = f | 0, { h: u, l: f } = Ee(h | 0, m | 0, k | 0, T | 0), h = d | 0, m = l | 0, d = a | 0, l = c | 0, a = o | 0, c = n | 0;
-      const M = mi(T, B, I);
-      o = pi(M, k, _, R), n = M | 0;
+      const S = Ge(u, p, 14) ^ Ge(u, p, 18) ^ pt(u, p, 41), L = Qe(u, p, 14) ^ Qe(u, p, 18) ^ ft(u, p, 41), f = u & g ^ ~u & y, v = p & w ^ ~p & C, b = bi(A, L, v, Ni[E], Re[E]), k = vi(b, N, S, f, Ai[E], Pe[E]), P = b | 0, _ = Ge(o, n, 28) ^ pt(o, n, 34) ^ pt(o, n, 39), B = Qe(o, n, 28) ^ ft(o, n, 34) ^ ft(o, n, 39), R = o & a ^ o & l ^ a & l, I = n & c ^ n & d ^ c & d;
+      N = y | 0, A = C | 0, y = g | 0, C = w | 0, g = u | 0, w = p | 0, { h: u, l: p } = Ee(h | 0, m | 0, k | 0, P | 0), h = l | 0, m = d | 0, l = a | 0, d = c | 0, a = o | 0, c = n | 0;
+      const M = fi(P, B, I);
+      o = gi(M, k, _, R), n = M | 0;
     }
-    ({ h: o, l: n } = Ee(this.Ah | 0, this.Al | 0, o | 0, n | 0)), { h: a, l: c } = Ee(this.Bh | 0, this.Bl | 0, a | 0, c | 0), { h: d, l } = Ee(this.Ch | 0, this.Cl | 0, d | 0, l | 0), { h, l: m } = Ee(this.Dh | 0, this.Dl | 0, h | 0, m | 0), { h: u, l: f } = Ee(this.Eh | 0, this.El | 0, u | 0, f | 0), { h: g, l: b } = Ee(this.Fh | 0, this.Fl | 0, g | 0, b | 0), { h: w, l: C } = Ee(this.Gh | 0, this.Gl | 0, w | 0, C | 0), { h: N, l: A } = Ee(this.Hh | 0, this.Hl | 0, N | 0, A | 0), this.set(o, n, a, c, d, l, h, m, u, f, g, b, w, C, N, A);
+    ({ h: o, l: n } = Ee(this.Ah | 0, this.Al | 0, o | 0, n | 0)), { h: a, l: c } = Ee(this.Bh | 0, this.Bl | 0, a | 0, c | 0), { h: l, l: d } = Ee(this.Ch | 0, this.Cl | 0, l | 0, d | 0), { h, l: m } = Ee(this.Dh | 0, this.Dl | 0, h | 0, m | 0), { h: u, l: p } = Ee(this.Eh | 0, this.El | 0, u | 0, p | 0), { h: g, l: w } = Ee(this.Fh | 0, this.Fl | 0, g | 0, w | 0), { h: y, l: C } = Ee(this.Gh | 0, this.Gl | 0, y | 0, C | 0), { h: N, l: A } = Ee(this.Hh | 0, this.Hl | 0, N | 0, A | 0), this.set(o, n, a, c, l, d, h, m, u, p, g, w, y, C, N, A);
   }
   roundClean() {
-    Br(Te, Re);
+    Mr(Pe, Re);
   }
   destroy() {
-    Br(this.buffer), this.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    Mr(this.buffer), this.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 }
-class Ni extends Ai {
+class Ci extends ki {
   Ah = ue[0] | 0;
   Al = ue[1] | 0;
   Bh = ue[2] | 0;
@@ -806,74 +806,74 @@ class Ni extends Ai {
     super(64);
   }
 }
-const ki = /* @__PURE__ */ ii(
-  () => new Ni(),
-  /* @__PURE__ */ li(3)
+const Ei = /* @__PURE__ */ li(
+  () => new Ci(),
+  /* @__PURE__ */ ui(3)
 );
-const Xn = /* @__PURE__ */ BigInt(0), Ns = /* @__PURE__ */ BigInt(1);
-function Ir(e, r = "") {
+const eo = /* @__PURE__ */ BigInt(0), Cs = /* @__PURE__ */ BigInt(1);
+function Ur(e, r = "") {
   if (typeof e != "boolean") {
     const s = r && `"${r}" `;
     throw new Error(s + "expected boolean, got type=" + typeof e);
   }
   return e;
 }
-function Ci(e) {
+function xi(e) {
   if (typeof e == "bigint") {
-    if (!Ct(e))
+    if (!Et(e))
       throw new Error("positive bigint expected, got " + e);
   } else
-    Gr(e);
+    Kr(e);
   return e;
 }
-function Jn(e) {
+function to(e) {
   if (typeof e != "string")
     throw new Error("hex string expected, got " + typeof e);
-  return e === "" ? Xn : BigInt("0x" + e);
+  return e === "" ? eo : BigInt("0x" + e);
 }
-function Ei(e) {
-  return Jn(Qr(e));
+function Si(e) {
+  return to(Yr(e));
 }
-function xt(e) {
-  return Jn(Qr(Mr(de(e)).reverse()));
+function St(e) {
+  return to(Yr(Dr(de(e)).reverse()));
 }
-function eo(e, r) {
-  Gr(r), e = Ci(e);
-  const s = Yn(e.toString(16).padStart(r * 2, "0"));
+function ro(e, r) {
+  Kr(r), e = xi(e);
+  const s = Xn(e.toString(16).padStart(r * 2, "0"));
   if (s.length !== r)
     throw new Error("number too large");
   return s;
 }
-function xi(e, r) {
-  return eo(e, r).reverse();
+function _i(e, r) {
+  return ro(e, r).reverse();
 }
-function Mr(e) {
+function Dr(e) {
   return Uint8Array.from(e);
 }
-const Ct = (e) => typeof e == "bigint" && Xn <= e;
-function Si(e, r, s) {
-  return Ct(e) && Ct(r) && Ct(s) && r <= e && e < s;
+const Et = (e) => typeof e == "bigint" && eo <= e;
+function Li(e, r, s) {
+  return Et(e) && Et(r) && Et(s) && r <= e && e < s;
 }
-function ks(e, r, s, o) {
-  if (!Si(r, s, o))
+function Es(e, r, s, o) {
+  if (!Li(r, s, o))
     throw new Error("expected valid " + e + ": " + s + " <= n < " + o + ", got " + r);
 }
-const _i = (e) => (Ns << BigInt(e)) - Ns;
-function Kr(e, r = {}, s = {}) {
+const Ti = (e) => (Cs << BigInt(e)) - Cs;
+function Zr(e, r = {}, s = {}) {
   if (!e || typeof e != "object")
     throw new Error("expected valid options object");
-  function o(a, c, d) {
-    const l = e[a];
-    if (d && l === void 0)
+  function o(a, c, l) {
+    const d = e[a];
+    if (l && d === void 0)
       return;
-    const h = typeof l;
-    if (h !== c || l === null)
+    const h = typeof d;
+    if (h !== c || d === null)
       throw new Error(`param "${a}" is invalid: expected ${c}, got ${h}`);
   }
-  const n = (a, c) => Object.entries(a).forEach(([d, l]) => o(d, l, c));
+  const n = (a, c) => Object.entries(a).forEach(([l, d]) => o(l, d, c));
   n(r, !1), n(s, !0);
 }
-function Cs(e) {
+function xs(e) {
   const r = /* @__PURE__ */ new WeakMap();
   return (s, ...o) => {
     const n = r.get(s);
@@ -883,7 +883,7 @@ function Cs(e) {
     return r.set(s, a), a;
   };
 }
-const we = /* @__PURE__ */ BigInt(0), ge = /* @__PURE__ */ BigInt(1), qe = /* @__PURE__ */ BigInt(2), to = /* @__PURE__ */ BigInt(3), ro = /* @__PURE__ */ BigInt(4), so = /* @__PURE__ */ BigInt(5), Li = /* @__PURE__ */ BigInt(7), no = /* @__PURE__ */ BigInt(8), Pi = /* @__PURE__ */ BigInt(9), oo = /* @__PURE__ */ BigInt(16);
+const we = /* @__PURE__ */ BigInt(0), ge = /* @__PURE__ */ BigInt(1), qe = /* @__PURE__ */ BigInt(2), so = /* @__PURE__ */ BigInt(3), no = /* @__PURE__ */ BigInt(4), oo = /* @__PURE__ */ BigInt(5), Pi = /* @__PURE__ */ BigInt(7), ao = /* @__PURE__ */ BigInt(8), Ri = /* @__PURE__ */ BigInt(9), io = /* @__PURE__ */ BigInt(16);
 function ae(e, r) {
   const s = e % r;
   return s >= we ? s : r + s;
@@ -894,80 +894,80 @@ function Ae(e, r, s) {
     o *= o, o %= s;
   return o;
 }
-function Es(e, r) {
+function Ss(e, r) {
   if (e === we)
     throw new Error("invert: expected non-zero number");
   if (r <= we)
     throw new Error("invert: expected positive modulus, got " + r);
   let s = ae(e, r), o = r, n = we, a = ge;
   for (; s !== we; ) {
-    const d = o / s, l = o % s, h = n - a * d;
-    o = s, s = l, n = a, a = h;
+    const l = o / s, d = o % s, h = n - a * l;
+    o = s, s = d, n = a, a = h;
   }
   if (o !== ge)
     throw new Error("invert: does not exist");
   return ae(n, r);
 }
-function Yr(e, r, s) {
+function Xr(e, r, s) {
   if (!e.eql(e.sqr(r), s))
     throw new Error("Cannot find square root");
 }
-function ao(e, r) {
-  const s = (e.ORDER + ge) / ro, o = e.pow(r, s);
-  return Yr(e, o, r), o;
+function co(e, r) {
+  const s = (e.ORDER + ge) / no, o = e.pow(r, s);
+  return Xr(e, o, r), o;
 }
-function Ti(e, r) {
-  const s = (e.ORDER - so) / no, o = e.mul(r, qe), n = e.pow(o, s), a = e.mul(r, n), c = e.mul(e.mul(a, qe), n), d = e.mul(a, e.sub(c, e.ONE));
-  return Yr(e, d, r), d;
+function Bi(e, r) {
+  const s = (e.ORDER - oo) / ao, o = e.mul(r, qe), n = e.pow(o, s), a = e.mul(r, n), c = e.mul(e.mul(a, qe), n), l = e.mul(a, e.sub(c, e.ONE));
+  return Xr(e, l, r), l;
 }
-function Ri(e) {
-  const r = Zr(e), s = io(e), o = s(r, r.neg(r.ONE)), n = s(r, o), a = s(r, r.neg(o)), c = (e + Li) / oo;
-  return (d, l) => {
-    let h = d.pow(l, c), m = d.mul(h, o);
-    const u = d.mul(h, n), f = d.mul(h, a), g = d.eql(d.sqr(m), l), b = d.eql(d.sqr(u), l);
-    h = d.cmov(h, m, g), m = d.cmov(f, u, b);
-    const w = d.eql(d.sqr(m), l), C = d.cmov(h, m, w);
-    return Yr(d, C, l), C;
+function Ii(e) {
+  const r = Jr(e), s = lo(e), o = s(r, r.neg(r.ONE)), n = s(r, o), a = s(r, r.neg(o)), c = (e + Pi) / io;
+  return (l, d) => {
+    let h = l.pow(d, c), m = l.mul(h, o);
+    const u = l.mul(h, n), p = l.mul(h, a), g = l.eql(l.sqr(m), d), w = l.eql(l.sqr(u), d);
+    h = l.cmov(h, m, g), m = l.cmov(p, u, w);
+    const y = l.eql(l.sqr(m), d), C = l.cmov(h, m, y);
+    return Xr(l, C, d), C;
   };
 }
-function io(e) {
-  if (e < to)
+function lo(e) {
+  if (e < so)
     throw new Error("sqrt is not defined for small field");
   let r = e - ge, s = 0;
   for (; r % qe === we; )
     r /= qe, s++;
   let o = qe;
-  const n = Zr(e);
-  for (; xs(n, o) === 1; )
+  const n = Jr(e);
+  for (; _s(n, o) === 1; )
     if (o++ > 1e3)
       throw new Error("Cannot find square root: probably non-prime P");
   if (s === 1)
-    return ao;
+    return co;
   let a = n.pow(o, r);
   const c = (r + ge) / qe;
-  return function(l, h) {
-    if (l.is0(h))
+  return function(d, h) {
+    if (d.is0(h))
       return h;
-    if (xs(l, h) !== 1)
+    if (_s(d, h) !== 1)
       throw new Error("Cannot find square root");
-    let m = s, u = l.mul(l.ONE, a), f = l.pow(h, r), g = l.pow(h, c);
-    for (; !l.eql(f, l.ONE); ) {
-      if (l.is0(f))
-        return l.ZERO;
-      let b = 1, w = l.sqr(f);
-      for (; !l.eql(w, l.ONE); )
-        if (b++, w = l.sqr(w), b === m)
+    let m = s, u = d.mul(d.ONE, a), p = d.pow(h, r), g = d.pow(h, c);
+    for (; !d.eql(p, d.ONE); ) {
+      if (d.is0(p))
+        return d.ZERO;
+      let w = 1, y = d.sqr(p);
+      for (; !d.eql(y, d.ONE); )
+        if (w++, y = d.sqr(y), w === m)
           throw new Error("Cannot find square root");
-      const C = ge << BigInt(m - b - 1), N = l.pow(u, C);
-      m = b, u = l.sqr(N), f = l.mul(f, u), g = l.mul(g, N);
+      const C = ge << BigInt(m - w - 1), N = d.pow(u, C);
+      m = w, u = d.sqr(N), p = d.mul(p, u), g = d.mul(g, N);
     }
     return g;
   };
 }
-function Bi(e) {
-  return e % ro === to ? ao : e % no === so ? Ti : e % oo === Pi ? Ri(e) : io(e);
+function Mi(e) {
+  return e % no === so ? co : e % ao === oo ? Bi : e % io === Ri ? Ii(e) : lo(e);
 }
-const Ii = (e, r) => (ae(e, r) & ge) === ge, Mi = [
+const Ui = (e, r) => (ae(e, r) & ge) === ge, Di = [
   "create",
   "isValid",
   "is0",
@@ -986,15 +986,15 @@ const Ii = (e, r) => (ae(e, r) & ge) === ge, Mi = [
   "mulN",
   "sqrN"
 ];
-function Ui(e) {
+function Fi(e) {
   const r = {
     ORDER: "bigint",
     BYTES: "number",
     BITS: "number"
-  }, s = Mi.reduce((o, n) => (o[n] = "function", o), r);
-  return Kr(e, s), e;
+  }, s = Di.reduce((o, n) => (o[n] = "function", o), r);
+  return Zr(e, s), e;
 }
-function Di(e, r, s) {
+function Oi(e, r, s) {
   if (s < we)
     throw new Error("invalid exponent, negatives unsupported");
   if (s === we)
@@ -1006,22 +1006,22 @@ function Di(e, r, s) {
     s & ge && (o = e.mul(o, n)), n = e.sqr(n), s >>= ge;
   return o;
 }
-function co(e, r, s = !1) {
-  const o = new Array(r.length).fill(s ? e.ZERO : void 0), n = r.reduce((c, d, l) => e.is0(d) ? c : (o[l] = c, e.mul(c, d)), e.ONE), a = e.inv(n);
-  return r.reduceRight((c, d, l) => e.is0(d) ? c : (o[l] = e.mul(c, o[l]), e.mul(c, d)), a), o;
+function uo(e, r, s = !1) {
+  const o = new Array(r.length).fill(s ? e.ZERO : void 0), n = r.reduce((c, l, d) => e.is0(l) ? c : (o[d] = c, e.mul(c, l)), e.ONE), a = e.inv(n);
+  return r.reduceRight((c, l, d) => e.is0(l) ? c : (o[d] = e.mul(c, o[d]), e.mul(c, l)), a), o;
 }
-function xs(e, r) {
+function _s(e, r) {
   const s = (e.ORDER - ge) / qe, o = e.pow(r, s), n = e.eql(o, e.ONE), a = e.eql(o, e.ZERO), c = e.eql(o, e.neg(e.ONE));
   if (!n && !a && !c)
     throw new Error("invalid Legendre symbol result");
   return n ? 1 : a ? 0 : -1;
 }
-function Fi(e, r) {
-  r !== void 0 && Gr(r);
+function Wi(e, r) {
+  r !== void 0 && Kr(r);
   const s = r !== void 0 ? r : e.toString(2).length, o = Math.ceil(s / 8);
   return { nBitLength: s, nByteLength: o };
 }
-class Oi {
+class qi {
   ORDER;
   BITS;
   BYTES;
@@ -1037,7 +1037,7 @@ class Oi {
       throw new Error("invalid field: expected ORDER > 0, got " + r);
     let o;
     this.isLE = !1, s != null && typeof s == "object" && (typeof s.BITS == "number" && (o = s.BITS), typeof s.sqrt == "function" && (this.sqrt = s.sqrt), typeof s.isLE == "boolean" && (this.isLE = s.isLE), s.allowedLengths && (this._lengths = s.allowedLengths?.slice()), typeof s.modFromBytes == "boolean" && (this._mod = s.modFromBytes));
-    const { nBitLength: n, nByteLength: a } = Fi(r, o);
+    const { nBitLength: n, nByteLength: a } = Wi(r, o);
     if (a > 2048)
       throw new Error("invalid field: expected ORDER of <= 2048 bytes");
     this.ORDER = r, this.BITS = n, this.BYTES = a, this._sqrt = void 0, Object.preventExtensions(this);
@@ -1079,10 +1079,10 @@ class Oi {
     return ae(r * s, this.ORDER);
   }
   pow(r, s) {
-    return Di(this, r, s);
+    return Oi(this, r, s);
   }
   div(r, s) {
-    return ae(r * Es(s, this.ORDER), this.ORDER);
+    return ae(r * Ss(s, this.ORDER), this.ORDER);
   }
   // Same as above, but doesn't normalize
   sqrN(r) {
@@ -1098,17 +1098,17 @@ class Oi {
     return r * s;
   }
   inv(r) {
-    return Es(r, this.ORDER);
+    return Ss(r, this.ORDER);
   }
   sqrt(r) {
-    return this._sqrt || (this._sqrt = Bi(this.ORDER)), this._sqrt(this, r);
+    return this._sqrt || (this._sqrt = Mi(this.ORDER)), this._sqrt(this, r);
   }
   toBytes(r) {
-    return this.isLE ? xi(r, this.BYTES) : eo(r, this.BYTES);
+    return this.isLE ? _i(r, this.BYTES) : ro(r, this.BYTES);
   }
   fromBytes(r, s = !1) {
     de(r);
-    const { _lengths: o, BYTES: n, isLE: a, ORDER: c, _mod: d } = this;
+    const { _lengths: o, BYTES: n, isLE: a, ORDER: c, _mod: l } = this;
     if (o) {
       if (!o.includes(r.length) || r.length > n)
         throw new Error("Field.fromBytes: expected " + o + " bytes, got " + r.length);
@@ -1117,14 +1117,14 @@ class Oi {
     }
     if (r.length !== n)
       throw new Error("Field.fromBytes: expected " + n + " bytes, got " + r.length);
-    let l = a ? xt(r) : Ei(r);
-    if (d && (l = ae(l, c)), !s && !this.isValid(l))
+    let d = a ? St(r) : Si(r);
+    if (l && (d = ae(d, c)), !s && !this.isValid(d))
       throw new Error("invalid field element: outside of range 0..ORDER");
-    return l;
+    return d;
   }
   // TODO: we don't need it here, move out to separate fn
   invertBatch(r) {
-    return co(this, r);
+    return uo(this, r);
   }
   // We can't move this out because Fp6, Fp12 implement it
   // and it's unclear what to return in there.
@@ -1132,43 +1132,43 @@ class Oi {
     return o ? s : r;
   }
 }
-function Zr(e, r = {}) {
-  return new Oi(e, r);
+function Jr(e, r = {}) {
+  return new qi(e, r);
 }
-const St = /* @__PURE__ */ BigInt(0), Ur = /* @__PURE__ */ BigInt(1);
-function Ss(e, r) {
+const _t = /* @__PURE__ */ BigInt(0), Fr = /* @__PURE__ */ BigInt(1);
+function Ls(e, r) {
   const s = r.negate();
   return e ? s : r;
 }
-function Qt(e, r) {
-  const s = co(e.Fp, r.map((o) => o.Z));
+function Kt(e, r) {
+  const s = uo(e.Fp, r.map((o) => o.Z));
   return r.map((o, n) => e.fromAffine(o.toAffine(s[n])));
 }
-function lo(e, r) {
+function ho(e, r) {
   if (!Number.isSafeInteger(e) || e <= 0 || e > r)
     throw new Error("invalid window size, expected [1.." + r + "], got W=" + e);
 }
-function Kt(e, r) {
-  lo(e, r);
-  const s = Math.ceil(r / e) + 1, o = 2 ** (e - 1), n = 2 ** e, a = _i(e), c = BigInt(e);
+function Yt(e, r) {
+  ho(e, r);
+  const s = Math.ceil(r / e) + 1, o = 2 ** (e - 1), n = 2 ** e, a = Ti(e), c = BigInt(e);
   return { windows: s, windowSize: o, mask: a, maxNumber: n, shiftBy: c };
 }
-function _s(e, r, s) {
+function Ts(e, r, s) {
   const { windowSize: o, mask: n, maxNumber: a, shiftBy: c } = s;
-  let d = Number(e & n), l = e >> c;
-  d > o && (d -= a, l += Ur);
-  const h = r * o, m = h + Math.abs(d) - 1, u = d === 0, f = d < 0, g = r % 2 !== 0;
-  return { nextN: l, offset: m, isZero: u, isNeg: f, isNegF: g, offsetF: h };
+  let l = Number(e & n), d = e >> c;
+  l > o && (l -= a, d += Fr);
+  const h = r * o, m = h + Math.abs(l) - 1, u = l === 0, p = l < 0, g = r % 2 !== 0;
+  return { nextN: d, offset: m, isZero: u, isNeg: p, isNegF: g, offsetF: h };
 }
-const Yt = /* @__PURE__ */ new WeakMap(), uo = /* @__PURE__ */ new WeakMap();
-function Zt(e) {
-  return uo.get(e) || 1;
+const Zt = /* @__PURE__ */ new WeakMap(), mo = /* @__PURE__ */ new WeakMap();
+function Xt(e) {
+  return mo.get(e) || 1;
 }
-function Ls(e) {
-  if (e !== St)
+function Ps(e) {
+  if (e !== _t)
     throw new Error("invalid wNAF");
 }
-class Wi {
+class zi {
   BASE;
   ZERO;
   Fn;
@@ -1180,8 +1180,8 @@ class Wi {
   // non-const time multiplication ladder
   _unsafeLadder(r, s, o = this.ZERO) {
     let n = r;
-    for (; s > St; )
-      s & Ur && (o = o.add(n)), n = n.double(), s >>= Ur;
+    for (; s > _t; )
+      s & Fr && (o = o.add(n)), n = n.double(), s >>= Fr;
     return o;
   }
   /**
@@ -1197,13 +1197,13 @@ class Wi {
    * @returns precomputed point tables flattened to a single array
    */
   precomputeWindow(r, s) {
-    const { windows: o, windowSize: n } = Kt(s, this.bits), a = [];
-    let c = r, d = c;
-    for (let l = 0; l < o; l++) {
-      d = c, a.push(d);
+    const { windows: o, windowSize: n } = Yt(s, this.bits), a = [];
+    let c = r, l = c;
+    for (let d = 0; d < o; d++) {
+      l = c, a.push(l);
       for (let h = 1; h < n; h++)
-        d = d.add(c), a.push(d);
-      c = d.double();
+        l = l.add(c), a.push(l);
+      c = l.double();
     }
     return a;
   }
@@ -1217,12 +1217,12 @@ class Wi {
     if (!this.Fn.isValid(o))
       throw new Error("invalid scalar");
     let n = this.ZERO, a = this.BASE;
-    const c = Kt(r, this.bits);
-    for (let d = 0; d < c.windows; d++) {
-      const { nextN: l, offset: h, isZero: m, isNeg: u, isNegF: f, offsetF: g } = _s(o, d, c);
-      o = l, m ? a = a.add(Ss(f, s[g])) : n = n.add(Ss(u, s[h]));
+    const c = Yt(r, this.bits);
+    for (let l = 0; l < c.windows; l++) {
+      const { nextN: d, offset: h, isZero: m, isNeg: u, isNegF: p, offsetF: g } = Ts(o, l, c);
+      o = d, m ? a = a.add(Ls(p, s[g])) : n = n.add(Ls(u, s[h]));
     }
-    return Ls(o), { p: n, f: a };
+    return Ps(o), { p: n, f: a };
   }
   /**
    * Implements ec unsafe (non const-time) multiplication using precomputed tables and w-ary non-adjacent form.
@@ -1230,119 +1230,119 @@ class Wi {
    * @returns point
    */
   wNAFUnsafe(r, s, o, n = this.ZERO) {
-    const a = Kt(r, this.bits);
-    for (let c = 0; c < a.windows && o !== St; c++) {
-      const { nextN: d, offset: l, isZero: h, isNeg: m } = _s(o, c, a);
-      if (o = d, !h) {
-        const u = s[l];
+    const a = Yt(r, this.bits);
+    for (let c = 0; c < a.windows && o !== _t; c++) {
+      const { nextN: l, offset: d, isZero: h, isNeg: m } = Ts(o, c, a);
+      if (o = l, !h) {
+        const u = s[d];
         n = n.add(m ? u.negate() : u);
       }
     }
-    return Ls(o), n;
+    return Ps(o), n;
   }
   getPrecomputes(r, s, o) {
-    let n = Yt.get(s);
-    return n || (n = this.precomputeWindow(s, r), r !== 1 && (typeof o == "function" && (n = o(n)), Yt.set(s, n))), n;
+    let n = Zt.get(s);
+    return n || (n = this.precomputeWindow(s, r), r !== 1 && (typeof o == "function" && (n = o(n)), Zt.set(s, n))), n;
   }
   cached(r, s, o) {
-    const n = Zt(r);
+    const n = Xt(r);
     return this.wNAF(n, this.getPrecomputes(n, r, o), s);
   }
   unsafe(r, s, o, n) {
-    const a = Zt(r);
+    const a = Xt(r);
     return a === 1 ? this._unsafeLadder(r, s, n) : this.wNAFUnsafe(a, this.getPrecomputes(a, r, o), s, n);
   }
   // We calculate precomputes for elliptic curve point multiplication
   // using windowed method. This specifies window size and
   // stores precomputed values. Usually only base point would be precomputed.
   createCache(r, s) {
-    lo(s, this.bits), uo.set(r, s), Yt.delete(r);
+    ho(s, this.bits), mo.set(r, s), Zt.delete(r);
   }
   hasCache(r) {
-    return Zt(r) !== 1;
+    return Xt(r) !== 1;
   }
 }
-function Ps(e, r, s) {
+function Rs(e, r, s) {
   if (r) {
     if (r.ORDER !== e)
       throw new Error("Field.ORDER must match order: Fp == p, Fn == n");
-    return Ui(r), r;
+    return Fi(r), r;
   } else
-    return Zr(e, { isLE: s });
+    return Jr(e, { isLE: s });
 }
-function qi(e, r, s = {}, o) {
+function ji(e, r, s = {}, o) {
   if (o === void 0 && (o = e === "edwards"), !r || typeof r != "object")
     throw new Error(`expected valid ${e} CURVE object`);
-  for (const l of ["p", "n", "h"]) {
-    const h = r[l];
-    if (!(typeof h == "bigint" && h > St))
-      throw new Error(`CURVE.${l} must be positive bigint`);
+  for (const d of ["p", "n", "h"]) {
+    const h = r[d];
+    if (!(typeof h == "bigint" && h > _t))
+      throw new Error(`CURVE.${d} must be positive bigint`);
   }
-  const n = Ps(r.p, s.Fp, o), a = Ps(r.n, s.Fn, o), d = ["Gx", "Gy", "a", "d"];
-  for (const l of d)
-    if (!n.isValid(r[l]))
-      throw new Error(`CURVE.${l} must be valid field element of CURVE.Fp`);
+  const n = Rs(r.p, s.Fp, o), a = Rs(r.n, s.Fn, o), l = ["Gx", "Gy", "a", "d"];
+  for (const d of l)
+    if (!n.isValid(r[d]))
+      throw new Error(`CURVE.${d} must be valid field element of CURVE.Fp`);
   return r = Object.freeze(Object.assign({}, r)), { CURVE: r, Fp: n, Fn: a };
 }
-function zi(e, r) {
+function $i(e, r) {
   return function(o) {
     const n = e(o);
     return { secretKey: n, publicKey: r(n) };
   };
 }
-const Be = BigInt(0), ce = BigInt(1), Xt = BigInt(2), ji = BigInt(8);
-function $i(e, r, s, o) {
-  const n = e.sqr(s), a = e.sqr(o), c = e.add(e.mul(r.a, n), a), d = e.add(e.ONE, e.mul(r.d, e.mul(n, a)));
-  return e.eql(c, d);
+const Be = BigInt(0), ce = BigInt(1), Jt = BigInt(2), Vi = BigInt(8);
+function Hi(e, r, s, o) {
+  const n = e.sqr(s), a = e.sqr(o), c = e.add(e.mul(r.a, n), a), l = e.add(e.ONE, e.mul(r.d, e.mul(n, a)));
+  return e.eql(c, l);
 }
-function Vi(e, r = {}) {
-  const s = qi("edwards", e, r, r.FpFnLE), { Fp: o, Fn: n } = s;
+function Gi(e, r = {}) {
+  const s = ji("edwards", e, r, r.FpFnLE), { Fp: o, Fn: n } = s;
   let a = s.CURVE;
   const { h: c } = a;
-  Kr(r, {}, { uvRatio: "function" });
-  const d = Xt << BigInt(n.BYTES * 8) - ce, l = (C) => o.create(C), h = r.uvRatio || ((C, N) => {
+  Zr(r, {}, { uvRatio: "function" });
+  const l = Jt << BigInt(n.BYTES * 8) - ce, d = (C) => o.create(C), h = r.uvRatio || ((C, N) => {
     try {
       return { isValid: !0, value: o.sqrt(o.div(C, N)) };
     } catch {
       return { isValid: !1, value: Be };
     }
   });
-  if (!$i(o, a, a.Gx, a.Gy))
+  if (!Hi(o, a, a.Gx, a.Gy))
     throw new Error("bad curve params: generator point");
   function m(C, N, A = !1) {
     const E = A ? ce : Be;
-    return ks("coordinate " + C, N, E, d), N;
+    return Es("coordinate " + C, N, E, l), N;
   }
   function u(C) {
-    if (!(C instanceof b))
+    if (!(C instanceof w))
       throw new Error("EdwardsPoint expected");
   }
-  const f = Cs((C, N) => {
+  const p = xs((C, N) => {
     const { X: A, Y: E, Z: S } = C, L = C.is0();
-    N == null && (N = L ? ji : o.inv(S));
-    const p = l(A * N), v = l(E * N), y = o.mul(S, N);
+    N == null && (N = L ? Vi : o.inv(S));
+    const f = d(A * N), v = d(E * N), b = o.mul(S, N);
     if (L)
       return { x: Be, y: ce };
-    if (y !== ce)
+    if (b !== ce)
       throw new Error("invZ was invalid");
-    return { x: p, y: v };
-  }), g = Cs((C) => {
+    return { x: f, y: v };
+  }), g = xs((C) => {
     const { a: N, d: A } = a;
     if (C.is0())
       throw new Error("bad point: ZERO");
-    const { X: E, Y: S, Z: L, T: p } = C, v = l(E * E), y = l(S * S), k = l(L * L), T = l(k * k), _ = l(v * N), B = l(k * l(_ + y)), R = l(T + l(A * l(v * y)));
+    const { X: E, Y: S, Z: L, T: f } = C, v = d(E * E), b = d(S * S), k = d(L * L), P = d(k * k), _ = d(v * N), B = d(k * d(_ + b)), R = d(P + d(A * d(v * b)));
     if (B !== R)
       throw new Error("bad point: equation left != right (1)");
-    const I = l(E * S), M = l(L * p);
+    const I = d(E * S), M = d(L * f);
     if (I !== M)
       throw new Error("bad point: equation left != right (2)");
     return !0;
   });
-  class b {
+  class w {
     // base / generator point
-    static BASE = new b(a.Gx, a.Gy, ce, l(a.Gx * a.Gy));
+    static BASE = new w(a.Gx, a.Gy, ce, d(a.Gx * a.Gy));
     // zero / infinity / identity point
-    static ZERO = new b(Be, ce, ce, Be);
+    static ZERO = new w(Be, ce, ce, Be);
     // 0, 1, 1, 0
     // math field
     static Fp = o;
@@ -1359,30 +1359,30 @@ function Vi(e, r = {}) {
       return a;
     }
     static fromAffine(N) {
-      if (N instanceof b)
+      if (N instanceof w)
         throw new Error("extended point not allowed");
       const { x: A, y: E } = N || {};
-      return m("x", A), m("y", E), new b(A, E, ce, l(A * E));
+      return m("x", A), m("y", E), new w(A, E, ce, d(A * E));
     }
     // Uses algo from RFC8032 5.1.3.
     static fromBytes(N, A = !1) {
       const E = o.BYTES, { a: S, d: L } = a;
-      N = Mr(de(N, E, "point")), Ir(A, "zip215");
-      const p = Mr(N), v = N[E - 1];
-      p[E - 1] = v & -129;
-      const y = xt(p), k = A ? d : o.ORDER;
-      ks("point.y", y, Be, k);
-      const T = l(y * y), _ = l(T - ce), B = l(L * T - S);
+      N = Dr(de(N, E, "point")), Ur(A, "zip215");
+      const f = Dr(N), v = N[E - 1];
+      f[E - 1] = v & -129;
+      const b = St(f), k = A ? l : o.ORDER;
+      Es("point.y", b, Be, k);
+      const P = d(b * b), _ = d(P - ce), B = d(L * P - S);
       let { isValid: R, value: I } = h(_, B);
       if (!R)
         throw new Error("bad point: invalid y coordinate");
       const M = (I & ce) === ce, U = (v & 128) !== 0;
       if (!A && I === Be && U)
         throw new Error("bad point: x=0 and x_0=1");
-      return U !== M && (I = l(-I)), b.fromAffine({ x: I, y });
+      return U !== M && (I = d(-I)), w.fromAffine({ x: I, y: b });
     }
     static fromHex(N, A = !1) {
-      return b.fromBytes(Yn(N), A);
+      return w.fromBytes(Xn(N), A);
     }
     get x() {
       return this.toAffine().x;
@@ -1391,7 +1391,7 @@ function Vi(e, r = {}) {
       return this.toAffine().y;
     }
     precompute(N = 8, A = !0) {
-      return w.createCache(this, N), A || this.multiply(Xt), this;
+      return y.createCache(this, N), A || this.multiply(Jt), this;
     }
     // Useful in fromAffine() - not for fromBytes(), which always created valid points.
     assertValidity() {
@@ -1400,29 +1400,29 @@ function Vi(e, r = {}) {
     // Compare one point to another.
     equals(N) {
       u(N);
-      const { X: A, Y: E, Z: S } = this, { X: L, Y: p, Z: v } = N, y = l(A * v), k = l(L * S), T = l(E * v), _ = l(p * S);
-      return y === k && T === _;
+      const { X: A, Y: E, Z: S } = this, { X: L, Y: f, Z: v } = N, b = d(A * v), k = d(L * S), P = d(E * v), _ = d(f * S);
+      return b === k && P === _;
     }
     is0() {
-      return this.equals(b.ZERO);
+      return this.equals(w.ZERO);
     }
     negate() {
-      return new b(l(-this.X), this.Y, this.Z, l(-this.T));
+      return new w(d(-this.X), this.Y, this.Z, d(-this.T));
     }
     // Fast algo for doubling Extended Point.
     // https://hyperelliptic.org/EFD/g1p/auto-twisted-extended.html#doubling-dbl-2008-hwcd
     // Cost: 4M + 4S + 1*a + 6add + 1*2.
     double() {
-      const { a: N } = a, { X: A, Y: E, Z: S } = this, L = l(A * A), p = l(E * E), v = l(Xt * l(S * S)), y = l(N * L), k = A + E, T = l(l(k * k) - L - p), _ = y + p, B = _ - v, R = y - p, I = l(T * B), M = l(_ * R), U = l(T * R), W = l(B * _);
-      return new b(I, M, W, U);
+      const { a: N } = a, { X: A, Y: E, Z: S } = this, L = d(A * A), f = d(E * E), v = d(Jt * d(S * S)), b = d(N * L), k = A + E, P = d(d(k * k) - L - f), _ = b + f, B = _ - v, R = b - f, I = d(P * B), M = d(_ * R), U = d(P * R), W = d(B * _);
+      return new w(I, M, W, U);
     }
     // Fast algo for adding 2 Extended Points.
     // https://hyperelliptic.org/EFD/g1p/auto-twisted-extended.html#addition-add-2008-hwcd
     // Cost: 9M + 1*a + 1*d + 7add.
     add(N) {
       u(N);
-      const { a: A, d: E } = a, { X: S, Y: L, Z: p, T: v } = this, { X: y, Y: k, Z: T, T: _ } = N, B = l(S * y), R = l(L * k), I = l(v * E * _), M = l(p * T), U = l((S + L) * (y + k) - B - R), W = M - I, j = M + I, V = l(R - A * B), F = l(U * W), G = l(j * V), J = l(U * V), K = l(W * j);
-      return new b(F, G, K, J);
+      const { a: A, d: E } = a, { X: S, Y: L, Z: f, T: v } = this, { X: b, Y: k, Z: P, T: _ } = N, B = d(S * b), R = d(L * k), I = d(v * E * _), M = d(f * P), U = d((S + L) * (b + k) - B - R), W = M - I, j = M + I, V = d(R - A * B), F = d(U * W), G = d(j * V), X = d(U * V), Y = d(W * j);
+      return new w(F, G, Y, X);
     }
     subtract(N) {
       return this.add(N.negate());
@@ -1431,18 +1431,18 @@ function Vi(e, r = {}) {
     multiply(N) {
       if (!n.isValidNot0(N))
         throw new Error("invalid scalar: expected 1 <= sc < curve.n");
-      const { p: A, f: E } = w.cached(this, N, (S) => Qt(b, S));
-      return Qt(b, [A, E])[0];
+      const { p: A, f: E } = y.cached(this, N, (S) => Kt(w, S));
+      return Kt(w, [A, E])[0];
     }
     // Non-constant-time multiplication. Uses double-and-add algorithm.
     // It's faster, but should only be used when you don't care about
     // an exposed private key e.g. sig verification.
     // Does NOT allow scalars higher than CURVE.n.
     // Accepts optional accumulator to merge with multiply (important for sparse scalars)
-    multiplyUnsafe(N, A = b.ZERO) {
+    multiplyUnsafe(N, A = w.ZERO) {
       if (!n.isValid(N))
         throw new Error("invalid scalar: expected 0 <= sc < curve.n");
-      return N === Be ? b.ZERO : this.is0() || N === ce ? this : w.unsafe(this, N, (E) => Qt(b, E), A);
+      return N === Be ? w.ZERO : this.is0() || N === ce ? this : y.unsafe(this, N, (E) => Kt(w, E), A);
     }
     // Checks if point is of small order.
     // If you add something to small order point, you will have "dirty"
@@ -1454,12 +1454,12 @@ function Vi(e, r = {}) {
     // Multiplies point by curve order and checks if the result is 0.
     // Returns `false` is the point is dirty.
     isTorsionFree() {
-      return w.unsafe(this, a.n).is0();
+      return y.unsafe(this, a.n).is0();
     }
     // Converts Extended point to default (x, y) coordinates.
     // Can accept precomputed Z^-1 - for example, from invertBatch.
     toAffine(N) {
-      return f(this, N);
+      return p(this, N);
     }
     clearCofactor() {
       return c === ce ? this : this.multiplyUnsafe(c);
@@ -1469,72 +1469,72 @@ function Vi(e, r = {}) {
       return E[E.length - 1] |= N & ce ? 128 : 0, E;
     }
     toHex() {
-      return Qr(this.toBytes());
+      return Yr(this.toBytes());
     }
     toString() {
       return `<Point ${this.is0() ? "ZERO" : this.toHex()}>`;
     }
   }
-  const w = new Wi(b, n.BITS);
-  return b.BASE.precompute(8), b;
+  const y = new zi(w, n.BITS);
+  return w.BASE.precompute(8), w;
 }
-function Hi(e, r, s = {}) {
+function Qi(e, r, s = {}) {
   if (typeof r != "function")
     throw new Error('"hash" function param is required');
-  Kr(s, {}, {
+  Zr(s, {}, {
     adjustScalarBytes: "function",
     randomBytes: "function",
     domain: "function",
     prehash: "function",
     mapToCurve: "function"
   });
-  const { prehash: o } = s, { BASE: n, Fp: a, Fn: c } = e, d = s.randomBytes || ci, l = s.adjustScalarBytes || ((y) => y), h = s.domain || ((y, k, T) => {
-    if (Ir(T, "phflag"), k.length || T)
+  const { prehash: o } = s, { BASE: n, Fp: a, Fn: c } = e, l = s.randomBytes || di, d = s.adjustScalarBytes || ((b) => b), h = s.domain || ((b, k, P) => {
+    if (Ur(P, "phflag"), k.length || P)
       throw new Error("Contexts/pre-hash are not supported");
-    return y;
+    return b;
   });
-  function m(y) {
-    return c.create(xt(y));
+  function m(b) {
+    return c.create(St(b));
   }
-  function u(y) {
+  function u(b) {
     const k = E.secretKey;
-    de(y, E.secretKey, "secretKey");
-    const T = de(r(y), 2 * k, "hashedSecretKey"), _ = l(T.slice(0, k)), B = T.slice(k, 2 * k), R = m(_);
+    de(b, E.secretKey, "secretKey");
+    const P = de(r(b), 2 * k, "hashedSecretKey"), _ = d(P.slice(0, k)), B = P.slice(k, 2 * k), R = m(_);
     return { head: _, prefix: B, scalar: R };
   }
-  function f(y) {
-    const { head: k, prefix: T, scalar: _ } = u(y), B = n.multiply(_), R = B.toBytes();
-    return { head: k, prefix: T, scalar: _, point: B, pointBytes: R };
+  function p(b) {
+    const { head: k, prefix: P, scalar: _ } = u(b), B = n.multiply(_), R = B.toBytes();
+    return { head: k, prefix: P, scalar: _, point: B, pointBytes: R };
   }
-  function g(y) {
-    return f(y).pointBytes;
+  function g(b) {
+    return p(b).pointBytes;
   }
-  function b(y = Uint8Array.of(), ...k) {
-    const T = bs(...k);
-    return m(r(h(T, de(y, void 0, "context"), !!o)));
+  function w(b = Uint8Array.of(), ...k) {
+    const P = vs(...k);
+    return m(r(h(P, de(b, void 0, "context"), !!o)));
   }
-  function w(y, k, T = {}) {
-    y = de(y, void 0, "message"), o && (y = o(y));
-    const { prefix: _, scalar: B, pointBytes: R } = f(k), I = b(T.context, _, y), M = n.multiply(I).toBytes(), U = b(T.context, M, R, y), W = c.create(I + U * B);
+  function y(b, k, P = {}) {
+    b = de(b, void 0, "message"), o && (b = o(b));
+    const { prefix: _, scalar: B, pointBytes: R } = p(k), I = w(P.context, _, b), M = n.multiply(I).toBytes(), U = w(P.context, M, R, b), W = c.create(I + U * B);
     if (!c.isValid(W))
       throw new Error("sign failed: invalid s");
-    const j = bs(M, c.toBytes(W));
+    const j = vs(M, c.toBytes(W));
     return de(j, E.signature, "result");
   }
   const C = { zip215: !0 };
-  function N(y, k, T, _ = C) {
+  function N(b, k, P, _ = C) {
     const { context: B, zip215: R } = _, I = E.signature;
-    y = de(y, I, "signature"), k = de(k, void 0, "message"), T = de(T, E.publicKey, "publicKey"), R !== void 0 && Ir(R, "zip215"), o && (k = o(k));
-    const M = I / 2, U = y.subarray(0, M), W = xt(y.subarray(M, I));
+    b = de(b, I, "signature"), k = de(k, void 0, "message"), P = de(P, E.publicKey, "publicKey"), R !== void 0 && Ur(R, "zip215"), o && (k = o(k));
+    const M = I / 2, U = b.subarray(0, M), W = St(b.subarray(M, I));
     let j, V, F;
     try {
-      j = e.fromBytes(T, R), V = e.fromBytes(U, R), F = n.multiplyUnsafe(W);
+      j = e.fromBytes(P, R), V = e.fromBytes(U, R), F = n.multiplyUnsafe(W);
     } catch {
       return !1;
     }
     if (!R && j.isSmallOrder())
       return !1;
-    const G = b(B, V.toBytes(), j.toBytes(), k);
+    const G = w(B, V.toBytes(), j.toBytes(), k);
     return V.add(j.multiplyUnsafe(G)).subtract(F).clearCofactor().is0();
   }
   const A = a.BYTES, E = {
@@ -1543,24 +1543,24 @@ function Hi(e, r, s = {}) {
     signature: 2 * A,
     seed: A
   };
-  function S(y = d(E.seed)) {
-    return de(y, E.seed, "seed");
+  function S(b = l(E.seed)) {
+    return de(b, E.seed, "seed");
   }
-  function L(y) {
-    return Qn(y) && y.length === c.BYTES;
+  function L(b) {
+    return Yn(b) && b.length === c.BYTES;
   }
-  function p(y, k) {
+  function f(b, k) {
     try {
-      return !!e.fromBytes(y, k);
+      return !!e.fromBytes(b, k);
     } catch {
       return !1;
     }
   }
   const v = {
-    getExtendedPublicKey: f,
+    getExtendedPublicKey: p,
     randomSecretKey: S,
     isValidSecretKey: L,
-    isValidPublicKey: p,
+    isValidPublicKey: f,
     /**
      * Converts ed public key to x public key. Uses formula:
      * - ed25519:
@@ -1570,150 +1570,150 @@ function Hi(e, r, s = {}) {
      *   - `(u, v) = ((y-1)/(y+1), sqrt(156324)*u/x)`
      *   - `(x, y) = (sqrt(156324)*u/v, (1+u)/(1-u))`
      */
-    toMontgomery(y) {
-      const { y: k } = e.fromBytes(y), T = E.publicKey, _ = T === 32;
-      if (!_ && T !== 57)
+    toMontgomery(b) {
+      const { y: k } = e.fromBytes(b), P = E.publicKey, _ = P === 32;
+      if (!_ && P !== 57)
         throw new Error("only defined for 25519 and 448");
       const B = _ ? a.div(ce + k, ce - k) : a.div(k - ce, k + ce);
       return a.toBytes(B);
     },
-    toMontgomerySecret(y) {
+    toMontgomerySecret(b) {
       const k = E.secretKey;
-      de(y, k);
-      const T = r(y.subarray(0, k));
-      return l(T).subarray(0, k);
+      de(b, k);
+      const P = r(b.subarray(0, k));
+      return d(P).subarray(0, k);
     }
   };
   return Object.freeze({
-    keygen: zi(S, g),
+    keygen: $i(S, g),
     getPublicKey: g,
-    sign: w,
+    sign: y,
     verify: N,
     utils: v,
     Point: e,
     lengths: E
   });
 }
-const Gi = BigInt(1), Ts = BigInt(2), Qi = BigInt(5), Ki = BigInt(8), Xr = BigInt("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"), Yi = {
-  p: Xr,
+const Ki = BigInt(1), Bs = BigInt(2), Yi = BigInt(5), Zi = BigInt(8), es = BigInt("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"), Xi = {
+  p: es,
   n: BigInt("0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed"),
-  h: Ki,
+  h: Zi,
   a: BigInt("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec"),
   d: BigInt("0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3"),
   Gx: BigInt("0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a"),
   Gy: BigInt("0x6666666666666666666666666666666666666666666666666666666666666658")
 };
-function Zi(e) {
-  const r = BigInt(10), s = BigInt(20), o = BigInt(40), n = BigInt(80), a = Xr, d = e * e % a * e % a, l = Ae(d, Ts, a) * d % a, h = Ae(l, Gi, a) * e % a, m = Ae(h, Qi, a) * h % a, u = Ae(m, r, a) * m % a, f = Ae(u, s, a) * u % a, g = Ae(f, o, a) * f % a, b = Ae(g, n, a) * g % a, w = Ae(b, n, a) * g % a, C = Ae(w, r, a) * m % a;
-  return { pow_p_5_8: Ae(C, Ts, a) * e % a, b2: d };
+function Ji(e) {
+  const r = BigInt(10), s = BigInt(20), o = BigInt(40), n = BigInt(80), a = es, l = e * e % a * e % a, d = Ae(l, Bs, a) * l % a, h = Ae(d, Ki, a) * e % a, m = Ae(h, Yi, a) * h % a, u = Ae(m, r, a) * m % a, p = Ae(u, s, a) * u % a, g = Ae(p, o, a) * p % a, w = Ae(g, n, a) * g % a, y = Ae(w, n, a) * g % a, C = Ae(y, r, a) * m % a;
+  return { pow_p_5_8: Ae(C, Bs, a) * e % a, b2: l };
 }
-function Xi(e) {
+function ec(e) {
   return e[0] &= 248, e[31] &= 127, e[31] |= 64, e;
 }
-const Rs = /* @__PURE__ */ BigInt("19681161376707505956807079304988542015446066515923890162744021073123829784752");
-function Ji(e, r) {
-  const s = Xr, o = ae(r * r * r, s), n = ae(o * o * r, s), a = Zi(e * n).pow_p_5_8;
+const Is = /* @__PURE__ */ BigInt("19681161376707505956807079304988542015446066515923890162744021073123829784752");
+function tc(e, r) {
+  const s = es, o = ae(r * r * r, s), n = ae(o * o * r, s), a = Ji(e * n).pow_p_5_8;
   let c = ae(e * o * a, s);
-  const d = ae(r * c * c, s), l = c, h = ae(c * Rs, s), m = d === e, u = d === ae(-e, s), f = d === ae(-e * Rs, s);
-  return m && (c = l), (u || f) && (c = h), Ii(c, s) && (c = ae(-c, s)), { isValid: m || u, value: c };
+  const l = ae(r * c * c, s), d = c, h = ae(c * Is, s), m = l === e, u = l === ae(-e, s), p = l === ae(-e * Is, s);
+  return m && (c = d), (u || p) && (c = h), Ui(c, s) && (c = ae(-c, s)), { isValid: m || u, value: c };
 }
-const ec = /* @__PURE__ */ Vi(Yi, { uvRatio: Ji });
-function tc(e) {
-  return Hi(ec, ki, Object.assign({ adjustScalarBytes: Xi }, e));
-}
-const rc = /* @__PURE__ */ tc({});
+const rc = /* @__PURE__ */ Gi(Xi, { uvRatio: tc });
 function sc(e) {
+  return Qi(rc, Ei, Object.assign({ adjustScalarBytes: ec }, e));
+}
+const nc = /* @__PURE__ */ sc({});
+function oc(e) {
   return e instanceof Uint8Array || ArrayBuffer.isView(e) && e.constructor.name === "Uint8Array";
 }
-function Wt(e, ...r) {
-  if (!sc(e))
+function qt(e, ...r) {
+  if (!oc(e))
     throw new Error("Uint8Array expected");
   if (r.length > 0 && !r.includes(e.length))
     throw new Error("Uint8Array expected of length " + r + ", got length=" + e.length);
 }
-function Bs(e, r = !0) {
+function Ms(e, r = !0) {
   if (e.destroyed)
     throw new Error("Hash instance has been destroyed");
   if (r && e.finished)
     throw new Error("Hash#digest() has already been called");
 }
-function nc(e, r) {
-  Wt(e);
+function ac(e, r) {
+  qt(e);
   const s = r.outputLen;
   if (e.length < s)
     throw new Error("digestInto() expects output buffer of length at least " + s);
 }
-function Dr(...e) {
+function Or(...e) {
   for (let r = 0; r < e.length; r++)
     e[r].fill(0);
 }
-function Jt(e) {
+function er(e) {
   return new DataView(e.buffer, e.byteOffset, e.byteLength);
 }
 function Ne(e, r) {
   return e << 32 - r | e >>> r;
 }
-function oc(e) {
+function ic(e) {
   if (typeof e != "string")
     throw new Error("string expected");
   return new Uint8Array(new TextEncoder().encode(e));
 }
-function ho(e) {
-  return typeof e == "string" && (e = oc(e)), Wt(e), e;
+function po(e) {
+  return typeof e == "string" && (e = ic(e)), qt(e), e;
 }
-class ac {
+class cc {
 }
-function ic(e) {
-  const r = (o) => e().update(ho(o)).digest(), s = e();
+function lc(e) {
+  const r = (o) => e().update(po(o)).digest(), s = e();
   return r.outputLen = s.outputLen, r.blockLen = s.blockLen, r.create = () => e(), r;
 }
-function cc(e, r, s, o) {
+function dc(e, r, s, o) {
   if (typeof e.setBigUint64 == "function")
     return e.setBigUint64(r, s, o);
-  const n = BigInt(32), a = BigInt(4294967295), c = Number(s >> n & a), d = Number(s & a), l = o ? 4 : 0, h = o ? 0 : 4;
-  e.setUint32(r + l, c, o), e.setUint32(r + h, d, o);
+  const n = BigInt(32), a = BigInt(4294967295), c = Number(s >> n & a), l = Number(s & a), d = o ? 4 : 0, h = o ? 0 : 4;
+  e.setUint32(r + d, c, o), e.setUint32(r + h, l, o);
 }
-function lc(e, r, s) {
+function uc(e, r, s) {
   return e & r ^ ~e & s;
 }
-function dc(e, r, s) {
+function hc(e, r, s) {
   return e & r ^ e & s ^ r & s;
 }
-class uc extends ac {
+class mc extends cc {
   constructor(r, s, o, n) {
-    super(), this.finished = !1, this.length = 0, this.pos = 0, this.destroyed = !1, this.blockLen = r, this.outputLen = s, this.padOffset = o, this.isLE = n, this.buffer = new Uint8Array(r), this.view = Jt(this.buffer);
+    super(), this.finished = !1, this.length = 0, this.pos = 0, this.destroyed = !1, this.blockLen = r, this.outputLen = s, this.padOffset = o, this.isLE = n, this.buffer = new Uint8Array(r), this.view = er(this.buffer);
   }
   update(r) {
-    Bs(this), r = ho(r), Wt(r);
+    Ms(this), r = po(r), qt(r);
     const { view: s, buffer: o, blockLen: n } = this, a = r.length;
     for (let c = 0; c < a; ) {
-      const d = Math.min(n - this.pos, a - c);
-      if (d === n) {
-        const l = Jt(r);
+      const l = Math.min(n - this.pos, a - c);
+      if (l === n) {
+        const d = er(r);
         for (; n <= a - c; c += n)
-          this.process(l, c);
+          this.process(d, c);
         continue;
       }
-      o.set(r.subarray(c, c + d), this.pos), this.pos += d, c += d, this.pos === n && (this.process(s, 0), this.pos = 0);
+      o.set(r.subarray(c, c + l), this.pos), this.pos += l, c += l, this.pos === n && (this.process(s, 0), this.pos = 0);
     }
     return this.length += r.length, this.roundClean(), this;
   }
   digestInto(r) {
-    Bs(this), nc(r, this), this.finished = !0;
+    Ms(this), ac(r, this), this.finished = !0;
     const { buffer: s, view: o, blockLen: n, isLE: a } = this;
     let { pos: c } = this;
-    s[c++] = 128, Dr(this.buffer.subarray(c)), this.padOffset > n - c && (this.process(o, 0), c = 0);
+    s[c++] = 128, Or(this.buffer.subarray(c)), this.padOffset > n - c && (this.process(o, 0), c = 0);
     for (let u = c; u < n; u++)
       s[u] = 0;
-    cc(o, n - 8, BigInt(this.length * 8), a), this.process(o, 0);
-    const d = Jt(r), l = this.outputLen;
-    if (l % 4)
+    dc(o, n - 8, BigInt(this.length * 8), a), this.process(o, 0);
+    const l = er(r), d = this.outputLen;
+    if (d % 4)
       throw new Error("_sha2: outputLen should be aligned to 32bit");
-    const h = l / 4, m = this.get();
+    const h = d / 4, m = this.get();
     if (h > m.length)
       throw new Error("_sha2: outputLen bigger than state");
     for (let u = 0; u < h; u++)
-      d.setUint32(4 * u, m[u], a);
+      l.setUint32(4 * u, m[u], a);
   }
   digest() {
     const { buffer: r, outputLen: s } = this;
@@ -1723,8 +1723,8 @@ class uc extends ac {
   }
   _cloneInto(r) {
     r || (r = new this.constructor()), r.set(...this.get());
-    const { blockLen: s, buffer: o, length: n, finished: a, destroyed: c, pos: d } = this;
-    return r.destroyed = c, r.finished = a, r.length = n, r.pos = d, n % s && r.buffer.set(o), r;
+    const { blockLen: s, buffer: o, length: n, finished: a, destroyed: c, pos: l } = this;
+    return r.destroyed = c, r.finished = a, r.length = n, r.pos = l, n % s && r.buffer.set(o), r;
   }
   clone() {
     return this._cloneInto();
@@ -1739,7 +1739,7 @@ const Ie = /* @__PURE__ */ Uint32Array.from([
   2600822924,
   528734635,
   1541459225
-]), hc = /* @__PURE__ */ Uint32Array.from([
+]), pc = /* @__PURE__ */ Uint32Array.from([
   1116352408,
   1899447441,
   3049323471,
@@ -1805,56 +1805,56 @@ const Ie = /* @__PURE__ */ Uint32Array.from([
   3204031479,
   3329325298
 ]), Me = /* @__PURE__ */ new Uint32Array(64);
-class mc extends uc {
+class fc extends mc {
   constructor(r = 32) {
     super(64, r, 8, !1), this.A = Ie[0] | 0, this.B = Ie[1] | 0, this.C = Ie[2] | 0, this.D = Ie[3] | 0, this.E = Ie[4] | 0, this.F = Ie[5] | 0, this.G = Ie[6] | 0, this.H = Ie[7] | 0;
   }
   get() {
-    const { A: r, B: s, C: o, D: n, E: a, F: c, G: d, H: l } = this;
-    return [r, s, o, n, a, c, d, l];
+    const { A: r, B: s, C: o, D: n, E: a, F: c, G: l, H: d } = this;
+    return [r, s, o, n, a, c, l, d];
   }
   // prettier-ignore
-  set(r, s, o, n, a, c, d, l) {
-    this.A = r | 0, this.B = s | 0, this.C = o | 0, this.D = n | 0, this.E = a | 0, this.F = c | 0, this.G = d | 0, this.H = l | 0;
+  set(r, s, o, n, a, c, l, d) {
+    this.A = r | 0, this.B = s | 0, this.C = o | 0, this.D = n | 0, this.E = a | 0, this.F = c | 0, this.G = l | 0, this.H = d | 0;
   }
   process(r, s) {
     for (let u = 0; u < 16; u++, s += 4)
       Me[u] = r.getUint32(s, !1);
     for (let u = 16; u < 64; u++) {
-      const f = Me[u - 15], g = Me[u - 2], b = Ne(f, 7) ^ Ne(f, 18) ^ f >>> 3, w = Ne(g, 17) ^ Ne(g, 19) ^ g >>> 10;
-      Me[u] = w + Me[u - 7] + b + Me[u - 16] | 0;
+      const p = Me[u - 15], g = Me[u - 2], w = Ne(p, 7) ^ Ne(p, 18) ^ p >>> 3, y = Ne(g, 17) ^ Ne(g, 19) ^ g >>> 10;
+      Me[u] = y + Me[u - 7] + w + Me[u - 16] | 0;
     }
-    let { A: o, B: n, C: a, D: c, E: d, F: l, G: h, H: m } = this;
+    let { A: o, B: n, C: a, D: c, E: l, F: d, G: h, H: m } = this;
     for (let u = 0; u < 64; u++) {
-      const f = Ne(d, 6) ^ Ne(d, 11) ^ Ne(d, 25), g = m + f + lc(d, l, h) + hc[u] + Me[u] | 0, w = (Ne(o, 2) ^ Ne(o, 13) ^ Ne(o, 22)) + dc(o, n, a) | 0;
-      m = h, h = l, l = d, d = c + g | 0, c = a, a = n, n = o, o = g + w | 0;
+      const p = Ne(l, 6) ^ Ne(l, 11) ^ Ne(l, 25), g = m + p + uc(l, d, h) + pc[u] + Me[u] | 0, y = (Ne(o, 2) ^ Ne(o, 13) ^ Ne(o, 22)) + hc(o, n, a) | 0;
+      m = h, h = d, d = l, l = c + g | 0, c = a, a = n, n = o, o = g + y | 0;
     }
-    o = o + this.A | 0, n = n + this.B | 0, a = a + this.C | 0, c = c + this.D | 0, d = d + this.E | 0, l = l + this.F | 0, h = h + this.G | 0, m = m + this.H | 0, this.set(o, n, a, c, d, l, h, m);
+    o = o + this.A | 0, n = n + this.B | 0, a = a + this.C | 0, c = c + this.D | 0, l = l + this.E | 0, d = d + this.F | 0, h = h + this.G | 0, m = m + this.H | 0, this.set(o, n, a, c, l, d, h, m);
   }
   roundClean() {
-    Dr(Me);
+    Or(Me);
   }
   destroy() {
-    this.set(0, 0, 0, 0, 0, 0, 0, 0), Dr(this.buffer);
+    this.set(0, 0, 0, 0, 0, 0, 0, 0), Or(this.buffer);
   }
 }
-const mo = /* @__PURE__ */ ic(() => new mc()), pc = mo, fc = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-function gc(e) {
+const fo = /* @__PURE__ */ lc(() => new fc()), gc = fo, wc = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+function yc(e) {
   if (e.length !== 16)
     throw new Error(`Invalid seed length: expected 16, got ${e.length}`);
-  const r = pc(e), s = rc.getPublicKey(r), o = new Uint8Array(64);
-  return o.set(r, 0), o.set(s, 32), En(r), { publicKey: s, secretKey: o };
+  const r = gc(e), s = nc.getPublicKey(r), o = new Uint8Array(64);
+  return o.set(r, 0), o.set(s, 32), Sn(r), { publicKey: s, secretKey: o };
 }
-function po(e) {
-  const r = gc(e), s = r.publicKey;
-  return En(r.secretKey), s;
+function go(e) {
+  const r = yc(e), s = r.publicKey;
+  return Sn(r.secretKey), s;
 }
-function fo(e) {
+function wo(e) {
   if (e.length !== 32)
     throw new Error(`Invalid public key length: expected 32, got ${e.length}`);
-  return wc(e);
+  return bc(e);
 }
-function wc(e) {
+function bc(e) {
   let r = 0;
   for (let n = 0; n < e.length && e[n] === 0; n++)
     r++;
@@ -1864,39 +1864,39 @@ function wc(e) {
   let o = "";
   for (; s > 0n; ) {
     const n = Number(s % 58n);
-    o = fc[n] + o, s = s / 58n;
+    o = wc[n] + o, s = s / 58n;
   }
   return "1".repeat(r) + o;
 }
-const bc = 2, yc = 3;
-function go(e) {
+const vc = 2, Ac = 3;
+function yo(e) {
   if (e.length !== 16)
     throw new Error(`Invalid seed length: expected 16, got ${e.length}`);
-  const r = Fr(e), s = Gn.share(r, yc, bc);
+  const r = Wr(e), s = Kn.share(r, Ac, vc);
   if (s.length !== 3)
     throw new Error(`Unexpected share count: ${s.length}`);
-  const o = er(s[0]), n = er(s[1]), a = er(s[2]);
+  const o = tr(s[0]), n = tr(s[1]), a = tr(s[2]);
   return {
     shareA: ze(o),
     shareB: ze(n),
     shareC: ze(a)
   };
 }
-function vc(e, r, s) {
-  const o = Is(e), n = Is(r);
+function Nc(e, r, s) {
+  const o = Us(e), n = Us(r);
   try {
-    const a = Gn.combine([o, n]), c = wo(a);
+    const a = Kn.combine([o, n]), c = bo(a);
     if (c.length !== 16)
       throw new Error(`Reconstructed seed has wrong length: ${c.length}`);
-    return xn(c);
+    return _n(c);
   } catch (a) {
     throw a instanceof Error && a.message.startsWith("Reconstructed seed") || a instanceof Error && a.message.startsWith("Invalid expectedPublicKey") || a instanceof Error && a.message.startsWith("Reconstructed seed does not match") ? a : new Error("Failed to reconstruct seed from shares");
   }
 }
-function Fr(e) {
+function Wr(e) {
   return Array.from(e).map((r) => r.toString(16).padStart(2, "0")).join("");
 }
-function wo(e) {
+function bo(e) {
   if (!/^[0-9a-fA-F]*$/.test(e))
     throw new Error("Invalid hex string: contains non-hex characters");
   if (e.length % 2 !== 0)
@@ -1906,32 +1906,32 @@ function wo(e) {
     r[s] = parseInt(e.substr(s * 2, 2), 16);
   return r;
 }
-function er(e) {
-  const r = e.length % 2 !== 0, s = r ? "0" + e : e, o = wo(s), n = new Uint8Array(1 + o.length);
+function tr(e) {
+  const r = e.length % 2 !== 0, s = r ? "0" + e : e, o = bo(s), n = new Uint8Array(1 + o.length);
   return n[0] = r ? 1 : 0, n.set(o, 1), n;
 }
-function Is(e) {
+function Us(e) {
   const r = e[0];
   if (r === 0 || r === 1) {
-    const o = r === 1, n = e.subarray(1), a = Fr(n), c = o ? a.substring(1) : a;
+    const o = r === 1, n = e.subarray(1), a = Wr(n), c = o ? a.substring(1) : a;
     if (/^[0-9a-f]/.test(c))
       return c;
   }
-  const s = Fr(e);
+  const s = Wr(e);
   return s.startsWith("0") && !s.startsWith("00") ? s.substring(1) : s;
 }
-function _t(e) {
+function Lt(e) {
   return e instanceof Uint8Array || ArrayBuffer.isView(e) && e.constructor.name === "Uint8Array";
 }
-function bo(e, r) {
+function vo(e, r) {
   return Array.isArray(r) ? r.length === 0 ? !0 : e ? r.every((s) => typeof s == "string") : r.every((s) => Number.isSafeInteger(s)) : !1;
 }
-function Ac(e) {
+function kc(e) {
   if (typeof e != "function")
     throw new Error("function expected");
   return !0;
 }
-function Lt(e, r) {
+function Tt(e, r) {
   if (typeof r != "string")
     throw new Error(`${e}: string expected`);
   return !0;
@@ -1944,23 +1944,23 @@ function Pt(e) {
   if (!Array.isArray(e))
     throw new Error("array expected");
 }
-function Tt(e, r) {
-  if (!bo(!0, r))
+function Rt(e, r) {
+  if (!vo(!0, r))
     throw new Error(`${e}: array of strings expected`);
 }
-function yo(e, r) {
-  if (!bo(!1, r))
+function Ao(e, r) {
+  if (!vo(!1, r))
     throw new Error(`${e}: array of numbers expected`);
 }
 // @__NO_SIDE_EFFECTS__
-function Nc(...e) {
-  const r = (a) => a, s = (a, c) => (d) => a(c(d)), o = e.map((a) => a.encode).reduceRight(s, r), n = e.map((a) => a.decode).reduce(s, r);
+function Cc(...e) {
+  const r = (a) => a, s = (a, c) => (l) => a(c(l)), o = e.map((a) => a.encode).reduceRight(s, r), n = e.map((a) => a.decode).reduce(s, r);
   return { encode: o, decode: n };
 }
 // @__NO_SIDE_EFFECTS__
-function kc(e) {
+function Ec(e) {
   const r = typeof e == "string" ? e.split("") : e, s = r.length;
-  Tt("alphabet", r);
+  Rt("alphabet", r);
   const o = new Map(r.map((n, a) => [n, a]));
   return {
     encode: (n) => (Pt(n), n.map((a) => {
@@ -1969,7 +1969,7 @@ function kc(e) {
       return r[a];
     })),
     decode: (n) => (Pt(n), n.map((a) => {
-      Lt("alphabet.decode", a);
+      Tt("alphabet.decode", a);
       const c = o.get(a);
       if (c === void 0)
         throw new Error(`Unknown letter: "${a}". Allowed: ${e}`);
@@ -1978,22 +1978,22 @@ function kc(e) {
   };
 }
 // @__NO_SIDE_EFFECTS__
-function Cc(e = "") {
-  return Lt("join", e), {
-    encode: (r) => (Tt("join.decode", r), r.join(e)),
-    decode: (r) => (Lt("join.decode", r), r.split(e))
+function xc(e = "") {
+  return Tt("join", e), {
+    encode: (r) => (Rt("join.decode", r), r.join(e)),
+    decode: (r) => (Tt("join.decode", r), r.split(e))
   };
 }
 // @__NO_SIDE_EFFECTS__
-function Ec(e, r = "=") {
-  return Je(e), Lt("padding", r), {
+function Sc(e, r = "=") {
+  return Je(e), Tt("padding", r), {
     encode(s) {
-      for (Tt("padding.encode", s); s.length * e % 8; )
+      for (Rt("padding.encode", s); s.length * e % 8; )
         s.push(r);
       return s;
     },
     decode(s) {
-      Tt("padding.decode", s);
+      Rt("padding.decode", s);
       let o = s.length;
       if (o * e % 8)
         throw new Error("padding: invalid, string should have whole number of bytes");
@@ -2004,7 +2004,7 @@ function Ec(e, r = "=") {
     }
   };
 }
-function Or(e, r, s) {
+function qr(e, r, s) {
   if (r < 2)
     throw new Error(`convertRadix: invalid from=${r}, base cannot be less than 2`);
   if (s < 2)
@@ -2012,104 +2012,104 @@ function Or(e, r, s) {
   if (Pt(e), !e.length)
     return [];
   let o = 0;
-  const n = [], a = Array.from(e, (d) => {
-    if (Je(d), d < 0 || d >= r)
-      throw new Error(`invalid integer: ${d}`);
-    return d;
+  const n = [], a = Array.from(e, (l) => {
+    if (Je(l), l < 0 || l >= r)
+      throw new Error(`invalid integer: ${l}`);
+    return l;
   }), c = a.length;
   for (; ; ) {
-    let d = 0, l = !0;
+    let l = 0, d = !0;
     for (let h = o; h < c; h++) {
-      const m = a[h], u = r * d, f = u + m;
-      if (!Number.isSafeInteger(f) || u / r !== d || f - m !== u)
+      const m = a[h], u = r * l, p = u + m;
+      if (!Number.isSafeInteger(p) || u / r !== l || p - m !== u)
         throw new Error("convertRadix: carry overflow");
-      const g = f / s;
-      d = f % s;
-      const b = Math.floor(g);
-      if (a[h] = b, !Number.isSafeInteger(b) || b * s + d !== f)
+      const g = p / s;
+      l = p % s;
+      const w = Math.floor(g);
+      if (a[h] = w, !Number.isSafeInteger(w) || w * s + l !== p)
         throw new Error("convertRadix: carry overflow");
-      if (l)
-        b ? l = !1 : o = h;
+      if (d)
+        w ? d = !1 : o = h;
       else continue;
     }
-    if (n.push(d), l)
+    if (n.push(l), d)
       break;
   }
-  for (let d = 0; d < e.length - 1 && e[d] === 0; d++)
+  for (let l = 0; l < e.length - 1 && e[l] === 0; l++)
     n.push(0);
   return n.reverse();
 }
-const vo = (e, r) => r === 0 ? e : vo(r, e % r), Rt = /* @__NO_SIDE_EFFECTS__ */ (e, r) => e + (r - vo(e, r)), tr = /* @__PURE__ */ (() => {
+const No = (e, r) => r === 0 ? e : No(r, e % r), Bt = /* @__NO_SIDE_EFFECTS__ */ (e, r) => e + (r - No(e, r)), rr = /* @__PURE__ */ (() => {
   let e = [];
   for (let r = 0; r < 40; r++)
     e.push(2 ** r);
   return e;
 })();
-function Wr(e, r, s, o) {
+function zr(e, r, s, o) {
   if (Pt(e), r <= 0 || r > 32)
     throw new Error(`convertRadix2: wrong from=${r}`);
   if (s <= 0 || s > 32)
     throw new Error(`convertRadix2: wrong to=${s}`);
-  if (/* @__PURE__ */ Rt(r, s) > 32)
-    throw new Error(`convertRadix2: carry overflow from=${r} to=${s} carryBits=${/* @__PURE__ */ Rt(r, s)}`);
+  if (/* @__PURE__ */ Bt(r, s) > 32)
+    throw new Error(`convertRadix2: carry overflow from=${r} to=${s} carryBits=${/* @__PURE__ */ Bt(r, s)}`);
   let n = 0, a = 0;
-  const c = tr[r], d = tr[s] - 1, l = [];
+  const c = rr[r], l = rr[s] - 1, d = [];
   for (const h of e) {
     if (Je(h), h >= c)
       throw new Error(`convertRadix2: invalid data word=${h} from=${r}`);
     if (n = n << r | h, a + r > 32)
       throw new Error(`convertRadix2: carry overflow pos=${a} from=${r}`);
     for (a += r; a >= s; a -= s)
-      l.push((n >> a - s & d) >>> 0);
-    const m = tr[a];
+      d.push((n >> a - s & l) >>> 0);
+    const m = rr[a];
     if (m === void 0)
       throw new Error("invalid carry");
     n &= m - 1;
   }
-  if (n = n << s - a & d, !o && a >= r)
+  if (n = n << s - a & l, !o && a >= r)
     throw new Error("Excess padding");
   if (!o && n > 0)
     throw new Error(`Non-zero padding: ${n}`);
-  return o && a > 0 && l.push(n >>> 0), l;
+  return o && a > 0 && d.push(n >>> 0), d;
 }
 // @__NO_SIDE_EFFECTS__
-function xc(e) {
+function _c(e) {
   Je(e);
   const r = 2 ** 8;
   return {
     encode: (s) => {
-      if (!_t(s))
+      if (!Lt(s))
         throw new Error("radix.encode input should be Uint8Array");
-      return Or(Array.from(s), r, e);
+      return qr(Array.from(s), r, e);
     },
-    decode: (s) => (yo("radix.decode", s), Uint8Array.from(Or(s, e, r)))
+    decode: (s) => (Ao("radix.decode", s), Uint8Array.from(qr(s, e, r)))
   };
 }
 // @__NO_SIDE_EFFECTS__
-function Sc(e, r = !1) {
+function Lc(e, r = !1) {
   if (Je(e), e <= 0 || e > 32)
     throw new Error("radix2: bits should be in (0..32]");
-  if (/* @__PURE__ */ Rt(8, e) > 32 || /* @__PURE__ */ Rt(e, 8) > 32)
+  if (/* @__PURE__ */ Bt(8, e) > 32 || /* @__PURE__ */ Bt(e, 8) > 32)
     throw new Error("radix2: carry overflow");
   return {
     encode: (s) => {
-      if (!_t(s))
+      if (!Lt(s))
         throw new Error("radix2.encode input should be Uint8Array");
-      return Wr(Array.from(s), 8, e, !r);
+      return zr(Array.from(s), 8, e, !r);
     },
-    decode: (s) => (yo("radix2.decode", s), Uint8Array.from(Wr(s, e, 8, r)))
+    decode: (s) => (Ao("radix2.decode", s), Uint8Array.from(zr(s, e, 8, r)))
   };
 }
-function _c(e, r) {
-  return Je(e), Ac(r), {
+function Tc(e, r) {
+  return Je(e), kc(r), {
     encode(s) {
-      if (!_t(s))
+      if (!Lt(s))
         throw new Error("checksum.encode: input should be Uint8Array");
       const o = r(s).slice(0, e), n = new Uint8Array(s.length + e);
       return n.set(s), n.set(o, s.length), n;
     },
     decode(s) {
-      if (!_t(s))
+      if (!Lt(s))
         throw new Error("checksum.decode: input should be Uint8Array");
       const o = s.slice(0, -e), n = s.slice(-e), a = r(o).slice(0, e);
       for (let c = 0; c < e; c++)
@@ -2119,54 +2119,54 @@ function _c(e, r) {
     }
   };
 }
-const ft = {
-  alphabet: kc,
-  chain: Nc,
-  checksum: _c,
-  convertRadix: Or,
-  convertRadix2: Wr,
-  radix: xc,
-  radix2: Sc,
-  join: Cc,
-  padding: Ec
+const gt = {
+  alphabet: Ec,
+  chain: Cc,
+  checksum: Tc,
+  convertRadix: qr,
+  convertRadix2: zr,
+  radix: _c,
+  radix2: Lc,
+  join: xc,
+  padding: Sc
 };
-const Lc = (e) => e[0] === "あいこくしん";
-function Pc(e) {
+const Pc = (e) => e[0] === "あいこくしん";
+function Rc(e) {
   if (typeof e != "string")
     throw new TypeError("invalid mnemonic type: " + typeof e);
   return e.normalize("NFKD");
 }
-function Tc(e) {
-  const r = Pc(e), s = r.split(" ");
+function Bc(e) {
+  const r = Rc(e), s = r.split(" ");
   if (![12, 15, 18, 21, 24].includes(s.length))
     throw new Error("Invalid mnemonic");
   return { nfkd: r, words: s };
 }
-function Ao(e) {
-  Wt(e, 16, 20, 24, 28, 32);
+function ko(e) {
+  qt(e, 16, 20, 24, 28, 32);
 }
-const Rc = (e) => {
+const Ic = (e) => {
   const r = 8 - e.length / 4;
-  return new Uint8Array([mo(e)[0] >> r << r]);
+  return new Uint8Array([fo(e)[0] >> r << r]);
 };
-function No(e) {
+function Co(e) {
   if (!Array.isArray(e) || e.length !== 2048 || typeof e[0] != "string")
     throw new Error("Wordlist: expected array of 2048 strings");
   return e.forEach((r) => {
     if (typeof r != "string")
       throw new Error("wordlist: non-string element: " + r);
-  }), ft.chain(ft.checksum(1, Rc), ft.radix2(11, !0), ft.alphabet(e));
+  }), gt.chain(gt.checksum(1, Ic), gt.radix2(11, !0), gt.alphabet(e));
 }
-function Jr(e, r) {
-  const { words: s } = Tc(e), o = No(r).decode(s);
-  return Ao(o), o;
+function ts(e, r) {
+  const { words: s } = Bc(e), o = Co(r).decode(s);
+  return ko(o), o;
 }
-function ko(e, r) {
-  return Ao(e), No(r).encode(e).join(Lc(r) ? "　" : " ");
+function Eo(e, r) {
+  return ko(e), Co(r).encode(e).join(Pc(r) ? "　" : " ");
 }
-function es(e, r) {
+function rs(e, r) {
   try {
-    Jr(e, r);
+    ts(e, r);
   } catch {
     return !1;
   }
@@ -4220,68 +4220,68 @@ zebra
 zero
 zone
 zoo`.split(`
-`), ye = 12;
-function Bc(e) {
+`), be = 12;
+function Mc(e) {
   if (e.length !== 16)
     throw new Error(`Invalid share length: expected 16, got ${e.length}`);
-  const s = ko(e, Se).split(" ");
-  if (s.length !== ye)
-    throw new Error(`Unexpected word count: expected ${ye}, got ${s.length}`);
+  const s = Eo(e, Se).split(" ");
+  if (s.length !== be)
+    throw new Error(`Unexpected word count: expected ${be}, got ${s.length}`);
   return s;
 }
-function Ic(e) {
-  if (e.length !== ye)
-    throw new Error(`Invalid word count: expected ${ye}, got ${e.length}`);
+function Uc(e) {
+  if (e.length !== be)
+    throw new Error(`Invalid word count: expected ${be}, got ${e.length}`);
   const r = e.join(" ").toLowerCase().trim();
-  if (!es(r, Se))
+  if (!rs(r, Se))
     throw new Error("Invalid recovery phrase: checksum mismatch");
-  const s = Jr(r, Se);
+  const s = ts(r, Se);
   if (s.length !== 16)
     throw new Error(`Invalid entropy length: expected 16, got ${s.length}`);
   return ze(s);
 }
-function Mc(e) {
+function Dc(e) {
   if (e.length !== 16)
     throw new Error(`Invalid seed length: expected 16, got ${e.length}`);
-  const s = ko(e, Se).split(" ");
-  if (s.length !== ye)
-    throw new Error(`Unexpected word count: expected ${ye}, got ${s.length}`);
+  const s = Eo(e, Se).split(" ");
+  if (s.length !== be)
+    throw new Error(`Unexpected word count: expected ${be}, got ${s.length}`);
   return s;
 }
-function Uc(e) {
-  if (e.length !== ye)
-    throw new Error(`Invalid word count: expected ${ye}, got ${e.length}`);
+function Fc(e) {
+  if (e.length !== be)
+    throw new Error(`Invalid word count: expected ${be}, got ${e.length}`);
   const r = e.join(" ").toLowerCase().trim();
-  if (!es(r, Se))
+  if (!rs(r, Se))
     throw new Error("Invalid recovery phrase: checksum mismatch");
-  const s = Jr(r, Se);
+  const s = ts(r, Se);
   if (s.length !== 16)
     throw new Error(`Invalid entropy length: expected 16, got ${s.length}`);
-  return xn(s);
+  return _n(s);
 }
-function Co(e) {
-  if (e.length !== ye)
+function xo(e) {
+  if (e.length !== be)
     return !1;
   const r = e.join(" ").toLowerCase().trim();
-  return es(r, Se);
+  return rs(r, Se);
 }
-function gt(e) {
+function wt(e) {
   return Se.includes(e.toLowerCase().trim());
 }
-function Dc(e, r = 5) {
+function Oc(e, r = 5) {
   const s = e.toLowerCase().trim();
   return s.length === 0 ? [] : Se.filter((o) => o.startsWith(s)).slice(0, r);
 }
-function Fc(e) {
+function Wc(e) {
   const r = [];
   for (let s = 0; s < e.length; s += 4)
     r.push(e.slice(s, s + 4));
   return r;
 }
-function Oc(e) {
+function qc(e) {
   return e.toLowerCase().replace(/[,\n\r\t]+/g, " ").split(/\s+/).map((r) => r.trim()).filter((r) => r.length > 0);
 }
-function im({
+function hm({
   className: e = "",
   variant: r = "default",
   size: s = "md",
@@ -4289,46 +4289,46 @@ function im({
   menuItems: n = [],
   hideSignOut: a = !1
 }) {
-  const { user: c, isAuthenticated: d, isLoading: l, openLoginModal: h, logout: m } = Ut(), [u, f] = x(!1), [g, b] = x(-1), w = ee(null), C = ee(null), N = q(
+  const { user: c, isAuthenticated: l, isLoading: d, openLoginModal: h, logout: m } = Dt(), [u, p] = x(!1), [g, w] = x(-1), y = J(null), C = J(null), N = q(
     () => [...n, ...a ? [] : [{ label: "Sign out", onClick: m }]],
     [n, a, m]
   );
   O(() => {
     if (!u) return;
-    const p = (y) => {
-      w.current && !w.current.contains(y.target) && (f(!1), b(-1));
-    }, v = (y) => {
-      y.key === "Escape" && (f(!1), b(-1), C.current?.focus());
+    const f = (b) => {
+      y.current && !y.current.contains(b.target) && (p(!1), w(-1));
+    }, v = (b) => {
+      b.key === "Escape" && (p(!1), w(-1), C.current?.focus());
     };
-    return document.addEventListener("mousedown", p), document.addEventListener("keydown", v), () => {
-      document.removeEventListener("mousedown", p), document.removeEventListener("keydown", v);
+    return document.addEventListener("mousedown", f), document.addEventListener("keydown", v), () => {
+      document.removeEventListener("mousedown", f), document.removeEventListener("keydown", v);
     };
   }, [u]);
-  const A = P(
-    (p) => {
+  const A = T(
+    (f) => {
       if (!(!u || N.length === 0))
-        switch (p.key) {
+        switch (f.key) {
           case "ArrowDown":
-            p.preventDefault(), b((v) => (v + 1) % N.length);
+            f.preventDefault(), w((v) => (v + 1) % N.length);
             break;
           case "ArrowUp":
-            p.preventDefault(), b((v) => (v - 1 + N.length) % N.length);
+            f.preventDefault(), w((v) => (v - 1 + N.length) % N.length);
             break;
           case "Home":
-            p.preventDefault(), b(0);
+            f.preventDefault(), w(0);
             break;
           case "End":
-            p.preventDefault(), b(N.length - 1);
+            f.preventDefault(), w(N.length - 1);
             break;
           case "Enter":
           case " ":
-            g >= 0 && (p.preventDefault(), N[g].onClick(), f(!1), b(-1));
+            g >= 0 && (f.preventDefault(), N[g].onClick(), p(!1), w(-1));
             break;
         }
     },
     [u, g, N]
-  ), E = P(() => {
-    N.length !== 0 && (f((p) => !p), b(-1));
+  ), E = T(() => {
+    N.length !== 0 && (p((f) => !f), w(-1));
   }, [N.length]), S = {
     sm: "cedros-button-sm",
     md: "cedros-button-md",
@@ -4338,7 +4338,7 @@ function im({
     outline: "cedros-button-outline",
     ghost: "cedros-button-ghost"
   };
-  if (l)
+  if (d)
     return /* @__PURE__ */ t(
       "button",
       {
@@ -4348,11 +4348,11 @@ function im({
         children: /* @__PURE__ */ t(H, { size: "sm" })
       }
     );
-  if (d && c) {
-    const p = c.name || c.email || "User", v = Un(c.picture);
+  if (l && c) {
+    const f = c.name || c.email || "User", v = Fn(c.picture);
     return (
       // L-08: Added keyboard handler and ref for accessibility
-      /* @__PURE__ */ i("div", { className: "cedros-user-menu", ref: w, onKeyDown: A, children: [
+      /* @__PURE__ */ i("div", { className: "cedros-user-menu", ref: y, onKeyDown: A, children: [
         /* @__PURE__ */ i(
           "button",
           {
@@ -4361,25 +4361,25 @@ function im({
             className: `cedros-button cedros-user-button ${S[s]} ${e}`,
             "aria-haspopup": "menu",
             "aria-expanded": u,
-            "aria-label": `User menu for ${p}`,
+            "aria-label": `User menu for ${f}`,
             onClick: E,
             children: [
               v ? /* @__PURE__ */ t(
                 "img",
                 {
                   src: v,
-                  alt: p,
+                  alt: f,
                   className: "cedros-user-avatar",
                   referrerPolicy: "no-referrer",
                   crossOrigin: "anonymous"
                 }
-              ) : /* @__PURE__ */ t("div", { className: "cedros-user-avatar-placeholder", children: (p[0] || "?").toUpperCase() }),
-              /* @__PURE__ */ t("span", { className: "cedros-user-name", children: p })
+              ) : /* @__PURE__ */ t("div", { className: "cedros-user-avatar-placeholder", children: (f[0] || "?").toUpperCase() }),
+              /* @__PURE__ */ t("span", { className: "cedros-user-name", children: f })
             ]
           }
         ),
         u && /* @__PURE__ */ i("div", { className: "cedros-dropdown cedros-dropdown-open", role: "menu", children: [
-          n.map((y, k) => /* @__PURE__ */ i(
+          n.map((b, k) => /* @__PURE__ */ i(
             "button",
             {
               type: "button",
@@ -4387,11 +4387,11 @@ function im({
               role: "menuitem",
               tabIndex: g === k ? 0 : -1,
               onClick: () => {
-                y.onClick(), f(!1);
+                b.onClick(), p(!1);
               },
               children: [
-                y.icon && /* @__PURE__ */ t("span", { className: "cedros-dropdown-icon", children: y.icon }),
-                y.label
+                b.icon && /* @__PURE__ */ t("span", { className: "cedros-dropdown-icon", children: b.icon }),
+                b.label
               ]
             },
             k
@@ -4405,7 +4405,7 @@ function im({
               role: "menuitem",
               tabIndex: g === n.length ? 0 : -1,
               onClick: () => {
-                m(), f(!1);
+                m(), p(!1);
               },
               children: "Sign out"
             }
@@ -4424,51 +4424,51 @@ function im({
     }
   );
 }
-function ts() {
-  const { config: e } = Z(), [r, s] = x(!1), [o, n] = x(!1), [a, c] = x(null), d = q(
-    () => new re({
+function ss() {
+  const { config: e } = ee(), [r, s] = x(!1), [o, n] = x(!1), [a, c] = x(null), l = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts
     }),
     [e.serverUrl, e.requestTimeout, e.retryAttempts]
-  ), { checkLimit: l, getRemainingAttempts: h } = Fn({
+  ), { checkLimit: d, getRemainingAttempts: h } = Wn({
     maxAttempts: 3,
     windowMs: 3e5
-  }), m = P(
-    async (b) => {
-      if (!Wn(b)) {
-        const w = {
+  }), m = T(
+    async (w) => {
+      if (!zn(w)) {
+        const y = {
           code: "VALIDATION_ERROR",
           message: "Please enter a valid email address"
         };
-        throw c(w), w;
+        throw c(y), y;
       }
       try {
-        l();
-      } catch (w) {
+        d();
+      } catch (y) {
         const C = {
           code: "RATE_LIMITED",
-          message: w instanceof Error ? w.message : "Too many attempts"
+          message: y instanceof Error ? y.message : "Too many attempts"
         };
         throw c(C), C;
       }
       s(!0), c(null), n(!1);
       try {
-        await d.post("/forgot-password", { email: b }), n(!0);
-      } catch (w) {
-        const C = z(w, "Unable to send the reset email. Please try again.");
+        await l.post("/forgot-password", { email: w }), n(!0);
+      } catch (y) {
+        const C = z(y, "Unable to send the reset email. Please try again.");
         throw c(C), C;
       } finally {
         s(!1);
       }
     },
-    [d, l]
-  ), u = P(
-    async (b, w) => {
+    [l, d]
+  ), u = T(
+    async (w, y) => {
       s(!0), c(null), n(!1);
       try {
-        await d.post("/reset-password", { token: b, newPassword: w }), n(!0);
+        await l.post("/reset-password", { token: w, newPassword: y }), n(!0);
       } catch (C) {
         const N = z(C, "Unable to reset your password. Please try again.");
         throw c(N), N;
@@ -4476,8 +4476,8 @@ function ts() {
         s(!1);
       }
     },
-    [d]
-  ), f = P(() => c(null), []), g = P(() => {
+    [l]
+  ), p = T(() => c(null), []), g = T(() => {
     c(null), n(!1), s(!1);
   }, []);
   return {
@@ -4486,33 +4486,33 @@ function ts() {
     isLoading: r,
     isSuccess: o,
     error: a,
-    clearError: f,
+    clearError: p,
     reset: g,
     remainingAttempts: h()
   };
 }
-function Wc(e) {
+function zc(e) {
   return typeof e == "object" && e !== null && "mfaRequired" in e && e.mfaRequired === !0;
 }
-function qc() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(!1), [c, d] = x(null), l = q(
-    () => new re({
+function jc() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(!1), [c, l] = x(null), d = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts
     }),
     [e.serverUrl, e.requestTimeout, e.retryAttempts]
-  ), { checkLimit: h, getRemainingAttempts: m } = Fn({
+  ), { checkLimit: h, getRemainingAttempts: m } = Wn({
     maxAttempts: 3,
     windowMs: 3e5
-  }), u = P(
-    async (w) => {
-      if (!Wn(w)) {
+  }), u = T(
+    async (y) => {
+      if (!zn(y)) {
         const C = {
           code: "VALIDATION_ERROR",
           message: "Please enter a valid email address"
         };
-        throw d(C), C;
+        throw l(C), C;
       }
       try {
         h();
@@ -4521,67 +4521,67 @@ function qc() {
           code: "RATE_LIMITED",
           message: C instanceof Error ? C.message : "Too many attempts"
         };
-        throw d(N), N;
+        throw l(N), N;
       }
-      o(!0), d(null), a(!1);
+      o(!0), l(null), a(!1);
       try {
-        await l.post("/instant-link", {
-          email: w,
+        await d.post("/instant-link", {
+          email: y,
           referral: r?.getReferralCode?.() ?? void 0
         }), a(!0);
       } catch (C) {
         const N = z(C, "Unable to send the sign-in link. Please try again.");
-        throw d(N), N;
+        throw l(N), N;
       } finally {
         o(!1);
       }
     },
-    [l, h, r]
-  ), f = P(
-    async (w) => {
-      if (!w || w.trim().length === 0) {
+    [d, h, r]
+  ), p = T(
+    async (y) => {
+      if (!y || y.trim().length === 0) {
         const C = {
           code: "VALIDATION_ERROR",
           message: "Invalid or missing sign-in link token"
         };
-        throw d(C), C;
+        throw l(C), C;
       }
-      o(!0), d(null), a(!1);
+      o(!0), l(null), a(!1);
       try {
-        const C = await l.post(
+        const C = await d.post(
           "/instant-link/verify",
           {
-            token: w
+            token: y
           }
         );
-        return Wc(C) || (e.callbacks?.onLoginSuccess?.(C.user, "email"), r?.handleLoginSuccess(C.user, C.tokens)), C;
+        return zc(C) || (e.callbacks?.onLoginSuccess?.(C.user, "email"), r?.handleLoginSuccess(C.user, C.tokens)), C;
       } catch (C) {
         const N = z(C, "Unable to verify the sign-in link. Please try again.");
-        throw d(N), N;
+        throw l(N), N;
       } finally {
         o(!1);
       }
     },
-    [l, e.callbacks, r]
-  ), g = P(() => d(null), []), b = P(() => {
-    d(null), a(!1), o(!1);
+    [d, e.callbacks, r]
+  ), g = T(() => l(null), []), w = T(() => {
+    l(null), a(!1), o(!1);
   }, []);
   return {
     sendInstantLink: u,
-    verifyInstantLink: f,
+    verifyInstantLink: p,
     isLoading: s,
     isSuccess: n,
     error: c,
     clearError: g,
-    reset: b,
+    reset: w,
     remainingAttempts: m()
   };
 }
-const zc = {
+const $c = {
   reset: {
     subtitle: "Enter your email address and we'll send you a link to reset your password.",
     button: "Send reset link",
-    successMessage: (e) => /* @__PURE__ */ i(Y, { children: [
+    successMessage: (e) => /* @__PURE__ */ i(K, { children: [
       "If an account exists for ",
       /* @__PURE__ */ t("strong", { children: e }),
       ", you will receive a password reset link shortly."
@@ -4590,21 +4590,21 @@ const zc = {
   instantLink: {
     subtitle: "Enter your email and we'll send you a sign-in link. You can change your password in your account settings once signed in.",
     button: "Send sign-in link",
-    successMessage: (e) => /* @__PURE__ */ i(Y, { children: [
+    successMessage: (e) => /* @__PURE__ */ i(K, { children: [
       "We sent a sign-in link to ",
       /* @__PURE__ */ t("strong", { children: e }),
       ". Click the link to sign in."
     ] })
   }
 };
-function jc({
+function Vc({
   mode: e = "reset",
   onSuccess: r,
   onCancel: s,
   className: o = ""
 }) {
-  const [n, a] = x(""), c = ts(), d = qc(), l = In(), h = e === "instantLink" ? { submit: d.sendInstantLink, isLoading: d.isLoading, isSuccess: d.isSuccess, error: d.error, clearError: d.clearError } : { submit: c.forgotPassword, isLoading: c.isLoading, isSuccess: c.isSuccess, error: c.error, clearError: c.clearError }, m = zc[e], u = async (f) => {
-    f.preventDefault();
+  const [n, a] = x(""), c = ss(), l = jc(), d = Un(), h = e === "instantLink" ? { submit: l.sendInstantLink, isLoading: l.isLoading, isSuccess: l.isSuccess, error: l.error, clearError: l.clearError } : { submit: c.forgotPassword, isLoading: c.isLoading, isSuccess: c.isSuccess, error: c.error, clearError: c.clearError }, m = $c[e], u = async (p) => {
+    p.preventDefault();
     try {
       await h.submit(n), r?.();
     } catch {
@@ -4651,17 +4651,17 @@ function jc({
       /* @__PURE__ */ t("h3", { className: "cedros-form-title", children: "Forgot password?" }),
       /* @__PURE__ */ t("p", { className: "cedros-form-subtitle", children: m.subtitle })
     ] }),
-    /* @__PURE__ */ t(ne, { error: h.error, onDismiss: h.clearError }),
+    /* @__PURE__ */ t(se, { error: h.error, onDismiss: h.clearError }),
     /* @__PURE__ */ i("div", { className: "cedros-form-field", children: [
-      /* @__PURE__ */ t("label", { htmlFor: l, className: "cedros-label", children: "Email address" }),
+      /* @__PURE__ */ t("label", { htmlFor: d, className: "cedros-label", children: "Email address" }),
       /* @__PURE__ */ t(
         "input",
         {
-          id: l,
+          id: d,
           type: "email",
           className: "cedros-input",
           value: n,
-          onChange: (f) => a(f.target.value),
+          onChange: (p) => a(p.target.value),
           placeholder: "you@example.com",
           required: !0,
           autoComplete: "email",
@@ -4676,7 +4676,7 @@ function jc({
           type: "submit",
           className: "cedros-button cedros-button-md cedros-button-primary cedros-button-full",
           disabled: h.isLoading || !n,
-          children: h.isLoading ? /* @__PURE__ */ i(Y, { children: [
+          children: h.isLoading ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t(H, { size: "sm" }),
             "Sending..."
           ] }) : m.button
@@ -4695,7 +4695,7 @@ function jc({
     ] })
   ] });
 }
-const $c = {
+const Hc = {
   loading: !1,
   loaded: !1,
   error: null,
@@ -4730,9 +4730,9 @@ const $c = {
     this.loading = !1, this.loaded = !1, this.error = null, this.callbacks = [];
   }
 };
-function Vc() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(!1), [c, d] = x(null), [l, h] = x(null), m = ee(e), u = q(
-    () => new re({
+function Gc() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(!1), [c, l] = x(null), [d, h] = x(null), m = J(e), u = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts
@@ -4744,58 +4744,58 @@ function Vc() {
   }, [e]), O(() => {
     if (!e.appleClientId)
       return;
-    let w = !0;
+    let y = !0;
     const C = () => {
-      if (w)
+      if (y)
         try {
           window.AppleID?.auth?.init({
             clientId: e.appleClientId,
             scope: "name email",
             redirectURI: window.location.origin,
             usePopup: !0
-          }), w && a(!0);
+          }), y && a(!0);
         } catch {
-          w && d({
+          y && l({
             code: "SERVER_ERROR",
             message: "Unable to initialize Apple sign-in. Please refresh and try again."
           });
         }
     };
-    return $c.load().then(() => {
-      w && C();
+    return Hc.load().then(() => {
+      y && C();
     }).catch(() => {
-      w && d({
+      y && l({
         code: "SERVER_ERROR",
         message: "Unable to load Apple sign-in. Please refresh and try again."
       });
     }), () => {
-      w = !1;
+      y = !1;
     };
   }, [e.appleClientId]);
-  const f = P(async (w) => {
+  const p = T(async (y) => {
     if (!e.appleClientId) {
       const N = {
         code: "VALIDATION_ERROR",
         message: "Apple Client ID not configured"
       };
-      throw d(N), N;
+      throw l(N), N;
     }
     if (!n) {
       const N = {
         code: "VALIDATION_ERROR",
         message: "Apple sign-in is not ready yet. Please wait a moment and try again."
       };
-      throw d(N), N;
+      throw l(N), N;
     }
-    o(!0), d(null);
+    o(!0), l(null);
     let C;
     try {
-      const N = crypto.getRandomValues(new Uint8Array(32)), A = Array.from(N, (y) => y.toString(16).padStart(2, "0")).join(""), E = await crypto.subtle.digest(
+      const N = crypto.getRandomValues(new Uint8Array(32)), A = Array.from(N, (b) => b.toString(16).padStart(2, "0")).join(""), E = await crypto.subtle.digest(
         "SHA-256",
         new TextEncoder().encode(A)
       ), S = Array.from(
         new Uint8Array(E),
-        (y) => y.toString(16).padStart(2, "0")
+        (b) => b.toString(16).padStart(2, "0")
       ).join("");
       window.AppleID.auth.init({
         clientId: e.appleClientId,
@@ -4807,12 +4807,12 @@ function Vc() {
       const L = await window.AppleID.auth.signIn();
       if (C = L.authorization?.id_token, !C)
         throw new Error("No ID token received from Apple");
-      const p = L.user?.name ? `${L.user.name.firstName || ""} ${L.user.name.lastName || ""}`.trim() : void 0, v = await u.post("/apple", {
+      const f = L.user?.name ? `${L.user.name.firstName || ""} ${L.user.name.lastName || ""}`.trim() : void 0, v = await u.post("/apple", {
         idToken: C,
-        name: p || void 0,
+        name: f || void 0,
         nonce: A,
         referral: r?.getReferralCode?.() ?? void 0,
-        access_code: w || void 0
+        access_code: y || void 0
       });
       return m.current.callbacks?.onLoginSuccess?.(v.user, "apple"), r?.handleLoginSuccess(v.user, v.tokens), o(!1), v;
     } catch (N) {
@@ -4821,29 +4821,29 @@ function Vc() {
           code: "SERVER_ERROR",
           message: "Apple sign-in was cancelled."
         };
-        throw d(S), o(!1), S;
+        throw l(S), o(!1), S;
       }
       const E = z(N, "Unable to sign in with Apple. Please try again.");
-      throw E.code === "ACCOUNT_LINK_REQUIRED" && C && h(C), d(E), o(!1), E;
+      throw E.code === "ACCOUNT_LINK_REQUIRED" && C && h(C), l(E), o(!1), E;
     }
-  }, [e.appleClientId, n, u, r]), g = P(() => d(null), []), b = P(() => h(null), []);
+  }, [e.appleClientId, n, u, r]), g = T(() => l(null), []), w = T(() => h(null), []);
   return {
-    signIn: f,
+    signIn: p,
     isLoading: s,
     isInitialized: n,
     error: c,
     clearError: g,
-    pendingLinkIdToken: l,
-    clearPendingLink: b
+    pendingLinkIdToken: d,
+    clearPendingLink: w
   };
 }
-function Eo() {
+function So() {
   if (typeof window > "u" || typeof navigator > "u")
     return !1;
   const e = navigator.userAgent.toLowerCase(), r = (navigator.platform || "").toLowerCase();
   return !!(/iphone|ipad|ipod/.test(e) || r.includes("mac") || /macintosh/.test(e) || r === "macintel" && navigator.maxTouchPoints > 1);
 }
-function Hc({
+function Qc({
   onSuccess: e,
   onError: r,
   className: s = "",
@@ -4851,16 +4851,16 @@ function Hc({
   size: n = "md",
   disabled: a = !1,
   hideOnNonApple: c = !0,
-  accessCode: d
+  accessCode: l
 }) {
-  const { signIn: l, isLoading: h, isInitialized: m } = Vc(), [u] = x(() => Eo());
+  const { signIn: d, isLoading: h, isInitialized: m } = Gc(), [u] = x(() => So());
   if (c && !u)
     return null;
-  const f = async () => {
+  const p = async () => {
     try {
-      await l(d), e?.();
-    } catch (w) {
-      const C = w instanceof Error ? w : new Error(String(w));
+      await d(l), e?.();
+    } catch (y) {
+      const C = y instanceof Error ? y : new Error(String(y));
       r?.(C);
     }
   }, g = {
@@ -4876,7 +4876,7 @@ function Hc({
         default: "cedros-button-social",
         outline: "cedros-button-social-outline"
       }[o]} ${g[n]} ${s}`,
-      onClick: f,
+      onClick: p,
       disabled: a || !m || h,
       "aria-label": "Sign in with Apple",
       children: [
@@ -4900,12 +4900,12 @@ function Hc({
 function he(e, r) {
   if (!e) throw new Error(r);
 }
-function Gc(e) {
+function Kc(e) {
   return e.replace(/-/g, "+").replace(/_/g, "/");
 }
-function Bt(e) {
+function It(e) {
   he(typeof e == "string" && e.length > 0, "Expected base64url string");
-  const r = Gc(e), s = r + "=".repeat((4 - r.length % 4) % 4), o = atob(s), n = new Uint8Array(o.length);
+  const r = Kc(e), s = r + "=".repeat((4 - r.length % 4) % 4), o = atob(s), n = new Uint8Array(o.length);
   for (let a = 0; a < o.length; a++) n[a] = o.charCodeAt(a);
   return n.buffer;
 }
@@ -4915,32 +4915,32 @@ function Ke(e) {
   for (let n = 0; n < r.length; n++) s += String.fromCharCode(r[n]);
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
-function xo(e) {
+function _o(e) {
   he(typeof e == "object" && e !== null, "Invalid credential descriptor");
   const r = e;
   return he(typeof r.type == "string", "Invalid credential descriptor type"), he(typeof r.id == "string", "Invalid credential descriptor id"), {
     type: r.type,
-    id: Bt(r.id),
+    id: It(r.id),
     transports: Array.isArray(r.transports) ? r.transports : void 0
   };
 }
-function rr(e) {
+function sr(e) {
   he(e && typeof e == "object", "Missing creation options");
   const r = e.publicKey;
   he(r && typeof r == "object", "Missing creation options.publicKey"), he(typeof r.challenge == "string", "Missing creation challenge"), he(typeof r.rp == "object" && r.rp !== null, "Missing rp"), he(typeof r.user == "object" && r.user !== null, "Missing user");
   const s = r.rp, o = r.user;
   he(typeof s.name == "string", "Missing rp.name"), he(typeof o.id == "string", "Missing user.id"), he(typeof o.name == "string", "Missing user.name"), he(typeof o.displayName == "string", "Missing user.displayName");
-  const n = Array.isArray(r.excludeCredentials) ? r.excludeCredentials.map(xo) : void 0, a = Array.isArray(r.pubKeyCredParams) ? r.pubKeyCredParams.map((d) => ({
-    type: d.type,
-    alg: d.alg
+  const n = Array.isArray(r.excludeCredentials) ? r.excludeCredentials.map(_o) : void 0, a = Array.isArray(r.pubKeyCredParams) ? r.pubKeyCredParams.map((l) => ({
+    type: l.type,
+    alg: l.alg
   })) : [], c = {
-    challenge: Bt(r.challenge),
+    challenge: It(r.challenge),
     rp: {
       name: s.name,
       id: typeof s.id == "string" ? s.id : void 0
     },
     user: {
-      id: Bt(o.id),
+      id: It(o.id),
       name: o.name,
       displayName: o.displayName
     },
@@ -4953,12 +4953,12 @@ function rr(e) {
   };
   return c.hints = ["client-device"], c;
 }
-function Ms(e) {
+function Ds(e) {
   he(e && typeof e == "object", "Missing request options");
   const r = e.publicKey;
   he(r && typeof r == "object", "Missing request options.publicKey"), he(typeof r.challenge == "string", "Missing request challenge");
-  const s = Array.isArray(r.allowCredentials) ? r.allowCredentials.map(xo) : void 0, o = {
-    challenge: Bt(r.challenge),
+  const s = Array.isArray(r.allowCredentials) ? r.allowCredentials.map(_o) : void 0, o = {
+    challenge: It(r.challenge),
     rpId: typeof r.rpId == "string" ? r.rpId : void 0,
     timeout: typeof r.timeout == "number" ? r.timeout : void 0,
     userVerification: typeof r.userVerification == "string" ? r.userVerification : void 0,
@@ -4992,7 +4992,7 @@ function st(e) {
     response: n
   };
 }
-function Qc() {
+function Yc() {
   if (typeof window < "u") {
     const e = window.location?.hostname, r = e === "localhost" || e === "127.0.0.1" || e?.endsWith(".localhost");
     if (!(window.isSecureContext === !0) && !r)
@@ -5000,7 +5000,7 @@ function Qc() {
   }
   return typeof window < "u" && typeof window.PublicKeyCredential < "u" && typeof navigator < "u" && typeof navigator.credentials < "u";
 }
-function Kc(e) {
+function Zc(e) {
   return typeof e == "object" && e !== null && "code" in e && "message" in e && typeof e.code == "string" && typeof e.message == "string";
 }
 function nt(e) {
@@ -5011,9 +5011,9 @@ function nt(e) {
     message: "Passkeys require HTTPS and a correctly configured relying party (WEBAUTHN_RP_ID / WEBAUTHN_RP_ORIGIN)"
   } : null;
 }
-function So() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), c = q(
-    () => new re({
+function Lo() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), c = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts,
@@ -5021,9 +5021,9 @@ function So() {
       getAccessToken: r?.getAccessToken
     }),
     [r?.getAccessToken, e.serverUrl, e.requestTimeout, e.retryAttempts]
-  ), d = P(() => a(null), []), l = Qc(), h = P(
+  ), l = T(() => a(null), []), d = Yc(), h = T(
     async (C) => {
-      if (!l) {
+      if (!d) {
         const N = {
           code: "VALIDATION_ERROR",
           message: "Passkeys are not supported in this browser"
@@ -5035,7 +5035,7 @@ function So() {
         const N = await c.post(
           "/webauthn/auth/options",
           { email: C?.email }
-        ), A = Ms(N.options), E = await navigator.credentials.get({
+        ), A = Ds(N.options), E = await navigator.credentials.get({
           publicKey: A
         });
         if (!E)
@@ -5052,10 +5052,10 @@ function So() {
         o(!1);
       }
     },
-    [c, e.callbacks, r, l]
-  ), m = P(
+    [c, e.callbacks, r, d]
+  ), m = T(
     async (C) => {
-      if (!l) {
+      if (!d) {
         const N = {
           code: "VALIDATION_ERROR",
           message: "Passkeys are not supported in this browser"
@@ -5067,7 +5067,7 @@ function So() {
         const N = await c.post(
           "/webauthn/register/options",
           {}
-        ), A = rr(N.options), E = await navigator.credentials.create({
+        ), A = sr(N.options), E = await navigator.credentials.create({
           publicKey: A
         });
         if (!E)
@@ -5087,10 +5087,10 @@ function So() {
         o(!1);
       }
     },
-    [c, l]
-  ), u = P(
+    [c, d]
+  ), u = T(
     async (C) => {
-      if (!l) {
+      if (!d) {
         const N = {
           code: "VALIDATION_ERROR",
           message: "Passkeys are not supported in this browser"
@@ -5102,7 +5102,7 @@ function So() {
         const N = await c.post(
           "/webauthn/signup/options",
           {}
-        ), A = rr(N.options), E = await navigator.credentials.create({
+        ), A = sr(N.options), E = await navigator.credentials.create({
           publicKey: A
         });
         if (!E)
@@ -5124,9 +5124,9 @@ function So() {
         o(!1);
       }
     },
-    [c, e.callbacks, r, l]
-  ), f = P(async (C) => {
-    if (!l) {
+    [c, e.callbacks, r, d]
+  ), p = T(async (C) => {
+    if (!d) {
       const E = {
         code: "VALIDATION_ERROR",
         message: "Passkeys are not supported in this browser"
@@ -5140,14 +5140,14 @@ function So() {
       } catch {
       }
     };
-    return N ? g(A, C) : b(A, C);
-  }, [c, e.callbacks, r, l]), g = P(
+    return N ? g(A, C) : w(A, C);
+  }, [c, e.callbacks, r, d]), g = T(
     async (C, N) => {
       try {
         const A = await c.post(
           "/webauthn/auth/options",
           {}
-        ), E = Ms(A.options), S = await navigator.credentials.get({
+        ), E = Ds(A.options), S = await navigator.credentials.get({
           publicKey: E
         });
         if (!S)
@@ -5159,7 +5159,7 @@ function So() {
         return e.callbacks?.onLoginSuccess?.(L.user, "webauthn"), r?.handleLoginSuccess(L.user, L.tokens), C(), L;
       } catch (A) {
         if (A instanceof Error && (A.name === "NotAllowedError" || A.name === "InvalidStateError"))
-          return w(C, N);
+          return y(C, N);
         if (typeof A == "object" && A !== null && "isApiError" in A && A.data?.code === "INVALID_CREDENTIALS") {
           const v = {
             code: "INVALID_CREDENTIALS",
@@ -5167,22 +5167,22 @@ function So() {
           };
           throw a(v), v;
         }
-        const p = nt(A) ?? z(A, "Unable to sign in with passkey. Please try again.");
-        throw a(p), p;
+        const f = nt(A) ?? z(A, "Unable to sign in with passkey. Please try again.");
+        throw a(f), f;
       } finally {
         o(!1);
       }
     },
     [c, e.callbacks, r]
     // eslint-disable-line react-hooks/exhaustive-deps
-  ), b = P(
+  ), w = T(
     async (C, N) => {
       try {
-        return await w(C, N);
+        return await y(C, N);
       } catch (A) {
         if (A instanceof Error && (A.name === "InvalidStateError" || A.name === "NotAllowedError"))
           return g(C, N);
-        if (!Kc(A)) {
+        if (!Zc(A)) {
           const L = nt(A) ?? z(A, "Unable to create passkey. Please try again.");
           throw a(L), L;
         }
@@ -5193,12 +5193,12 @@ function So() {
     },
     [c, e.callbacks, r]
     // eslint-disable-line react-hooks/exhaustive-deps
-  ), w = P(
+  ), y = T(
     async (C, N) => {
       const A = await c.post(
         "/webauthn/signup/options",
         {}
-      ), E = rr(A.options), S = await navigator.credentials.create({
+      ), E = sr(A.options), S = await navigator.credentials.create({
         publicKey: E
       });
       if (!S)
@@ -5214,17 +5214,17 @@ function So() {
     [c, e.callbacks, r]
   );
   return {
-    isSupported: l,
+    isSupported: d,
     isLoading: s,
     error: n,
-    clearError: d,
-    continueWithPasskey: f,
+    clearError: l,
+    continueWithPasskey: p,
     authenticatePasskey: h,
     registerPasskey: m,
     signupWithPasskey: u
   };
 }
-function Yc({
+function Xc({
   onSuccess: e,
   onError: r,
   className: s = "",
@@ -5232,7 +5232,7 @@ function Yc({
   disabled: n,
   accessCode: a
 }) {
-  const { continueWithPasskey: c, isLoading: d, isSupported: l } = So(), h = n || !l || d;
+  const { continueWithPasskey: c, isLoading: l, isSupported: d } = Lo(), h = n || !d || l;
   return /* @__PURE__ */ i(
     "button",
     {
@@ -5248,13 +5248,13 @@ function Yc({
       disabled: h,
       "aria-disabled": h,
       children: [
-        d ? /* @__PURE__ */ t(H, { size: "sm" }) : /* @__PURE__ */ t("span", { className: "cedros-social-icon", "aria-hidden": "true", children: /* @__PURE__ */ t(Zc, {}) }),
+        l ? /* @__PURE__ */ t(H, { size: "sm" }) : /* @__PURE__ */ t("span", { className: "cedros-social-icon", "aria-hidden": "true", children: /* @__PURE__ */ t(Jc, {}) }),
         /* @__PURE__ */ t("span", { children: o ?? "Continue with Passkey" })
       ]
     }
   );
 }
-function Zc() {
+function Jc() {
   return /* @__PURE__ */ i(
     "svg",
     {
@@ -5281,19 +5281,19 @@ function Zc() {
   );
 }
 const ot = ["login", "register"];
-function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
-  const { config: o, socialButtonOrder: n, isFeatureEnabled: a } = Z(), { features: c } = Dn(), [d, l] = x(s), [h, m] = x("form"), [u, f] = x(() => ps()), [g] = x(() => Eo()), [b, w] = x(""), [C, N] = x(null), A = c?.signupAccessCodeRequired ?? !1, E = P((B) => {
+function ns({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
+  const { config: o, socialButtonOrder: n, isFeatureEnabled: a } = ee(), { features: c } = On(), [l, d] = x(s), [h, m] = x("form"), [u, p] = x(() => gs()), [g] = x(() => So()), [w, y] = x(""), [C, N] = x(null), A = c?.signupAccessCodeRequired ?? !1, E = T((B) => {
     N(B.message);
   }, []);
   O(() => {
-    const B = () => f(ps());
+    const B = () => p(gs());
     return B(), window.addEventListener("load", B), window.addEventListener("focus", B), () => {
       window.removeEventListener("load", B), window.removeEventListener("focus", B);
     };
   }, []);
-  const S = o.forms?.forgotPassword?.mode ?? (a("instantLink") ? "instantLink" : "reset"), L = P(
+  const S = o.forms?.forgotPassword?.mode ?? (a("instantLink") ? "instantLink" : "reset"), L = T(
     (B) => {
-      const R = ot.indexOf(d);
+      const R = ot.indexOf(l);
       let I = R;
       switch (B.key) {
         case "ArrowLeft":
@@ -5315,11 +5315,11 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
       }
       B.preventDefault();
       const M = ot[I];
-      l(M), document.getElementById(`cedros-tab-${M}`)?.focus();
+      d(M), document.getElementById(`cedros-tab-${M}`)?.focus();
     },
-    [d]
-  ), p = a("email"), v = a("google") && o.googleClientId, y = a("apple") && o.appleClientId && g, k = a("solana") && u, T = a("webauthn"), _ = p && (v || y || k || T);
-  return h === "forgotPassword" ? /* @__PURE__ */ t("div", { className: `cedros-login-form ${r}`, children: /* @__PURE__ */ t(jc, { mode: S, onCancel: () => m("form") }) }) : /* @__PURE__ */ i("div", { className: `cedros-login-form ${r}`, children: [
+    [l]
+  ), f = a("email"), v = a("google") && o.googleClientId, b = a("apple") && o.appleClientId && g, k = a("solana") && u, P = a("webauthn"), _ = f && (v || b || k || P);
+  return h === "forgotPassword" ? /* @__PURE__ */ t("div", { className: `cedros-login-form ${r}`, children: /* @__PURE__ */ t(Vc, { mode: S, onCancel: () => m("form") }) }) : /* @__PURE__ */ i("div", { className: `cedros-login-form ${r}`, children: [
     A && /* @__PURE__ */ i("div", { className: "cedros-form-field", children: [
       /* @__PURE__ */ t("label", { htmlFor: "login-form-access-code", className: "cedros-label", children: "Access Code" }),
       /* @__PURE__ */ t(
@@ -5328,8 +5328,8 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
           id: "login-form-access-code",
           type: "text",
           className: "cedros-input",
-          value: b,
-          onChange: (B) => w(B.target.value),
+          value: w,
+          onChange: (B) => y(B.target.value),
           placeholder: "Enter access code",
           "aria-required": "true",
           autoComplete: "off"
@@ -5337,26 +5337,26 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
       )
     ] }),
     C && /* @__PURE__ */ t(
-      ne,
+      se,
       {
         error: C,
         onDismiss: () => N(null)
       }
     ),
-    (T || v || y || k) && (() => {
+    (P || v || b || k) && (() => {
       const B = {
-        webauthn: T ? /* @__PURE__ */ t(Yc, { onSuccess: e, onError: E, accessCode: b || void 0 }) : null,
-        google: v ? /* @__PURE__ */ t(ya, { onSuccess: e, onError: E, accessCode: b || void 0 }) : null,
-        apple: y ? /* @__PURE__ */ t(Hc, { onSuccess: e, onError: E, accessCode: b || void 0 }) : null,
-        solana: k ? /* @__PURE__ */ t(va, { onSuccess: e, onError: E, accessCode: b || void 0 }) : null
+        webauthn: P ? /* @__PURE__ */ t(Xc, { onSuccess: e, onError: E, accessCode: w || void 0 }) : null,
+        google: v ? /* @__PURE__ */ t(Aa, { onSuccess: e, onError: E, accessCode: w || void 0 }) : null,
+        apple: b ? /* @__PURE__ */ t(Qc, { onSuccess: e, onError: E, accessCode: w || void 0 }) : null,
+        solana: k ? /* @__PURE__ */ t(Na, { onSuccess: e, onError: E, accessCode: w || void 0 }) : null
       };
       return /* @__PURE__ */ t("div", { className: "cedros-social-buttons", children: (n ?? ["webauthn", "google", "apple", "solana"]).map((I) => {
         const M = B[I];
-        return M ? /* @__PURE__ */ t(ma, { children: M }, I) : null;
+        return M ? /* @__PURE__ */ t(fa, { children: M }, I) : null;
       }) });
     })(),
     _ && /* @__PURE__ */ t("div", { className: "cedros-divider", children: /* @__PURE__ */ t("span", { children: "Or continue with" }) }),
-    p && /* @__PURE__ */ i(Y, { children: [
+    f && /* @__PURE__ */ i(K, { children: [
       /* @__PURE__ */ i("div", { className: "cedros-tabs", role: "tablist", "aria-label": "Authentication method", children: [
         /* @__PURE__ */ t(
           "button",
@@ -5364,12 +5364,12 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
             type: "button",
             role: "tab",
             id: "cedros-tab-login",
-            className: `cedros-tab ${d === "login" ? "cedros-tab-active" : ""}`,
-            onClick: () => l("login"),
+            className: `cedros-tab ${l === "login" ? "cedros-tab-active" : ""}`,
+            onClick: () => d("login"),
             onKeyDown: L,
-            "aria-selected": d === "login",
+            "aria-selected": l === "login",
             "aria-controls": "cedros-tabpanel-login",
-            tabIndex: d === "login" ? 0 : -1,
+            tabIndex: l === "login" ? 0 : -1,
             children: "Sign in"
           }
         ),
@@ -5379,12 +5379,12 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
             type: "button",
             role: "tab",
             id: "cedros-tab-register",
-            className: `cedros-tab ${d === "register" ? "cedros-tab-active" : ""}`,
-            onClick: () => l("register"),
+            className: `cedros-tab ${l === "register" ? "cedros-tab-active" : ""}`,
+            onClick: () => d("register"),
             onKeyDown: L,
-            "aria-selected": d === "register",
+            "aria-selected": l === "register",
             "aria-controls": "cedros-tabpanel-register",
-            tabIndex: d === "register" ? 0 : -1,
+            tabIndex: l === "register" ? 0 : -1,
             children: "Sign up"
           }
         )
@@ -5393,21 +5393,21 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
         "div",
         {
           role: "tabpanel",
-          id: `cedros-tabpanel-${d}`,
-          "aria-labelledby": `cedros-tab-${d}`,
-          children: d === "login" ? /* @__PURE__ */ t(
-            wa,
-            {
-              onSuccess: e,
-              onSwitchToRegister: () => l("register"),
-              onForgotPassword: () => m("forgotPassword")
-            }
-          ) : /* @__PURE__ */ t(
+          id: `cedros-tabpanel-${l}`,
+          "aria-labelledby": `cedros-tab-${l}`,
+          children: l === "login" ? /* @__PURE__ */ t(
             ba,
             {
               onSuccess: e,
-              onSwitchToLogin: () => l("login"),
-              accessCode: A ? b : void 0
+              onSwitchToRegister: () => d("register"),
+              onForgotPassword: () => m("forgotPassword")
+            }
+          ) : /* @__PURE__ */ t(
+            va,
+            {
+              onSuccess: e,
+              onSwitchToLogin: () => d("login"),
+              accessCode: A ? w : void 0
             }
           )
         }
@@ -5415,7 +5415,7 @@ function rs({ onSuccess: e, className: r = "", defaultTab: s = "login" }) {
     ] })
   ] });
 }
-class Xc extends pa {
+class el extends ga {
   constructor(r) {
     super(r), this.state = {
       hasError: !1,
@@ -5480,35 +5480,35 @@ class Xc extends pa {
     ] }) }) : n;
   }
 }
-function cm({ className: e = "", title: r = "Sign in to your account" }) {
-  const { isModalOpen: s, closeModal: o } = Z(), n = ee(null), a = ee(null), c = ee(o);
+function mm({ className: e = "", title: r = "Sign in to your account" }) {
+  const { isModalOpen: s, closeModal: o } = ee(), n = J(null), a = J(null), c = J(o);
   if (O(() => {
     c.current = o;
   }, [o]), O(() => {
     if (!s) return;
     a.current = document.activeElement, n.current?.focus();
-    const l = (m) => {
+    const d = (m) => {
       if (m.key === "Escape" && c.current(), m.key === "Tab" && n.current) {
         const u = n.current.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        ), f = u[0], g = u[u.length - 1];
-        m.shiftKey && document.activeElement === f ? (m.preventDefault(), g?.focus()) : !m.shiftKey && document.activeElement === g && (m.preventDefault(), f?.focus());
+        ), p = u[0], g = u[u.length - 1];
+        m.shiftKey && document.activeElement === p ? (m.preventDefault(), g?.focus()) : !m.shiftKey && document.activeElement === g && (m.preventDefault(), p?.focus());
       }
     };
-    document.addEventListener("keydown", l);
+    document.addEventListener("keydown", d);
     const h = document.body.style.overflow;
     return document.body.style.overflow = "hidden", () => {
-      document.removeEventListener("keydown", l), document.body.style.overflow = h, a.current instanceof HTMLElement && a.current.focus();
+      document.removeEventListener("keydown", d), document.body.style.overflow = h, a.current instanceof HTMLElement && a.current.focus();
     };
   }, [s]), !s) return null;
-  const d = (l) => {
-    l.target === l.currentTarget && o();
+  const l = (d) => {
+    d.target === d.currentTarget && o();
   };
   return /* @__PURE__ */ t(
     "div",
     {
       className: `cedros-modal-backdrop ${e}`,
-      onClick: d,
+      onClick: l,
       role: "presentation",
       children: /* @__PURE__ */ i(
         "div",
@@ -5541,27 +5541,27 @@ function cm({ className: e = "", title: r = "Sign in to your account" }) {
                 }
               )
             ] }),
-            /* @__PURE__ */ t("div", { className: "cedros-modal-content", children: /* @__PURE__ */ t(Xc, { children: /* @__PURE__ */ t(rs, { onSuccess: o }) }) })
+            /* @__PURE__ */ t("div", { className: "cedros-modal-content", children: /* @__PURE__ */ t(el, { children: /* @__PURE__ */ t(ns, { onSuccess: o }) }) })
           ]
         }
       )
     }
   );
 }
-function lm({
+function pm({
   token: e,
   onSuccess: r,
   onLoginClick: s,
   className: o = ""
 }) {
-  const [n, a] = x(""), [c, d] = x(""), [l, h] = x(null), { resetPassword: m, isLoading: u, isSuccess: f, error: g, clearError: b } = ts(), w = n === c, C = l?.isValid && w && n.length > 0, N = async (A) => {
+  const [n, a] = x(""), [c, l] = x(""), [d, h] = x(null), { resetPassword: m, isLoading: u, isSuccess: p, error: g, clearError: w } = ss(), y = n === c, C = d?.isValid && y && n.length > 0, N = async (A) => {
     if (A.preventDefault(), !!C)
       try {
         await m(e, n), r?.();
       } catch {
       }
   };
-  return f ? /* @__PURE__ */ i("div", { className: `cedros-reset-password-success ${o}`, children: [
+  return p ? /* @__PURE__ */ i("div", { className: `cedros-reset-password-success ${o}`, children: [
     /* @__PURE__ */ i(
       "svg",
       {
@@ -5602,20 +5602,20 @@ function lm({
       /* @__PURE__ */ t("h3", { className: "cedros-form-title", children: "Reset your password" }),
       /* @__PURE__ */ t("p", { className: "cedros-form-subtitle", children: "Enter your new password below." })
     ] }),
-    /* @__PURE__ */ t(ne, { error: g, onDismiss: b }),
+    /* @__PURE__ */ t(se, { error: g, onDismiss: w }),
     /* @__PURE__ */ t("div", { className: "cedros-form-field", children: /* @__PURE__ */ t(
       ve,
       {
         label: "New password",
         value: n,
         onChange: (A) => {
-          a(A.target.value), h(Ft(A.target.value));
+          a(A.target.value), h(Ot(A.target.value));
         },
         showStrengthMeter: !0,
         onValidationChange: h,
         disabled: u,
         autoComplete: "new-password",
-        error: l && !l.isValid ? Object.values(l.errors).find(Boolean) : void 0
+        error: d && !d.isValid ? Object.values(d.errors).find(Boolean) : void 0
       }
     ) }),
     /* @__PURE__ */ t("div", { className: "cedros-form-field", children: /* @__PURE__ */ t(
@@ -5623,10 +5623,10 @@ function lm({
       {
         label: "Confirm password",
         value: c,
-        onChange: (A) => d(A.target.value),
+        onChange: (A) => l(A.target.value),
         disabled: u,
         autoComplete: "new-password",
-        error: c && !w ? "Passwords do not match" : void 0
+        error: c && !y ? "Passwords do not match" : void 0
       }
     ) }),
     /* @__PURE__ */ i("div", { className: "cedros-form-actions", children: [
@@ -5636,7 +5636,7 @@ function lm({
           type: "submit",
           className: "cedros-button cedros-button-md cedros-button-primary cedros-button-full",
           disabled: u || !C,
-          children: u ? /* @__PURE__ */ i(Y, { children: [
+          children: u ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t(H, { size: "sm" }),
             "Resetting..."
           ] }) : "Reset password"
@@ -5655,8 +5655,8 @@ function lm({
     ] })
   ] });
 }
-function qr({ org: e, size: r = "lg", className: s = "" }) {
-  const o = Un(e.logoUrl), n = r === "lg" ? "cedros-org-avatar-lg" : "", a = ["cedros-org-avatar", n, s].filter(Boolean).join(" "), c = ["cedros-org-avatar-placeholder", n, s].filter(Boolean).join(" ");
+function jr({ org: e, size: r = "lg", className: s = "" }) {
+  const o = Fn(e.logoUrl), n = r === "lg" ? "cedros-org-avatar-lg" : "", a = ["cedros-org-avatar", n, s].filter(Boolean).join(" "), c = ["cedros-org-avatar-placeholder", n, s].filter(Boolean).join(" ");
   return o ? /* @__PURE__ */ t(
     "img",
     {
@@ -5667,7 +5667,7 @@ function qr({ org: e, size: r = "lg", className: s = "" }) {
     }
   ) : /* @__PURE__ */ t("div", { className: c, children: e.name[0]?.toUpperCase() || "?" });
 }
-function dm({
+function fm({
   orgs: e,
   activeOrg: r,
   isLoading: s = !1,
@@ -5676,28 +5676,28 @@ function dm({
   className: a = "",
   placeholder: c = "Select organization"
 }) {
-  const [d, l] = x(!1), h = ee(null);
+  const [l, d] = x(!1), h = J(null);
   O(() => {
-    const g = (b) => {
-      h.current && !h.current.contains(b.target) && l(!1);
+    const g = (w) => {
+      h.current && !h.current.contains(w.target) && d(!1);
     };
     return document.addEventListener("mousedown", g), () => document.removeEventListener("mousedown", g);
   }, []), O(() => {
-    const g = (b) => {
-      b.key === "Escape" && l(!1);
+    const g = (w) => {
+      w.key === "Escape" && d(!1);
     };
-    if (d)
+    if (l)
       return document.addEventListener("keydown", g), () => document.removeEventListener("keydown", g);
-  }, [d]);
-  const m = P(
+  }, [l]);
+  const m = T(
     (g) => {
-      o(g), l(!1);
+      o(g), d(!1);
     },
     [o]
-  ), u = P(() => {
-    l(!1), n?.();
-  }, [n]), f = P(() => {
-    l((g) => !g);
+  ), u = T(() => {
+    d(!1), n?.();
+  }, [n]), p = T(() => {
+    d((g) => !g);
   }, []);
   return s ? /* @__PURE__ */ i(
     "div",
@@ -5716,20 +5716,20 @@ function dm({
       {
         type: "button",
         className: "cedros-org-selector-trigger",
-        onClick: f,
+        onClick: p,
         "aria-haspopup": "listbox",
-        "aria-expanded": d,
+        "aria-expanded": l,
         children: [
-          r ? /* @__PURE__ */ i(Y, { children: [
-            /* @__PURE__ */ t(qr, { org: r, size: "sm" }),
+          r ? /* @__PURE__ */ i(K, { children: [
+            /* @__PURE__ */ t(jr, { org: r, size: "sm" }),
             /* @__PURE__ */ t("span", { className: "cedros-org-selector-name", children: r.name }),
-            /* @__PURE__ */ t(Us, { role: r.membership.role })
+            /* @__PURE__ */ t(Fs, { role: r.membership.role })
           ] }) : /* @__PURE__ */ t("span", { className: "cedros-org-selector-placeholder", children: c }),
-          /* @__PURE__ */ t(Jc, { isOpen: d })
+          /* @__PURE__ */ t(tl, { isOpen: l })
         ]
       }
     ),
-    d && /* @__PURE__ */ i("div", { className: "cedros-org-selector-dropdown", role: "listbox", children: [
+    l && /* @__PURE__ */ i("div", { className: "cedros-org-selector-dropdown", role: "listbox", children: [
       e.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-org-selector-empty", children: "No organizations" }) : /* @__PURE__ */ t("ul", { className: "cedros-org-selector-list", children: e.map((g) => /* @__PURE__ */ t("li", { children: /* @__PURE__ */ i(
         "button",
         {
@@ -5739,14 +5739,14 @@ function dm({
           role: "option",
           "aria-selected": g.id === r?.id,
           children: [
-            /* @__PURE__ */ t(qr, { org: g, size: "sm" }),
+            /* @__PURE__ */ t(jr, { org: g, size: "sm" }),
             /* @__PURE__ */ t("span", { className: "cedros-org-selector-item-name", children: g.name }),
-            /* @__PURE__ */ t(Us, { role: g.membership.role }),
-            g.id === r?.id && /* @__PURE__ */ t(el, {})
+            /* @__PURE__ */ t(Fs, { role: g.membership.role }),
+            g.id === r?.id && /* @__PURE__ */ t(rl, {})
           ]
         }
       ) }, g.id)) }),
-      n && /* @__PURE__ */ i(Y, { children: [
+      n && /* @__PURE__ */ i(K, { children: [
         /* @__PURE__ */ t("div", { className: "cedros-org-selector-divider" }),
         /* @__PURE__ */ i(
           "button",
@@ -5755,7 +5755,7 @@ function dm({
             className: "cedros-org-selector-create",
             onClick: u,
             children: [
-              /* @__PURE__ */ t(tl, {}),
+              /* @__PURE__ */ t(sl, {}),
               /* @__PURE__ */ t("span", { children: "Create organization" })
             ]
           }
@@ -5764,10 +5764,10 @@ function dm({
     ] })
   ] });
 }
-function Us({ role: e }) {
+function Fs({ role: e }) {
   return /* @__PURE__ */ t("span", { className: `cedros-org-role cedros-org-role-${e}`, children: e });
 }
-function Jc({ isOpen: e }) {
+function tl({ isOpen: e }) {
   return /* @__PURE__ */ t(
     "svg",
     {
@@ -5790,7 +5790,7 @@ function Jc({ isOpen: e }) {
     }
   );
 }
-function el() {
+function rl() {
   return /* @__PURE__ */ t(
     "svg",
     {
@@ -5813,7 +5813,7 @@ function el() {
     }
   );
 }
-function tl() {
+function sl() {
   return /* @__PURE__ */ t(
     "svg",
     {
@@ -5836,7 +5836,7 @@ function tl() {
     }
   );
 }
-function rl() {
+function nl() {
   return /* @__PURE__ */ t("svg", { width: "20", height: "20", viewBox: "0 0 20 20", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ t(
     "path",
     {
@@ -5848,7 +5848,7 @@ function rl() {
     }
   ) });
 }
-function sl() {
+function ol() {
   return /* @__PURE__ */ t(
     "svg",
     {
@@ -5871,7 +5871,7 @@ function sl() {
     }
   );
 }
-function nl() {
+function al() {
   return /* @__PURE__ */ t("svg", { width: "20", height: "20", viewBox: "0 0 20 20", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ t(
     "path",
     {
@@ -5883,7 +5883,7 @@ function nl() {
     }
   ) });
 }
-function ol({
+function il({
   orgs: e,
   activeOrg: r,
   isLoading: s,
@@ -5893,7 +5893,7 @@ function ol({
   return s ? /* @__PURE__ */ i("div", { className: "cedros-org-switcher-loading", children: [
     /* @__PURE__ */ t(H, {}),
     /* @__PURE__ */ t("span", { children: "Loading organizations..." })
-  ] }) : /* @__PURE__ */ i(Y, { children: [
+  ] }) : /* @__PURE__ */ i(K, { children: [
     e.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-org-switcher-empty", children: /* @__PURE__ */ t("p", { children: "You don't belong to any organizations yet." }) }) : /* @__PURE__ */ t("ul", { className: "cedros-org-switcher-list", children: e.map((a) => /* @__PURE__ */ t("li", { children: /* @__PURE__ */ i(
       "button",
       {
@@ -5901,7 +5901,7 @@ function ol({
         className: `cedros-org-switcher-item ${a.id === r?.id ? "cedros-org-switcher-item-active" : ""}`,
         onClick: () => o(a.id),
         children: [
-          /* @__PURE__ */ t(qr, { org: a }),
+          /* @__PURE__ */ t(jr, { org: a }),
           /* @__PURE__ */ i("div", { className: "cedros-org-switcher-item-content", children: [
             /* @__PURE__ */ t("span", { className: "cedros-org-switcher-item-name", children: a.name }),
             /* @__PURE__ */ i("span", { className: "cedros-org-switcher-item-slug", children: [
@@ -5913,41 +5913,41 @@ function ol({
             /* @__PURE__ */ t("span", { className: `cedros-org-role cedros-org-role-${a.membership.role}`, children: a.membership.role }),
             a.isPersonal && /* @__PURE__ */ t("span", { className: "cedros-org-personal-badge", children: "Personal" })
           ] }),
-          a.id === r?.id && /* @__PURE__ */ t(sl, {})
+          a.id === r?.id && /* @__PURE__ */ t(ol, {})
         ]
       }
     ) }, a.id)) }),
     n && /* @__PURE__ */ i("button", { type: "button", className: "cedros-org-switcher-create", onClick: n, children: [
-      /* @__PURE__ */ t(nl, {}),
+      /* @__PURE__ */ t(al, {}),
       /* @__PURE__ */ t("span", { children: "Create new organization" })
     ] })
   ] });
 }
-function al({ isLoading: e, onSubmit: r, onCancel: s }) {
-  const [o, n] = x(""), [a, c] = x(""), [d, l] = x(null), h = P((u) => {
+function cl({ isLoading: e, onSubmit: r, onCancel: s }) {
+  const [o, n] = x(""), [a, c] = x(""), [l, d] = x(null), h = T((u) => {
     n(u);
-    const f = u.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").substring(0, 50);
-    c(f);
-  }, []), m = P(
+    const p = u.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").substring(0, 50);
+    c(p);
+  }, []), m = T(
     async (u) => {
-      if (u.preventDefault(), l(null), !o.trim()) {
-        l("Organization name is required");
+      if (u.preventDefault(), d(null), !o.trim()) {
+        d("Organization name is required");
         return;
       }
       if (!a.trim()) {
-        l("Organization slug is required");
+        d("Organization slug is required");
         return;
       }
       try {
         await r({ name: o.trim(), slug: a.trim() });
-      } catch (f) {
-        l(f.message || "Failed to create organization");
+      } catch (p) {
+        d(p.message || "Failed to create organization");
       }
     },
     [o, a, r]
   );
   return /* @__PURE__ */ i("form", { className: "cedros-org-create-form", onSubmit: m, children: [
-    d && /* @__PURE__ */ t(ne, { error: d }),
+    l && /* @__PURE__ */ t(se, { error: l }),
     /* @__PURE__ */ i("div", { className: "cedros-form-group", children: [
       /* @__PURE__ */ t("label", { htmlFor: "org-name", className: "cedros-form-label", children: "Organization Name" }),
       /* @__PURE__ */ t(
@@ -6009,7 +6009,7 @@ function al({ isLoading: e, onSubmit: r, onCancel: s }) {
     ] })
   ] });
 }
-function um({
+function gm({
   isOpen: e,
   onClose: r,
   orgs: s,
@@ -6017,11 +6017,11 @@ function um({
   isLoading: n = !1,
   error: a,
   onSelect: c,
-  onCreate: d,
-  className: l = ""
+  onCreate: l,
+  className: d = ""
 }) {
   return e ? /* @__PURE__ */ t(
-    il,
+    ll,
     {
       onClose: r,
       orgs: s,
@@ -6029,12 +6029,12 @@ function um({
       isLoading: n,
       error: a,
       onSelect: c,
-      onCreate: d,
-      className: l
+      onCreate: l,
+      className: d
     }
   ) : null;
 }
-function il({
+function ll({
   onClose: e,
   orgs: r,
   activeOrg: s,
@@ -6042,13 +6042,13 @@ function il({
   error: n,
   onSelect: a,
   onCreate: c,
-  className: d
+  className: l
 }) {
-  const [l, h] = x("list"), m = ee(null), u = ee(null);
+  const [d, h] = x("list"), m = J(null), u = J(null);
   O(() => (u.current = document.activeElement, m.current?.querySelector(".cedros-modal-close")?.focus(), () => {
     u.current?.focus();
   }), []), O(() => {
-    const w = (C) => {
+    const y = (C) => {
       if (C.key === "Escape") {
         e();
         return;
@@ -6060,41 +6060,41 @@ function il({
         C.shiftKey ? document.activeElement === A && (C.preventDefault(), E?.focus()) : document.activeElement === E && (C.preventDefault(), A?.focus());
       }
     };
-    return document.addEventListener("keydown", w), () => document.removeEventListener("keydown", w);
+    return document.addEventListener("keydown", y), () => document.removeEventListener("keydown", y);
   }, [e]);
-  const f = P(
-    (w) => {
-      w.target === w.currentTarget && e();
+  const p = T(
+    (y) => {
+      y.target === y.currentTarget && e();
     },
     [e]
-  ), g = P(
-    (w) => {
-      a(w), e();
+  ), g = T(
+    (y) => {
+      a(y), e();
     },
     [a, e]
-  ), b = P(
-    async (w) => {
-      await c?.(w), e();
+  ), w = T(
+    async (y) => {
+      await c?.(y), e();
     },
     [c, e]
   );
-  return /* @__PURE__ */ t("div", { className: "cedros-modal-backdrop", onClick: f, children: /* @__PURE__ */ i(
+  return /* @__PURE__ */ t("div", { className: "cedros-modal-backdrop", onClick: p, children: /* @__PURE__ */ i(
     "div",
     {
       ref: m,
-      className: `cedros-modal cedros-org-switcher ${d}`,
+      className: `cedros-modal cedros-org-switcher ${l}`,
       role: "dialog",
       "aria-modal": "true",
       "aria-labelledby": "org-switcher-title",
       children: [
         /* @__PURE__ */ i("div", { className: "cedros-modal-header", children: [
-          /* @__PURE__ */ t("h2", { id: "org-switcher-title", className: "cedros-modal-title", children: l === "list" ? "Switch Organization" : "Create Organization" }),
-          /* @__PURE__ */ t("button", { type: "button", className: "cedros-modal-close", onClick: e, "aria-label": "Close", children: /* @__PURE__ */ t(rl, {}) })
+          /* @__PURE__ */ t("h2", { id: "org-switcher-title", className: "cedros-modal-title", children: d === "list" ? "Switch Organization" : "Create Organization" }),
+          /* @__PURE__ */ t("button", { type: "button", className: "cedros-modal-close", onClick: e, "aria-label": "Close", children: /* @__PURE__ */ t(nl, {}) })
         ] }),
         /* @__PURE__ */ i("div", { className: "cedros-modal-body", children: [
-          n && /* @__PURE__ */ t(ne, { error: n }),
-          l === "list" ? /* @__PURE__ */ t(
-            ol,
+          n && /* @__PURE__ */ t(se, { error: n }),
+          d === "list" ? /* @__PURE__ */ t(
+            il,
             {
               orgs: r,
               activeOrg: s,
@@ -6103,10 +6103,10 @@ function il({
               onCreateClick: c ? () => h("create") : void 0
             }
           ) : /* @__PURE__ */ t(
-            al,
+            cl,
             {
               isLoading: o,
-              onSubmit: b,
+              onSubmit: w,
               onCancel: () => h("list")
             }
           )
@@ -6115,23 +6115,23 @@ function il({
     }
   ) });
 }
-function cl({
+function dl({
   sessions: e,
   isLoading: r = !1,
   error: s,
   onRevokeAll: o,
   className: n = ""
 }) {
-  const [a, c] = x(!1), [d, l] = x(!1), h = ee(null), m = q(() => e.filter((f) => !f.isCurrent).length, [e]), u = P(async () => {
+  const [a, c] = x(!1), [l, d] = x(!1), h = J(null), m = q(() => e.filter((p) => !p.isCurrent).length, [e]), u = T(async () => {
     if (!o) return;
-    const f = e.filter((b) => !b.isCurrent).length;
-    if (!(f === 0 || !window.confirm(
-      `Are you sure you want to sign out of ${f} other device(s)? This will log you out everywhere except this browser.`
+    const p = e.filter((w) => !w.isCurrent).length;
+    if (!(p === 0 || !window.confirm(
+      `Are you sure you want to sign out of ${p} other device(s)? This will log you out everywhere except this browser.`
     ))) {
-      c(!0), l(!1);
+      c(!0), d(!1);
       try {
-        await o(), l(!0), h.current !== null && window.clearTimeout(h.current), h.current = window.setTimeout(() => {
-          l(!1), h.current = null;
+        await o(), d(!0), h.current !== null && window.clearTimeout(h.current), h.current = window.setTimeout(() => {
+          d(!1), h.current = null;
         }, 3e3);
       } finally {
         c(!1);
@@ -6143,12 +6143,12 @@ function cl({
   }, []), r && e.length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-session-list cedros-session-list-loading ${n}`, children: [
     /* @__PURE__ */ t(H, {}),
     /* @__PURE__ */ t("span", { children: "Loading sessions..." })
-  ] }) : s ? /* @__PURE__ */ t("div", { className: `cedros-session-list ${n}`, children: /* @__PURE__ */ t(ne, { error: s }) }) : e.length === 0 ? /* @__PURE__ */ t("div", { className: `cedros-session-list cedros-session-list-empty ${n}`, children: /* @__PURE__ */ t("p", { children: "No active sessions found." }) }) : /* @__PURE__ */ i("div", { className: `cedros-session-list ${n}`, children: [
-    d && /* @__PURE__ */ i("div", { className: "cedros-session-success", role: "status", children: [
-      /* @__PURE__ */ t(pl, {}),
+  ] }) : s ? /* @__PURE__ */ t("div", { className: `cedros-session-list ${n}`, children: /* @__PURE__ */ t(se, { error: s }) }) : e.length === 0 ? /* @__PURE__ */ t("div", { className: `cedros-session-list cedros-session-list-empty ${n}`, children: /* @__PURE__ */ t("p", { children: "No active sessions found." }) }) : /* @__PURE__ */ i("div", { className: `cedros-session-list ${n}`, children: [
+    l && /* @__PURE__ */ i("div", { className: "cedros-session-success", role: "status", children: [
+      /* @__PURE__ */ t(gl, {}),
       /* @__PURE__ */ t("span", { children: "All other sessions have been revoked." })
     ] }),
-    /* @__PURE__ */ t("ul", { className: "cedros-session-items", children: e.map((f) => /* @__PURE__ */ t(ll, { session: f }, f.id)) }),
+    /* @__PURE__ */ t("ul", { className: "cedros-session-items", children: e.map((p) => /* @__PURE__ */ t(ul, { session: p }, p.id)) }),
     o && m > 0 && /* @__PURE__ */ t("div", { className: "cedros-session-actions", children: /* @__PURE__ */ t(
       "button",
       {
@@ -6156,7 +6156,7 @@ function cl({
         className: "cedros-button cedros-button-danger",
         onClick: u,
         disabled: a,
-        children: a ? /* @__PURE__ */ i(Y, { children: [
+        children: a ? /* @__PURE__ */ i(K, { children: [
           /* @__PURE__ */ t(H, { size: "sm" }),
           /* @__PURE__ */ t("span", { children: "Signing out..." })
         ] }) : `Sign out of ${m} other device${m > 1 ? "s" : ""}`
@@ -6164,10 +6164,10 @@ function cl({
     ) })
   ] });
 }
-function ll({ session: e }) {
-  const r = dl(e.userAgent), s = hl(e.expiresAt);
+function ul({ session: e }) {
+  const r = hl(e.userAgent), s = pl(e.expiresAt);
   return /* @__PURE__ */ i("li", { className: `cedros-session-item ${e.isCurrent ? "cedros-session-item-current" : ""}`, children: [
-    /* @__PURE__ */ t("div", { className: "cedros-session-item-icon", children: /* @__PURE__ */ t(ml, { userAgent: e.userAgent }) }),
+    /* @__PURE__ */ t("div", { className: "cedros-session-item-icon", children: /* @__PURE__ */ t(fl, { userAgent: e.userAgent }) }),
     /* @__PURE__ */ i("div", { className: "cedros-session-item-info", children: [
       /* @__PURE__ */ i("div", { className: "cedros-session-item-main", children: [
         /* @__PURE__ */ i("span", { className: "cedros-session-item-device", children: [
@@ -6184,14 +6184,14 @@ function ll({ session: e }) {
         ] }),
         /* @__PURE__ */ i("span", { className: "cedros-session-item-created", children: [
           "Started ",
-          ul(e.createdAt)
+          ml(e.createdAt)
         ] }),
         s && /* @__PURE__ */ t("span", { className: "cedros-session-expiring", children: "Expires soon" })
       ] })
     ] })
   ] });
 }
-function dl(e) {
+function hl(e) {
   if (!e)
     return { browser: "Unknown browser", os: "Unknown device" };
   let r = "Unknown browser";
@@ -6199,7 +6199,7 @@ function dl(e) {
   let s = "Unknown device";
   return e.includes("Windows") ? s = "Windows" : e.includes("Mac") ? s = "macOS" : e.includes("Linux") ? s = "Linux" : e.includes("iPhone") || e.includes("iPad") ? s = "iOS" : e.includes("Android") && (s = "Android"), { browser: r, os: s };
 }
-function ul(e) {
+function ml(e) {
   const r = new Date(e), o = (/* @__PURE__ */ new Date()).getTime() - r.getTime(), n = Math.floor(o / (1e3 * 60)), a = Math.floor(o / (1e3 * 60 * 60)), c = Math.floor(o / (1e3 * 60 * 60 * 24));
   return n < 1 ? "just now" : n < 60 ? `${n} minute${n > 1 ? "s" : ""} ago` : a < 24 ? `${a} hour${a > 1 ? "s" : ""} ago` : c < 7 ? `${c} day${c > 1 ? "s" : ""} ago` : r.toLocaleDateString(void 0, {
     year: "numeric",
@@ -6207,11 +6207,11 @@ function ul(e) {
     day: "numeric"
   });
 }
-function hl(e) {
+function pl(e) {
   const r = new Date(e), s = /* @__PURE__ */ new Date(), o = 3600 * 1e3;
   return r.getTime() - s.getTime() < o;
 }
-function ml({ userAgent: e }) {
+function fl({ userAgent: e }) {
   return e?.includes("iPhone") || e?.includes("iPad") || e?.includes("Android") ? /* @__PURE__ */ i(
     "svg",
     {
@@ -6243,7 +6243,7 @@ function ml({ userAgent: e }) {
     }
   );
 }
-function pl() {
+function gl() {
   return /* @__PURE__ */ t(
     "svg",
     {
@@ -6266,21 +6266,21 @@ function pl() {
     }
   );
 }
-function fl({
+function wl({
   words: e,
   onConfirm: r,
   className: s = ""
 }) {
-  const [o, n] = x(!1), [a, c] = x(!1), d = ee(null), l = Fc(e), h = P(async () => {
+  const [o, n] = x(!1), [a, c] = x(!1), l = J(null), d = Wc(e), h = T(async () => {
     try {
-      await navigator.clipboard.writeText(e.join(" ")), n(!0), d.current !== null && window.clearTimeout(d.current), d.current = window.setTimeout(() => n(!1), 2e3);
+      await navigator.clipboard.writeText(e.join(" ")), n(!0), l.current !== null && window.clearTimeout(l.current), l.current = window.setTimeout(() => n(!1), 2e3);
     } catch {
     }
   }, [e]);
   O(() => () => {
-    d.current !== null && (window.clearTimeout(d.current), d.current = null);
+    l.current !== null && (window.clearTimeout(l.current), l.current = null);
   }, []);
-  const m = P(() => {
+  const m = T(() => {
     a && r();
   }, [a, r]);
   return /* @__PURE__ */ i("div", { className: `cedros-recovery-phrase-display ${s}`, children: [
@@ -6288,16 +6288,16 @@ function fl({
       /* @__PURE__ */ t("h3", { className: "cedros-recovery-title", children: "Recovery Phrase" }),
       /* @__PURE__ */ t("p", { className: "cedros-recovery-warning", children: "Write down these 12 words in order and store them securely. This is the only way to recover your wallet if you lose access." })
     ] }),
-    /* @__PURE__ */ t("div", { className: "cedros-recovery-grid", children: l.map((u, f) => /* @__PURE__ */ t("div", { className: "cedros-word-group", children: u.map((g, b) => {
-      const w = f * 4 + b + 1;
+    /* @__PURE__ */ t("div", { className: "cedros-recovery-grid", children: d.map((u, p) => /* @__PURE__ */ t("div", { className: "cedros-word-group", children: u.map((g, w) => {
+      const y = p * 4 + w + 1;
       return /* @__PURE__ */ i("div", { className: "cedros-word-item", children: [
         /* @__PURE__ */ i("span", { className: "cedros-word-number", children: [
-          w,
+          y,
           "."
         ] }),
         /* @__PURE__ */ t("span", { className: "cedros-word-text", children: g })
-      ] }, w);
-    }) }, f)) }),
+      ] }, y);
+    }) }, p)) }),
     /* @__PURE__ */ t(
       "button",
       {
@@ -6364,64 +6364,64 @@ function fl({
     ] })
   ] });
 }
-function gl({
+function yl({
   onSubmit: e,
   onCancel: r,
   isSubmitting: s = !1,
   error: o,
   className: n = ""
 }) {
-  const [a, c] = x(Array(ye).fill("")), [d, l] = x(null), [h, m] = x([]), [u, f] = x(null), g = In(), b = ee(null), w = P(
-    (p, v) => {
-      const y = [...a];
-      if (y[p] = v.toLowerCase().trim(), c(y), v.length > 0) {
-        const k = Dc(v, 5);
+  const [a, c] = x(Array(be).fill("")), [l, d] = x(null), [h, m] = x([]), [u, p] = x(null), g = Un(), w = J(null), y = T(
+    (f, v) => {
+      const b = [...a];
+      if (b[f] = v.toLowerCase().trim(), c(b), v.length > 0) {
+        const k = Oc(v, 5);
         m(k);
       } else
         m([]);
-      f(null);
+      p(null);
     },
     [a]
-  ), C = P((p) => {
-    l(p), m([]);
-  }, []), N = P(
-    (p) => {
-      const v = a[p];
-      v && !gt(v) && f(`Word ${p + 1} is not in the wordlist`), b.current !== null && window.clearTimeout(b.current), b.current = window.setTimeout(() => {
-        d === p && m([]);
+  ), C = T((f) => {
+    d(f), m([]);
+  }, []), N = T(
+    (f) => {
+      const v = a[f];
+      v && !wt(v) && p(`Word ${f + 1} is not in the wordlist`), w.current !== null && window.clearTimeout(w.current), w.current = window.setTimeout(() => {
+        l === f && m([]);
       }, 200);
     },
-    [a, d]
+    [a, l]
   );
   O(() => () => {
-    b.current !== null && (window.clearTimeout(b.current), b.current = null);
+    w.current !== null && (window.clearTimeout(w.current), w.current = null);
   }, []);
-  const A = P(
-    (p) => {
-      if (d !== null) {
+  const A = T(
+    (f) => {
+      if (l !== null) {
         const v = [...a];
-        v[d] = p, c(v), m([]), document.querySelector(
-          `[data-word-index="${d + 1}"]`
+        v[l] = f, c(v), m([]), document.querySelector(
+          `[data-word-index="${l + 1}"]`
         )?.focus();
       }
     },
-    [d, a]
-  ), E = P((p) => {
-    const v = p.clipboardData.getData("text"), y = Oc(v);
-    y.length === ye && (p.preventDefault(), c(y), f(null));
-  }, []), S = P(
-    (p) => {
-      if (p.preventDefault(), a.filter((k) => !k).length > 0) {
-        f(`Please enter all ${ye} words`);
+    [l, a]
+  ), E = T((f) => {
+    const v = f.clipboardData.getData("text"), b = qc(v);
+    b.length === be && (f.preventDefault(), c(b), p(null));
+  }, []), S = T(
+    (f) => {
+      if (f.preventDefault(), a.filter((k) => !k).length > 0) {
+        p(`Please enter all ${be} words`);
         return;
       }
-      const y = a.map((k, T) => ({ word: k, index: T + 1 })).filter(({ word: k }) => !gt(k));
-      if (y.length > 0) {
-        f(`Invalid words: ${y.map((k) => `#${k.index}`).join(", ")}`);
+      const b = a.map((k, P) => ({ word: k, index: P + 1 })).filter(({ word: k }) => !wt(k));
+      if (b.length > 0) {
+        p(`Invalid words: ${b.map((k) => `#${k.index}`).join(", ")}`);
         return;
       }
-      if (!Co(a)) {
-        f("Invalid recovery phrase - please check your words");
+      if (!xo(a)) {
+        p("Invalid recovery phrase - please check your words");
         return;
       }
       e(a);
@@ -6439,7 +6439,7 @@ function gl({
           /* @__PURE__ */ t("h3", { className: "cedros-recovery-input-title", children: "Enter Recovery Phrase" }),
           /* @__PURE__ */ t("p", { className: "cedros-recovery-input-description", children: "Enter your 12-word recovery phrase. You can paste the entire phrase at once." })
         ] }),
-        /* @__PURE__ */ t("div", { className: "cedros-word-inputs", children: Array.from({ length: ye }, (p, v) => /* @__PURE__ */ i("div", { className: "cedros-word-input-wrapper", children: [
+        /* @__PURE__ */ t("div", { className: "cedros-word-inputs", children: Array.from({ length: be }, (f, v) => /* @__PURE__ */ i("div", { className: "cedros-word-input-wrapper", children: [
           /* @__PURE__ */ i("label", { className: "cedros-word-label", children: [
             v + 1,
             "."
@@ -6448,9 +6448,9 @@ function gl({
             "input",
             {
               type: "text",
-              className: `cedros-word-input ${a[v] && !gt(a[v]) ? "cedros-word-invalid" : a[v] && gt(a[v]) ? "cedros-word-valid" : ""}`,
+              className: `cedros-word-input ${a[v] && !wt(a[v]) ? "cedros-word-invalid" : a[v] && wt(a[v]) ? "cedros-word-valid" : ""}`,
               value: a[v],
-              onChange: (y) => w(v, y.target.value),
+              onChange: (b) => y(v, b.target.value),
               onFocus: () => C(v),
               onBlur: () => N(v),
               "data-word-index": v,
@@ -6462,16 +6462,16 @@ function gl({
             }
           )
         ] }, v)) }),
-        d !== null && h.length > 0 && /* @__PURE__ */ t("div", { className: "cedros-suggestions", role: "listbox", id: `${g}-suggestions`, children: h.map((p) => /* @__PURE__ */ t(
+        l !== null && h.length > 0 && /* @__PURE__ */ t("div", { className: "cedros-suggestions", role: "listbox", id: `${g}-suggestions`, children: h.map((f) => /* @__PURE__ */ t(
           "button",
           {
             type: "button",
             className: "cedros-suggestion",
-            onClick: () => A(p),
+            onClick: () => A(f),
             role: "option",
-            children: p
+            children: f
           },
-          p
+          f
         )) }),
         L && /* @__PURE__ */ t("p", { className: "cedros-input-error", role: "alert", children: L }),
         /* @__PURE__ */ i("div", { className: "cedros-recovery-input-actions", children: [
@@ -6499,10 +6499,10 @@ function gl({
     }
   );
 }
-function hm({ capabilities: e, className: r = "" }) {
+function wm({ capabilities: e, className: r = "" }) {
   if (e.allSupported)
     return null;
-  const s = ca(e), o = la();
+  const s = da(e), o = ua();
   return /* @__PURE__ */ i("div", { className: `cedros-capability-warning ${r}`, role: "alert", children: [
     /* @__PURE__ */ i("div", { className: "cedros-warning-header", children: [
       /* @__PURE__ */ t(
@@ -6576,11 +6576,11 @@ function hm({ capabilities: e, className: r = "" }) {
     ] })
   ] });
 }
-const wl = ["share_c_only", "full_seed", "none"];
-function bl(e) {
-  return e && wl.includes(e) ? e : "share_c_only";
+const bl = ["share_c_only", "full_seed", "none"];
+function vl(e) {
+  return e && bl.includes(e) ? e : "share_c_only";
 }
-const yl = {
+const Al = {
   walletEnabled: !1,
   recoveryMode: "share_c_only",
   unlockTtlSeconds: 900,
@@ -6589,19 +6589,19 @@ const yl = {
   refetch: async () => {
   }
 };
-function _o() {
-  const e = je(), [r, s] = x(null), [o, n] = x(!!e), [a, c] = x(null), d = q(() => e ? new re({
+function To() {
+  const e = je(), [r, s] = x(null), [o, n] = x(!!e), [a, c] = x(null), l = q(() => e ? new te({
     baseUrl: e.config.serverUrl,
     timeoutMs: e.config.requestTimeout,
     retryAttempts: e.config.retryAttempts
-  }) : null, [e]), l = P(async () => {
-    if (d) {
+  }) : null, [e]), d = T(async () => {
+    if (l) {
       n(!0), c(null);
       try {
-        const h = await d.get("/discovery");
+        const h = await l.get("/discovery");
         h.wallet ? s({
           enabled: h.wallet.enabled,
-          recoveryMode: bl(h.wallet.recoveryMode),
+          recoveryMode: vl(h.wallet.recoveryMode),
           unlockTtlSeconds: h.wallet.unlockTtlSeconds
         }) : s({
           enabled: !1,
@@ -6619,123 +6619,123 @@ function _o() {
         n(!1);
       }
     }
-  }, [d]);
+  }, [l]);
   return O(() => {
-    d && l();
-  }, [d, l]), e ? {
+    l && d();
+  }, [l, d]), e ? {
     walletEnabled: r?.enabled ?? !1,
     recoveryMode: r?.recoveryMode ?? "share_c_only",
     unlockTtlSeconds: r?.unlockTtlSeconds ?? 900,
     isLoading: o,
     error: a,
-    refetch: l
-  } : yl;
+    refetch: d
+  } : Al;
 }
-function vl() {
-  const { user: e } = Z(), { enroll: r } = Xe(), { recoveryMode: s } = _o(), [o, n] = x({ step: "idle" }), [a, c] = x(!1), d = ee([]), l = P(() => {
-    Sn(...d.current), d.current = [];
+function Nl() {
+  const { user: e } = ee(), { enroll: r } = Xe(), { recoveryMode: s } = To(), [o, n] = x({ step: "idle" }), [a, c] = x(!1), l = J([]), d = T(() => {
+    Ln(...l.current), l.current = [];
   }, []);
   O(() => () => {
-    l();
-  }, [l]);
-  const h = P(
-    async (b, w, C, N) => {
+    d();
+  }, [d]);
+  const h = T(
+    async (w, y, C, N) => {
       n({ step: "generating_seed" });
-      const A = da();
-      d.current.push(A), n({ step: "splitting_shares" });
-      const { shareA: E, shareB: S, shareC: L } = go(A);
-      d.current.push(E, S, L), n({ step: "encrypting_shares" });
-      const p = await _n(E, Ln(w)), v = po(A), y = fo(v);
+      const A = ha();
+      l.current.push(A), n({ step: "splitting_shares" });
+      const { shareA: E, shareB: S, shareC: L } = yo(A);
+      l.current.push(E, S, L), n({ step: "encrypting_shares" });
+      const f = await Tn(E, Pn(y)), v = go(A), b = wo(v);
       n({ step: "uploading" });
       const k = {
-        solanaPubkey: y,
-        shareAAuthMethod: b,
-        shareACiphertext: p.ciphertext,
-        shareANonce: p.nonce,
+        solanaPubkey: b,
+        shareAAuthMethod: w,
+        shareACiphertext: f.ciphertext,
+        shareANonce: f.nonce,
         // Share B is now plaintext (SSS math protects it)
         shareB: xe(S)
       };
-      if (b === "password") {
+      if (w === "password") {
         if (!C) throw new Error("KDF salt required for password method");
         k.shareAKdfSalt = xe(C), k.shareAKdfParams = lt;
       }
-      if (b === "passkey" && N && (k.prfSalt = N), await r(k), s === "none")
-        l(), n({
+      if (w === "passkey" && N && (k.prfSalt = N), await r(k), s === "none")
+        d(), n({
           step: "complete",
-          solanaPubkey: y
+          solanaPubkey: b
         });
       else {
-        const T = s === "full_seed" ? Mc(A) : Bc(ze(L));
+        const P = s === "full_seed" ? Dc(A) : Mc(ze(L));
         n({
           step: "showing_recovery",
-          recoveryPhrase: T,
-          solanaPubkey: y
+          recoveryPhrase: P,
+          solanaPubkey: b
         });
       }
     },
-    [r, s, l]
-  ), m = P(
-    async (b) => {
+    [r, s, d]
+  ), m = T(
+    async (w) => {
       if (!e) {
         n({ step: "error", error: "User not authenticated" });
         return;
       }
-      c(!0), l();
+      c(!0), d();
       try {
-        const w = Pn(), C = await Vn(b, w, lt);
-        d.current.push(C), await h("password", C, w);
-      } catch (w) {
+        const y = Rn(), C = await Gn(w, y, lt);
+        l.current.push(C), await h("password", C, y);
+      } catch (y) {
         n({
           step: "error",
-          error: w instanceof Error ? w.message : "Enrollment failed"
+          error: y instanceof Error ? y.message : "Enrollment failed"
         });
       } finally {
         c(!1);
       }
     },
-    [e, l, h]
-  ), u = P(async () => {
+    [e, d, h]
+  ), u = T(async () => {
     if (!e) {
       n({ step: "error", error: "User not authenticated" });
       return;
     }
-    c(!0), l();
+    c(!0), d();
     try {
-      const b = Tn(), w = xe(b);
+      const w = Bn(), y = xe(w);
       n({ step: "encrypting_shares" });
-      const N = (await $r(w)).prfOutput;
-      d.current.push(N);
-      const A = await Rn(N, b);
-      d.current.push(A), await h("passkey", A, void 0, w);
-    } catch (b) {
+      const N = (await Hr(y)).prfOutput;
+      l.current.push(N);
+      const A = await In(N, w);
+      l.current.push(A), await h("passkey", A, void 0, y);
+    } catch (w) {
       n({
         step: "error",
-        error: b instanceof Error ? b.message : "Enrollment failed"
+        error: w instanceof Error ? w.message : "Enrollment failed"
       });
     } finally {
       c(!1);
     }
-  }, [e, l, h]), f = P(() => {
-    const b = o.solanaPubkey;
-    l(), n({
+  }, [e, d, h]), p = T(() => {
+    const w = o.solanaPubkey;
+    d(), n({
       step: "complete",
-      solanaPubkey: b
+      solanaPubkey: w
     });
-  }, [o.solanaPubkey, l]), g = P(() => {
-    l(), n({ step: "idle" }), c(!1);
-  }, [l]);
+  }, [o.solanaPubkey, d]), g = T(() => {
+    d(), n({ step: "idle" }), c(!1);
+  }, [d]);
   return {
     state: o,
     startEnrollmentWithPassword: m,
     startEnrollmentWithPasskey: u,
-    confirmRecoveryPhrase: f,
+    confirmRecoveryPhrase: p,
     cancel: g,
     isEnrolling: a
   };
 }
-function Al() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), c = q(
-    () => new re({
+function kl() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), c = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts,
@@ -6744,11 +6744,11 @@ function Al() {
     [e.serverUrl, e.requestTimeout, e.retryAttempts, r?.getAccessToken]
   );
   return {
-    setPassword: P(
-      async (l) => {
+    setPassword: T(
+      async (d) => {
         o(!0), a(null);
         try {
-          await c.post("/set-password", { password: l });
+          await c.post("/set-password", { password: d });
         } catch (h) {
           const m = z(h, "Failed to set password");
           throw a(m), m;
@@ -6762,39 +6762,39 @@ function Al() {
     error: n
   };
 }
-function Nl(e) {
+function Cl(e) {
   return e.includes("email") ? "password" : e.includes("webauthn") ? "passkey" : "set-password";
 }
-function kl({
+function El({
   onComplete: e,
   onCancel: r,
   className: s = ""
 }) {
-  const { user: o } = Z(), {
+  const { user: o } = ee(), {
     state: n,
     startEnrollmentWithPassword: a,
     startEnrollmentWithPasskey: c,
-    confirmRecoveryPhrase: d,
-    cancel: l,
+    confirmRecoveryPhrase: l,
+    cancel: d,
     isEnrolling: h
-  } = vl(), { setPassword: m, isLoading: u } = Al(), f = o ? Nl(o.authMethods) : "password", [g, b] = x(""), [w, C] = x(""), [N, A] = x(null);
+  } = Nl(), { setPassword: m, isLoading: u } = kl(), p = o ? Cl(o.authMethods) : "password", [g, w] = x(""), [y, C] = x(""), [N, A] = x(null);
   O(() => {
-    b(""), C(""), A(null);
+    w(""), C(""), A(null);
   }, [o?.id]);
-  const E = P(
+  const E = T(
     async (k) => {
       k.preventDefault(), A(null), await a(g);
     },
     [g, a]
-  ), S = P(
+  ), S = T(
     async (k) => {
-      if (k.preventDefault(), g !== w) {
+      if (k.preventDefault(), g !== y) {
         A("Passwords do not match");
         return;
       }
-      const T = Ft(g);
-      if (!T.isValid) {
-        const _ = Object.values(T.errors)[0];
+      const P = Ot(g);
+      if (!P.isValid) {
+        const _ = Object.values(P.errors)[0];
         A(_ ?? "Password does not meet requirements");
         return;
       }
@@ -6804,14 +6804,14 @@ function kl({
       } catch {
       }
     },
-    [g, w, m, a]
-  ), L = P(async () => {
+    [g, y, m, a]
+  ), L = T(async () => {
     await c();
-  }, [c]), p = P(() => {
-    d(), n.solanaPubkey && e?.(n.solanaPubkey);
-  }, [d, n.solanaPubkey, e]), v = P(() => {
-    l(), r?.();
-  }, [l, r]), y = h || u;
+  }, [c]), f = T(() => {
+    l(), n.solanaPubkey && e?.(n.solanaPubkey);
+  }, [l, n.solanaPubkey, e]), v = T(() => {
+    d(), r?.();
+  }, [d, r]), b = h || u;
   return n.step === "generating_seed" || n.step === "splitting_shares" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-enrollment ${s}`, "aria-busy": "true", children: /* @__PURE__ */ i("div", { className: "cedros-enrollment-progress", role: "status", "aria-live": "polite", children: [
     /* @__PURE__ */ t("div", { className: "cedros-spinner", "aria-hidden": "true" }),
     /* @__PURE__ */ t("p", { children: "Generating secure wallet..." })
@@ -6821,7 +6821,7 @@ function kl({
   ] }) }) : n.step === "uploading" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-enrollment ${s}`, "aria-busy": "true", children: /* @__PURE__ */ i("div", { className: "cedros-enrollment-progress", role: "status", "aria-live": "polite", children: [
     /* @__PURE__ */ t("div", { className: "cedros-spinner", "aria-hidden": "true" }),
     /* @__PURE__ */ t("p", { children: "Saving wallet..." })
-  ] }) }) : n.step === "showing_recovery" && n.recoveryPhrase ? /* @__PURE__ */ t("div", { className: `cedros-wallet-enrollment ${s}`, children: /* @__PURE__ */ t(fl, { words: n.recoveryPhrase, onConfirm: p }) }) : n.step === "complete" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-enrollment ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-enrollment-complete", children: [
+  ] }) }) : n.step === "showing_recovery" && n.recoveryPhrase ? /* @__PURE__ */ t("div", { className: `cedros-wallet-enrollment ${s}`, children: /* @__PURE__ */ t(wl, { words: n.recoveryPhrase, onConfirm: f }) }) : n.step === "complete" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-enrollment ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-enrollment-complete", children: [
     /* @__PURE__ */ i(
       "svg",
       {
@@ -6894,7 +6894,7 @@ function kl({
         {
           type: "button",
           className: "cedros-button cedros-button-primary",
-          onClick: () => l(),
+          onClick: () => d(),
           children: "Try Again"
         }
       )
@@ -6902,18 +6902,18 @@ function kl({
   ] }) }) : /* @__PURE__ */ i("div", { className: `cedros-wallet-enrollment ${s}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-enrollment-header", children: [
       /* @__PURE__ */ t("h2", { children: "Create Wallet" }),
-      f === "password" && /* @__PURE__ */ t("p", { children: "Enter your account password to secure your wallet." }),
-      f === "passkey" && /* @__PURE__ */ t("p", { children: "Authenticate with your passkey to secure your wallet." }),
-      f === "set-password" && /* @__PURE__ */ t("p", { children: "Set a password for your account to secure your wallet." })
+      p === "password" && /* @__PURE__ */ t("p", { children: "Enter your account password to secure your wallet." }),
+      p === "passkey" && /* @__PURE__ */ t("p", { children: "Authenticate with your passkey to secure your wallet." }),
+      p === "set-password" && /* @__PURE__ */ t("p", { children: "Set a password for your account to secure your wallet." })
     ] }),
-    f === "password" && /* @__PURE__ */ i("form", { onSubmit: E, className: "cedros-enrollment-form", children: [
+    p === "password" && /* @__PURE__ */ i("form", { onSubmit: E, className: "cedros-enrollment-form", children: [
       /* @__PURE__ */ t(
         ve,
         {
           label: "Account Password",
           value: g,
-          onChange: (k) => b(k.target.value),
-          disabled: y,
+          onChange: (k) => w(k.target.value),
+          disabled: b,
           required: !0,
           placeholder: "Enter your account password"
         }
@@ -6925,7 +6925,7 @@ function kl({
             type: "button",
             className: "cedros-button cedros-button-secondary",
             onClick: v,
-            disabled: y,
+            disabled: b,
             children: "Cancel"
           }
         ),
@@ -6934,13 +6934,13 @@ function kl({
           {
             type: "submit",
             className: "cedros-button cedros-button-primary",
-            disabled: y || !g,
-            children: y ? "Creating..." : "Continue"
+            disabled: b || !g,
+            children: b ? "Creating..." : "Continue"
           }
         )
       ] })
     ] }),
-    f === "passkey" && /* @__PURE__ */ i("div", { className: "cedros-enrollment-form", children: [
+    p === "passkey" && /* @__PURE__ */ i("div", { className: "cedros-enrollment-form", children: [
       /* @__PURE__ */ i("div", { className: "cedros-passkey-info", children: [
         /* @__PURE__ */ i(
           "svg",
@@ -6978,7 +6978,7 @@ function kl({
             type: "button",
             className: "cedros-button cedros-button-secondary",
             onClick: v,
-            disabled: y,
+            disabled: b,
             children: "Cancel"
           }
         ),
@@ -6988,21 +6988,21 @@ function kl({
             type: "button",
             className: "cedros-button cedros-button-primary",
             onClick: L,
-            disabled: y,
-            children: y ? "Creating..." : "Use Passkey"
+            disabled: b,
+            children: b ? "Creating..." : "Use Passkey"
           }
         )
       ] })
     ] }),
-    f === "set-password" && /* @__PURE__ */ i("form", { onSubmit: S, className: "cedros-enrollment-form", children: [
+    p === "set-password" && /* @__PURE__ */ i("form", { onSubmit: S, className: "cedros-enrollment-form", children: [
       /* @__PURE__ */ t(
         ve,
         {
           label: "New Password",
           value: g,
-          onChange: (k) => b(k.target.value),
+          onChange: (k) => w(k.target.value),
           showStrengthMeter: !0,
-          disabled: y,
+          disabled: b,
           required: !0,
           minLength: 8,
           placeholder: "Choose a strong password"
@@ -7012,10 +7012,10 @@ function kl({
         ve,
         {
           label: "Confirm Password",
-          value: w,
+          value: y,
           onChange: (k) => C(k.target.value),
           error: N ?? void 0,
-          disabled: y,
+          disabled: b,
           required: !0,
           minLength: 8,
           placeholder: "Confirm your password"
@@ -7029,7 +7029,7 @@ function kl({
             type: "button",
             className: "cedros-button cedros-button-secondary",
             onClick: v,
-            disabled: y,
+            disabled: b,
             children: "Cancel"
           }
         ),
@@ -7038,17 +7038,17 @@ function kl({
           {
             type: "submit",
             className: "cedros-button cedros-button-primary",
-            disabled: y || !g || !w,
-            children: y ? "Creating..." : "Continue"
+            disabled: b || !g || !y,
+            children: b ? "Creating..." : "Continue"
           }
         )
       ] })
     ] })
   ] });
 }
-function Cl() {
-  const { user: e } = Z(), { signTransaction: r } = Xe(), [s, o] = x(!1), [n, a] = x(null), c = P(
-    async (l, h) => {
+function xl() {
+  const { user: e } = ee(), { signTransaction: r } = Xe(), [s, o] = x(!1), [n, a] = x(null), c = T(
+    async (d, h) => {
       if (!e) {
         const m = "User not authenticated";
         throw a(m), new Error(m);
@@ -7056,10 +7056,10 @@ function Cl() {
       o(!0), a(null);
       try {
         const m = {
-          transaction: xe(l),
-          ...h ? { credential: ua(h) } : {}
+          transaction: xe(d),
+          ...h ? { credential: ma(h) } : {}
         }, u = await r(m);
-        return Bn(u.signature);
+        return Mn(u.signature);
       } catch (m) {
         const u = m instanceof Error ? m.message : "Signing failed";
         throw a(u), m;
@@ -7068,41 +7068,41 @@ function Cl() {
       }
     },
     [e, r]
-  ), d = P(() => a(null), []);
+  ), l = T(() => a(null), []);
   return {
     signTransaction: c,
     isSigning: s,
     error: n,
-    clearError: d
+    clearError: l
   };
 }
-function El() {
-  const { getMaterial: e } = Xe(), [r, s] = x(!1), [o, n] = x(null), a = P(async () => {
+function Sl() {
+  const { getMaterial: e } = Xe(), [r, s] = x(!1), [o, n] = x(null), a = T(async () => {
     s(!0), n(null);
     try {
-      const d = await e();
-      if (!d)
+      const l = await e();
+      if (!l)
         throw new Error("No wallet enrolled");
-      if (d.shareAAuthMethod !== "passkey")
+      if (l.shareAAuthMethod !== "passkey")
         throw new Error("Wallet is not configured for passkey authentication");
-      if (!d.prfSalt)
+      if (!l.prfSalt)
         throw new Error("No PRF salt configured for wallet");
-      const l = await $r(d.prfSalt);
+      const d = await Hr(l.prfSalt);
       try {
         return {
           type: "prfOutput",
-          prfOutput: xe(l.prfOutput)
+          prfOutput: xe(d.prfOutput)
         };
       } finally {
-        l.prfOutput.fill(0);
+        d.prfOutput.fill(0);
       }
-    } catch (d) {
-      const l = d instanceof Error ? d.message : "Passkey authentication failed";
-      return n(l), null;
+    } catch (l) {
+      const d = l instanceof Error ? l.message : "Passkey authentication failed";
+      return n(d), null;
     } finally {
       s(!1);
     }
-  }, [e]), c = P(() => n(null), []);
+  }, [e]), c = T(() => n(null), []);
   return {
     getPasskeyCredential: a,
     isAuthenticating: r,
@@ -7110,7 +7110,7 @@ function El() {
     clearError: c
   };
 }
-function xl({
+function _l({
   mode: e,
   isLoading: r = !1,
   error: s,
@@ -7118,20 +7118,20 @@ function xl({
   onRetry: n,
   onCancel: a,
   title: c,
-  description: d,
-  className: l = ""
+  description: l,
+  className: d = ""
 }) {
-  const h = P(() => {
+  const h = T(() => {
     r || o?.();
-  }, [r, o]), m = P(() => {
+  }, [r, o]), m = T(() => {
     n?.();
-  }, [n]), u = e === "register" ? "Set Up Passkey" : "Verify with Passkey", f = e === "register" ? "Create a passkey to securely encrypt your wallet on this device. You will use your fingerprint, face, or device PIN." : "Use your passkey to unlock your wallet. You will be prompted for biometric verification.";
-  return /* @__PURE__ */ i("div", { className: `cedros-passkey-prompt ${l}`, children: [
-    /* @__PURE__ */ t("div", { className: "cedros-passkey-icon", children: r ? /* @__PURE__ */ t(_l, {}) : s ? /* @__PURE__ */ t(Ll, {}) : /* @__PURE__ */ t(Sl, {}) }),
+  }, [n]), u = e === "register" ? "Set Up Passkey" : "Verify with Passkey", p = e === "register" ? "Create a passkey to securely encrypt your wallet on this device. You will use your fingerprint, face, or device PIN." : "Use your passkey to unlock your wallet. You will be prompted for biometric verification.";
+  return /* @__PURE__ */ i("div", { className: `cedros-passkey-prompt ${d}`, children: [
+    /* @__PURE__ */ t("div", { className: "cedros-passkey-icon", children: r ? /* @__PURE__ */ t(Tl, {}) : s ? /* @__PURE__ */ t(Pl, {}) : /* @__PURE__ */ t(Ll, {}) }),
     /* @__PURE__ */ t("h3", { className: "cedros-passkey-title", children: c ?? u }),
-    /* @__PURE__ */ t("p", { className: "cedros-passkey-description", children: d ?? f }),
+    /* @__PURE__ */ t("p", { className: "cedros-passkey-description", children: l ?? p }),
     s && /* @__PURE__ */ t("div", { className: "cedros-passkey-error", role: "alert", children: /* @__PURE__ */ t("p", { children: s }) }),
-    /* @__PURE__ */ t("div", { className: "cedros-passkey-actions", children: s ? /* @__PURE__ */ i(Y, { children: [
+    /* @__PURE__ */ t("div", { className: "cedros-passkey-actions", children: s ? /* @__PURE__ */ i(K, { children: [
       n && /* @__PURE__ */ t(
         "button",
         {
@@ -7150,7 +7150,7 @@ function xl({
           children: "Cancel"
         }
       )
-    ] }) : /* @__PURE__ */ i(Y, { children: [
+    ] }) : /* @__PURE__ */ i(K, { children: [
       /* @__PURE__ */ t(
         "button",
         {
@@ -7158,7 +7158,7 @@ function xl({
           className: "cedros-button cedros-button-primary",
           onClick: h,
           disabled: r,
-          children: r ? /* @__PURE__ */ i(Y, { children: [
+          children: r ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t("span", { className: "cedros-button-spinner", "aria-hidden": "true" }),
             "Waiting for passkey..."
           ] }) : e === "register" ? "Create Passkey" : "Use Passkey"
@@ -7181,7 +7181,7 @@ function xl({
     ] })
   ] });
 }
-function Sl() {
+function Ll() {
   return /* @__PURE__ */ i(
     "svg",
     {
@@ -7206,13 +7206,13 @@ function Sl() {
     }
   );
 }
-function _l() {
+function Tl() {
   return /* @__PURE__ */ i("svg", { viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", className: "cedros-spinner", children: [
     /* @__PURE__ */ t("circle", { cx: "12", cy: "12", r: "9", stroke: "currentColor", strokeWidth: "2", opacity: "0.25" }),
     /* @__PURE__ */ t("path", { d: "M12 3a9 9 0 0 1 9 9", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round" })
   ] });
 }
-function Ll() {
+function Pl() {
   return /* @__PURE__ */ i(
     "svg",
     {
@@ -7230,33 +7230,33 @@ function Ll() {
     }
   );
 }
-function Pl({
+function Rl({
   onUnlock: e,
   onCancel: r,
   showCancel: s = !0,
   authMethod: o,
   className: n = ""
 }) {
-  Z();
-  const { unlock: a, getMaterial: c, isLoading: d } = Xe(), { getPasskeyCredential: l, isAuthenticating: h } = El(), [m, u] = x("idle"), [f, g] = x(o ?? null), [b, w] = x(""), [C, N] = x(null);
+  ee();
+  const { unlock: a, getMaterial: c, isLoading: l } = Xe(), { getPasskeyCredential: d, isAuthenticating: h } = Sl(), [m, u] = x("idle"), [p, g] = x(o ?? null), [w, y] = x(""), [C, N] = x(null);
   O(() => {
     o !== void 0 && g(o);
   }, [o]);
-  const A = f === "password", E = f === "passkey", S = P(async () => {
-    if (u("credential"), N(null), !f)
+  const A = p === "password", E = p === "passkey", S = T(async () => {
+    if (u("credential"), N(null), !p)
       try {
         const _ = await c();
         _ ? g(_.shareAAuthMethod) : (N("No wallet enrolled"), u("error"));
       } catch (_) {
         N(_ instanceof Error ? _.message : "Failed to get wallet info"), u("error");
       }
-  }, [f, c]), L = P(
+  }, [p, c]), L = T(
     async (_) => {
       _.preventDefault(), N(null), u("unlocking");
       try {
         let B;
         if (A)
-          B = { type: "password", password: b };
+          B = { type: "password", password: w };
         else
           throw new Error("Invalid auth method");
         await a(B), u("unlocked"), e?.();
@@ -7264,11 +7264,11 @@ function Pl({
         N(B instanceof Error ? B.message : "Failed to unlock wallet"), u("error");
       }
     },
-    [A, b, a, e]
-  ), p = P(async () => {
+    [A, w, a, e]
+  ), f = T(async () => {
     N(null), u("unlocking");
     try {
-      const _ = await l();
+      const _ = await d();
       if (!_) {
         u("credential");
         return;
@@ -7277,15 +7277,15 @@ function Pl({
     } catch (_) {
       N(_ instanceof Error ? _.message : "Failed to unlock wallet"), u("error");
     }
-  }, [l, a, e]), v = P(() => {
-    w(""), u("idle"), N(null), r?.();
-  }, [r]), y = P(() => {
-    w(""), u("credential"), N(null);
-  }, []), k = d || h, T = () => {
+  }, [d, a, e]), v = T(() => {
+    y(""), u("idle"), N(null), r?.();
+  }, [r]), b = T(() => {
+    y(""), u("credential"), N(null);
+  }, []), k = l || h, P = () => {
     switch (m) {
       case "idle":
         return /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-idle", children: [
-          /* @__PURE__ */ t("div", { className: "cedros-wallet-unlock-icon", children: /* @__PURE__ */ t(Tl, {}) }),
+          /* @__PURE__ */ t("div", { className: "cedros-wallet-unlock-icon", children: /* @__PURE__ */ t(Bl, {}) }),
           /* @__PURE__ */ t("h3", { className: "cedros-wallet-unlock-title", children: "Wallet Locked" }),
           /* @__PURE__ */ t("p", { className: "cedros-wallet-unlock-description", children: "Unlock your wallet to sign transactions." }),
           /* @__PURE__ */ t(
@@ -7306,8 +7306,8 @@ function Pl({
             ve,
             {
               label: "Password",
-              value: b,
-              onChange: (_) => w(_.target.value),
+              value: w,
+              onChange: (_) => y(_.target.value),
               disabled: k,
               autoComplete: "current-password",
               error: C ?? void 0
@@ -7319,7 +7319,7 @@ function Pl({
               {
                 type: "submit",
                 className: "cedros-button cedros-button-primary",
-                disabled: k || b.length === 0,
+                disabled: k || w.length === 0,
                 children: k ? "Unlocking..." : "Unlock"
               }
             ),
@@ -7338,13 +7338,13 @@ function Pl({
           /* @__PURE__ */ t("h3", { className: "cedros-wallet-unlock-title", children: "Verify with Passkey" }),
           /* @__PURE__ */ t("p", { className: "cedros-wallet-unlock-description", children: "Use your passkey to unlock your wallet." }),
           /* @__PURE__ */ t(
-            xl,
+            _l,
             {
               mode: "authenticate",
               isLoading: k,
               error: C ?? void 0,
-              onPrompt: p,
-              onRetry: p,
+              onPrompt: f,
+              onRetry: f,
               onCancel: s ? v : void 0
             }
           )
@@ -7360,13 +7360,13 @@ function Pl({
         ] });
       case "unlocked":
         return /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-success", children: [
-          /* @__PURE__ */ t("div", { className: "cedros-wallet-unlock-icon", children: /* @__PURE__ */ t(Rl, {}) }),
+          /* @__PURE__ */ t("div", { className: "cedros-wallet-unlock-icon", children: /* @__PURE__ */ t(Il, {}) }),
           /* @__PURE__ */ t("h3", { className: "cedros-wallet-unlock-title", children: "Wallet Unlocked" }),
           /* @__PURE__ */ t("p", { className: "cedros-wallet-unlock-description", children: "Your wallet is ready to sign transactions." })
         ] });
       case "error":
         return /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-error", children: [
-          /* @__PURE__ */ t("div", { className: "cedros-wallet-unlock-icon", children: /* @__PURE__ */ t(Bl, {}) }),
+          /* @__PURE__ */ t("div", { className: "cedros-wallet-unlock-icon", children: /* @__PURE__ */ t(Ml, {}) }),
           /* @__PURE__ */ t("h3", { className: "cedros-wallet-unlock-title", children: "Unlock Failed" }),
           /* @__PURE__ */ t("p", { className: "cedros-wallet-unlock-description", children: C ?? "Failed to unlock wallet. Please try again." }),
           /* @__PURE__ */ i("div", { className: "cedros-wallet-unlock-actions", children: [
@@ -7375,7 +7375,7 @@ function Pl({
               {
                 type: "button",
                 className: "cedros-button cedros-button-primary",
-                onClick: y,
+                onClick: b,
                 children: "Try Again"
               }
             ),
@@ -7392,9 +7392,9 @@ function Pl({
         ] });
     }
   };
-  return /* @__PURE__ */ t("div", { className: `cedros-wallet-unlock ${n}`, children: T() });
+  return /* @__PURE__ */ t("div", { className: `cedros-wallet-unlock ${n}`, children: P() });
 }
-function Tl() {
+function Bl() {
   return /* @__PURE__ */ i("svg", { width: "48", height: "48", viewBox: "0 0 48 48", fill: "none", "aria-hidden": "true", children: [
     /* @__PURE__ */ t(
       "rect",
@@ -7413,7 +7413,7 @@ function Tl() {
     /* @__PURE__ */ t("circle", { cx: "24", cy: "32", r: "3", fill: "currentColor" })
   ] });
 }
-function Rl() {
+function Il() {
   return /* @__PURE__ */ i("svg", { width: "48", height: "48", viewBox: "0 0 48 48", fill: "none", "aria-hidden": "true", children: [
     /* @__PURE__ */ t(
       "circle",
@@ -7439,7 +7439,7 @@ function Rl() {
     )
   ] });
 }
-function Bl() {
+function Ml() {
   return /* @__PURE__ */ i("svg", { width: "48", height: "48", viewBox: "0 0 48 48", fill: "none", "aria-hidden": "true", children: [
     /* @__PURE__ */ t(
       "circle",
@@ -7463,60 +7463,60 @@ function Bl() {
     )
   ] });
 }
-function Il() {
-  const { recover: e, getShareBForRecovery: r } = Xe(), { recoveryMode: s } = _o(), [o, n] = x({ step: "idle" }), [a, c] = x(!1), d = ee([]), l = P(() => {
-    Sn(...d.current), d.current = [];
+function Ul() {
+  const { recover: e, getShareBForRecovery: r } = Xe(), { recoveryMode: s } = To(), [o, n] = x({ step: "idle" }), [a, c] = x(!1), l = J([]), d = T(() => {
+    Ln(...l.current), l.current = [];
   }, []);
   O(() => () => {
-    l();
-  }, [l]);
-  const h = P(
-    async (u, f, g) => {
-      c(!0), l();
+    d();
+  }, [d]);
+  const h = T(
+    async (u, p, g) => {
+      c(!0), d();
       try {
-        if (n({ step: "validating" }), !Co(u))
+        if (n({ step: "validating" }), !xo(u))
           throw new Error("Invalid recovery phrase. Please check your words.");
-        let b;
+        let w;
         if (s === "share_c_only") {
-          const y = Ic(u);
-          d.current.push(y);
-          const k = xe(y), T = await r({ shareC: k }), _ = Bn(T.shareB);
-          d.current.push(_), b = vc(ze(_), ze(y)), d.current.push(b);
+          const b = Uc(u);
+          l.current.push(b);
+          const k = xe(b), P = await r({ shareC: k }), _ = Mn(P.shareB);
+          l.current.push(_), w = Nc(ze(_), ze(b)), l.current.push(w);
         } else
-          b = Uc(u), d.current.push(b);
-        const w = po(b), C = fo(w), { shareA: N, shareB: A } = go(b);
-        d.current.push(N, A), n({ step: "encrypting" });
+          w = Fc(u), l.current.push(w);
+        const y = go(w), C = wo(y), { shareA: N, shareB: A } = yo(w);
+        l.current.push(N, A), n({ step: "encrypting" });
         let E, S, L;
-        if (f === "passkey") {
-          const y = Tn();
-          L = xe(y);
-          const k = await $r(L);
-          d.current.push(k.prfOutput), E = await Rn(k.prfOutput, y), d.current.push(E);
+        if (p === "passkey") {
+          const b = Bn();
+          L = xe(b);
+          const k = await Hr(L);
+          l.current.push(k.prfOutput), E = await In(k.prfOutput, b), l.current.push(E);
         } else
-          S = Pn(), E = await Vn(g, S, lt), d.current.push(E);
-        const p = await _n(N, Ln(E));
+          S = Rn(), E = await Gn(g, S, lt), l.current.push(E);
+        const f = await Tn(N, Pn(E));
         n({ step: "uploading" });
         const v = {
           solanaPubkey: C,
-          shareAAuthMethod: f,
-          shareACiphertext: p.ciphertext,
-          shareANonce: p.nonce,
+          shareAAuthMethod: p,
+          shareACiphertext: f.ciphertext,
+          shareANonce: f.nonce,
           shareB: xe(A)
         };
-        f === "password" && (v.shareAKdfSalt = xe(S), v.shareAKdfParams = lt), f === "passkey" && (v.prfSalt = L), await e(v), l(), n({ step: "complete" });
-      } catch (b) {
-        l(), n({
+        p === "password" && (v.shareAKdfSalt = xe(S), v.shareAKdfParams = lt), p === "passkey" && (v.prfSalt = L), await e(v), d(), n({ step: "complete" });
+      } catch (w) {
+        d(), n({
           step: "error",
-          error: b instanceof Error ? b.message : "Recovery failed"
+          error: w instanceof Error ? w.message : "Recovery failed"
         });
       } finally {
         c(!1);
       }
     },
-    [e, r, s, l]
-  ), m = P(() => {
-    l(), n({ step: "idle" }), c(!1);
-  }, [l]);
+    [e, r, s, d]
+  ), m = T(() => {
+    d(), n({ step: "idle" }), c(!1);
+  }, [d]);
   return {
     state: o,
     startRecovery: h,
@@ -7524,38 +7524,38 @@ function Il() {
     isRecovering: a
   };
 }
-function Ml({
+function Dl({
   onComplete: e,
   onCancel: r,
   className: s = "",
   defaultAuthMethod: o = "password"
 }) {
-  const { state: n, startRecovery: a, cancel: c, isRecovering: d } = Il(), [l, h] = x([]), [m, u] = x(!1), [f, g] = x(o), [b, w] = x(""), [C, N] = x(""), [A, E] = x(null), S = P((k) => {
+  const { state: n, startRecovery: a, cancel: c, isRecovering: l } = Ul(), [d, h] = x([]), [m, u] = x(!1), [p, g] = x(o), [w, y] = x(""), [C, N] = x(""), [A, E] = x(null), S = T((k) => {
     h(k), u(!0);
-  }, []), L = P(
+  }, []), L = T(
     async (k) => {
-      if (k.preventDefault(), E(null), f !== "passkey") {
-        if (b !== C) {
+      if (k.preventDefault(), E(null), p !== "passkey") {
+        if (w !== C) {
           E("Passwords do not match");
           return;
         }
-        if (f === "password" && b.length < 8) {
+        if (p === "password" && w.length < 8) {
           E("Password must be at least 8 characters");
           return;
         }
       }
-      await a(l, f, b);
+      await a(d, p, w);
     },
-    [l, f, b, C, a]
-  ), p = P(() => {
-    c(), h([]), u(!1), w(""), N(""), r?.();
-  }, [c, r]), v = P(() => {
-    u(!1), w(""), N("");
-  }, []), y = P(() => {
+    [d, p, w, C, a]
+  ), f = T(() => {
+    c(), h([]), u(!1), y(""), N(""), r?.();
+  }, [c, r]), v = T(() => {
+    u(!1), y(""), N("");
+  }, []), b = T(() => {
     e?.();
   }, [e]);
   return n.step === "validating" || n.step === "encrypting" || n.step === "uploading" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-recovery ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-wallet-recovery-progress", children: [
-    /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-icon", children: /* @__PURE__ */ t(Ul, {}) }),
+    /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-icon", children: /* @__PURE__ */ t(Fl, {}) }),
     /* @__PURE__ */ i("h3", { className: "cedros-wallet-recovery-title", children: [
       n.step === "validating" && "Validating Recovery Phrase",
       n.step === "encrypting" && "Encrypting Wallet",
@@ -7567,12 +7567,12 @@ function Ml({
       n.step === "uploading" && "Uploading encrypted wallet data..."
     ] })
   ] }) }) : n.step === "complete" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-recovery ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-wallet-recovery-success", children: [
-    /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-icon", children: /* @__PURE__ */ t(Dl, {}) }),
+    /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-icon", children: /* @__PURE__ */ t(Ol, {}) }),
     /* @__PURE__ */ t("h3", { className: "cedros-wallet-recovery-title", children: "Wallet Recovered" }),
     /* @__PURE__ */ i("p", { className: "cedros-wallet-recovery-description", children: [
       "Your wallet has been successfully recovered and secured with your new",
       " ",
-      f === "passkey" ? "passkey" : "password",
+      p === "passkey" ? "passkey" : "password",
       "."
     ] }),
     /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-actions", children: /* @__PURE__ */ t(
@@ -7580,12 +7580,12 @@ function Ml({
       {
         type: "button",
         className: "cedros-button cedros-button-primary",
-        onClick: y,
+        onClick: b,
         children: "Done"
       }
     ) })
   ] }) }) : n.step === "error" ? /* @__PURE__ */ t("div", { className: `cedros-wallet-recovery ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-wallet-recovery-error", children: [
-    /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-icon", children: /* @__PURE__ */ t(Fl, {}) }),
+    /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-icon", children: /* @__PURE__ */ t(Wl, {}) }),
     /* @__PURE__ */ t("h3", { className: "cedros-wallet-recovery-title", children: "Recovery Failed" }),
     /* @__PURE__ */ t("p", { className: "cedros-wallet-recovery-description", children: n.error ?? "An error occurred during recovery. Please try again." }),
     /* @__PURE__ */ t("div", { className: "cedros-wallet-recovery-actions", children: /* @__PURE__ */ t(
@@ -7593,7 +7593,7 @@ function Ml({
       {
         type: "button",
         className: "cedros-button cedros-button-primary",
-        onClick: p,
+        onClick: f,
         children: "Start Over"
       }
     ) })
@@ -7610,9 +7610,9 @@ function Ml({
             type: "radio",
             name: "authMethod",
             value: "password",
-            checked: f === "password",
+            checked: p === "password",
             onChange: () => g("password"),
-            disabled: d
+            disabled: l
           }
         ),
         /* @__PURE__ */ t("span", { children: "Password" })
@@ -7624,15 +7624,15 @@ function Ml({
             type: "radio",
             name: "authMethod",
             value: "passkey",
-            checked: f === "passkey",
+            checked: p === "passkey",
             onChange: () => g("passkey"),
-            disabled: d
+            disabled: l
           }
         ),
         /* @__PURE__ */ t("span", { children: "Passkey" })
       ] })
     ] }),
-    f === "password" && /* @__PURE__ */ i(Y, { children: [
+    p === "password" && /* @__PURE__ */ i(K, { children: [
       /* @__PURE__ */ i("div", { className: "cedros-password-input", children: [
         /* @__PURE__ */ t("label", { htmlFor: "recovery-password", className: "cedros-label", children: "New Password" }),
         /* @__PURE__ */ t(
@@ -7641,9 +7641,9 @@ function Ml({
             id: "recovery-password",
             type: "password",
             className: "cedros-input",
-            value: b,
-            onChange: (k) => w(k.target.value),
-            disabled: d,
+            value: w,
+            onChange: (k) => y(k.target.value),
+            disabled: l,
             minLength: 8,
             placeholder: "Enter a strong password"
           }
@@ -7659,7 +7659,7 @@ function Ml({
             className: "cedros-input",
             value: C,
             onChange: (k) => N(k.target.value),
-            disabled: d,
+            disabled: l,
             "aria-invalid": A ? "true" : void 0,
             placeholder: "Confirm your password"
           }
@@ -7667,8 +7667,8 @@ function Ml({
         A && /* @__PURE__ */ t("p", { className: "cedros-input-error", role: "alert", children: A })
       ] })
     ] }),
-    f === "passkey" && /* @__PURE__ */ i("div", { className: "cedros-passkey-info", children: [
-      /* @__PURE__ */ t(Ol, {}),
+    p === "passkey" && /* @__PURE__ */ i("div", { className: "cedros-passkey-info", children: [
+      /* @__PURE__ */ t(ql, {}),
       /* @__PURE__ */ t("p", { children: "Use your passkey (Touch ID, Face ID, or Windows Hello) to secure your wallet." })
     ] }),
     /* @__PURE__ */ i("div", { className: "cedros-wallet-recovery-actions", children: [
@@ -7678,7 +7678,7 @@ function Ml({
           type: "button",
           className: "cedros-button cedros-button-secondary",
           onClick: v,
-          disabled: d,
+          disabled: l,
           children: "Back"
         }
       ),
@@ -7687,8 +7687,8 @@ function Ml({
         {
           type: "submit",
           className: "cedros-button cedros-button-primary",
-          disabled: d || f !== "passkey" && (b.length === 0 || C.length === 0),
-          children: d ? "Recovering..." : "Recover Wallet"
+          disabled: l || p !== "passkey" && (w.length === 0 || C.length === 0),
+          children: l ? "Recovering..." : "Recover Wallet"
         }
       )
     ] })
@@ -7698,16 +7698,16 @@ function Ml({
       /* @__PURE__ */ t("p", { className: "cedros-wallet-recovery-description", children: "Enter your 12-word recovery phrase to restore your wallet." })
     ] }),
     /* @__PURE__ */ t(
-      gl,
+      yl,
       {
         onSubmit: S,
-        onCancel: p,
+        onCancel: f,
         isSubmitting: !1
       }
     )
   ] }) });
 }
-function Ul() {
+function Fl() {
   return /* @__PURE__ */ i(
     "svg",
     {
@@ -7743,7 +7743,7 @@ function Ul() {
     }
   );
 }
-function Dl() {
+function Ol() {
   return /* @__PURE__ */ i("svg", { width: "48", height: "48", viewBox: "0 0 48 48", fill: "none", "aria-hidden": "true", children: [
     /* @__PURE__ */ t(
       "circle",
@@ -7769,7 +7769,7 @@ function Dl() {
     )
   ] });
 }
-function Fl() {
+function Wl() {
   return /* @__PURE__ */ i("svg", { width: "48", height: "48", viewBox: "0 0 48 48", fill: "none", "aria-hidden": "true", children: [
     /* @__PURE__ */ t(
       "circle",
@@ -7793,7 +7793,7 @@ function Fl() {
     )
   ] });
 }
-function Ol() {
+function ql() {
   return /* @__PURE__ */ i(
     "svg",
     {
@@ -7811,7 +7811,7 @@ function Ol() {
     }
   );
 }
-function Wl({
+function zl({
   address: e,
   label: r = "Wallet Address",
   showCopy: s = !0,
@@ -7819,16 +7819,16 @@ function Wl({
   allowReveal: n = !0,
   className: a = ""
 }) {
-  const c = je(), [d, l] = x(!1), [h, m] = x(null), [u, f] = x(!1), g = ee(null), b = c?.config.solana?.network ?? "mainnet-beta", w = q(() => {
+  const c = je(), [l, d] = x(!1), [h, m] = x(null), [u, p] = x(!1), g = J(null), w = c?.config.solana?.network ?? "mainnet-beta", y = q(() => {
     const E = `https://explorer.solana.com/address/${e}`;
-    return b === "mainnet-beta" ? E : `${E}?cluster=${encodeURIComponent(b)}`;
-  }, [e, b]), C = n && e.length > 18, N = q(() => !C || u ? e : `${e.slice(0, 8)}...${e.slice(-8)}`, [e, C, u]), A = P(async () => {
+    return w === "mainnet-beta" ? E : `${E}?cluster=${encodeURIComponent(w)}`;
+  }, [e, w]), C = n && e.length > 18, N = q(() => !C || u ? e : `${e.slice(0, 8)}...${e.slice(-8)}`, [e, C, u]), A = T(async () => {
     try {
-      m(null), await navigator.clipboard.writeText(e), l(!0), g.current !== null && window.clearTimeout(g.current), g.current = window.setTimeout(() => {
-        l(!1), g.current = null;
+      m(null), await navigator.clipboard.writeText(e), d(!0), g.current !== null && window.clearTimeout(g.current), g.current = window.setTimeout(() => {
+        d(!1), g.current = null;
       }, 2e3);
     } catch (E) {
-      l(!1), m(E instanceof Error ? E.message : "Copy failed");
+      d(!1), m(E instanceof Error ? E.message : "Copy failed");
     }
   }, [e]);
   return O(() => () => {
@@ -7842,7 +7842,7 @@ function Wl({
           {
             type: "button",
             className: "cedros-button cedros-button-sm cedros-button-ghost",
-            onClick: () => f((E) => !E),
+            onClick: () => p((E) => !E),
             "aria-label": u ? "Hide full wallet address" : "Show full wallet address",
             children: u ? /* @__PURE__ */ i("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
               /* @__PURE__ */ t(
@@ -7913,7 +7913,7 @@ function Wl({
           "a",
           {
             className: "cedros-button cedros-button-sm cedros-button-ghost",
-            href: w,
+            href: y,
             target: "_blank",
             rel: "noreferrer",
             children: "Explorer"
@@ -7926,7 +7926,7 @@ function Wl({
             className: "cedros-button cedros-button-sm cedros-button-outline",
             onClick: A,
             "aria-label": "Copy wallet address",
-            children: d ? "Copied" : "Copy"
+            children: l ? "Copied" : "Copy"
           }
         )
       ] })
@@ -7935,7 +7935,7 @@ function Wl({
     h && /* @__PURE__ */ t("p", { className: "cedros-input-hint", role: "status", children: h })
   ] });
 }
-function ql({
+function jl({
   status: e,
   publicKey: r,
   onLock: s,
@@ -7943,13 +7943,13 @@ function ql({
   onUnlock: n,
   onRecover: a,
   showActions: c = !0,
-  compact: d = !1,
-  className: l = ""
+  compact: l = !1,
+  className: d = ""
 }) {
-  const h = e !== void 0, m = Dt(), u = h ? e : m.status, f = h ? r ?? null : m.solanaPubkey, g = h ? null : m.error, b = h ? () => {
-  } : m.refresh, w = h ? () => {
-  } : m.clearError, C = zl(u, g);
-  return d ? /* @__PURE__ */ i("div", { className: `cedros-wallet-status cedros-wallet-status-compact ${l}`, children: [
+  const h = e !== void 0, m = Ft(), u = h ? e : m.status, p = h ? r ?? null : m.solanaPubkey, g = h ? null : m.error, w = h ? () => {
+  } : m.refresh, y = h ? () => {
+  } : m.clearError, C = $l(u, g);
+  return l ? /* @__PURE__ */ i("div", { className: `cedros-wallet-status cedros-wallet-status-compact ${d}`, children: [
     /* @__PURE__ */ t(
       "span",
       {
@@ -7958,14 +7958,14 @@ function ql({
       }
     ),
     /* @__PURE__ */ t("span", { className: "cedros-wallet-status-label", children: C.label }),
-    f && /* @__PURE__ */ t("span", { className: "cedros-wallet-status-pubkey", title: f, children: jl(f) })
-  ] }) : /* @__PURE__ */ i("div", { className: `cedros-wallet-status ${l}`, children: [
+    p && /* @__PURE__ */ t("span", { className: "cedros-wallet-status-pubkey", title: p, children: Vl(p) })
+  ] }) : /* @__PURE__ */ i("div", { className: `cedros-wallet-status ${d}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-wallet-status-header", children: [
       /* @__PURE__ */ t(
         "div",
         {
           className: `cedros-wallet-status-icon cedros-wallet-status-icon-${C.color}`,
-          children: /* @__PURE__ */ t($l, { status: u })
+          children: /* @__PURE__ */ t(Hl, { status: u })
         }
       ),
       /* @__PURE__ */ i("div", { className: "cedros-wallet-status-info", children: [
@@ -7973,7 +7973,7 @@ function ql({
         /* @__PURE__ */ t("p", { className: "cedros-wallet-status-description", children: C.description })
       ] })
     ] }),
-    f && /* @__PURE__ */ t("div", { className: "cedros-wallet-status-pubkey-full", children: /* @__PURE__ */ t(Wl, { address: f }) }),
+    p && /* @__PURE__ */ t("div", { className: "cedros-wallet-status-pubkey-full", children: /* @__PURE__ */ t(zl, { address: p }) }),
     g && /* @__PURE__ */ i("div", { className: "cedros-wallet-status-error-box", role: "alert", children: [
       /* @__PURE__ */ t("p", { children: g }),
       /* @__PURE__ */ t(
@@ -7981,7 +7981,7 @@ function ql({
         {
           type: "button",
           className: "cedros-button cedros-button-sm cedros-button-secondary",
-          onClick: w,
+          onClick: y,
           children: "Dismiss"
         }
       )
@@ -8019,14 +8019,14 @@ function ql({
         {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-sm",
-          onClick: b,
+          onClick: w,
           children: "Retry"
         }
       )
     ] })
   ] });
 }
-function zl(e, r) {
+function $l(e, r) {
   switch (e) {
     case "loading":
       return {
@@ -8067,10 +8067,10 @@ function zl(e, r) {
       };
   }
 }
-function jl(e) {
+function Vl(e) {
   return e.length <= 12 ? e : `${e.slice(0, 4)}...${e.slice(-4)}`;
 }
-function $l({ status: e }) {
+function Hl({ status: e }) {
   switch (e) {
     case "loading":
       return /* @__PURE__ */ i("svg", { viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", className: "cedros-spinner", children: [
@@ -8155,8 +8155,8 @@ function $l({ status: e }) {
       return null;
   }
 }
-function mm({ className: e = "", showActions: r = !0 }) {
-  const s = Dt(), [o, n] = x("status"), a = q(() => {
+function ym({ className: e = "", showActions: r = !0 }) {
+  const s = Ft(), [o, n] = x("status"), a = q(() => {
     switch (o) {
       case "enroll":
         return { title: "Create Wallet", description: "Set up your embedded wallet." };
@@ -8172,11 +8172,11 @@ function mm({ className: e = "", showActions: r = !0 }) {
       default:
         return null;
     }
-  }, [o]), c = P(() => n("status"), []), d = P(async () => {
+  }, [o]), c = T(() => n("status"), []), l = T(async () => {
     n("status"), await s.refresh();
-  }, [s]), l = P(async () => {
+  }, [s]), d = T(async () => {
     n("status"), await s.refresh();
-  }, [s]), h = P(async () => {
+  }, [s]), h = T(async () => {
     n("status"), await s.refresh();
   }, [s]);
   return /* @__PURE__ */ i("div", { className: `cedros-wallet-manager ${e}`, children: [
@@ -8196,7 +8196,7 @@ function mm({ className: e = "", showActions: r = !0 }) {
       )
     ] }),
     o === "status" && /* @__PURE__ */ t(
-      ql,
+      jl,
       {
         onEnroll: () => n("enroll"),
         onUnlock: () => n("unlock"),
@@ -8205,19 +8205,19 @@ function mm({ className: e = "", showActions: r = !0 }) {
       }
     ),
     o === "enroll" && /* @__PURE__ */ t(
-      kl,
+      El,
       {
         onComplete: () => {
-          d();
+          l();
         },
         onCancel: c
       }
     ),
     o === "unlock" && /* @__PURE__ */ t(
-      Pl,
+      Rl,
       {
         onUnlock: () => {
-          l();
+          d();
         },
         onCancel: c
       }
@@ -8251,7 +8251,7 @@ function mm({ className: e = "", showActions: r = !0 }) {
       ] })
     ] }) }),
     o === "recover" && /* @__PURE__ */ t(
-      Ml,
+      Dl,
       {
         onComplete: () => {
           h();
@@ -8261,35 +8261,35 @@ function mm({ className: e = "", showActions: r = !0 }) {
     )
   ] });
 }
-function pm({
+function bm({
   showDescriptions: e = !0,
   className: r = "",
   onSave: s
 }) {
-  const { settings: o, isLoading: n, isUpdating: a, error: c, fetchSettings: d, updateSettings: l } = qn(), [h, m] = x({}), [u, f] = x(null), [g, b] = x(!1);
+  const { settings: o, isLoading: n, isUpdating: a, error: c, fetchSettings: l, updateSettings: d } = jn(), [h, m] = x({}), [u, p] = x(null), [g, w] = x(!1);
   O(() => {
-    d();
-  }, [d]), O(() => {
+    l();
+  }, [l]), O(() => {
     if (g) {
-      const L = setTimeout(() => b(!1), 3e3);
+      const L = setTimeout(() => w(!1), 3e3);
       return () => clearTimeout(L);
     }
   }, [g]);
-  const w = P((L, p) => {
-    m((v) => ({ ...v, [L]: p })), f(null), b(!1);
-  }, []), C = P(async () => {
-    const L = Object.entries(h).map(([p, v]) => ({
-      key: p,
+  const y = T((L, f) => {
+    m((v) => ({ ...v, [L]: f })), p(null), w(!1);
+  }, []), C = T(async () => {
+    const L = Object.entries(h).map(([f, v]) => ({
+      key: f,
       value: v
     }));
     if (L.length !== 0)
       try {
-        await l(L), m({}), f(null), b(!0), s?.();
-      } catch (p) {
-        f(p instanceof Error ? p.message : "Failed to save settings");
+        await d(L), m({}), p(null), w(!0), s?.();
+      } catch (f) {
+        p(f instanceof Error ? f.message : "Failed to save settings");
       }
-  }, [h, l, s]), N = P(() => {
-    m({}), f(null), b(!1);
+  }, [h, d, s]), N = T(() => {
+    m({}), p(null), w(!1);
   }, []), A = Object.keys(h).length > 0, E = Object.keys(h).length;
   if (n && Object.keys(o).length === 0)
     return /* @__PURE__ */ i("div", { className: `cedros-system-settings cedros-system-settings-loading ${r}`, children: [
@@ -8297,19 +8297,19 @@ function pm({
       /* @__PURE__ */ t("span", { children: "Loading settings..." })
     ] });
   if (c)
-    return /* @__PURE__ */ t("div", { className: `cedros-system-settings ${r}`, children: /* @__PURE__ */ t(ne, { error: c.message }) });
+    return /* @__PURE__ */ t("div", { className: `cedros-system-settings ${r}`, children: /* @__PURE__ */ t(se, { error: c.message }) });
   const S = Object.keys(o).sort();
   return S.length === 0 ? /* @__PURE__ */ t("div", { className: `cedros-system-settings cedros-system-settings-empty ${r}`, children: /* @__PURE__ */ t("p", { children: "No system settings found." }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${r}`, children: [
-    u && /* @__PURE__ */ t(ne, { error: u }),
+    u && /* @__PURE__ */ t(se, { error: u }),
     g && /* @__PURE__ */ t("div", { className: "cedros-settings-success", children: "Settings saved successfully." }),
     S.map((L) => /* @__PURE__ */ t(
-      Vl,
+      Gl,
       {
         category: L,
         settings: o[L],
         edits: h,
         showDescription: e,
-        onChange: w
+        onChange: y
       },
       L
     )),
@@ -8342,20 +8342,20 @@ function pm({
     ] })
   ] });
 }
-const Ds = Object.keys(La);
-function Vl({
+const Os = Object.keys(Pa);
+function Gl({
   category: e,
   settings: r,
   edits: s,
   showDescription: o,
   onChange: n
 }) {
-  const a = _a[e] || {
+  const a = Ta[e] || {
     label: e,
     description: "",
     icon: ""
-  }, c = q(() => [...r].sort((d, l) => {
-    const h = Ds.indexOf(d.key), m = Ds.indexOf(l.key);
+  }, c = q(() => [...r].sort((l, d) => {
+    const h = Os.indexOf(l.key), m = Os.indexOf(d.key);
     return (h === -1 ? 1 / 0 : h) - (m === -1 ? 1 / 0 : m);
   }), [r]);
   return /* @__PURE__ */ i("section", { className: "cedros-settings-section", children: [
@@ -8366,7 +8366,7 @@ function Vl({
         o && a.description && /* @__PURE__ */ t("p", { className: "cedros-settings-section-description", children: a.description })
       ] })
     ] }),
-    /* @__PURE__ */ t(Vr, { settings: c, edits: s, onChange: n })
+    /* @__PURE__ */ t(Gr, { settings: c, edits: s, onChange: n })
   ] });
 }
 const oe = {
@@ -8623,7 +8623,7 @@ const oe = {
       ]
     }
   )
-}, Hl = [
+}, Ql = [
   // Top-level menu items
   { id: "users", label: "Users", icon: oe.users },
   { id: "team", label: "Team", icon: oe.members },
@@ -8652,13 +8652,13 @@ const oe = {
   { id: "settings-server", label: "Auth Server", icon: oe.server, group: "Configuration" },
   { id: "settings-images", label: "Image Storage", icon: oe.image, group: "Configuration" }
 ];
-function Gl(e, r) {
+function Kl(e, r) {
   return r.toUpperCase() === "SOL" ? `${(e / 1e9).toFixed(4)} SOL` : `${e} ${r}`;
 }
-function Fs(e) {
+function Ws(e) {
   return e.length <= 16 ? e : `${e.slice(0, 8)}...${e.slice(-6)}`;
 }
-function Ql(e) {
+function Yl(e) {
   return new Date(e).toLocaleDateString(void 0, {
     month: "short",
     day: "numeric",
@@ -8667,27 +8667,27 @@ function Ql(e) {
     minute: "2-digit"
   });
 }
-const Kl = ["all", "pending", "completed", "failed", "cancelled"];
-function Yl() {
-  const { config: e, _internal: r } = Z(), s = q(
-    () => new re({
+const Zl = ["all", "pending", "completed", "failed", "cancelled"];
+function Xl() {
+  const { config: e, _internal: r } = dt(), s = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, r]
-  ), [o, n] = x("all"), [a, c] = x(0), d = 20, [l, h] = x(null), [m, u] = x(!1), [f, g] = x(null), [b, w] = x(null), [C, N] = x(null), A = P(async () => {
+  ), [o, n] = x("all"), [a, c] = x(0), l = 20, [d, h] = x(null), [m, u] = x(!1), [p, g] = x(null), [w, y] = x(null), [C, N] = x(null), A = T(async () => {
     u(!0), g(null);
     try {
-      const p = new URLSearchParams();
-      o !== "all" && p.set("status", o), p.set("limit", String(d)), p.set("offset", String(a * d));
+      const f = new URLSearchParams();
+      o !== "all" && f.set("status", o), f.set("limit", String(l)), f.set("offset", String(a * l));
       const v = await s.get(
-        `/admin/referral-payouts/list?${p.toString()}`
+        `/admin/referral-payouts/list?${f.toString()}`
       );
       h(v);
-    } catch (p) {
-      const v = z(p, "Failed to load payouts");
+    } catch (f) {
+      const v = z(f, "Failed to load payouts");
       g(v.message);
     } finally {
       u(!1);
@@ -8696,38 +8696,38 @@ function Yl() {
   O(() => {
     A();
   }, [A]);
-  const E = P(
-    async (p) => {
-      N(p), w(null);
+  const E = T(
+    async (f) => {
+      N(f), y(null);
       try {
         const v = await s.post(
-          `/admin/referral-payouts/${p}/process`,
+          `/admin/referral-payouts/${f}/process`,
           {}
         );
-        w(`Processed: ${v.txSignature}`), A();
+        y(`Processed: ${v.txSignature}`), A();
       } catch (v) {
-        const y = z(v, "Failed to process payout");
-        w(y.message);
+        const b = z(v, "Failed to process payout");
+        y(b.message);
       } finally {
         N(null);
       }
     },
     [s, A]
-  ), S = P(
-    async (p) => {
-      N(p), w(null);
+  ), S = T(
+    async (f) => {
+      N(f), y(null);
       try {
-        await s.post(`/admin/referral-payouts/${p}/cancel`, {}), w("Payout cancelled."), A();
+        await s.post(`/admin/referral-payouts/${f}/cancel`, {}), y("Payout cancelled."), A();
       } catch (v) {
-        const y = z(v, "Failed to cancel payout");
-        w(y.message);
+        const b = z(v, "Failed to cancel payout");
+        y(b.message);
       } finally {
         N(null);
       }
     },
     [s, A]
-  ), L = l ? Math.ceil(l.total / d) : 0;
-  return /* @__PURE__ */ i(Y, { children: [
+  ), L = d ? Math.ceil(d.total / l) : 0;
+  return /* @__PURE__ */ i(K, { children: [
     /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts__filter-bar", children: [
       /* @__PURE__ */ i("label", { className: "cedros-admin-referral-payouts__filter-label", children: [
         "Status:",
@@ -8735,26 +8735,26 @@ function Yl() {
           "select",
           {
             value: o,
-            onChange: (p) => {
-              n(p.target.value), c(0);
+            onChange: (f) => {
+              n(f.target.value), c(0);
             },
             className: "cedros-admin-referral-payouts__filter-select",
-            children: Kl.map((p) => /* @__PURE__ */ t("option", { value: p, children: p.charAt(0).toUpperCase() + p.slice(1) }, p))
+            children: Zl.map((f) => /* @__PURE__ */ t("option", { value: f, children: f.charAt(0).toUpperCase() + f.slice(1) }, f))
           }
         )
       ] }),
-      l && /* @__PURE__ */ i("span", { className: "cedros-admin-referral-payouts__filter-count", children: [
-        l.total,
+      d && /* @__PURE__ */ i("span", { className: "cedros-admin-referral-payouts__filter-count", children: [
+        d.total,
         " total"
       ] })
     ] }),
-    b && /* @__PURE__ */ t("div", { className: "cedros-admin-referral-payouts__result cedros-admin-referral-payouts__result--info", children: b }),
-    m && !l && /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts--loading", children: [
+    w && /* @__PURE__ */ t("div", { className: "cedros-admin-referral-payouts__result cedros-admin-referral-payouts__result--info", children: w }),
+    m && !d && /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts--loading", children: [
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-indicator" }),
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-text", children: "Loading payouts..." })
     ] }),
-    f && /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts--error", children: [
-      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: f }),
+    p && /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts--error", children: [
+      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: p }),
       /* @__PURE__ */ t(
         "button",
         {
@@ -8765,8 +8765,8 @@ function Yl() {
         }
       )
     ] }),
-    l && l.payouts.length === 0 && /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No payouts found." }),
-    l && l.payouts.length > 0 && /* @__PURE__ */ i("div", { className: "cedros-admin-list-table", role: "table", "aria-label": "All referral payouts", children: [
+    d && d.payouts.length === 0 && /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No payouts found." }),
+    d && d.payouts.length > 0 && /* @__PURE__ */ i("div", { className: "cedros-admin-list-table", role: "table", "aria-label": "All referral payouts", children: [
       /* @__PURE__ */ i("div", { className: "cedros-admin-list-thead", role: "row", children: [
         /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: "Date" }),
         /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: "Referrer" }),
@@ -8776,40 +8776,40 @@ function Yl() {
         /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: "TX / Error" }),
         /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: "Actions" })
       ] }),
-      l.payouts.map((p) => /* @__PURE__ */ i("div", { className: "cedros-admin-list-row", role: "row", children: [
-        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Ql(p.createdAt) }),
-        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: p.referrerEmail || p.referrerName || Fs(p.referrerId) }),
-        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: p.triggerType }),
-        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Gl(p.amount, p.currency) }),
-        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t("span", { className: `cedros-admin-referral-payouts__status cedros-admin-referral-payouts__status--${p.status}`, children: p.status }) }),
+      d.payouts.map((f) => /* @__PURE__ */ i("div", { className: "cedros-admin-list-row", role: "row", children: [
+        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Yl(f.createdAt) }),
+        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: f.referrerEmail || f.referrerName || Ws(f.referrerId) }),
+        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: f.triggerType }),
+        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Kl(f.amount, f.currency) }),
+        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t("span", { className: `cedros-admin-referral-payouts__status cedros-admin-referral-payouts__status--${f.status}`, children: f.status }) }),
         /* @__PURE__ */ i("div", { className: "cedros-admin-list-td cedros-admin-list-td-mono", role: "cell", children: [
-          p.txSignature && Fs(p.txSignature),
-          p.errorMessage && /* @__PURE__ */ t("span", { className: "cedros-admin-list-td-muted", title: p.errorMessage, children: p.errorMessage.slice(0, 40) })
+          f.txSignature && Ws(f.txSignature),
+          f.errorMessage && /* @__PURE__ */ t("span", { className: "cedros-admin-list-td-muted", title: f.errorMessage, children: f.errorMessage.slice(0, 40) })
         ] }),
         /* @__PURE__ */ i("div", { className: "cedros-admin-list-td", role: "cell", children: [
-          (p.status === "pending" || p.status === "failed") && /* @__PURE__ */ t(
+          (f.status === "pending" || f.status === "failed") && /* @__PURE__ */ t(
             "button",
             {
               type: "button",
               className: "cedros-button cedros-button-primary cedros-button-xs",
-              onClick: () => E(p.id),
+              onClick: () => E(f.id),
               disabled: C !== null,
-              children: C === p.id ? "..." : "Process"
+              children: C === f.id ? "..." : "Process"
             }
           ),
-          p.status === "pending" && /* @__PURE__ */ t(
+          f.status === "pending" && /* @__PURE__ */ t(
             "button",
             {
               type: "button",
               className: "cedros-button cedros-button-outline cedros-button-xs",
-              onClick: () => S(p.id),
+              onClick: () => S(f.id),
               disabled: C !== null,
               style: { marginLeft: 4 },
               children: "Cancel"
             }
           )
         ] })
-      ] }, p.id))
+      ] }, f.id))
     ] }),
     L > 1 && /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts__pagination", children: [
       /* @__PURE__ */ t(
@@ -8818,7 +8818,7 @@ function Yl() {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-xs",
           disabled: a === 0,
-          onClick: () => c((p) => p - 1),
+          onClick: () => c((f) => f - 1),
           children: "Previous"
         }
       ),
@@ -8834,20 +8834,20 @@ function Yl() {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-xs",
           disabled: a >= L - 1,
-          onClick: () => c((p) => p + 1),
+          onClick: () => c((f) => f + 1),
           children: "Next"
         }
       )
     ] })
   ] });
 }
-function sr(e, r) {
+function nr(e, r) {
   return r.toUpperCase() === "SOL" ? `${(e / 1e9).toFixed(4)} SOL` : `${e} ${r}`;
 }
-function Os(e) {
+function qs(e) {
   return e.length <= 16 ? e : `${e.slice(0, 8)}...${e.slice(-6)}`;
 }
-function Zl({ className: e = "" }) {
+function Jl({ className: e = "" }) {
   const [r, s] = x("summary");
   return /* @__PURE__ */ i("div", { className: `cedros-admin-referral-payouts ${e}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts__tabs", children: [
@@ -8870,54 +8870,54 @@ function Zl({ className: e = "" }) {
         }
       )
     ] }),
-    r === "summary" ? /* @__PURE__ */ t(Xl, {}) : /* @__PURE__ */ t(Yl, {})
+    r === "summary" ? /* @__PURE__ */ t(ed, {}) : /* @__PURE__ */ t(Xl, {})
   ] });
 }
-function Xl() {
-  const { config: e, _internal: r } = Z(), s = q(
-    () => new re({
+function ed() {
+  const { config: e, _internal: r } = dt(), s = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, r]
-  ), [o, n] = x(null), [a, c] = x(!1), [d, l] = x(null), [h, m] = x(!1), [u, f] = x(null), [g, b] = x(null), [w, C] = x(!1), [N, A] = x(null), [E, S] = x(null), [L, p] = x(null), v = P(async () => {
-    c(!0), l(null);
+  ), [o, n] = x(null), [a, c] = x(!1), [l, d] = x(null), [h, m] = x(!1), [u, p] = x(null), [g, w] = x(null), [y, C] = x(!1), [N, A] = x(null), [E, S] = x(null), [L, f] = x(null), v = T(async () => {
+    c(!0), d(null);
     try {
       const U = await s.get("/admin/referral-payouts");
       n(U);
     } catch (U) {
       const W = z(U, "Failed to load referral payouts");
-      l(W.message);
+      d(W.message);
     } finally {
       c(!1);
     }
-  }, [s]), y = P(async () => {
+  }, [s]), b = T(async () => {
     try {
       const W = (await s.get("/admin/settings"))?.payout_auto_enabled?.value;
-      p(W === "true");
+      f(W === "true");
     } catch {
     }
   }, [s]);
   O(() => {
-    v(), y();
-  }, [v, y]);
-  const k = P(async () => {
-    m(!0), f(null), b(null);
+    v(), b();
+  }, [v, b]);
+  const k = T(async () => {
+    m(!0), p(null), w(null);
     try {
       const U = await s.post(
         "/admin/referral-payouts/process",
         {}
       );
-      f(U), v();
+      p(U), v();
     } catch (U) {
       const W = z(U, "Failed to process payouts");
-      b(W.message);
+      w(W.message);
     } finally {
       m(!1);
     }
-  }, [s, v]), T = P(async () => {
+  }, [s, v]), P = T(async () => {
     C(!0), A(null), S(null);
     try {
       const U = await s.post(
@@ -8931,15 +8931,15 @@ function Xl() {
     } finally {
       C(!1);
     }
-  }, [s, v]), _ = h || w;
+  }, [s, v]), _ = h || y;
   if (a && !o)
     return /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts cedros-admin-referral-payouts--loading", children: [
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-indicator" }),
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-text", children: "Loading referral payouts..." })
     ] });
-  if (d)
+  if (l)
     return /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts cedros-admin-referral-payouts--error", children: [
-      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: d }),
+      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: l }),
       /* @__PURE__ */ t(
         "button",
         {
@@ -8951,7 +8951,7 @@ function Xl() {
       )
     ] });
   const B = o?.referrers ?? [], R = o?.total ?? 0, I = B[0]?.currency ?? "SOL", M = B.reduce((U, W) => U + W.totalPendingAmount, 0);
-  return /* @__PURE__ */ i(Y, { children: [
+  return /* @__PURE__ */ i(K, { children: [
     /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts__header", children: [
       /* @__PURE__ */ i("div", { className: "cedros-admin-referral-payouts__summary", children: [
         /* @__PURE__ */ i("div", { className: "cedros-admin-stat-card", children: [
@@ -8960,7 +8960,7 @@ function Xl() {
         ] }),
         R > 0 && /* @__PURE__ */ i("div", { className: "cedros-admin-stat-card", children: [
           /* @__PURE__ */ t("span", { className: "cedros-admin-stat-label", children: "Total Pending Amount" }),
-          /* @__PURE__ */ t("span", { className: "cedros-admin-stat-value", children: sr(M, I) })
+          /* @__PURE__ */ t("span", { className: "cedros-admin-stat-value", children: nr(M, I) })
         ] }),
         L !== null && /* @__PURE__ */ i("div", { className: "cedros-admin-stat-card", children: [
           /* @__PURE__ */ t("span", { className: "cedros-admin-stat-label", children: "Auto-Processing" }),
@@ -8984,10 +8984,10 @@ function Xl() {
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
-            onClick: T,
+            onClick: P,
             disabled: _,
-            "aria-busy": w,
-            children: w ? "Retrying..." : "Retry Failed"
+            "aria-busy": y,
+            children: y ? "Retrying..." : "Retry Failed"
           }
         )
       ] })
@@ -8997,7 +8997,7 @@ function Xl() {
       u.processed,
       " payout(s) totalling",
       " ",
-      sr(u.totalAmount, I),
+      nr(u.totalAmount, I),
       ".",
       u.failed > 0 && ` ${u.failed} failed.`,
       u.skippedNoWallet > 0 && ` ${u.skippedNoWallet} skipped (no wallet).`
@@ -9024,7 +9024,7 @@ function Xl() {
             className: "cedros-admin-user-uuid-link",
             onClick: () => navigator.clipboard?.writeText(U.referrerId),
             title: `Click to copy: ${U.referrerId}`,
-            children: Os(U.referrerId)
+            children: qs(U.referrerId)
           }
         ) }),
         /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: U.payoutWalletAddress ? /* @__PURE__ */ t(
@@ -9034,68 +9034,68 @@ function Xl() {
             className: "cedros-admin-user-uuid-link cedros-admin-list-td-mono",
             onClick: () => navigator.clipboard?.writeText(U.payoutWalletAddress),
             title: `Click to copy: ${U.payoutWalletAddress}`,
-            children: Os(U.payoutWalletAddress)
+            children: qs(U.payoutWalletAddress)
           }
         ) : /* @__PURE__ */ t("span", { className: "cedros-admin-list-td-muted", children: "No wallet" }) }),
         /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: U.pendingCount }),
-        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: sr(U.totalPendingAmount, U.currency) })
+        /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: nr(U.totalPendingAmount, U.currency) })
       ] }, U.referrerId))
     ] })
   ] });
 }
-function Jl({ pageSize: e, currentUserId: r }) {
-  const [s, o] = x(null), { statsItems: n, isLoading: a, error: c, refresh: d } = Ua();
+function td({ pageSize: e, currentUserId: r }) {
+  const [s, o] = x(null), { statsItems: n, isLoading: a, error: c, refresh: l } = Fa();
   return s ? /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(
-    Da,
+    Oa,
     {
       userId: s.id,
       currentUserId: r,
       onBack: () => o(null)
     }
   ) }) : /* @__PURE__ */ i("div", { className: "cedros-dashboard__section", children: [
-    /* @__PURE__ */ t($n, { stats: n, isLoading: a, onRefresh: d }),
+    /* @__PURE__ */ t(Hn, { stats: n, isLoading: a, onRefresh: l }),
     c && /* @__PURE__ */ t("p", { className: "cedros-admin-error-inline", children: c }),
     /* @__PURE__ */ t(
-      Fa,
+      Wa,
       {
         pageSize: e,
         currentUserId: r,
-        onUserClick: (l) => o(l)
+        onUserClick: (d) => o(d)
       }
     )
   ] });
 }
-function ed({ orgId: e, currentUserId: r, hasPermission: s, role: o }) {
+function rd({ orgId: e, currentUserId: r, hasPermission: s, role: o }) {
   const [n, a] = x("members"), {
     members: c,
-    isLoading: d,
-    error: l,
+    isLoading: l,
+    error: d,
     fetchMembers: h,
     updateMemberRole: m,
     removeMember: u
-  } = Aa(e), {
-    invites: f,
+  } = ka(e), {
+    invites: p,
     isLoading: g,
-    error: b,
-    fetchInvites: w,
+    error: w,
+    fetchInvites: y,
     createInvite: C,
     cancelInvite: N,
     resendInvite: A
-  } = Na(e);
+  } = Ca(e);
   O(() => {
-    h(), w();
-  }, [h, w]);
-  const E = s("invite:create"), S = s("invite:cancel"), L = f.length, p = c.reduce(
-    (T, _) => (T[_.role] = (T[_.role] ?? 0) + 1, T),
+    h(), y();
+  }, [h, y]);
+  const E = s("invite:create"), S = s("invite:cancel"), L = p.length, f = c.reduce(
+    (P, _) => (P[_.role] = (P[_.role] ?? 0) + 1, P),
     {}
-  ), v = p.owner ?? 0, y = p.admin ?? 0, k = p.member ?? 0;
+  ), v = f.owner ?? 0, b = f.admin ?? 0, k = f.member ?? 0;
   return /* @__PURE__ */ i("div", { className: "cedros-dashboard__team", children: [
     /* @__PURE__ */ t(
-      $n,
+      Hn,
       {
         stats: [
           { label: "Owners", value: v },
-          { label: "Admins", value: y },
+          { label: "Admins", value: b },
           { label: "Members", value: k },
           { label: "Pending Invites", value: L }
         ]
@@ -9141,12 +9141,12 @@ function ed({ orgId: e, currentUserId: r, hasPermission: s, role: o }) {
     ] }),
     /* @__PURE__ */ i("div", { className: "cedros-admin-tab-content", role: "tabpanel", children: [
       n === "members" && /* @__PURE__ */ t(
-        ka,
+        Ea,
         {
           members: c,
           currentUserId: r,
-          isLoading: d,
-          error: l?.message,
+          isLoading: l,
+          error: d?.message,
           canManage: s("member:remove"),
           canChangeRoles: s("member:role_change"),
           onUpdateRole: m,
@@ -9157,34 +9157,34 @@ function ed({ orgId: e, currentUserId: r, hasPermission: s, role: o }) {
         E && /* @__PURE__ */ i("div", { className: "cedros-dashboard__section", children: [
           /* @__PURE__ */ t("div", { className: "cedros-dashboard__section-header", children: /* @__PURE__ */ t("h3", { className: "cedros-dashboard__section-title", children: "Send Invitation" }) }),
           /* @__PURE__ */ t(
-            Ca,
+            xa,
             {
               onSubmit: C,
               isLoading: g,
-              error: b?.message
+              error: w?.message
             }
           )
         ] }),
         /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(
-          Ea,
+          Sa,
           {
-            invites: f,
+            invites: p,
             isLoading: g,
-            error: b?.message,
+            error: w?.message,
             canManage: S || E,
             onCancel: S ? N : void 0,
             onResend: E ? A : void 0
           }
         ) })
       ] }),
-      n === "permissions" && o === "owner" && /* @__PURE__ */ t(xa, { userRole: o })
+      n === "permissions" && o === "owner" && /* @__PURE__ */ t(_a, { userRole: o })
     ] })
   ] });
 }
-function td({ pageSize: e, refreshInterval: r }) {
+function sd({ pageSize: e, refreshInterval: r }) {
   const [s, o] = x("");
   return /* @__PURE__ */ i("div", { className: "cedros-dashboard__deposits", children: [
-    /* @__PURE__ */ t(Pa, { refreshInterval: r }),
+    /* @__PURE__ */ t(Ra, { refreshInterval: r }),
     /* @__PURE__ */ i("div", { className: "cedros-dashboard__deposits-list", children: [
       /* @__PURE__ */ t("div", { className: "cedros-dashboard__toolbar", children: /* @__PURE__ */ i("div", { className: "cedros-dashboard__filter", children: [
         /* @__PURE__ */ t("label", { className: "cedros-dashboard__filter-label", htmlFor: "status-filter", children: "Status" }),
@@ -9209,7 +9209,7 @@ function td({ pageSize: e, refreshInterval: r }) {
         )
       ] }) }),
       /* @__PURE__ */ t(
-        Ta,
+        Ba,
         {
           statusFilter: s || void 0,
           pageSize: e,
@@ -9219,37 +9219,37 @@ function td({ pageSize: e, refreshInterval: r }) {
     ] })
   ] });
 }
-function rd({ pageSize: e, refreshInterval: r }) {
+function nd({ pageSize: e, refreshInterval: r }) {
   return /* @__PURE__ */ i("div", { className: "cedros-dashboard__withdrawals", children: [
-    /* @__PURE__ */ t(Ra, { refreshInterval: r }),
+    /* @__PURE__ */ t(Ia, { refreshInterval: r }),
     /* @__PURE__ */ t("p", { className: "cedros-dashboard__text-muted", children: "Track deposits through the withdrawal pipeline: privacy period, ready for processing, and completed." }),
     /* @__PURE__ */ i("div", { className: "cedros-dashboard__pipeline", children: [
-      /* @__PURE__ */ t(Ba, { pageSize: e, refreshInterval: r }),
-      /* @__PURE__ */ t(Ia, { pageSize: e, refreshInterval: r }),
-      /* @__PURE__ */ t(Ma, { pageSize: e, refreshInterval: r })
+      /* @__PURE__ */ t(Ma, { pageSize: e, refreshInterval: r }),
+      /* @__PURE__ */ t(Ua, { pageSize: e, refreshInterval: r }),
+      /* @__PURE__ */ t(Da, { pageSize: e, refreshInterval: r })
     ] })
   ] });
 }
-function sd() {
-  return /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Zl, {}) });
+function od() {
+  return /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Jl, {}) });
 }
-const nd = ["security", "rate_limit"];
-function fm({ className: e }) {
+const ad = ["security", "rate_limit"];
+function vm({ className: e }) {
   return /* @__PURE__ */ t(
-    Ot,
+    Wt,
     {
       title: "Security",
       description: "Configure CORS, cookies, sessions, JWT, and rate limiting settings.",
-      categories: nd,
+      categories: ad,
       className: e
     }
   );
 }
-const Ws = [
+const zs = [
   { id: "email", label: "Email", category: "email" },
   { id: "webhooks", label: "Webhooks", category: "webhook" }
 ];
-function od({ className: e }) {
+function id({ className: e }) {
   const {
     settings: r,
     edits: s,
@@ -9257,37 +9257,37 @@ function od({ className: e }) {
     autosaveStatus: n,
     autosaveError: a,
     error: c,
-    fetchSettings: d,
-    handleChange: l,
+    fetchSettings: l,
+    handleChange: d,
     getEffectiveValue: h
-  } = zn(), [m, u] = x("email");
+  } = $n(), [m, u] = x("email");
   O(() => {
-    d();
-  }, [d]);
-  const f = Ws.find((S) => S.id === m), g = f?.category ?? "", w = (h("email_provider") || "custom") === "custom", C = h("email_smtp_host"), N = !w || C != null && C !== "", A = q(() => {
+    l();
+  }, [l]);
+  const p = zs.find((S) => S.id === m), g = p?.category ?? "", y = (h("email_provider") || "custom") === "custom", C = h("email_smtp_host"), N = !y || C != null && C !== "", A = q(() => {
     const S = r[g] ?? [];
     if (m !== "email") return S;
-    const L = w ? ja : $a;
-    return S.filter((p) => L.includes(p.key)).sort((p, v) => L.indexOf(p.key) - L.indexOf(v.key));
-  }, [r, g, m, w]), E = (S, L) => {
-    if (l(S, L), S === "email_provider" && L !== "custom") {
-      const p = Va[L];
-      p && (l("email_smtp_host", p), l("email_smtp_port", "587"), l("email_smtp_tls", "true"));
+    const L = y ? Va : Ha;
+    return S.filter((f) => L.includes(f.key)).sort((f, v) => L.indexOf(f.key) - L.indexOf(v.key));
+  }, [r, g, m, y]), E = (S, L) => {
+    if (d(S, L), S === "email_provider" && L !== "custom") {
+      const f = Ga[L];
+      f && (d("email_smtp_host", f), d("email_smtp_port", "587"), d("email_smtp_tls", "true"));
     }
   };
   return o && Object.keys(r).length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-system-settings cedros-system-settings-loading ${e ?? ""}`, children: [
     /* @__PURE__ */ t(H, {}),
     /* @__PURE__ */ t("span", { children: "Loading settings..." })
-  ] }) : c ? /* @__PURE__ */ t("div", { className: `cedros-system-settings ${e ?? ""}`, children: /* @__PURE__ */ t(ne, { error: c.message }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${e ?? ""}`, children: [
+  ] }) : c ? /* @__PURE__ */ t("div", { className: `cedros-system-settings ${e ?? ""}`, children: /* @__PURE__ */ t(se, { error: c.message }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${e ?? ""}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-settings-page-header", children: [
       /* @__PURE__ */ i("div", { className: "cedros-settings-page-header-content", children: [
         /* @__PURE__ */ t("h2", { className: "cedros-settings-page-title", children: "Auth Messages" }),
         /* @__PURE__ */ t("p", { className: "cedros-settings-page-description", children: "Configure email delivery for verification emails, password resets, and instant link login. Webhook notifications can be sent to Discord or Slack." })
       ] }),
-      /* @__PURE__ */ t(jn, { status: n, error: a })
+      /* @__PURE__ */ t(Vn, { status: n, error: a })
     ] }),
     m === "email" && !N && /* @__PURE__ */ t("div", { className: "cedros-settings-warning-banner", children: "Email features (verification, password reset, instant link) are disabled until SMTP is configured. Select a provider or enter custom SMTP settings below." }),
-    /* @__PURE__ */ t("div", { className: "cedros-admin-tabs cedros-admin-tabs--line", children: Ws.map((S) => /* @__PURE__ */ t(
+    /* @__PURE__ */ t("div", { className: "cedros-admin-tabs cedros-admin-tabs--line", children: zs.map((S) => /* @__PURE__ */ t(
       "button",
       {
         type: "button",
@@ -9301,19 +9301,19 @@ function od({ className: e }) {
     )) }),
     /* @__PURE__ */ t("div", { className: "cedros-admin-tab-content", role: "tabpanel", children: A.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-system-settings-empty", children: /* @__PURE__ */ i("p", { children: [
       "No settings found for ",
-      f?.label ?? "this section",
+      p?.label ?? "this section",
       "."
     ] }) }) : /* @__PURE__ */ t(
-      Vr,
+      Gr,
       {
         settings: A,
         edits: s,
-        onChange: m === "email" ? E : l
+        onChange: m === "email" ? E : d
       }
     ) })
   ] });
 }
-const nr = [
+const or = [
   "image_storage_enabled",
   "image_storage_provider",
   "image_storage_bucket",
@@ -9322,7 +9322,7 @@ const nr = [
   "image_storage_access_key",
   "image_storage_secret_key",
   "image_storage_cdn_url"
-], qs = {
+], js = {
   nyc3: "https://nyc3.digitaloceanspaces.com",
   ams3: "https://ams3.digitaloceanspaces.com",
   sgp1: "https://sgp1.digitaloceanspaces.com",
@@ -9330,7 +9330,7 @@ const nr = [
   fra1: "https://fra1.digitaloceanspaces.com",
   syd1: "https://syd1.digitaloceanspaces.com"
 };
-function ad({ className: e }) {
+function cd({ className: e }) {
   const {
     settings: r,
     edits: s,
@@ -9338,34 +9338,34 @@ function ad({ className: e }) {
     autosaveStatus: n,
     autosaveError: a,
     error: c,
-    fetchSettings: d,
-    handleChange: l,
+    fetchSettings: l,
+    handleChange: d,
     getEffectiveValue: h
-  } = zn();
+  } = $n();
   O(() => {
-    d();
-  }, [d]);
-  const m = q(() => (r.image_storage ?? []).filter((g) => nr.includes(g.key)).sort((g, b) => nr.indexOf(g.key) - nr.indexOf(b.key)), [r]), u = (f, g) => {
-    if (l(f, g), f === "image_storage_provider")
+    l();
+  }, [l]);
+  const m = q(() => (r.image_storage ?? []).filter((g) => or.includes(g.key)).sort((g, w) => or.indexOf(g.key) - or.indexOf(w.key)), [r]), u = (p, g) => {
+    if (d(p, g), p === "image_storage_provider")
       if (g === "digitalocean") {
-        const b = h("image_storage_region") || "nyc3";
-        l("image_storage_region", b), l("image_storage_endpoint", qs[b] ?? `https://${b}.digitaloceanspaces.com`);
-      } else g === "s3" && l("image_storage_endpoint", "");
-    f === "image_storage_region" && h("image_storage_provider") === "digitalocean" && l("image_storage_endpoint", qs[g] ?? `https://${g}.digitaloceanspaces.com`);
+        const w = h("image_storage_region") || "nyc3";
+        d("image_storage_region", w), d("image_storage_endpoint", js[w] ?? `https://${w}.digitaloceanspaces.com`);
+      } else g === "s3" && d("image_storage_endpoint", "");
+    p === "image_storage_region" && h("image_storage_provider") === "digitalocean" && d("image_storage_endpoint", js[g] ?? `https://${g}.digitaloceanspaces.com`);
   };
   return o && Object.keys(r).length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-system-settings cedros-system-settings-loading ${e ?? ""}`, children: [
     /* @__PURE__ */ t(H, {}),
     /* @__PURE__ */ t("span", { children: "Loading settings..." })
-  ] }) : c ? /* @__PURE__ */ t("div", { className: `cedros-system-settings ${e ?? ""}`, children: /* @__PURE__ */ t(ne, { error: c.message }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${e ?? ""}`, children: [
+  ] }) : c ? /* @__PURE__ */ t("div", { className: `cedros-system-settings ${e ?? ""}`, children: /* @__PURE__ */ t(se, { error: c.message }) }) : /* @__PURE__ */ i("div", { className: `cedros-system-settings ${e ?? ""}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-settings-page-header", children: [
       /* @__PURE__ */ i("div", { className: "cedros-settings-page-header-content", children: [
         /* @__PURE__ */ t("h2", { className: "cedros-settings-page-title", children: "Image Storage" }),
         /* @__PURE__ */ t("p", { className: "cedros-settings-page-description", children: "Configure S3-compatible object storage for user avatars and images. Supports AWS S3, DigitalOcean Spaces, and other S3-compatible providers." })
       ] }),
-      /* @__PURE__ */ t(jn, { status: n, error: a })
+      /* @__PURE__ */ t(Vn, { status: n, error: a })
     ] }),
     m.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-system-settings-empty", children: /* @__PURE__ */ t("p", { children: "No image storage settings found." }) }) : /* @__PURE__ */ t(
-      Vr,
+      Gr,
       {
         settings: m,
         edits: s,
@@ -9374,44 +9374,44 @@ function ad({ className: e }) {
     )
   ] });
 }
-const id = ["kyc", "accreditation", "sanctions", "token_gating"];
-function cd({ className: e }) {
+const ld = ["kyc", "accreditation", "sanctions", "token_gating"];
+function dd({ className: e }) {
   return /* @__PURE__ */ t(
-    Ot,
+    Wt,
     {
       title: "Compliance & Gating",
       description: "Configure KYC identity verification, accredited investor verification, sanctions screening, and Solana token gating.",
-      categories: id,
-      className: e
-    }
-  );
-}
-const ld = ["referral"];
-function dd({ className: e }) {
-  return /* @__PURE__ */ t(
-    Ot,
-    {
-      title: "Referrals & Rewards",
-      description: "Configure referral reward types, amounts, triggers, per-referrer caps, and automated payout processing.",
       categories: ld,
       className: e
     }
   );
 }
-const ud = ["signup"];
+const ud = ["referral"];
 function hd({ className: e }) {
   return /* @__PURE__ */ t(
-    Ot,
+    Wt,
     {
-      title: "Signup Gating",
-      description: "Configure access codes required to register and optional signup rate limits.",
+      title: "Referrals & Rewards",
+      description: "Configure referral reward types, amounts, triggers, per-referrer caps, and automated payout processing.",
       categories: ud,
       className: e
     }
   );
 }
+const md = ["signup"];
+function pd({ className: e }) {
+  return /* @__PURE__ */ t(
+    Wt,
+    {
+      title: "Signup Gating",
+      description: "Configure access codes required to register and optional signup rate limits.",
+      categories: md,
+      className: e
+    }
+  );
+}
 const at = 20;
-function or(e) {
+function ar(e) {
   try {
     return new Date(e).toLocaleDateString(void 0, {
       year: "numeric",
@@ -9422,39 +9422,39 @@ function or(e) {
     return e;
   }
 }
-function md(e) {
+function fd(e) {
   return !!e.expiresAt && new Date(e.expiresAt) < /* @__PURE__ */ new Date();
 }
-function pd(e) {
+function gd(e) {
   return e.maxUses !== null && e.currentUses >= e.maxUses;
 }
-function fd(e) {
-  return md(e) ? "expired" : pd(e) ? "exhausted" : "active";
+function wd(e) {
+  return fd(e) ? "expired" : gd(e) ? "exhausted" : "active";
 }
-function gd({ className: e = "" }) {
-  const { config: r, _internal: s } = Z(), o = q(
-    () => new Hr(
+function yd({ className: e = "" }) {
+  const { config: r, _internal: s } = dt(), o = q(
+    () => new Qr(
       r.serverUrl,
       r.requestTimeout,
       r.retryAttempts,
       s?.getAccessToken
     ),
     [r.serverUrl, r.requestTimeout, r.retryAttempts, s]
-  ), [n, a] = x("all"), [c, d] = x([]), [l, h] = x(0), [m, u] = x(0), [f, g] = x(!1), [b, w] = x(null), [C, N] = x(null), [A, E] = x(""), [S, L] = x(""), [p, v] = x(""), [y, k] = x(!1), [T, _] = x(null), [B, R] = x(!1), [I, M] = x(null), [U, W] = x(null), j = {
+  ), [n, a] = x("all"), [c, l] = x([]), [d, h] = x(0), [m, u] = x(0), [p, g] = x(!1), [w, y] = x(null), [C, N] = x(null), [A, E] = x(""), [S, L] = x(""), [f, v] = x(""), [b, k] = x(!1), [P, _] = x(null), [B, R] = x(!1), [I, M] = x(null), [U, W] = x(null), j = {
     all: void 0,
     limited: "limited",
     user_invite: "user_invite"
-  }, V = P(async () => {
-    g(!0), w(null);
+  }, V = T(async () => {
+    g(!0), y(null);
     try {
       const D = await o.listAccessCodes(at, m, j[n]);
-      d(D.items), h(D.total);
+      l(D.items), h(D.total);
     } catch (D) {
-      w(D instanceof Error ? D.message : "Failed to load access codes");
+      y(D instanceof Error ? D.message : "Failed to load access codes");
     } finally {
       g(!1);
     }
-  }, [o, n, m]), F = P(async () => {
+  }, [o, n, m]), F = T(async () => {
     try {
       const D = await o.getSignupStats();
       N(D);
@@ -9466,7 +9466,7 @@ function gd({ className: e = "" }) {
   }, [V, F]), O(() => {
     u(0);
   }, [n]);
-  const G = P(
+  const G = T(
     async (D) => {
       if (D.preventDefault(), !A.trim()) {
         _("Code is required.");
@@ -9477,22 +9477,22 @@ function gd({ className: e = "" }) {
         _("Max uses must be a positive integer.");
         return;
       }
-      const se = p.trim() ? new Date(p).toISOString() : void 0;
+      const ne = f.trim() ? new Date(f).toISOString() : void 0;
       k(!0), _(null), R(!1);
       try {
-        await o.createAccessCode(A.trim(), $, se), E(""), L(""), v(""), R(!0), V(), F();
-      } catch (te) {
-        _(te instanceof Error ? te.message : "Failed to create code");
+        await o.createAccessCode(A.trim(), $, ne), E(""), L(""), v(""), R(!0), V(), F();
+      } catch (re) {
+        _(re instanceof Error ? re.message : "Failed to create code");
       } finally {
         k(!1);
       }
     },
-    [o, A, S, p, V, F]
-  ), J = P(
+    [o, A, S, f, V, F]
+  ), X = T(
     async (D) => {
       M(D), W(null);
       try {
-        await o.deleteAccessCode(D), d(($) => $.filter((se) => se.id !== D)), h(($) => $ - 1);
+        await o.deleteAccessCode(D), l(($) => $.filter((ne) => ne.id !== D)), h(($) => $ - 1);
       } catch ($) {
         W($ instanceof Error ? $.message : "Failed to delete code");
       } finally {
@@ -9500,7 +9500,7 @@ function gd({ className: e = "" }) {
       }
     },
     [o]
-  ), K = Math.ceil(l / at), le = Math.floor(m / at) + 1;
+  ), Y = Math.ceil(d / at), le = Math.floor(m / at) + 1;
   return /* @__PURE__ */ i("div", { className: `cedros-admin-access-codes ${e}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-admin-access-codes__header", children: [
       /* @__PURE__ */ t("h2", { className: "cedros-admin-access-codes__title", children: "Access Codes" }),
@@ -9512,10 +9512,10 @@ function gd({ className: e = "" }) {
           onClick: () => {
             V(), F();
           },
-          disabled: f,
+          disabled: p,
           title: "Refresh",
           "aria-label": "Refresh list",
-          children: f ? "..." : "↻"
+          children: p ? "..." : "↻"
         }
       )
     ] }),
@@ -9533,7 +9533,7 @@ function gd({ className: e = "" }) {
       /* @__PURE__ */ i("span", { className: "cedros-admin-access-codes__stat", children: [
         /* @__PURE__ */ t("strong", { children: "Period start:" }),
         " ",
-        or(C.periodStart)
+        ar(C.periodStart)
       ] })
     ] }),
     /* @__PURE__ */ i("section", { className: "cedros-admin-access-codes__create-section", "aria-label": "Create access code", children: [
@@ -9558,7 +9558,7 @@ function gd({ className: e = "" }) {
                     E(D.target.value), _(null), R(!1);
                   },
                   placeholder: "e.g. BETA2025",
-                  disabled: y,
+                  disabled: b,
                   required: !0
                 }
               )
@@ -9578,7 +9578,7 @@ function gd({ className: e = "" }) {
                   onChange: (D) => L(D.target.value),
                   placeholder: "e.g. 100",
                   min: "1",
-                  disabled: y
+                  disabled: b
                 }
               )
             ] }),
@@ -9593,9 +9593,9 @@ function gd({ className: e = "" }) {
                   id: "ac-expiry",
                   type: "date",
                   className: "cedros-input",
-                  value: p,
+                  value: f,
                   onChange: (D) => v(D.target.value),
-                  disabled: y
+                  disabled: b
                 }
               )
             ] }),
@@ -9604,16 +9604,16 @@ function gd({ className: e = "" }) {
               {
                 type: "submit",
                 className: "cedros-button cedros-button-primary cedros-button-md",
-                disabled: y,
-                "aria-busy": y,
-                children: y ? "Creating..." : "Create"
+                disabled: b,
+                "aria-busy": b,
+                children: b ? "Creating..." : "Create"
               }
             )
           ]
         }
       ),
-      T && /* @__PURE__ */ t("div", { className: "cedros-admin-error", role: "alert", children: T }),
-      B && !T && /* @__PURE__ */ t("div", { className: "cedros-admin-success", role: "status", children: "Code created." })
+      P && /* @__PURE__ */ t("div", { className: "cedros-admin-error", role: "alert", children: P }),
+      B && !P && /* @__PURE__ */ t("div", { className: "cedros-admin-success", role: "status", children: "Code created." })
     ] }),
     /* @__PURE__ */ t("div", { className: "cedros-admin-tabs cedros-admin-tabs--line", role: "tablist", children: ["all", "limited", "user_invite"].map((D) => /* @__PURE__ */ t(
       "button",
@@ -9628,8 +9628,8 @@ function gd({ className: e = "" }) {
       D
     )) }),
     U && /* @__PURE__ */ t("div", { className: "cedros-admin-error", role: "alert", children: U }),
-    b && /* @__PURE__ */ i("div", { className: "cedros-admin-access-codes--error", children: [
-      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: b }),
+    w && /* @__PURE__ */ i("div", { className: "cedros-admin-access-codes--error", children: [
+      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: w }),
       /* @__PURE__ */ t(
         "button",
         {
@@ -9640,10 +9640,10 @@ function gd({ className: e = "" }) {
         }
       )
     ] }),
-    !b && /* @__PURE__ */ t("div", { role: "tabpanel", children: f && c.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-admin-access-codes--loading", children: [
+    !w && /* @__PURE__ */ t("div", { role: "tabpanel", children: p && c.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-admin-access-codes--loading", children: [
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-indicator" }),
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-text", children: "Loading..." })
-    ] }) : c.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No access codes found." }) : /* @__PURE__ */ i(Y, { children: [
+    ] }) : c.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No access codes found." }) : /* @__PURE__ */ i(K, { children: [
       /* @__PURE__ */ i(
         "div",
         {
@@ -9662,21 +9662,21 @@ function gd({ className: e = "" }) {
               /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: /* @__PURE__ */ t("span", { className: "cedros-sr-only", children: "Actions" }) })
             ] }),
             c.map((D) => {
-              const $ = fd(D), se = D.maxUses !== null ? `${D.currentUses} / ${D.maxUses}` : `${D.currentUses}`;
+              const $ = wd(D), ne = D.maxUses !== null ? `${D.currentUses} / ${D.maxUses}` : `${D.currentUses}`;
               return /* @__PURE__ */ i("div", { className: "cedros-admin-list-row", role: "row", children: [
                 /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t("code", { className: "cedros-admin-access-codes__code", children: D.code }) }),
                 /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: D.codeType }),
-                /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: se }),
+                /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: ne }),
                 /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: D.createdByEmail ?? "—" }),
-                /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: or(D.createdAt) }),
-                /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: D.expiresAt ? or(D.expiresAt) : "—" }),
+                /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: ar(D.createdAt) }),
+                /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: D.expiresAt ? ar(D.expiresAt) : "—" }),
                 /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t("span", { className: `cedros-admin-access-codes__status cedros-admin-access-codes__status--${$}`, children: $.charAt(0).toUpperCase() + $.slice(1) }) }),
                 /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t(
                   "button",
                   {
                     type: "button",
                     className: "cedros-button cedros-button-danger cedros-button-sm",
-                    onClick: () => J(D.id),
+                    onClick: () => X(D.id),
                     disabled: I === D.id,
                     "aria-label": `Delete code ${D.code}`,
                     children: I === D.id ? "..." : "Delete"
@@ -9687,7 +9687,7 @@ function gd({ className: e = "" }) {
           ]
         }
       ),
-      K > 1 && /* @__PURE__ */ i("div", { className: "cedros-admin-pagination", children: [
+      Y > 1 && /* @__PURE__ */ i("div", { className: "cedros-admin-pagination", children: [
         /* @__PURE__ */ t(
           "button",
           {
@@ -9702,9 +9702,9 @@ function gd({ className: e = "" }) {
           "Page ",
           le,
           " of ",
-          K,
+          Y,
           " (",
-          l,
+          d,
           " total)"
         ] }),
         /* @__PURE__ */ t(
@@ -9713,7 +9713,7 @@ function gd({ className: e = "" }) {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: () => u(m + at),
-            disabled: le >= K,
+            disabled: le >= Y,
             children: "Next"
           }
         )
@@ -9721,10 +9721,10 @@ function gd({ className: e = "" }) {
     ] }) })
   ] });
 }
-function wd() {
+function bd() {
   return `rule_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
-function bd(e) {
+function vd(e) {
   if (!e) return [];
   try {
     const r = JSON.parse(e);
@@ -9733,7 +9733,7 @@ function bd(e) {
     return [];
   }
 }
-function yd(e) {
+function Ad(e) {
   switch (e) {
     case "nft_collection":
       return "NFT Collection";
@@ -9743,7 +9743,7 @@ function yd(e) {
       return "Any NFT";
   }
 }
-function vd(e) {
+function Nd(e) {
   switch (e) {
     case "all":
       return "All";
@@ -9753,7 +9753,7 @@ function vd(e) {
       return "Withdrawals";
   }
 }
-const zs = {
+const $s = {
   name: "",
   ruleType: "nft_collection",
   collectionAddress: "",
@@ -9762,7 +9762,7 @@ const zs = {
   minAmount: "",
   enforcement: "all"
 };
-function Ad(e) {
+function kd(e) {
   return {
     name: e.name,
     ruleType: e.ruleType,
@@ -9773,7 +9773,7 @@ function Ad(e) {
     enforcement: e.enforcement
   };
 }
-function Nd(e, r) {
+function Cd(e, r) {
   return {
     id: r,
     name: e.name.trim(),
@@ -9785,47 +9785,47 @@ function Nd(e, r) {
     enforcement: e.enforcement
   };
 }
-function kd({ className: e = "" }) {
-  const { fetchSettings: r, updateSettings: s, getValue: o, isLoading: n, error: a } = qn(), [c, d] = x([]), [l, h] = x(null), [m, u] = x(!1), [f, g] = x(zs), [b, w] = x(null), [C, N] = x(!1);
+function Ed({ className: e = "" }) {
+  const { fetchSettings: r, updateSettings: s, getValue: o, isLoading: n, error: a } = jn(), [c, l] = x([]), [d, h] = x(null), [m, u] = x(!1), [p, g] = x($s), [w, y] = x(null), [C, N] = x(!1);
   O(() => {
     r();
   }, [r]);
-  const A = o("token_gating_rules"), E = q(() => bd(A), [A]);
+  const A = o("token_gating_rules"), E = q(() => vd(A), [A]);
   O(() => {
-    d(E);
+    l(E);
   }, [E]);
-  const S = P(
+  const S = T(
     async (_) => {
-      N(!0), w(null);
+      N(!0), y(null);
       try {
-        await s([{ key: "token_gating_rules", value: JSON.stringify(_) }]), d(_);
+        await s([{ key: "token_gating_rules", value: JSON.stringify(_) }]), l(_);
       } catch (B) {
-        w(B instanceof Error ? B.message : "Failed to save rules");
+        y(B instanceof Error ? B.message : "Failed to save rules");
       } finally {
         N(!1);
       }
     },
     [s]
-  ), L = P(() => {
-    h(null), g(zs), w(null), u(!0);
-  }, []), p = P((_) => {
-    h(_.id), g(Ad(_)), w(null), u(!0);
-  }, []), v = P(
+  ), L = T(() => {
+    h(null), g($s), y(null), u(!0);
+  }, []), f = T((_) => {
+    h(_.id), g(kd(_)), y(null), u(!0);
+  }, []), v = T(
     (_) => {
       const B = c.filter((R) => R.id !== _);
       S(B);
     },
     [c, S]
-  ), y = P(() => {
-    u(!1), w(null);
-  }, []), k = P(async () => {
-    if (!f.name.trim()) {
-      w("Rule name is required.");
+  ), b = T(() => {
+    u(!1), y(null);
+  }, []), k = T(async () => {
+    if (!p.name.trim()) {
+      y("Rule name is required.");
       return;
     }
-    const _ = l ?? wd(), B = Nd(f, _), R = l ? c.map((I) => I.id === l ? B : I) : [...c, B];
-    await S(R), b || u(!1);
-  }, [f, l, c, S, b]), T = P((_, B) => {
+    const _ = d ?? bd(), B = Cd(p, _), R = d ? c.map((I) => I.id === d ? B : I) : [...c, B];
+    await S(R), w || u(!1);
+  }, [p, d, c, S, w]), P = T((_, B) => {
     g((R) => ({ ...R, [_]: B }));
   }, []);
   return n && c.length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-admin-token-gate ${e} cedros-admin-token-gate--loading`, children: [
@@ -9849,15 +9849,15 @@ function kd({ className: e = "" }) {
       )
     ] }),
     m && /* @__PURE__ */ t(
-      Cd,
+      xd,
       {
-        form: f,
-        isNew: l === null,
+        form: p,
+        isNew: d === null,
         isSaving: C,
-        saveError: b,
-        onFieldChange: T,
+        saveError: w,
+        onFieldChange: P,
         onSave: k,
-        onCancel: y
+        onCancel: b
       }
     ),
     c.length === 0 && !m ? /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No token gate rules configured." }) : /* @__PURE__ */ i(
@@ -9877,17 +9877,17 @@ function kd({ className: e = "" }) {
           ] }),
           c.map((_) => /* @__PURE__ */ i("div", { className: "cedros-admin-list-row", role: "row", children: [
             /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: _.name }),
-            /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: yd(_.ruleType) }),
+            /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Ad(_.ruleType) }),
             /* @__PURE__ */ t("div", { className: "cedros-admin-list-td cedros-admin-list-td-mono", role: "cell", children: _.collectionAddress || _.mintAddress || "—" }),
             /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: _.minQuantity !== void 0 ? _.minQuantity : _.minAmount ?? "—" }),
-            /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: vd(_.enforcement) }),
+            /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Nd(_.enforcement) }),
             /* @__PURE__ */ i("div", { className: "cedros-admin-list-td cedros-admin-list-td-actions", role: "cell", children: [
               /* @__PURE__ */ t(
                 "button",
                 {
                   type: "button",
                   className: "cedros-button cedros-button-outline cedros-button-sm",
-                  onClick: () => p(_),
+                  onClick: () => f(_),
                   disabled: m,
                   children: "Edit"
                 }
@@ -9909,8 +9909,8 @@ function kd({ className: e = "" }) {
     )
   ] });
 }
-function Cd({ form: e, isNew: r, isSaving: s, saveError: o, onFieldChange: n, onSave: a, onCancel: c }) {
-  const d = e.ruleType === "nft_collection", l = e.ruleType === "fungible_token", h = e.ruleType !== "fungible_token", m = e.ruleType === "fungible_token";
+function xd({ form: e, isNew: r, isSaving: s, saveError: o, onFieldChange: n, onSave: a, onCancel: c }) {
+  const l = e.ruleType === "nft_collection", d = e.ruleType === "fungible_token", h = e.ruleType !== "fungible_token", m = e.ruleType === "fungible_token";
   return /* @__PURE__ */ i("div", { className: "cedros-admin-token-gate__form", role: "region", "aria-label": r ? "Add rule" : "Edit rule", children: [
     /* @__PURE__ */ t("h3", { className: "cedros-admin-token-gate__form-title", children: r ? "Add Rule" : "Edit Rule" }),
     /* @__PURE__ */ i("div", { className: "cedros-admin-form-row", children: [
@@ -9944,7 +9944,7 @@ function Cd({ form: e, isNew: r, isSaving: s, saveError: o, onFieldChange: n, on
         }
       )
     ] }),
-    d && /* @__PURE__ */ i("div", { className: "cedros-admin-form-row", children: [
+    l && /* @__PURE__ */ i("div", { className: "cedros-admin-form-row", children: [
       /* @__PURE__ */ t("label", { className: "cedros-admin-form-label", htmlFor: "tg-collection", children: "Collection Address" }),
       /* @__PURE__ */ t(
         "input",
@@ -9958,7 +9958,7 @@ function Cd({ form: e, isNew: r, isSaving: s, saveError: o, onFieldChange: n, on
         }
       )
     ] }),
-    l && /* @__PURE__ */ i("div", { className: "cedros-admin-form-row", children: [
+    d && /* @__PURE__ */ i("div", { className: "cedros-admin-form-row", children: [
       /* @__PURE__ */ t("label", { className: "cedros-admin-form-label", htmlFor: "tg-mint", children: "Mint Address" }),
       /* @__PURE__ */ t(
         "input",
@@ -10044,14 +10044,14 @@ function Cd({ form: e, isNew: r, isSaving: s, saveError: o, onFieldChange: n, on
     ] })
   ] });
 }
-function Ed(e) {
+function Sd(e) {
   return new Date(e).toLocaleDateString(void 0, {
     year: "numeric",
     month: "short",
     day: "numeric"
   });
 }
-function xd(e) {
+function _d(e) {
   return {
     income: "Income",
     net_worth: "Net Worth",
@@ -10061,7 +10061,7 @@ function xd(e) {
     investment_threshold: "Investment Threshold"
   }[e] ?? e;
 }
-function Sd(e) {
+function Ld(e) {
   switch (e) {
     case "pending":
       return "cedros-admin-badge--pending";
@@ -10075,7 +10075,7 @@ function Sd(e) {
       return "";
   }
 }
-function _d({
+function Td({
   item: e,
   isExpanded: r,
   detail: s,
@@ -10083,24 +10083,24 @@ function _d({
   detailError: n,
   reviewNotes: a,
   rejectionReason: c,
-  isReviewing: d,
-  reviewError: l,
+  isReviewing: l,
+  reviewError: d,
   onRowClick: h,
   onDocumentDownload: m,
   onReviewNotesChange: u,
-  onRejectionReasonChange: f,
+  onRejectionReasonChange: p,
   onReview: g
 }) {
-  const b = e.statedAmountUsd !== void 0 ? `$${e.statedAmountUsd.toLocaleString()}` : e.investmentCommitmentUsd !== void 0 ? `$${e.investmentCommitmentUsd.toLocaleString()}` : "—";
-  return /* @__PURE__ */ i(Y, { children: [
+  const w = e.statedAmountUsd !== void 0 ? `$${e.statedAmountUsd.toLocaleString()}` : e.investmentCommitmentUsd !== void 0 ? `$${e.investmentCommitmentUsd.toLocaleString()}` : "—";
+  return /* @__PURE__ */ i(K, { children: [
     /* @__PURE__ */ i(
       "div",
       {
         className: `cedros-admin-list-row cedros-admin-list-row--clickable ${r ? "cedros-admin-list-row--expanded" : ""}`,
         role: "row",
         onClick: () => h(e.id),
-        onKeyDown: (w) => {
-          (w.key === "Enter" || w.key === " ") && (w.preventDefault(), h(e.id));
+        onKeyDown: (y) => {
+          (y.key === "Enter" || y.key === " ") && (y.preventDefault(), h(e.id));
         },
         tabIndex: 0,
         "aria-expanded": r,
@@ -10109,10 +10109,10 @@ function _d({
             e.userId.slice(0, 12),
             "..."
           ] }) }),
-          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: xd(e.method) }),
-          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: b }),
-          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Ed(e.createdAt) }),
-          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t("span", { className: `cedros-admin-badge ${Sd(e.status)}`, children: e.status }) })
+          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: _d(e.method) }),
+          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: w }),
+          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: Sd(e.createdAt) }),
+          /* @__PURE__ */ t("div", { className: "cedros-admin-list-td", role: "cell", children: /* @__PURE__ */ t("span", { className: `cedros-admin-badge ${Ld(e.status)}`, children: e.status }) })
         ]
       }
     ),
@@ -10122,18 +10122,18 @@ function _d({
         /* @__PURE__ */ t("span", { className: "cedros-admin-loading-text", children: "Loading detail..." })
       ] }),
       n && /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: n }),
-      s && /* @__PURE__ */ i(Y, { children: [
-        /* @__PURE__ */ t(Ld, { detail: s, onDocumentDownload: m }),
+      s && /* @__PURE__ */ i(K, { children: [
+        /* @__PURE__ */ t(Pd, { detail: s, onDocumentDownload: m }),
         e.status === "pending" && /* @__PURE__ */ t(
-          Pd,
+          Rd,
           {
             submissionId: e.id,
             notes: a,
             rejectionReason: c,
-            isReviewing: d,
-            error: l,
+            isReviewing: l,
+            error: d,
             onNotesChange: u,
-            onRejectionReasonChange: f,
+            onRejectionReasonChange: p,
             onReview: g
           }
         )
@@ -10141,7 +10141,7 @@ function _d({
     ] })
   ] });
 }
-function Ld({ detail: e, onDocumentDownload: r }) {
+function Pd({ detail: e, onDocumentDownload: r }) {
   return /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue__detail-fields", children: [
     e.incomeType && /* @__PURE__ */ i("div", { className: "cedros-admin-detail-row", children: [
       /* @__PURE__ */ t("span", { className: "cedros-admin-detail-label", children: "Income Type" }),
@@ -10198,7 +10198,7 @@ function Ld({ detail: e, onDocumentDownload: r }) {
     ] })
   ] });
 }
-function Pd({
+function Rd({
   submissionId: e,
   notes: r,
   rejectionReason: s,
@@ -10206,7 +10206,7 @@ function Pd({
   error: n,
   onNotesChange: a,
   onRejectionReasonChange: c,
-  onReview: d
+  onReview: l
 }) {
   return /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue__review-form", children: [
     /* @__PURE__ */ t("h4", { className: "cedros-admin-accreditation-queue__review-title", children: "Review Decision" }),
@@ -10218,7 +10218,7 @@ function Pd({
           id: "review-notes",
           className: "cedros-admin-form-textarea",
           value: r,
-          onChange: (l) => a(l.target.value),
+          onChange: (d) => a(d.target.value),
           rows: 2,
           placeholder: "Optional internal notes"
         }
@@ -10232,7 +10232,7 @@ function Pd({
           id: "rejection-reason",
           className: "cedros-admin-form-textarea",
           value: s,
-          onChange: (l) => c(l.target.value),
+          onChange: (d) => c(d.target.value),
           rows: 2,
           placeholder: "Reason shown to user"
         }
@@ -10245,7 +10245,7 @@ function Pd({
         {
           type: "button",
           className: "cedros-button cedros-button-primary cedros-button-sm",
-          onClick: () => d(e, !0),
+          onClick: () => l(e, !0),
           disabled: o,
           "aria-busy": o,
           children: o ? "Saving..." : "Approve"
@@ -10256,7 +10256,7 @@ function Pd({
         {
           type: "button",
           className: "cedros-button cedros-button-danger cedros-button-sm",
-          onClick: () => d(e, !1),
+          onClick: () => l(e, !1),
           disabled: o,
           "aria-busy": o,
           children: o ? "Saving..." : "Reject"
@@ -10266,22 +10266,22 @@ function Pd({
   ] });
 }
 const it = 20;
-function Td({ className: e = "" }) {
-  const { config: r, _internal: s } = Z(), o = q(
-    () => new Hr(
+function Bd({ className: e = "" }) {
+  const { config: r, _internal: s } = dt(), o = q(
+    () => new Qr(
       r.serverUrl,
       r.requestTimeout,
       r.retryAttempts,
       s?.getAccessToken
     ),
     [r.serverUrl, r.requestTimeout, r.retryAttempts, s]
-  ), [n, a] = x("pending"), [c, d] = x([]), [l, h] = x(0), [m, u] = x(0), [f, g] = x(!1), [b, w] = x(null), [C, N] = x(null), [A, E] = x(null), [S, L] = x(!1), [p, v] = x(null), [y, k] = x(""), [T, _] = x(""), [B, R] = x(!1), [I, M] = x(null), [U, W] = x(null), j = P(async () => {
-    g(!0), w(null);
+  ), [n, a] = x("pending"), [c, l] = x([]), [d, h] = x(0), [m, u] = x(0), [p, g] = x(!1), [w, y] = x(null), [C, N] = x(null), [A, E] = x(null), [S, L] = x(!1), [f, v] = x(null), [b, k] = x(""), [P, _] = x(""), [B, R] = x(!1), [I, M] = x(null), [U, W] = x(null), j = T(async () => {
+    g(!0), y(null);
     try {
       const D = await o.listPendingAccreditations(it, m);
-      d(D.items), h(D.total);
+      l(D.items), h(D.total);
     } catch (D) {
-      w(D instanceof Error ? D.message : "Failed to load submissions");
+      y(D instanceof Error ? D.message : "Failed to load submissions");
     } finally {
       g(!1);
     }
@@ -10291,7 +10291,7 @@ function Td({ className: e = "" }) {
   }, [j]), O(() => {
     u(0), N(null), E(null);
   }, [n]);
-  const V = P(
+  const V = T(
     async (D) => {
       if (C === D) {
         N(null), E(null);
@@ -10308,7 +10308,7 @@ function Td({ className: e = "" }) {
       }
     },
     [C, o]
-  ), F = P(
+  ), F = T(
     async (D) => {
       try {
         const $ = await o.getAccreditationDocumentUrl(D);
@@ -10318,9 +10318,9 @@ function Td({ className: e = "" }) {
       }
     },
     [o]
-  ), G = P(
+  ), G = T(
     async (D, $) => {
-      if (!$ && !T.trim()) {
+      if (!$ && !P.trim()) {
         M("Rejection reason is required.");
         return;
       }
@@ -10329,17 +10329,17 @@ function Td({ className: e = "" }) {
         await o.reviewAccreditation(
           D,
           $,
-          y.trim() || void 0,
-          $ ? void 0 : T.trim()
+          b.trim() || void 0,
+          $ ? void 0 : P.trim()
         ), W($ ? "Submission approved." : "Submission rejected."), N(null), E(null), j();
-      } catch (se) {
-        M(se instanceof Error ? se.message : "Failed to submit review");
+      } catch (ne) {
+        M(ne instanceof Error ? ne.message : "Failed to submit review");
       } finally {
         R(!1);
       }
     },
-    [o, y, T, j]
-  ), J = Math.ceil(l / it), K = Math.floor(m / it) + 1, le = n === "pending" ? l : c.filter((D) => D.status === "pending").length;
+    [o, b, P, j]
+  ), X = Math.ceil(d / it), Y = Math.floor(m / it) + 1, le = n === "pending" ? d : c.filter((D) => D.status === "pending").length;
   return /* @__PURE__ */ i("div", { className: `cedros-admin-accreditation-queue ${e}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue__header", children: [
       /* @__PURE__ */ i("h2", { className: "cedros-admin-accreditation-queue__title", children: [
@@ -10352,10 +10352,10 @@ function Td({ className: e = "" }) {
           type: "button",
           className: "cedros-admin__stats-bar-refresh",
           onClick: j,
-          disabled: f,
+          disabled: p,
           title: "Refresh",
           "aria-label": "Refresh list",
-          children: f ? "..." : "↻"
+          children: p ? "..." : "↻"
         }
       )
     ] }),
@@ -10384,14 +10384,14 @@ function Td({ className: e = "" }) {
       )
     ] }),
     U && /* @__PURE__ */ t("div", { className: "cedros-admin-accreditation-queue__result cedros-admin-accreditation-queue__result--success", children: U }),
-    b && /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue cedros-admin-accreditation-queue--error", children: [
-      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: b }),
+    w && /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue cedros-admin-accreditation-queue--error", children: [
+      /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: w }),
       /* @__PURE__ */ t("button", { type: "button", className: "cedros-button cedros-button-outline cedros-button-sm", onClick: j, children: "Retry" })
     ] }),
-    !b && f && c.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue--loading", children: [
+    !w && p && c.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-admin-accreditation-queue--loading", children: [
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-indicator" }),
       /* @__PURE__ */ t("span", { className: "cedros-admin-loading-text", children: "Loading submissions..." })
-    ] }) : /* @__PURE__ */ t("div", { role: "tabpanel", children: c.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No submissions found." }) : /* @__PURE__ */ i(Y, { children: [
+    ] }) : /* @__PURE__ */ t("div", { role: "tabpanel", children: c.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-admin-empty-message", children: "No submissions found." }) : /* @__PURE__ */ i(K, { children: [
       /* @__PURE__ */ i("div", { className: "cedros-admin-list-table", role: "table", "aria-label": "Accreditation submissions", children: [
         /* @__PURE__ */ i("div", { className: "cedros-admin-list-thead", role: "row", children: [
           /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: "User" }),
@@ -10401,15 +10401,15 @@ function Td({ className: e = "" }) {
           /* @__PURE__ */ t("div", { className: "cedros-admin-list-th", role: "columnheader", children: "Status" })
         ] }),
         c.map((D) => /* @__PURE__ */ t(
-          _d,
+          Td,
           {
             item: D,
             isExpanded: C === D.id,
             detail: C === D.id ? A : null,
             detailLoading: C === D.id && S,
-            detailError: C === D.id ? p : null,
-            reviewNotes: y,
-            rejectionReason: T,
+            detailError: C === D.id ? f : null,
+            reviewNotes: b,
+            rejectionReason: P,
             isReviewing: B,
             reviewError: C === D.id ? I : null,
             onRowClick: V,
@@ -10421,24 +10421,24 @@ function Td({ className: e = "" }) {
           D.id
         ))
       ] }),
-      J > 1 && /* @__PURE__ */ i("div", { className: "cedros-admin-pagination", children: [
+      X > 1 && /* @__PURE__ */ i("div", { className: "cedros-admin-pagination", children: [
         /* @__PURE__ */ t(
           "button",
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: () => u(Math.max(0, m - it)),
-            disabled: K <= 1,
+            disabled: Y <= 1,
             children: "Previous"
           }
         ),
         /* @__PURE__ */ i("span", { className: "cedros-admin-page-info", children: [
           "Page ",
-          K,
+          Y,
           " of ",
-          J,
+          X,
           " (",
-          l,
+          d,
           " total)"
         ] }),
         /* @__PURE__ */ t(
@@ -10447,7 +10447,7 @@ function Td({ className: e = "" }) {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: () => u(m + it),
-            disabled: K >= J,
+            disabled: Y >= X,
             children: "Next"
           }
         )
@@ -10455,10 +10455,10 @@ function Td({ className: e = "" }) {
     ] }) })
   ] });
 }
-function Rd(e) {
+function Id(e) {
   return e === void 0 ? "—" : e < 60 ? `${e}s` : e < 3600 ? `${Math.floor(e / 60)}m ${e % 60}s` : `${Math.floor(e / 3600)}h ${Math.floor(e % 3600 / 60)}m`;
 }
-function Bd(e) {
+function Md(e) {
   return e ? new Date(e).toLocaleString(void 0, {
     year: "numeric",
     month: "short",
@@ -10467,33 +10467,33 @@ function Bd(e) {
     minute: "2-digit"
   }) : "—";
 }
-function Id({ className: e = "" }) {
-  const { config: r, _internal: s } = Z(), o = q(
-    () => new Hr(
+function Ud({ className: e = "" }) {
+  const { config: r, _internal: s } = dt(), o = q(
+    () => new Qr(
       r.serverUrl,
       r.requestTimeout,
       r.retryAttempts,
       s?.getAccessToken
     ),
     [r.serverUrl, r.requestTimeout, r.retryAttempts, s]
-  ), [n, a] = x(null), [c, d] = x(!1), [l, h] = x(null), [m, u] = x(!1), [f, g] = x(null), [b, w] = x(!1), C = P(async () => {
-    d(!0), h(null);
+  ), [n, a] = x(null), [c, l] = x(!1), [d, h] = x(null), [m, u] = x(!1), [p, g] = x(null), [w, y] = x(!1), C = T(async () => {
+    l(!0), h(null);
     try {
       const A = await o.getSanctionsStats();
       a(A);
     } catch (A) {
       h(A instanceof Error ? A.message : "Failed to load sanctions stats");
     } finally {
-      d(!1);
+      l(!1);
     }
   }, [o]);
   O(() => {
     C();
   }, [C]);
-  const N = P(async () => {
-    u(!0), g(null), w(!1);
+  const N = T(async () => {
+    u(!0), g(null), y(!1);
     try {
-      await o.refreshSanctions(), w(!0), await C();
+      await o.refreshSanctions(), y(!0), await C();
     } catch (A) {
       g(A instanceof Error ? A.message : "Failed to refresh sanctions cache");
     } finally {
@@ -10503,8 +10503,8 @@ function Id({ className: e = "" }) {
   return c && !n ? /* @__PURE__ */ i("div", { className: `cedros-admin-sanctions-panel ${e} cedros-admin-sanctions-panel--loading`, children: [
     /* @__PURE__ */ t("span", { className: "cedros-admin-loading-indicator" }),
     /* @__PURE__ */ t("span", { className: "cedros-admin-loading-text", children: "Loading sanctions stats..." })
-  ] }) : l && !n ? /* @__PURE__ */ i("div", { className: `cedros-admin-sanctions-panel ${e} cedros-admin-sanctions-panel--error`, children: [
-    /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: l }),
+  ] }) : d && !n ? /* @__PURE__ */ i("div", { className: `cedros-admin-sanctions-panel ${e} cedros-admin-sanctions-panel--error`, children: [
+    /* @__PURE__ */ t("p", { className: "cedros-admin-error", children: d }),
     /* @__PURE__ */ t(
       "button",
       {
@@ -10551,11 +10551,11 @@ function Id({ className: e = "" }) {
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-admin-stat-card", children: [
         /* @__PURE__ */ t("span", { className: "cedros-admin-stat-label", children: "Cache Age" }),
-        /* @__PURE__ */ t("span", { className: "cedros-admin-stat-value", children: Rd(n.cacheAgeSeconds) })
+        /* @__PURE__ */ t("span", { className: "cedros-admin-stat-value", children: Id(n.cacheAgeSeconds) })
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-admin-stat-card", children: [
         /* @__PURE__ */ t("span", { className: "cedros-admin-stat-label", children: "Last Refresh" }),
-        /* @__PURE__ */ t("span", { className: "cedros-admin-stat-value", children: Bd(n.lastRefreshedAt) })
+        /* @__PURE__ */ t("span", { className: "cedros-admin-stat-value", children: Md(n.lastRefreshedAt) })
       ] })
     ] }),
     /* @__PURE__ */ t("div", { className: "cedros-admin-sanctions-panel__actions", children: /* @__PURE__ */ t(
@@ -10569,15 +10569,15 @@ function Id({ className: e = "" }) {
         children: m ? "Refreshing..." : "Force Refresh"
       }
     ) }),
-    b && /* @__PURE__ */ t("div", { className: "cedros-admin-sanctions-panel__result cedros-admin-sanctions-panel__result--success", children: "Sanctions cache refreshed successfully." }),
-    f && /* @__PURE__ */ t("div", { className: "cedros-admin-sanctions-panel__result cedros-admin-sanctions-panel__result--error", children: f }),
-    l && n && /* @__PURE__ */ t("p", { className: "cedros-admin-error cedros-admin-error--inline", children: l })
+    w && /* @__PURE__ */ t("div", { className: "cedros-admin-sanctions-panel__result cedros-admin-sanctions-panel__result--success", children: "Sanctions cache refreshed successfully." }),
+    p && /* @__PURE__ */ t("div", { className: "cedros-admin-sanctions-panel__result cedros-admin-sanctions-panel__result--error", children: p }),
+    d && n && /* @__PURE__ */ t("p", { className: "cedros-admin-error cedros-admin-error--inline", children: d })
   ] });
 }
-class Md {
+class Dd {
   client;
   constructor(r, s, o) {
-    this.client = new re({ baseUrl: r, timeoutMs: s, retryAttempts: o });
+    this.client = new te({ baseUrl: r, timeoutMs: s, retryAttempts: o });
   }
   /**
    * Check if initial setup is required
@@ -10602,89 +10602,89 @@ class Md {
     }
   }
 }
-function Lo() {
-  const { config: e } = Z(), [r, s] = x(null), [o, n] = x(!1), [a, c] = x(!1), [d, l] = x(null), h = ee(0), m = q(
-    () => new Md(e.serverUrl, e.requestTimeout, e.retryAttempts),
+function Po() {
+  const { config: e } = ee(), [r, s] = x(null), [o, n] = x(!1), [a, c] = x(!1), [l, d] = x(null), h = J(0), m = q(
+    () => new Dd(e.serverUrl, e.requestTimeout, e.retryAttempts),
     [e.serverUrl, e.requestTimeout, e.retryAttempts]
-  ), u = ee(m);
+  ), u = J(m);
   u.current = m;
-  const f = P(async () => {
-    n(!0), l(null);
-    const b = ++h.current;
+  const p = T(async () => {
+    n(!0), d(null);
+    const w = ++h.current;
     try {
-      const w = await u.current.getStatus();
-      if (b !== h.current) return;
-      s(w);
-    } catch (w) {
-      if (b !== h.current) return;
-      l(w instanceof Error ? w : new Error("Failed to check setup status"));
+      const y = await u.current.getStatus();
+      if (w !== h.current) return;
+      s(y);
+    } catch (y) {
+      if (w !== h.current) return;
+      d(y instanceof Error ? y : new Error("Failed to check setup status"));
     } finally {
-      b === h.current && n(!1);
+      w === h.current && n(!1);
     }
-  }, []), g = P(
-    async (b) => {
-      c(!0), l(null);
+  }, []), g = T(
+    async (w) => {
+      c(!0), d(null);
       try {
-        const w = await u.current.createFirstAdmin(b);
-        return await f(), w;
-      } catch (w) {
-        const C = w instanceof Error ? w : new Error("Failed to create admin");
-        throw l(C), C;
+        const y = await u.current.createFirstAdmin(w);
+        return await p(), y;
+      } catch (y) {
+        const C = y instanceof Error ? y : new Error("Failed to create admin");
+        throw d(C), C;
       } finally {
         c(!1);
       }
     },
-    [f]
+    [p]
   );
   return {
     status: r,
     isLoading: o,
     isCreating: a,
-    error: d,
-    checkStatus: f,
+    error: l,
+    checkStatus: p,
     createAdmin: g
   };
 }
-const Ud = /^[^\s@]+@[^\s@]+\.[^\s@]+$/, js = 8;
-function Dd(e) {
+const Fd = /^[^\s@]+@[^\s@]+\.[^\s@]+$/, Vs = 8;
+function Od(e) {
   const r = {};
-  return e.email ? Ud.test(e.email) || (r.email = "Invalid email format") : r.email = "Email is required", e.password ? e.password.length < js && (r.password = `Password must be at least ${js} characters`) : r.password = "Password is required", e.confirmPassword ? e.password !== e.confirmPassword && (r.confirmPassword = "Passwords do not match") : r.confirmPassword = "Please confirm your password", r;
+  return e.email ? Fd.test(e.email) || (r.email = "Invalid email format") : r.email = "Email is required", e.password ? e.password.length < Vs && (r.password = `Password must be at least ${Vs} characters`) : r.password = "Password is required", e.confirmPassword ? e.password !== e.confirmPassword && (r.confirmPassword = "Passwords do not match") : r.confirmPassword = "Please confirm your password", r;
 }
-function Fd({ onComplete: e, className: r = "" }) {
-  const { status: s, isLoading: o, isCreating: n, error: a, checkStatus: c, createAdmin: d } = Lo(), [l, h] = x({
+function Wd({ onComplete: e, className: r = "" }) {
+  const { status: s, isLoading: o, isCreating: n, error: a, checkStatus: c, createAdmin: l } = Po(), [d, h] = x({
     email: "",
     password: "",
     confirmPassword: "",
     name: "",
     orgName: ""
-  }), [m, u] = x({}), [f, g] = x(!1);
+  }), [m, u] = x({}), [p, g] = x(!1);
   O(() => {
     c();
   }, [c]);
-  const b = P(
+  const w = T(
     (C) => (N) => {
       h((A) => ({ ...A, [C]: N.target.value })), u((A) => ({ ...A, [C]: void 0 }));
     },
     []
-  ), w = P(
+  ), y = T(
     async (C) => {
       C.preventDefault();
-      const N = Dd(l);
+      const N = Od(d);
       if (Object.keys(N).length > 0) {
         u(N);
         return;
       }
       try {
-        await d({
-          email: l.email,
-          password: l.password,
-          name: l.name || void 0,
-          orgName: l.orgName || void 0
+        await l({
+          email: d.email,
+          password: d.password,
+          name: d.name || void 0,
+          orgName: d.orgName || void 0
         }), g(!0), e?.();
       } catch {
       }
     },
-    [l, d, e]
+    [d, l, e]
   );
   return o ? /* @__PURE__ */ t("div", { className: `cedros-setup ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-setup__loading", children: [
     /* @__PURE__ */ t(H, {}),
@@ -10709,7 +10709,7 @@ function Fd({ onComplete: e, className: r = "" }) {
     ) }),
     /* @__PURE__ */ t("h2", { className: "cedros-setup__title", children: "Setup Complete" }),
     /* @__PURE__ */ t("p", { className: "cedros-setup__text", children: "An admin account already exists. You can now log in." })
-  ] }) }) : f ? /* @__PURE__ */ t("div", { className: `cedros-setup ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-setup__complete", children: [
+  ] }) }) : p ? /* @__PURE__ */ t("div", { className: `cedros-setup ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-setup__complete", children: [
     /* @__PURE__ */ t("div", { className: "cedros-setup__icon cedros-setup__icon--success", children: /* @__PURE__ */ i(
       "svg",
       {
@@ -10751,8 +10751,8 @@ function Fd({ onComplete: e, className: r = "" }) {
       /* @__PURE__ */ t("h1", { className: "cedros-setup__title", children: "Welcome to Cedros" }),
       /* @__PURE__ */ t("p", { className: "cedros-setup__subtitle", children: "Let's set up your admin account to get started." })
     ] }),
-    /* @__PURE__ */ i("form", { className: "cedros-setup__form", onSubmit: w, children: [
-      a && /* @__PURE__ */ t(ne, { error: a.message }),
+    /* @__PURE__ */ i("form", { className: "cedros-setup__form", onSubmit: y, children: [
+      a && /* @__PURE__ */ t(se, { error: a.message }),
       /* @__PURE__ */ i("div", { className: "cedros-setup__field", children: [
         /* @__PURE__ */ i("label", { htmlFor: "setup-email", className: "cedros-setup__label", children: [
           "Email Address ",
@@ -10764,8 +10764,8 @@ function Fd({ onComplete: e, className: r = "" }) {
             id: "setup-email",
             type: "email",
             className: `cedros-setup__input ${m.email ? "cedros-setup__input--error" : ""}`,
-            value: l.email,
-            onChange: b("email"),
+            value: d.email,
+            onChange: w("email"),
             placeholder: "admin@example.com",
             autoComplete: "email",
             autoFocus: !0,
@@ -10782,8 +10782,8 @@ function Fd({ onComplete: e, className: r = "" }) {
             id: "setup-name",
             type: "text",
             className: "cedros-setup__input",
-            value: l.name,
-            onChange: b("name"),
+            value: d.name,
+            onChange: w("name"),
             placeholder: "Admin",
             autoComplete: "name",
             disabled: n
@@ -10798,8 +10798,8 @@ function Fd({ onComplete: e, className: r = "" }) {
             id: "setup-org-name",
             type: "text",
             className: "cedros-setup__input",
-            value: l.orgName,
-            onChange: b("orgName"),
+            value: d.orgName,
+            onChange: w("orgName"),
             placeholder: "My Organization",
             disabled: n
           }
@@ -10816,8 +10816,8 @@ function Fd({ onComplete: e, className: r = "" }) {
             id: "setup-password",
             type: "password",
             className: `cedros-setup__input ${m.password ? "cedros-setup__input--error" : ""}`,
-            value: l.password,
-            onChange: b("password"),
+            value: d.password,
+            onChange: w("password"),
             placeholder: "At least 8 characters",
             autoComplete: "new-password",
             disabled: n
@@ -10836,8 +10836,8 @@ function Fd({ onComplete: e, className: r = "" }) {
             id: "setup-confirm-password",
             type: "password",
             className: `cedros-setup__input ${m.confirmPassword ? "cedros-setup__input--error" : ""}`,
-            value: l.confirmPassword,
-            onChange: b("confirmPassword"),
+            value: d.confirmPassword,
+            onChange: w("confirmPassword"),
             placeholder: "Confirm your password",
             autoComplete: "new-password",
             disabled: n
@@ -10845,7 +10845,7 @@ function Fd({ onComplete: e, className: r = "" }) {
         ),
         m.confirmPassword && /* @__PURE__ */ t("span", { className: "cedros-setup__error", children: m.confirmPassword })
       ] }),
-      /* @__PURE__ */ t("button", { type: "submit", className: "cedros-setup__button", disabled: n, children: n ? /* @__PURE__ */ i(Y, { children: [
+      /* @__PURE__ */ t("button", { type: "submit", className: "cedros-setup__button", disabled: n, children: n ? /* @__PURE__ */ i(K, { children: [
         /* @__PURE__ */ t(H, {}),
         /* @__PURE__ */ t("span", { children: "Creating Account..." })
       ] }) : "Create Admin Account" })
@@ -10859,7 +10859,7 @@ function Fd({ onComplete: e, className: r = "" }) {
     ] })
   ] }) });
 }
-function Od({
+function qd({
   name: e,
   email: r,
   picture: s,
@@ -10867,32 +10867,32 @@ function Od({
   onLogout: n,
   className: a = ""
 }) {
-  const [c, d] = x(!1), l = ee(null);
+  const [c, l] = x(!1), d = J(null);
   O(() => {
-    function g(b) {
-      l.current && !l.current.contains(b.target) && d(!1);
+    function g(w) {
+      d.current && !d.current.contains(w.target) && l(!1);
     }
     if (c)
       return document.addEventListener("mousedown", g), () => document.removeEventListener("mousedown", g);
   }, [c]), O(() => {
-    function g(b) {
-      b.key === "Escape" && d(!1);
+    function g(w) {
+      w.key === "Escape" && l(!1);
     }
     if (c)
       return document.addEventListener("keydown", g), () => document.removeEventListener("keydown", g);
   }, [c]);
-  const h = P(() => {
-    d(!1), o?.();
-  }, [o]), m = P(() => {
-    d(!1), n?.();
-  }, [n]), u = e || "User", f = (e?.[0] || r?.[0] || "?").toUpperCase();
-  return /* @__PURE__ */ i("div", { className: `cedros-profile-dropdown ${a}`, ref: l, children: [
+  const h = T(() => {
+    l(!1), o?.();
+  }, [o]), m = T(() => {
+    l(!1), n?.();
+  }, [n]), u = e || "User", p = (e?.[0] || r?.[0] || "?").toUpperCase();
+  return /* @__PURE__ */ i("div", { className: `cedros-profile-dropdown ${a}`, ref: d, children: [
     /* @__PURE__ */ i(
       "button",
       {
         type: "button",
         className: "cedros-profile-dropdown__trigger",
-        onClick: () => d(!c),
+        onClick: () => l(!c),
         "aria-expanded": c,
         "aria-haspopup": "menu",
         children: [
@@ -10904,7 +10904,7 @@ function Od({
               className: "cedros-profile-dropdown__avatar-img",
               referrerPolicy: "no-referrer"
             }
-          ) : /* @__PURE__ */ t("span", { className: "cedros-profile-dropdown__avatar-placeholder", children: f }) }),
+          ) : /* @__PURE__ */ t("span", { className: "cedros-profile-dropdown__avatar-placeholder", children: p }) }),
           /* @__PURE__ */ i("div", { className: "cedros-profile-dropdown__info", children: [
             /* @__PURE__ */ t("span", { className: "cedros-profile-dropdown__name", children: u }),
             r && /* @__PURE__ */ t("span", { className: "cedros-profile-dropdown__email", children: r })
@@ -10990,7 +10990,7 @@ function Od({
     ] })
   ] });
 }
-function gm({
+function Am({
   title: e = "Dashboard",
   sections: r = [
     "users",
@@ -11017,23 +11017,23 @@ function gm({
   pageSize: n = 20,
   onSectionChange: a,
   onSettingsClick: c,
-  onLogoutClick: d,
-  className: l = ""
+  onLogoutClick: l,
+  className: d = ""
 }) {
-  const [h, m] = x(s), [u, f] = x(!0), { user: g, logout: b } = Z(), { activeOrg: w, role: C, isLoading: N, fetchOrgs: A, hasPermission: E } = Oa(), { status: S, isLoading: L, checkStatus: p } = Lo(), { features: v, isLoading: y } = Dn(), { canAccess: k } = Sa(), T = P(
+  const [h, m] = x(s), [u, p] = x(!0), { user: g, logout: w } = ee(), { activeOrg: y, role: C, isLoading: N, fetchOrgs: A, hasPermission: E } = qa(), { status: S, isLoading: L, checkStatus: f } = Po(), { features: v, isLoading: b } = On(), { canAccess: k } = La(), P = T(
     (M) => {
       m(M), a?.(M);
     },
     [a]
-  ), _ = Hl.filter((M) => !(!r.includes(M.id) || M.requiredFeature && !v[M.requiredFeature] || !k(M.id))), B = _.find((M) => M.id === h), R = !B && !y;
+  ), _ = Ql.filter((M) => !(!r.includes(M.id) || M.requiredFeature && !v[M.requiredFeature] || !k(M.id))), B = _.find((M) => M.id === h), R = !B && !b;
   return O(() => {
-    A(), p();
-  }, [A, p]), O(() => {
+    A(), f();
+  }, [A, f]), O(() => {
     R && _.length > 0 && m("users");
-  }, [R, _.length]), !L && S?.needsSetup ? /* @__PURE__ */ t("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--setup ${l}`, children: /* @__PURE__ */ t(Fd, { onComplete: () => p() }) }) : (N || L || y) && !w ? /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--loading ${l}`, children: [
+  }, [R, _.length]), !L && S?.needsSetup ? /* @__PURE__ */ t("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--setup ${d}`, children: /* @__PURE__ */ t(Wd, { onComplete: () => f() }) }) : (N || L || b) && !y ? /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard cedros-dashboard--loading ${d}`, children: [
     /* @__PURE__ */ t(H, {}),
     /* @__PURE__ */ t("span", { className: "cedros-dashboard__loading-text", children: "Loading..." })
-  ] }) : h === "team" && !w ? /* @__PURE__ */ t("div", { className: `cedros-admin cedros-dashboard ${l}`, children: /* @__PURE__ */ t(ne, { error: "No organization selected. Please select an organization first." }) }) : /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard ${l}`, children: [
+  ] }) : h === "team" && !y ? /* @__PURE__ */ t("div", { className: `cedros-admin cedros-dashboard ${d}`, children: /* @__PURE__ */ t(se, { error: "No organization selected. Please select an organization first." }) }) : /* @__PURE__ */ i("div", { className: `cedros-admin cedros-dashboard ${d}`, children: [
     /* @__PURE__ */ i("aside", { className: "cedros-dashboard__sidebar", children: [
       /* @__PURE__ */ t("div", { className: "cedros-dashboard__sidebar-header", children: /* @__PURE__ */ i("div", { className: "cedros-dashboard__logo", children: [
         oe.wallet,
@@ -11047,7 +11047,7 @@ function gm({
             {
               type: "button",
               className: `cedros-dashboard__nav-item ${h === M.id ? "cedros-dashboard__nav-item--active" : ""}`,
-              onClick: () => T(M.id),
+              onClick: () => P(M.id),
               "aria-current": h === M.id ? "page" : void 0,
               children: [
                 /* @__PURE__ */ t("span", { className: "cedros-dashboard__nav-icon", children: M.icon }),
@@ -11063,7 +11063,7 @@ function gm({
             {
               type: "button",
               className: "cedros-dashboard__nav-label cedros-dashboard__nav-label--collapsible",
-              onClick: () => f(!u),
+              onClick: () => p(!u),
               "aria-expanded": u,
               children: [
                 /* @__PURE__ */ t("span", { children: "Configuration" }),
@@ -11082,7 +11082,7 @@ function gm({
             {
               type: "button",
               className: `cedros-dashboard__nav-item ${h === M.id ? "cedros-dashboard__nav-item--active" : ""}`,
-              onClick: () => T(M.id),
+              onClick: () => P(M.id),
               "aria-current": h === M.id ? "page" : void 0,
               children: [
                 /* @__PURE__ */ t("span", { className: "cedros-dashboard__nav-icon", children: M.icon }),
@@ -11094,13 +11094,13 @@ function gm({
         ] })
       ] }),
       g && /* @__PURE__ */ t("div", { className: "cedros-dashboard__sidebar-footer", children: /* @__PURE__ */ t(
-        Od,
+        qd,
         {
           name: g.name,
           email: g.email,
           picture: g.picture,
           onSettings: c,
-          onLogout: d ?? b
+          onLogout: l ?? w
         }
       ) })
     ] }),
@@ -11111,46 +11111,46 @@ function gm({
         /* @__PURE__ */ t("span", { className: "cedros-dashboard__breadcrumb-current", children: B?.label })
       ] }) }),
       /* @__PURE__ */ i("div", { className: "cedros-dashboard__content", children: [
-        h === "users" && /* @__PURE__ */ t(Jl, { pageSize: n, currentUserId: g?.id }),
-        h === "team" && w && /* @__PURE__ */ t(
-          ed,
+        h === "users" && /* @__PURE__ */ t(td, { pageSize: n, currentUserId: g?.id }),
+        h === "team" && y && /* @__PURE__ */ t(
+          rd,
           {
-            orgId: w.id,
+            orgId: y.id,
             currentUserId: g?.id,
             hasPermission: E,
             role: C
           }
         ),
-        h === "referrals" && /* @__PURE__ */ t(sd, {}),
-        h === "deposits" && /* @__PURE__ */ t(td, { pageSize: n, refreshInterval: o }),
-        h === "withdrawals" && /* @__PURE__ */ t(rd, { pageSize: n, refreshInterval: o }),
-        h === "settings-auth" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(qa, {}) }),
-        h === "settings-wallet" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(za, {}) }),
-        h === "settings-messaging" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(od, {}) }),
-        h === "settings-credits" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Ha, {}) }),
-        h === "settings-server" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Ga, {}) }),
-        h === "settings-images" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(ad, {}) }),
-        h === "compliance" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(kd, {}) }),
-        h === "accreditation-queue" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Td, {}) }),
-        h === "sanctions" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Id, {}) }),
-        h === "settings-compliance" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(cd, {}) }),
-        h === "settings-referrals" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(dd, {}) }),
-        h === "signup-gating" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(gd, {}) }),
-        h === "settings-signup" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(hd, {}) })
+        h === "referrals" && /* @__PURE__ */ t(od, {}),
+        h === "deposits" && /* @__PURE__ */ t(sd, { pageSize: n, refreshInterval: o }),
+        h === "withdrawals" && /* @__PURE__ */ t(nd, { pageSize: n, refreshInterval: o }),
+        h === "settings-auth" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(ja, {}) }),
+        h === "settings-wallet" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t($a, {}) }),
+        h === "settings-messaging" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(id, {}) }),
+        h === "settings-credits" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Qa, {}) }),
+        h === "settings-server" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Ka, {}) }),
+        h === "settings-images" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(cd, {}) }),
+        h === "compliance" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Ed, {}) }),
+        h === "accreditation-queue" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Bd, {}) }),
+        h === "sanctions" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(Ud, {}) }),
+        h === "settings-compliance" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(dd, {}) }),
+        h === "settings-referrals" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(hd, {}) }),
+        h === "signup-gating" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(yd, {}) }),
+        h === "settings-signup" && /* @__PURE__ */ t("div", { className: "cedros-dashboard__section", children: /* @__PURE__ */ t(pd, {}) })
       ] })
     ] })
   ] });
 }
-var Ye = {}, ar, $s;
-function Wd() {
-  return $s || ($s = 1, ar = function() {
+var Ye = {}, ir, Hs;
+function zd() {
+  return Hs || (Hs = 1, ir = function() {
     return typeof Promise == "function" && Promise.prototype && Promise.prototype.then;
-  }), ar;
+  }), ir;
 }
-var ir = {}, Ue = {}, Vs;
+var cr = {}, Ue = {}, Gs;
 function $e() {
-  if (Vs) return Ue;
-  Vs = 1;
+  if (Gs) return Ue;
+  Gs = 1;
   let e;
   const r = [
     0,
@@ -11217,9 +11217,9 @@ function $e() {
     return e(o);
   }, Ue;
 }
-var cr = {}, Hs;
-function ss() {
-  return Hs || (Hs = 1, (function(e) {
+var lr = {}, Qs;
+function os() {
+  return Qs || (Qs = 1, (function(e) {
     e.L = { bit: 1 }, e.M = { bit: 0 }, e.Q = { bit: 3 }, e.H = { bit: 2 };
     function r(s) {
       if (typeof s != "string")
@@ -11252,12 +11252,12 @@ function ss() {
         return n;
       }
     };
-  })(cr)), cr;
+  })(lr)), lr;
 }
-var lr, Gs;
-function qd() {
-  if (Gs) return lr;
-  Gs = 1;
+var dr, Ks;
+function jd() {
+  if (Ks) return dr;
+  Ks = 1;
   function e() {
     this.buffer = [], this.length = 0;
   }
@@ -11277,12 +11277,12 @@ function qd() {
       const s = Math.floor(this.length / 8);
       this.buffer.length <= s && this.buffer.push(0), r && (this.buffer[s] |= 128 >>> this.length % 8), this.length++;
     }
-  }, lr = e, lr;
+  }, dr = e, dr;
 }
-var dr, Qs;
-function zd() {
-  if (Qs) return dr;
-  Qs = 1;
+var ur, Ys;
+function $d() {
+  if (Ys) return ur;
+  Ys = 1;
   function e(r) {
     if (!r || r < 1)
       throw new Error("BitMatrix size must be defined and greater than 0");
@@ -11297,35 +11297,35 @@ function zd() {
     this.data[r * this.size + s] ^= o;
   }, e.prototype.isReserved = function(r, s) {
     return this.reservedBit[r * this.size + s];
-  }, dr = e, dr;
+  }, ur = e, ur;
 }
-var ur = {}, Ks;
-function jd() {
-  return Ks || (Ks = 1, (function(e) {
+var hr = {}, Zs;
+function Vd() {
+  return Zs || (Zs = 1, (function(e) {
     const r = $e().getSymbolSize;
     e.getRowColCoords = function(o) {
       if (o === 1) return [];
-      const n = Math.floor(o / 7) + 2, a = r(o), c = a === 145 ? 26 : Math.ceil((a - 13) / (2 * n - 2)) * 2, d = [a - 7];
-      for (let l = 1; l < n - 1; l++)
-        d[l] = d[l - 1] - c;
-      return d.push(6), d.reverse();
+      const n = Math.floor(o / 7) + 2, a = r(o), c = a === 145 ? 26 : Math.ceil((a - 13) / (2 * n - 2)) * 2, l = [a - 7];
+      for (let d = 1; d < n - 1; d++)
+        l[d] = l[d - 1] - c;
+      return l.push(6), l.reverse();
     }, e.getPositions = function(o) {
       const n = [], a = e.getRowColCoords(o), c = a.length;
-      for (let d = 0; d < c; d++)
-        for (let l = 0; l < c; l++)
-          d === 0 && l === 0 || // top-left
-          d === 0 && l === c - 1 || // bottom-left
-          d === c - 1 && l === 0 || n.push([a[d], a[l]]);
+      for (let l = 0; l < c; l++)
+        for (let d = 0; d < c; d++)
+          l === 0 && d === 0 || // top-left
+          l === 0 && d === c - 1 || // bottom-left
+          l === c - 1 && d === 0 || n.push([a[l], a[d]]);
       return n;
     };
-  })(ur)), ur;
+  })(hr)), hr;
 }
-var hr = {}, Ys;
-function $d() {
-  if (Ys) return hr;
-  Ys = 1;
+var mr = {}, Xs;
+function Hd() {
+  if (Xs) return mr;
+  Xs = 1;
   const e = $e().getSymbolSize, r = 7;
-  return hr.getPositions = function(o) {
+  return mr.getPositions = function(o) {
     const n = e(o);
     return [
       // top-left
@@ -11335,11 +11335,11 @@ function $d() {
       // bottom-left
       [0, n - r]
     ];
-  }, hr;
+  }, mr;
 }
-var mr = {}, Zs;
-function Vd() {
-  return Zs || (Zs = 1, (function(e) {
+var pr = {}, Js;
+function Gd() {
+  return Js || (Js = 1, (function(e) {
     e.Patterns = {
       PATTERN000: 0,
       PATTERN001: 1,
@@ -11362,38 +11362,38 @@ function Vd() {
       return e.isValid(n) ? parseInt(n, 10) : void 0;
     }, e.getPenaltyN1 = function(n) {
       const a = n.size;
-      let c = 0, d = 0, l = 0, h = null, m = null;
+      let c = 0, l = 0, d = 0, h = null, m = null;
       for (let u = 0; u < a; u++) {
-        d = l = 0, h = m = null;
-        for (let f = 0; f < a; f++) {
-          let g = n.get(u, f);
-          g === h ? d++ : (d >= 5 && (c += r.N1 + (d - 5)), h = g, d = 1), g = n.get(f, u), g === m ? l++ : (l >= 5 && (c += r.N1 + (l - 5)), m = g, l = 1);
+        l = d = 0, h = m = null;
+        for (let p = 0; p < a; p++) {
+          let g = n.get(u, p);
+          g === h ? l++ : (l >= 5 && (c += r.N1 + (l - 5)), h = g, l = 1), g = n.get(p, u), g === m ? d++ : (d >= 5 && (c += r.N1 + (d - 5)), m = g, d = 1);
         }
-        d >= 5 && (c += r.N1 + (d - 5)), l >= 5 && (c += r.N1 + (l - 5));
+        l >= 5 && (c += r.N1 + (l - 5)), d >= 5 && (c += r.N1 + (d - 5));
       }
       return c;
     }, e.getPenaltyN2 = function(n) {
       const a = n.size;
       let c = 0;
-      for (let d = 0; d < a - 1; d++)
-        for (let l = 0; l < a - 1; l++) {
-          const h = n.get(d, l) + n.get(d, l + 1) + n.get(d + 1, l) + n.get(d + 1, l + 1);
+      for (let l = 0; l < a - 1; l++)
+        for (let d = 0; d < a - 1; d++) {
+          const h = n.get(l, d) + n.get(l, d + 1) + n.get(l + 1, d) + n.get(l + 1, d + 1);
           (h === 4 || h === 0) && c++;
         }
       return c * r.N2;
     }, e.getPenaltyN3 = function(n) {
       const a = n.size;
-      let c = 0, d = 0, l = 0;
+      let c = 0, l = 0, d = 0;
       for (let h = 0; h < a; h++) {
-        d = l = 0;
+        l = d = 0;
         for (let m = 0; m < a; m++)
-          d = d << 1 & 2047 | n.get(h, m), m >= 10 && (d === 1488 || d === 93) && c++, l = l << 1 & 2047 | n.get(m, h), m >= 10 && (l === 1488 || l === 93) && c++;
+          l = l << 1 & 2047 | n.get(h, m), m >= 10 && (l === 1488 || l === 93) && c++, d = d << 1 & 2047 | n.get(m, h), m >= 10 && (d === 1488 || d === 93) && c++;
       }
       return c * r.N3;
     }, e.getPenaltyN4 = function(n) {
       let a = 0;
       const c = n.data.length;
-      for (let l = 0; l < c; l++) a += n.data[l];
+      for (let d = 0; d < c; d++) a += n.data[d];
       return Math.abs(Math.ceil(a * 100 / c / 5) - 10) * r.N4;
     };
     function s(o, n, a) {
@@ -11420,26 +11420,26 @@ function Vd() {
     }
     e.applyMask = function(n, a) {
       const c = a.size;
-      for (let d = 0; d < c; d++)
-        for (let l = 0; l < c; l++)
-          a.isReserved(l, d) || a.xor(l, d, s(n, l, d));
+      for (let l = 0; l < c; l++)
+        for (let d = 0; d < c; d++)
+          a.isReserved(d, l) || a.xor(d, l, s(n, d, l));
     }, e.getBestMask = function(n, a) {
       const c = Object.keys(e.Patterns).length;
-      let d = 0, l = 1 / 0;
+      let l = 0, d = 1 / 0;
       for (let h = 0; h < c; h++) {
         a(h), e.applyMask(h, n);
         const m = e.getPenaltyN1(n) + e.getPenaltyN2(n) + e.getPenaltyN3(n) + e.getPenaltyN4(n);
-        e.applyMask(h, n), m < l && (l = m, d = h);
+        e.applyMask(h, n), m < d && (d = m, l = h);
       }
-      return d;
+      return l;
     };
-  })(mr)), mr;
+  })(pr)), pr;
 }
-var wt = {}, Xs;
-function Po() {
-  if (Xs) return wt;
-  Xs = 1;
-  const e = ss(), r = [
+var yt = {}, en;
+function Ro() {
+  if (en) return yt;
+  en = 1;
+  const e = os(), r = [
     // L  M  Q  H
     1,
     1,
@@ -11764,7 +11764,7 @@ function Po() {
     2040,
     2430
   ];
-  return wt.getBlocksCount = function(n, a) {
+  return yt.getBlocksCount = function(n, a) {
     switch (a) {
       case e.L:
         return r[(n - 1) * 4 + 0];
@@ -11777,7 +11777,7 @@ function Po() {
       default:
         return;
     }
-  }, wt.getTotalCodewordsCount = function(n, a) {
+  }, yt.getTotalCodewordsCount = function(n, a) {
     switch (a) {
       case e.L:
         return s[(n - 1) * 4 + 0];
@@ -11790,12 +11790,12 @@ function Po() {
       default:
         return;
     }
-  }, wt;
+  }, yt;
 }
-var pr = {}, ct = {}, Js;
-function Hd() {
-  if (Js) return ct;
-  Js = 1;
+var fr = {}, ct = {}, tn;
+function Qd() {
+  if (tn) return ct;
+  tn = 1;
   const e = new Uint8Array(512), r = new Uint8Array(256);
   return (function() {
     let o = 1;
@@ -11812,25 +11812,25 @@ function Hd() {
     return o === 0 || n === 0 ? 0 : e[r[o] + r[n]];
   }, ct;
 }
-var en;
-function Gd() {
-  return en || (en = 1, (function(e) {
-    const r = Hd();
+var rn;
+function Kd() {
+  return rn || (rn = 1, (function(e) {
+    const r = Qd();
     e.mul = function(o, n) {
       const a = new Uint8Array(o.length + n.length - 1);
       for (let c = 0; c < o.length; c++)
-        for (let d = 0; d < n.length; d++)
-          a[c + d] ^= r.mul(o[c], n[d]);
+        for (let l = 0; l < n.length; l++)
+          a[c + l] ^= r.mul(o[c], n[l]);
       return a;
     }, e.mod = function(o, n) {
       let a = new Uint8Array(o);
       for (; a.length - n.length >= 0; ) {
         const c = a[0];
-        for (let l = 0; l < n.length; l++)
-          a[l] ^= r.mul(n[l], c);
-        let d = 0;
-        for (; d < a.length && a[d] === 0; ) d++;
-        a = a.slice(d);
+        for (let d = 0; d < n.length; d++)
+          a[d] ^= r.mul(n[d], c);
+        let l = 0;
+        for (; l < a.length && a[l] === 0; ) l++;
+        a = a.slice(l);
       }
       return a;
     }, e.generateECPolynomial = function(o) {
@@ -11839,13 +11839,13 @@ function Gd() {
         n = e.mul(n, new Uint8Array([1, r.exp(a)]));
       return n;
     };
-  })(pr)), pr;
+  })(fr)), fr;
 }
-var fr, tn;
-function Qd() {
-  if (tn) return fr;
-  tn = 1;
-  const e = Gd();
+var gr, sn;
+function Yd() {
+  if (sn) return gr;
+  sn = 1;
+  const e = Kd();
   function r(s) {
     this.genPoly = void 0, this.degree = s, this.degree && this.initialize(this.degree);
   }
@@ -11858,22 +11858,22 @@ function Qd() {
     n.set(o);
     const a = e.mod(n, this.genPoly), c = this.degree - a.length;
     if (c > 0) {
-      const d = new Uint8Array(this.degree);
-      return d.set(a, c), d;
+      const l = new Uint8Array(this.degree);
+      return l.set(a, c), l;
     }
     return a;
-  }, fr = r, fr;
+  }, gr = r, gr;
 }
-var gr = {}, wr = {}, br = {}, rn;
-function To() {
-  return rn || (rn = 1, br.isValid = function(r) {
+var wr = {}, yr = {}, br = {}, nn;
+function Bo() {
+  return nn || (nn = 1, br.isValid = function(r) {
     return !isNaN(r) && r >= 1 && r <= 40;
   }), br;
 }
-var ke = {}, sn;
-function Ro() {
-  if (sn) return ke;
-  sn = 1;
+var ke = {}, on;
+function Io() {
+  if (on) return ke;
+  on = 1;
   const e = "[0-9]+", r = "[A-Z $%*+\\-./:]+";
   let s = "(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|[uFF00-uFFEF]|[u4E00-u9FAF]|[u2605-u2606]|[u2190-u2195]|u203B|[u2010u2015u2018u2019u2025u2026u201Cu201Du2225u2260]|[u0391-u0451]|[u00A7u00A8u00B1u00B4u00D7u00F7])+";
   s = s.replace(/u/g, "\\u");
@@ -11881,18 +11881,18 @@ function Ro() {
 ]))+`;
   ke.KANJI = new RegExp(s, "g"), ke.BYTE_KANJI = new RegExp("[^A-Z0-9 $%*+\\-./:]+", "g"), ke.BYTE = new RegExp(o, "g"), ke.NUMERIC = new RegExp(e, "g"), ke.ALPHANUMERIC = new RegExp(r, "g");
   const n = new RegExp("^" + s + "$"), a = new RegExp("^" + e + "$"), c = new RegExp("^[A-Z0-9 $%*+\\-./:]+$");
-  return ke.testKanji = function(l) {
-    return n.test(l);
-  }, ke.testNumeric = function(l) {
-    return a.test(l);
-  }, ke.testAlphanumeric = function(l) {
-    return c.test(l);
+  return ke.testKanji = function(d) {
+    return n.test(d);
+  }, ke.testNumeric = function(d) {
+    return a.test(d);
+  }, ke.testAlphanumeric = function(d) {
+    return c.test(d);
   }, ke;
 }
-var nn;
+var an;
 function Ve() {
-  return nn || (nn = 1, (function(e) {
-    const r = To(), s = Ro();
+  return an || (an = 1, (function(e) {
+    const r = Bo(), s = Io();
     e.NUMERIC = {
       id: "Numeric",
       bit: 1,
@@ -11949,42 +11949,42 @@ function Ve() {
         return c;
       }
     };
-  })(wr)), wr;
+  })(yr)), yr;
 }
-var on;
-function Kd() {
-  return on || (on = 1, (function(e) {
-    const r = $e(), s = Po(), o = ss(), n = Ve(), a = To(), c = 7973, d = r.getBCHDigit(c);
-    function l(f, g, b) {
+var cn;
+function Zd() {
+  return cn || (cn = 1, (function(e) {
+    const r = $e(), s = Ro(), o = os(), n = Ve(), a = Bo(), c = 7973, l = r.getBCHDigit(c);
+    function d(p, g, w) {
+      for (let y = 1; y <= 40; y++)
+        if (g <= e.getCapacity(y, w, p))
+          return y;
+    }
+    function h(p, g) {
+      return n.getCharCountIndicator(p, g) + 4;
+    }
+    function m(p, g) {
+      let w = 0;
+      return p.forEach(function(y) {
+        const C = h(y.mode, g);
+        w += C + y.getBitsLength();
+      }), w;
+    }
+    function u(p, g) {
       for (let w = 1; w <= 40; w++)
-        if (g <= e.getCapacity(w, b, f))
+        if (m(p, w) <= e.getCapacity(w, g, n.MIXED))
           return w;
     }
-    function h(f, g) {
-      return n.getCharCountIndicator(f, g) + 4;
-    }
-    function m(f, g) {
-      let b = 0;
-      return f.forEach(function(w) {
-        const C = h(w.mode, g);
-        b += C + w.getBitsLength();
-      }), b;
-    }
-    function u(f, g) {
-      for (let b = 1; b <= 40; b++)
-        if (m(f, b) <= e.getCapacity(b, g, n.MIXED))
-          return b;
-    }
-    e.from = function(g, b) {
-      return a.isValid(g) ? parseInt(g, 10) : b;
-    }, e.getCapacity = function(g, b, w) {
+    e.from = function(g, w) {
+      return a.isValid(g) ? parseInt(g, 10) : w;
+    }, e.getCapacity = function(g, w, y) {
       if (!a.isValid(g))
         throw new Error("Invalid QR Code version");
-      typeof w > "u" && (w = n.BYTE);
-      const C = r.getSymbolTotalCodewords(g), N = s.getTotalCodewordsCount(g, b), A = (C - N) * 8;
-      if (w === n.MIXED) return A;
-      const E = A - h(w, g);
-      switch (w) {
+      typeof y > "u" && (y = n.BYTE);
+      const C = r.getSymbolTotalCodewords(g), N = s.getTotalCodewordsCount(g, w), A = (C - N) * 8;
+      if (y === n.MIXED) return A;
+      const E = A - h(y, g);
+      switch (y) {
         case n.NUMERIC:
           return Math.floor(E / 10 * 3);
         case n.ALPHANUMERIC:
@@ -11995,45 +11995,45 @@ function Kd() {
         default:
           return Math.floor(E / 8);
       }
-    }, e.getBestVersionForData = function(g, b) {
-      let w;
-      const C = o.from(b, o.M);
+    }, e.getBestVersionForData = function(g, w) {
+      let y;
+      const C = o.from(w, o.M);
       if (Array.isArray(g)) {
         if (g.length > 1)
           return u(g, C);
         if (g.length === 0)
           return 1;
-        w = g[0];
+        y = g[0];
       } else
-        w = g;
-      return l(w.mode, w.getLength(), C);
+        y = g;
+      return d(y.mode, y.getLength(), C);
     }, e.getEncodedBits = function(g) {
       if (!a.isValid(g) || g < 7)
         throw new Error("Invalid QR Code version");
-      let b = g << 12;
-      for (; r.getBCHDigit(b) - d >= 0; )
-        b ^= c << r.getBCHDigit(b) - d;
-      return g << 12 | b;
+      let w = g << 12;
+      for (; r.getBCHDigit(w) - l >= 0; )
+        w ^= c << r.getBCHDigit(w) - l;
+      return g << 12 | w;
     };
-  })(gr)), gr;
+  })(wr)), wr;
 }
-var yr = {}, an;
-function Yd() {
-  if (an) return yr;
-  an = 1;
+var vr = {}, ln;
+function Xd() {
+  if (ln) return vr;
+  ln = 1;
   const e = $e(), r = 1335, s = 21522, o = e.getBCHDigit(r);
-  return yr.getEncodedBits = function(a, c) {
-    const d = a.bit << 3 | c;
-    let l = d << 10;
-    for (; e.getBCHDigit(l) - o >= 0; )
-      l ^= r << e.getBCHDigit(l) - o;
-    return (d << 10 | l) ^ s;
-  }, yr;
+  return vr.getEncodedBits = function(a, c) {
+    const l = a.bit << 3 | c;
+    let d = l << 10;
+    for (; e.getBCHDigit(d) - o >= 0; )
+      d ^= r << e.getBCHDigit(d) - o;
+    return (l << 10 | d) ^ s;
+  }, vr;
 }
-var vr = {}, Ar, cn;
-function Zd() {
-  if (cn) return Ar;
-  cn = 1;
+var Ar = {}, Nr, dn;
+function Jd() {
+  if (dn) return Nr;
+  dn = 1;
   const e = Ve();
   function r(s) {
     this.mode = e.NUMERIC, this.data = s.toString();
@@ -12048,14 +12048,14 @@ function Zd() {
     let n, a, c;
     for (n = 0; n + 3 <= this.data.length; n += 3)
       a = this.data.substr(n, 3), c = parseInt(a, 10), o.put(c, 10);
-    const d = this.data.length - n;
-    d > 0 && (a = this.data.substr(n), c = parseInt(a, 10), o.put(c, d * 3 + 1));
-  }, Ar = r, Ar;
+    const l = this.data.length - n;
+    l > 0 && (a = this.data.substr(n), c = parseInt(a, 10), o.put(c, l * 3 + 1));
+  }, Nr = r, Nr;
 }
-var Nr, ln;
-function Xd() {
-  if (ln) return Nr;
-  ln = 1;
+var kr, un;
+function eu() {
+  if (un) return kr;
+  un = 1;
   const e = Ve(), r = [
     "0",
     "1",
@@ -12119,12 +12119,12 @@ function Xd() {
       c += r.indexOf(this.data[a + 1]), n.put(c, 11);
     }
     this.data.length % 2 && n.put(r.indexOf(this.data[a]), 6);
-  }, Nr = s, Nr;
+  }, kr = s, kr;
 }
-var kr, dn;
-function Jd() {
-  if (dn) return kr;
-  dn = 1;
+var Cr, hn;
+function tu() {
+  if (hn) return Cr;
+  hn = 1;
   const e = Ve();
   function r(s) {
     this.mode = e.BYTE, typeof s == "string" ? this.data = new TextEncoder().encode(s) : this.data = new Uint8Array(s);
@@ -12138,12 +12138,12 @@ function Jd() {
   }, r.prototype.write = function(s) {
     for (let o = 0, n = this.data.length; o < n; o++)
       s.put(this.data[o], 8);
-  }, kr = r, kr;
+  }, Cr = r, Cr;
 }
-var Cr, un;
-function eu() {
-  if (un) return Cr;
-  un = 1;
+var Er, mn;
+function ru() {
+  if (mn) return Er;
+  mn = 1;
   const e = Ve(), r = $e();
   function s(o) {
     this.mode = e.KANJI, this.data = o;
@@ -12169,21 +12169,21 @@ Make sure your charset is UTF-8`
         );
       a = (a >>> 8 & 255) * 192 + (a & 255), o.put(a, 13);
     }
-  }, Cr = s, Cr;
+  }, Er = s, Er;
 }
-var Er = { exports: {} }, hn;
-function tu() {
-  return hn || (hn = 1, (function(e) {
+var xr = { exports: {} }, pn;
+function su() {
+  return pn || (pn = 1, (function(e) {
     var r = {
       single_source_shortest_paths: function(s, o, n) {
         var a = {}, c = {};
         c[o] = 0;
-        var d = r.PriorityQueue.make();
-        d.push(o, 0);
-        for (var l, h, m, u, f, g, b, w, C; !d.empty(); ) {
-          l = d.pop(), h = l.value, u = l.cost, f = s[h] || {};
-          for (m in f)
-            f.hasOwnProperty(m) && (g = f[m], b = u + g, w = c[m], C = typeof c[m] > "u", (C || w > b) && (c[m] = b, d.push(m, b), a[m] = h));
+        var l = r.PriorityQueue.make();
+        l.push(o, 0);
+        for (var d, h, m, u, p, g, w, y, C; !l.empty(); ) {
+          d = l.pop(), h = d.value, u = d.cost, p = s[h] || {};
+          for (m in p)
+            p.hasOwnProperty(m) && (g = p[m], w = u + g, y = c[m], C = typeof c[m] > "u", (C || y > w) && (c[m] = w, l.push(m, w), a[m] = h));
         }
         if (typeof n < "u" && typeof c[n] > "u") {
           var N = ["Could not find a path from ", o, " to ", n, "."].join("");
@@ -12237,12 +12237,12 @@ function tu() {
       }
     };
     e.exports = r;
-  })(Er)), Er.exports;
+  })(xr)), xr.exports;
 }
-var mn;
-function ru() {
-  return mn || (mn = 1, (function(e) {
-    const r = Ve(), s = Zd(), o = Xd(), n = Jd(), a = eu(), c = Ro(), d = $e(), l = tu();
+var fn;
+function nu() {
+  return fn || (fn = 1, (function(e) {
+    const r = Ve(), s = Jd(), o = eu(), n = tu(), a = ru(), c = Io(), l = $e(), d = su();
     function h(N) {
       return unescape(encodeURIComponent(N)).length;
     }
@@ -12261,8 +12261,8 @@ function ru() {
     function u(N) {
       const A = m(c.NUMERIC, r.NUMERIC, N), E = m(c.ALPHANUMERIC, r.ALPHANUMERIC, N);
       let S, L;
-      return d.isKanjiModeEnabled() ? (S = m(c.BYTE, r.BYTE, N), L = m(c.KANJI, r.KANJI, N)) : (S = m(c.BYTE_KANJI, r.BYTE, N), L = []), A.concat(E, S, L).sort(function(v, y) {
-        return v.index - y.index;
+      return l.isKanjiModeEnabled() ? (S = m(c.BYTE, r.BYTE, N), L = m(c.KANJI, r.KANJI, N)) : (S = m(c.BYTE_KANJI, r.BYTE, N), L = []), A.concat(E, S, L).sort(function(v, b) {
+        return v.index - b.index;
       }).map(function(v) {
         return {
           data: v.data,
@@ -12271,7 +12271,7 @@ function ru() {
         };
       });
     }
-    function f(N, A) {
+    function p(N, A) {
       switch (A) {
         case r.NUMERIC:
           return s.getBitsLength(N);
@@ -12289,7 +12289,7 @@ function ru() {
         return S && S.mode === E.mode ? (A[A.length - 1].data += E.data, A) : (A.push(E), A);
       }, []);
     }
-    function b(N) {
+    function w(N) {
       const A = [];
       for (let E = 0; E < N.length; E++) {
         const S = N[E];
@@ -12321,23 +12321,23 @@ function ru() {
       }
       return A;
     }
-    function w(N, A) {
+    function y(N, A) {
       const E = {}, S = { start: {} };
       let L = ["start"];
-      for (let p = 0; p < N.length; p++) {
-        const v = N[p], y = [];
+      for (let f = 0; f < N.length; f++) {
+        const v = N[f], b = [];
         for (let k = 0; k < v.length; k++) {
-          const T = v[k], _ = "" + p + k;
-          y.push(_), E[_] = { node: T, lastCount: 0 }, S[_] = {};
+          const P = v[k], _ = "" + f + k;
+          b.push(_), E[_] = { node: P, lastCount: 0 }, S[_] = {};
           for (let B = 0; B < L.length; B++) {
             const R = L[B];
-            E[R] && E[R].node.mode === T.mode ? (S[R][_] = f(E[R].lastCount + T.length, T.mode) - f(E[R].lastCount, T.mode), E[R].lastCount += T.length) : (E[R] && (E[R].lastCount = T.length), S[R][_] = f(T.length, T.mode) + 4 + r.getCharCountIndicator(T.mode, A));
+            E[R] && E[R].node.mode === P.mode ? (S[R][_] = p(E[R].lastCount + P.length, P.mode) - p(E[R].lastCount, P.mode), E[R].lastCount += P.length) : (E[R] && (E[R].lastCount = P.length), S[R][_] = p(P.length, P.mode) + 4 + r.getCharCountIndicator(P.mode, A));
           }
         }
-        L = y;
+        L = b;
       }
-      for (let p = 0; p < L.length; p++)
-        S[L[p]].end = 0;
+      for (let f = 0; f < L.length; f++)
+        S[L[f]].end = 0;
       return { map: S, table: E };
     }
     function C(N, A) {
@@ -12346,7 +12346,7 @@ function ru() {
       if (E = r.from(A, S), E !== r.BYTE && E.bit < S.bit)
         throw new Error('"' + N + '" cannot be encoded with mode ' + r.toString(E) + `.
  Suggested mode is: ` + r.toString(S));
-      switch (E === r.KANJI && !d.isKanjiModeEnabled() && (E = r.BYTE), E) {
+      switch (E === r.KANJI && !l.isKanjiModeEnabled() && (E = r.BYTE), E) {
         case r.NUMERIC:
           return new s(N);
         case r.ALPHANUMERIC:
@@ -12362,124 +12362,124 @@ function ru() {
         return typeof S == "string" ? E.push(C(S, null)) : S.data && E.push(C(S.data, S.mode)), E;
       }, []);
     }, e.fromString = function(A, E) {
-      const S = u(A, d.isKanjiModeEnabled()), L = b(S), p = w(L, E), v = l.find_path(p.map, "start", "end"), y = [];
+      const S = u(A, l.isKanjiModeEnabled()), L = w(S), f = y(L, E), v = d.find_path(f.map, "start", "end"), b = [];
       for (let k = 1; k < v.length - 1; k++)
-        y.push(p.table[v[k]].node);
-      return e.fromArray(g(y));
+        b.push(f.table[v[k]].node);
+      return e.fromArray(g(b));
     }, e.rawSplit = function(A) {
       return e.fromArray(
-        u(A, d.isKanjiModeEnabled())
+        u(A, l.isKanjiModeEnabled())
       );
     };
-  })(vr)), vr;
+  })(Ar)), Ar;
 }
-var pn;
-function su() {
-  if (pn) return ir;
-  pn = 1;
-  const e = $e(), r = ss(), s = qd(), o = zd(), n = jd(), a = $d(), c = Vd(), d = Po(), l = Qd(), h = Kd(), m = Yd(), u = Ve(), f = ru();
-  function g(p, v) {
-    const y = p.size, k = a.getPositions(v);
-    for (let T = 0; T < k.length; T++) {
-      const _ = k[T][0], B = k[T][1];
+var gn;
+function ou() {
+  if (gn) return cr;
+  gn = 1;
+  const e = $e(), r = os(), s = jd(), o = $d(), n = Vd(), a = Hd(), c = Gd(), l = Ro(), d = Yd(), h = Zd(), m = Xd(), u = Ve(), p = nu();
+  function g(f, v) {
+    const b = f.size, k = a.getPositions(v);
+    for (let P = 0; P < k.length; P++) {
+      const _ = k[P][0], B = k[P][1];
       for (let R = -1; R <= 7; R++)
-        if (!(_ + R <= -1 || y <= _ + R))
+        if (!(_ + R <= -1 || b <= _ + R))
           for (let I = -1; I <= 7; I++)
-            B + I <= -1 || y <= B + I || (R >= 0 && R <= 6 && (I === 0 || I === 6) || I >= 0 && I <= 6 && (R === 0 || R === 6) || R >= 2 && R <= 4 && I >= 2 && I <= 4 ? p.set(_ + R, B + I, !0, !0) : p.set(_ + R, B + I, !1, !0));
+            B + I <= -1 || b <= B + I || (R >= 0 && R <= 6 && (I === 0 || I === 6) || I >= 0 && I <= 6 && (R === 0 || R === 6) || R >= 2 && R <= 4 && I >= 2 && I <= 4 ? f.set(_ + R, B + I, !0, !0) : f.set(_ + R, B + I, !1, !0));
     }
   }
-  function b(p) {
-    const v = p.size;
-    for (let y = 8; y < v - 8; y++) {
-      const k = y % 2 === 0;
-      p.set(y, 6, k, !0), p.set(6, y, k, !0);
+  function w(f) {
+    const v = f.size;
+    for (let b = 8; b < v - 8; b++) {
+      const k = b % 2 === 0;
+      f.set(b, 6, k, !0), f.set(6, b, k, !0);
     }
   }
-  function w(p, v) {
-    const y = n.getPositions(v);
-    for (let k = 0; k < y.length; k++) {
-      const T = y[k][0], _ = y[k][1];
+  function y(f, v) {
+    const b = n.getPositions(v);
+    for (let k = 0; k < b.length; k++) {
+      const P = b[k][0], _ = b[k][1];
       for (let B = -2; B <= 2; B++)
         for (let R = -2; R <= 2; R++)
-          B === -2 || B === 2 || R === -2 || R === 2 || B === 0 && R === 0 ? p.set(T + B, _ + R, !0, !0) : p.set(T + B, _ + R, !1, !0);
+          B === -2 || B === 2 || R === -2 || R === 2 || B === 0 && R === 0 ? f.set(P + B, _ + R, !0, !0) : f.set(P + B, _ + R, !1, !0);
     }
   }
-  function C(p, v) {
-    const y = p.size, k = h.getEncodedBits(v);
-    let T, _, B;
+  function C(f, v) {
+    const b = f.size, k = h.getEncodedBits(v);
+    let P, _, B;
     for (let R = 0; R < 18; R++)
-      T = Math.floor(R / 3), _ = R % 3 + y - 8 - 3, B = (k >> R & 1) === 1, p.set(T, _, B, !0), p.set(_, T, B, !0);
+      P = Math.floor(R / 3), _ = R % 3 + b - 8 - 3, B = (k >> R & 1) === 1, f.set(P, _, B, !0), f.set(_, P, B, !0);
   }
-  function N(p, v, y) {
-    const k = p.size, T = m.getEncodedBits(v, y);
+  function N(f, v, b) {
+    const k = f.size, P = m.getEncodedBits(v, b);
     let _, B;
     for (_ = 0; _ < 15; _++)
-      B = (T >> _ & 1) === 1, _ < 6 ? p.set(_, 8, B, !0) : _ < 8 ? p.set(_ + 1, 8, B, !0) : p.set(k - 15 + _, 8, B, !0), _ < 8 ? p.set(8, k - _ - 1, B, !0) : _ < 9 ? p.set(8, 15 - _ - 1 + 1, B, !0) : p.set(8, 15 - _ - 1, B, !0);
-    p.set(k - 8, 8, 1, !0);
+      B = (P >> _ & 1) === 1, _ < 6 ? f.set(_, 8, B, !0) : _ < 8 ? f.set(_ + 1, 8, B, !0) : f.set(k - 15 + _, 8, B, !0), _ < 8 ? f.set(8, k - _ - 1, B, !0) : _ < 9 ? f.set(8, 15 - _ - 1 + 1, B, !0) : f.set(8, 15 - _ - 1, B, !0);
+    f.set(k - 8, 8, 1, !0);
   }
-  function A(p, v) {
-    const y = p.size;
-    let k = -1, T = y - 1, _ = 7, B = 0;
-    for (let R = y - 1; R > 0; R -= 2)
+  function A(f, v) {
+    const b = f.size;
+    let k = -1, P = b - 1, _ = 7, B = 0;
+    for (let R = b - 1; R > 0; R -= 2)
       for (R === 6 && R--; ; ) {
         for (let I = 0; I < 2; I++)
-          if (!p.isReserved(T, R - I)) {
+          if (!f.isReserved(P, R - I)) {
             let M = !1;
-            B < v.length && (M = (v[B] >>> _ & 1) === 1), p.set(T, R - I, M), _--, _ === -1 && (B++, _ = 7);
+            B < v.length && (M = (v[B] >>> _ & 1) === 1), f.set(P, R - I, M), _--, _ === -1 && (B++, _ = 7);
           }
-        if (T += k, T < 0 || y <= T) {
-          T -= k, k = -k;
+        if (P += k, P < 0 || b <= P) {
+          P -= k, k = -k;
           break;
         }
       }
   }
-  function E(p, v, y) {
+  function E(f, v, b) {
     const k = new s();
-    y.forEach(function(I) {
-      k.put(I.mode.bit, 4), k.put(I.getLength(), u.getCharCountIndicator(I.mode, p)), I.write(k);
+    b.forEach(function(I) {
+      k.put(I.mode.bit, 4), k.put(I.getLength(), u.getCharCountIndicator(I.mode, f)), I.write(k);
     });
-    const T = e.getSymbolTotalCodewords(p), _ = d.getTotalCodewordsCount(p, v), B = (T - _) * 8;
+    const P = e.getSymbolTotalCodewords(f), _ = l.getTotalCodewordsCount(f, v), B = (P - _) * 8;
     for (k.getLengthInBits() + 4 <= B && k.put(0, 4); k.getLengthInBits() % 8 !== 0; )
       k.putBit(0);
     const R = (B - k.getLengthInBits()) / 8;
     for (let I = 0; I < R; I++)
       k.put(I % 2 ? 17 : 236, 8);
-    return S(k, p, v);
+    return S(k, f, v);
   }
-  function S(p, v, y) {
-    const k = e.getSymbolTotalCodewords(v), T = d.getTotalCodewordsCount(v, y), _ = k - T, B = d.getBlocksCount(v, y), R = k % B, I = B - R, M = Math.floor(k / B), U = Math.floor(_ / B), W = U + 1, j = M - U, V = new l(j);
+  function S(f, v, b) {
+    const k = e.getSymbolTotalCodewords(v), P = l.getTotalCodewordsCount(v, b), _ = k - P, B = l.getBlocksCount(v, b), R = k % B, I = B - R, M = Math.floor(k / B), U = Math.floor(_ / B), W = U + 1, j = M - U, V = new d(j);
     let F = 0;
-    const G = new Array(B), J = new Array(B);
-    let K = 0;
-    const le = new Uint8Array(p.buffer);
+    const G = new Array(B), X = new Array(B);
+    let Y = 0;
+    const le = new Uint8Array(f.buffer);
     for (let me = 0; me < B; me++) {
       const _e = me < I ? U : W;
-      G[me] = le.slice(F, F + _e), J[me] = V.encode(G[me]), F += _e, K = Math.max(K, _e);
+      G[me] = le.slice(F, F + _e), X[me] = V.encode(G[me]), F += _e, Y = Math.max(Y, _e);
     }
     const D = new Uint8Array(k);
-    let $ = 0, se, te;
-    for (se = 0; se < K; se++)
-      for (te = 0; te < B; te++)
-        se < G[te].length && (D[$++] = G[te][se]);
-    for (se = 0; se < j; se++)
-      for (te = 0; te < B; te++)
-        D[$++] = J[te][se];
+    let $ = 0, ne, re;
+    for (ne = 0; ne < Y; ne++)
+      for (re = 0; re < B; re++)
+        ne < G[re].length && (D[$++] = G[re][ne]);
+    for (ne = 0; ne < j; ne++)
+      for (re = 0; re < B; re++)
+        D[$++] = X[re][ne];
     return D;
   }
-  function L(p, v, y, k) {
-    let T;
-    if (Array.isArray(p))
-      T = f.fromArray(p);
-    else if (typeof p == "string") {
+  function L(f, v, b, k) {
+    let P;
+    if (Array.isArray(f))
+      P = p.fromArray(f);
+    else if (typeof f == "string") {
       let M = v;
       if (!M) {
-        const U = f.rawSplit(p);
-        M = h.getBestVersionForData(U, y);
+        const U = p.rawSplit(f);
+        M = h.getBestVersionForData(U, b);
       }
-      T = f.fromString(p, M || 40);
+      P = p.fromString(f, M || 40);
     } else
       throw new Error("Invalid data");
-    const _ = h.getBestVersionForData(T, y);
+    const _ = h.getBestVersionForData(P, b);
     if (!_)
       throw new Error("The amount of data is too big to be stored in a QR Code");
     if (!v)
@@ -12491,28 +12491,28 @@ The chosen QR Code version cannot contain this amount of data.
 Minimum version required to store current data is: ` + _ + `.
 `
       );
-    const B = E(v, y, T), R = e.getSymbolSize(v), I = new o(R);
-    return g(I, v), b(I), w(I, v), N(I, y, 0), v >= 7 && C(I, v), A(I, B), isNaN(k) && (k = c.getBestMask(
+    const B = E(v, b, P), R = e.getSymbolSize(v), I = new o(R);
+    return g(I, v), w(I), y(I, v), N(I, b, 0), v >= 7 && C(I, v), A(I, B), isNaN(k) && (k = c.getBestMask(
       I,
-      N.bind(null, I, y)
-    )), c.applyMask(k, I), N(I, y, k), {
+      N.bind(null, I, b)
+    )), c.applyMask(k, I), N(I, b, k), {
       modules: I,
       version: v,
-      errorCorrectionLevel: y,
+      errorCorrectionLevel: b,
       maskPattern: k,
-      segments: T
+      segments: P
     };
   }
-  return ir.create = function(v, y) {
+  return cr.create = function(v, b) {
     if (typeof v > "u" || v === "")
       throw new Error("No input text");
-    let k = r.M, T, _;
-    return typeof y < "u" && (k = r.from(y.errorCorrectionLevel, r.M), T = h.from(y.version), _ = c.from(y.maskPattern), y.toSJISFunc && e.setToSJISFunction(y.toSJISFunc)), L(v, T, k, _);
-  }, ir;
+    let k = r.M, P, _;
+    return typeof b < "u" && (k = r.from(b.errorCorrectionLevel, r.M), P = h.from(b.version), _ = c.from(b.maskPattern), b.toSJISFunc && e.setToSJISFunction(b.toSJISFunc)), L(v, P, k, _);
+  }, cr;
 }
-var xr = {}, Sr = {}, fn;
-function Bo() {
-  return fn || (fn = 1, (function(e) {
+var Sr = {}, _r = {}, wn;
+function Mo() {
+  return wn || (wn = 1, (function(e) {
     function r(s) {
       if (typeof s == "number" && (s = s.toString()), typeof s != "string")
         throw new Error("Color should be defined as hex string");
@@ -12551,23 +12551,23 @@ function Bo() {
       const a = e.getScale(o, n);
       return Math.floor((o + n.margin * 2) * a);
     }, e.qrToImageData = function(o, n, a) {
-      const c = n.modules.size, d = n.modules.data, l = e.getScale(c, a), h = Math.floor((c + a.margin * 2) * l), m = a.margin * l, u = [a.color.light, a.color.dark];
-      for (let f = 0; f < h; f++)
+      const c = n.modules.size, l = n.modules.data, d = e.getScale(c, a), h = Math.floor((c + a.margin * 2) * d), m = a.margin * d, u = [a.color.light, a.color.dark];
+      for (let p = 0; p < h; p++)
         for (let g = 0; g < h; g++) {
-          let b = (f * h + g) * 4, w = a.color.light;
-          if (f >= m && g >= m && f < h - m && g < h - m) {
-            const C = Math.floor((f - m) / l), N = Math.floor((g - m) / l);
-            w = u[d[C * c + N] ? 1 : 0];
+          let w = (p * h + g) * 4, y = a.color.light;
+          if (p >= m && g >= m && p < h - m && g < h - m) {
+            const C = Math.floor((p - m) / d), N = Math.floor((g - m) / d);
+            y = u[l[C * c + N] ? 1 : 0];
           }
-          o[b++] = w.r, o[b++] = w.g, o[b++] = w.b, o[b] = w.a;
+          o[w++] = y.r, o[w++] = y.g, o[w++] = y.b, o[w] = y.a;
         }
     };
-  })(Sr)), Sr;
+  })(_r)), _r;
 }
-var gn;
-function nu() {
-  return gn || (gn = 1, (function(e) {
-    const r = Bo();
+var yn;
+function au() {
+  return yn || (yn = 1, (function(e) {
+    const r = Mo();
     function s(n, a, c) {
       n.clearRect(0, 0, a.width, a.height), a.style || (a.style = {}), a.height = c, a.width = c, a.style.height = c + "px", a.style.width = c + "px";
     }
@@ -12578,88 +12578,88 @@ function nu() {
         throw new Error("You need to specify a canvas element");
       }
     }
-    e.render = function(a, c, d) {
-      let l = d, h = c;
-      typeof l > "u" && (!c || !c.getContext) && (l = c, c = void 0), c || (h = o()), l = r.getOptions(l);
-      const m = r.getImageWidth(a.modules.size, l), u = h.getContext("2d"), f = u.createImageData(m, m);
-      return r.qrToImageData(f.data, a, l), s(u, h, m), u.putImageData(f, 0, 0), h;
-    }, e.renderToDataURL = function(a, c, d) {
-      let l = d;
-      typeof l > "u" && (!c || !c.getContext) && (l = c, c = void 0), l || (l = {});
-      const h = e.render(a, c, l), m = l.type || "image/png", u = l.rendererOpts || {};
+    e.render = function(a, c, l) {
+      let d = l, h = c;
+      typeof d > "u" && (!c || !c.getContext) && (d = c, c = void 0), c || (h = o()), d = r.getOptions(d);
+      const m = r.getImageWidth(a.modules.size, d), u = h.getContext("2d"), p = u.createImageData(m, m);
+      return r.qrToImageData(p.data, a, d), s(u, h, m), u.putImageData(p, 0, 0), h;
+    }, e.renderToDataURL = function(a, c, l) {
+      let d = l;
+      typeof d > "u" && (!c || !c.getContext) && (d = c, c = void 0), d || (d = {});
+      const h = e.render(a, c, d), m = d.type || "image/png", u = d.rendererOpts || {};
       return h.toDataURL(m, u.quality);
     };
-  })(xr)), xr;
+  })(Sr)), Sr;
 }
-var _r = {}, wn;
-function ou() {
-  if (wn) return _r;
-  wn = 1;
-  const e = Bo();
+var Lr = {}, bn;
+function iu() {
+  if (bn) return Lr;
+  bn = 1;
+  const e = Mo();
   function r(n, a) {
-    const c = n.a / 255, d = a + '="' + n.hex + '"';
-    return c < 1 ? d + " " + a + '-opacity="' + c.toFixed(2).slice(1) + '"' : d;
+    const c = n.a / 255, l = a + '="' + n.hex + '"';
+    return c < 1 ? l + " " + a + '-opacity="' + c.toFixed(2).slice(1) + '"' : l;
   }
   function s(n, a, c) {
-    let d = n + a;
-    return typeof c < "u" && (d += " " + c), d;
+    let l = n + a;
+    return typeof c < "u" && (l += " " + c), l;
   }
   function o(n, a, c) {
-    let d = "", l = 0, h = !1, m = 0;
+    let l = "", d = 0, h = !1, m = 0;
     for (let u = 0; u < n.length; u++) {
-      const f = Math.floor(u % a), g = Math.floor(u / a);
-      !f && !h && (h = !0), n[u] ? (m++, u > 0 && f > 0 && n[u - 1] || (d += h ? s("M", f + c, 0.5 + g + c) : s("m", l, 0), l = 0, h = !1), f + 1 < a && n[u + 1] || (d += s("h", m), m = 0)) : l++;
+      const p = Math.floor(u % a), g = Math.floor(u / a);
+      !p && !h && (h = !0), n[u] ? (m++, u > 0 && p > 0 && n[u - 1] || (l += h ? s("M", p + c, 0.5 + g + c) : s("m", d, 0), d = 0, h = !1), p + 1 < a && n[u + 1] || (l += s("h", m), m = 0)) : d++;
     }
-    return d;
+    return l;
   }
-  return _r.render = function(a, c, d) {
-    const l = e.getOptions(c), h = a.modules.size, m = a.modules.data, u = h + l.margin * 2, f = l.color.light.a ? "<path " + r(l.color.light, "fill") + ' d="M0 0h' + u + "v" + u + 'H0z"/>' : "", g = "<path " + r(l.color.dark, "stroke") + ' d="' + o(m, h, l.margin) + '"/>', b = 'viewBox="0 0 ' + u + " " + u + '"', C = '<svg xmlns="http://www.w3.org/2000/svg" ' + (l.width ? 'width="' + l.width + '" height="' + l.width + '" ' : "") + b + ' shape-rendering="crispEdges">' + f + g + `</svg>
+  return Lr.render = function(a, c, l) {
+    const d = e.getOptions(c), h = a.modules.size, m = a.modules.data, u = h + d.margin * 2, p = d.color.light.a ? "<path " + r(d.color.light, "fill") + ' d="M0 0h' + u + "v" + u + 'H0z"/>' : "", g = "<path " + r(d.color.dark, "stroke") + ' d="' + o(m, h, d.margin) + '"/>', w = 'viewBox="0 0 ' + u + " " + u + '"', C = '<svg xmlns="http://www.w3.org/2000/svg" ' + (d.width ? 'width="' + d.width + '" height="' + d.width + '" ' : "") + w + ' shape-rendering="crispEdges">' + p + g + `</svg>
 `;
-    return typeof d == "function" && d(null, C), C;
-  }, _r;
+    return typeof l == "function" && l(null, C), C;
+  }, Lr;
 }
-var bn;
-function au() {
-  if (bn) return Ye;
-  bn = 1;
-  const e = Wd(), r = su(), s = nu(), o = ou();
-  function n(a, c, d, l, h) {
-    const m = [].slice.call(arguments, 1), u = m.length, f = typeof m[u - 1] == "function";
-    if (!f && !e())
+var vn;
+function cu() {
+  if (vn) return Ye;
+  vn = 1;
+  const e = zd(), r = ou(), s = au(), o = iu();
+  function n(a, c, l, d, h) {
+    const m = [].slice.call(arguments, 1), u = m.length, p = typeof m[u - 1] == "function";
+    if (!p && !e())
       throw new Error("Callback required as last argument");
-    if (f) {
+    if (p) {
       if (u < 2)
         throw new Error("Too few arguments provided");
-      u === 2 ? (h = d, d = c, c = l = void 0) : u === 3 && (c.getContext && typeof h > "u" ? (h = l, l = void 0) : (h = l, l = d, d = c, c = void 0));
+      u === 2 ? (h = l, l = c, c = d = void 0) : u === 3 && (c.getContext && typeof h > "u" ? (h = d, d = void 0) : (h = d, d = l, l = c, c = void 0));
     } else {
       if (u < 1)
         throw new Error("Too few arguments provided");
-      return u === 1 ? (d = c, c = l = void 0) : u === 2 && !c.getContext && (l = d, d = c, c = void 0), new Promise(function(g, b) {
+      return u === 1 ? (l = c, c = d = void 0) : u === 2 && !c.getContext && (d = l, l = c, c = void 0), new Promise(function(g, w) {
         try {
-          const w = r.create(d, l);
-          g(a(w, c, l));
-        } catch (w) {
-          b(w);
+          const y = r.create(l, d);
+          g(a(y, c, d));
+        } catch (y) {
+          w(y);
         }
       });
     }
     try {
-      const g = r.create(d, l);
-      h(null, a(g, c, l));
+      const g = r.create(l, d);
+      h(null, a(g, c, d));
     } catch (g) {
       h(g);
     }
   }
-  return Ye.create = r.create, Ye.toCanvas = n.bind(null, s.render), Ye.toDataURL = n.bind(null, s.renderToDataURL), Ye.toString = n.bind(null, function(a, c, d) {
-    return o.render(a, d);
+  return Ye.create = r.create, Ye.toCanvas = n.bind(null, s.render), Ye.toDataURL = n.bind(null, s.renderToDataURL), Ye.toString = n.bind(null, function(a, c, l) {
+    return o.render(a, l);
   }), Ye;
 }
-var iu = au();
-const cu = /* @__PURE__ */ Hn(iu);
-function lu({ value: e, size: r = 200, alt: s = "QR code", className: o = "" }) {
-  const n = ee(null), [a, c] = x(null);
+var lu = cu();
+const du = /* @__PURE__ */ Qn(lu);
+function uu({ value: e, size: r = 200, alt: s = "QR code", className: o = "" }) {
+  const n = J(null), [a, c] = x(null);
   return O(() => {
-    !n.current || !e || cu.toCanvas(n.current, e, {
+    !n.current || !e || du.toCanvas(n.current, e, {
       width: r,
       margin: 2,
       color: {
@@ -12669,8 +12669,8 @@ function lu({ value: e, size: r = 200, alt: s = "QR code", className: o = "" }) 
       errorCorrectionLevel: "M"
     }).then(() => {
       c(null);
-    }).catch((d) => {
-      c(d instanceof Error ? d.message : "Failed to generate QR code");
+    }).catch((l) => {
+      c(l instanceof Error ? l.message : "Failed to generate QR code");
     });
   }, [e, r]), a ? /* @__PURE__ */ t(
     "div",
@@ -12692,19 +12692,19 @@ function lu({ value: e, size: r = 200, alt: s = "QR code", className: o = "" }) 
     }
   );
 }
-function Io() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(null), [n, a] = x("idle"), [c, d] = x(null), [l, h] = x(!1), [m, u] = x(null), f = q(
-    () => new re({
+function Uo() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(null), [n, a] = x("idle"), [c, l] = x(null), [d, h] = x(!1), [m, u] = x(null), p = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       retryAttempts: e.retryAttempts,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, r]
-  ), g = P(async () => {
+  ), g = T(async () => {
     h(!0), u(null);
     try {
-      const S = await f.get("/mfa/status");
+      const S = await p.get("/mfa/status");
       return o(S), S;
     } catch (S) {
       const L = z(S, "Unable to load two-factor authentication status. Please try again.");
@@ -12712,18 +12712,18 @@ function Io() {
     } finally {
       h(!1);
     }
-  }, [f]), b = P(async () => {
+  }, [p]), w = T(async () => {
     h(!0), u(null), a("loading");
     try {
-      const S = await f.post("/mfa/setup", {});
-      return d(S), a("setup"), S;
+      const S = await p.post("/mfa/setup", {});
+      return l(S), a("setup"), S;
     } catch (S) {
       const L = z(S, "Unable to start two-factor setup. Please try again.");
       throw u(L), a("error"), L;
     } finally {
       h(!1);
     }
-  }, [f]), w = P(
+  }, [p]), y = T(
     async (S) => {
       if (!/^\d{6}$/.test(S)) {
         const L = {
@@ -12734,22 +12734,22 @@ function Io() {
       }
       h(!0), u(null), a("verifying");
       try {
-        await f.post("/mfa/enable", { code: S }), a("success");
+        await p.post("/mfa/enable", { code: S }), a("success");
         try {
-          const L = await f.get("/mfa/status");
+          const L = await p.get("/mfa/status");
           o(L);
         } catch {
           o({ enabled: !0, recoveryCodesRemaining: 0 });
         }
       } catch (L) {
-        const p = z(L, "Incorrect verification code. Please check and try again.");
-        throw u(p), a("error"), p;
+        const f = z(L, "Incorrect verification code. Please check and try again.");
+        throw u(f), a("error"), f;
       } finally {
         h(!1);
       }
     },
-    [f]
-  ), C = P(
+    [p]
+  ), C = T(
     async (S) => {
       if (!S) {
         const L = {
@@ -12760,16 +12760,16 @@ function Io() {
       }
       h(!0), u(null);
       try {
-        await f.post("/mfa/disable", { password: S }), o({ enabled: !1, recoveryCodesRemaining: 0 }), d(null), a("idle");
+        await p.post("/mfa/disable", { password: S }), o({ enabled: !1, recoveryCodesRemaining: 0 }), l(null), a("idle");
       } catch (L) {
-        const p = z(L, "Unable to disable two-factor authentication. Please try again.");
-        throw u(p), p;
+        const f = z(L, "Unable to disable two-factor authentication. Please try again.");
+        throw u(f), f;
       } finally {
         h(!1);
       }
     },
-    [f]
-  ), N = P(
+    [p]
+  ), N = T(
     async (S) => {
       if (!/^\d{6}$/.test(S)) {
         const L = {
@@ -12780,57 +12780,57 @@ function Io() {
       }
       h(!0), u(null);
       try {
-        return await f.post(
+        return await p.post(
           "/mfa/recovery-codes/regenerate",
           { code: S }
         );
       } catch (L) {
-        const p = z(L, "Unable to regenerate recovery codes. Please try again.");
-        throw u(p), p;
+        const f = z(L, "Unable to regenerate recovery codes. Please try again.");
+        throw u(f), f;
       } finally {
         h(!1);
       }
     },
-    [f]
-  ), A = P(() => u(null), []), E = P(() => {
-    u(null), d(null), a("idle"), h(!1);
+    [p]
+  ), A = T(() => u(null), []), E = T(() => {
+    u(null), l(null), a("idle"), h(!1);
   }, []);
   return {
     status: s,
     setupState: n,
     setupData: c,
-    isLoading: l,
+    isLoading: d,
     error: m,
     getStatus: g,
-    beginSetup: b,
-    enableTotp: w,
+    beginSetup: w,
+    enableTotp: y,
     disableTotp: C,
     regenerateBackupCodes: N,
     clearError: A,
     reset: E
   };
 }
-function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
-  const { setupState: o, setupData: n, isLoading: a, error: c, beginSetup: d, enableTotp: l, clearError: h, reset: m } = Io(), [u, f] = x("qr"), [g, b] = x(""), [w, C] = x(!1), [N, A] = x(!1), E = ee(null);
+function Do({ onSuccess: e, onCancel: r, className: s = "" }) {
+  const { setupState: o, setupData: n, isLoading: a, error: c, beginSetup: l, enableTotp: d, clearError: h, reset: m } = Uo(), [u, p] = x("qr"), [g, w] = x(""), [y, C] = x(!1), [N, A] = x(!1), E = J(null);
   O(() => {
-    o === "idle" && d().catch(() => {
+    o === "idle" && l().catch(() => {
     });
-  }, [o, d]), O(() => {
+  }, [o, l]), O(() => {
     o === "success" && e?.();
   }, [o, e]);
   const S = async () => {
     n?.secret && (await navigator.clipboard.writeText(n.secret), C(!0), E.current !== null && window.clearTimeout(E.current), E.current = window.setTimeout(() => C(!1), 2e3));
   }, L = async () => {
     if (n?.recoveryCodes) {
-      const y = n.recoveryCodes.join(`
+      const b = n.recoveryCodes.join(`
 `);
-      await navigator.clipboard.writeText(y);
+      await navigator.clipboard.writeText(b);
     }
-  }, p = async () => {
+  }, f = async () => {
     try {
-      await l(g);
+      await d(g);
     } catch {
-      b("");
+      w("");
     }
   }, v = () => {
     m(), r?.();
@@ -12838,7 +12838,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
   return O(() => () => {
     E.current !== null && (window.clearTimeout(E.current), E.current = null);
   }, []), o === "loading" || o === "idle" && a ? /* @__PURE__ */ t("div", { className: `cedros-totp-setup ${s}`, children: /* @__PURE__ */ t("div", { className: "cedros-totp-loading", children: /* @__PURE__ */ t(H, { size: "lg", label: "Setting up two-factor authentication" }) }) }) : o === "error" && !n ? /* @__PURE__ */ i("div", { className: `cedros-totp-setup ${s}`, children: [
-    /* @__PURE__ */ t(ne, { error: c, onDismiss: h }),
+    /* @__PURE__ */ t(se, { error: c, onDismiss: h }),
     /* @__PURE__ */ i("div", { className: "cedros-totp-actions", children: [
       /* @__PURE__ */ t(
         "button",
@@ -12854,7 +12854,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
         {
           type: "button",
           className: "cedros-button cedros-button-primary cedros-button-md",
-          onClick: () => d(),
+          onClick: () => l(),
           children: "Try again"
         }
       )
@@ -12890,7 +12890,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
     u === "qr" && /* @__PURE__ */ i("div", { className: "cedros-totp-step", children: [
       /* @__PURE__ */ t("h3", { className: "cedros-totp-title", children: "Scan QR code" }),
       /* @__PURE__ */ t("p", { className: "cedros-totp-description", children: "Use your authenticator app to scan this QR code." }),
-      /* @__PURE__ */ t("div", { className: "cedros-totp-qr", children: /* @__PURE__ */ t(lu, { value: n.otpauthUri, size: 200, alt: "QR code for authenticator app" }) }),
+      /* @__PURE__ */ t("div", { className: "cedros-totp-qr", children: /* @__PURE__ */ t(uu, { value: n.otpauthUri, size: 200, alt: "QR code for authenticator app" }) }),
       /* @__PURE__ */ i("div", { className: "cedros-totp-manual", children: [
         /* @__PURE__ */ t("p", { className: "cedros-totp-manual-label", children: "Or enter this code manually:" }),
         /* @__PURE__ */ i("div", { className: "cedros-totp-secret", children: [
@@ -12902,7 +12902,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
               className: "cedros-button cedros-button-ghost cedros-button-sm",
               onClick: S,
               "aria-label": "Copy secret",
-              children: w ? "Copied!" : "Copy"
+              children: y ? "Copied!" : "Copy"
             }
           )
         ] })
@@ -12922,7 +12922,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-primary cedros-button-md",
-            onClick: () => f("backup"),
+            onClick: () => p("backup"),
             children: "Continue"
           }
         )
@@ -12931,7 +12931,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
     u === "backup" && /* @__PURE__ */ i("div", { className: "cedros-totp-step", children: [
       /* @__PURE__ */ t("h3", { className: "cedros-totp-title", children: "Save recovery codes" }),
       /* @__PURE__ */ t("p", { className: "cedros-totp-description", children: "Save these codes in a secure place. You can use them to access your account if you lose your authenticator device." }),
-      /* @__PURE__ */ t("div", { className: "cedros-totp-backup-codes", children: n.recoveryCodes.map((y, k) => /* @__PURE__ */ t("code", { className: "cedros-totp-backup-code", children: y }, k)) }),
+      /* @__PURE__ */ t("div", { className: "cedros-totp-backup-codes", children: n.recoveryCodes.map((b, k) => /* @__PURE__ */ t("code", { className: "cedros-totp-backup-code", children: b }, k)) }),
       /* @__PURE__ */ t(
         "button",
         {
@@ -12948,7 +12948,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
             type: "checkbox",
             className: "cedros-checkbox",
             checked: N,
-            onChange: (y) => A(y.target.checked)
+            onChange: (b) => A(b.target.checked)
           }
         ),
         /* @__PURE__ */ t("span", { className: "cedros-checkbox-text", children: "I have saved these recovery codes" })
@@ -12959,7 +12959,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-md",
-            onClick: () => f("qr"),
+            onClick: () => p("qr"),
             children: "Back"
           }
         ),
@@ -12968,7 +12968,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-primary cedros-button-md",
-            onClick: () => f("verify"),
+            onClick: () => p("verify"),
             disabled: !N,
             children: "Continue"
           }
@@ -12979,11 +12979,11 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
       /* @__PURE__ */ t("h3", { className: "cedros-totp-title", children: "Verify setup" }),
       /* @__PURE__ */ t("p", { className: "cedros-totp-description", children: "Enter the 6-digit code from your authenticator app to complete setup." }),
       /* @__PURE__ */ t(
-        On,
+        qn,
         {
           value: g,
-          onChange: b,
-          onComplete: p,
+          onChange: w,
+          onComplete: f,
           disabled: a,
           error: c?.message,
           autoFocus: !0
@@ -12995,7 +12995,7 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-md",
-            onClick: () => f("backup"),
+            onClick: () => p("backup"),
             disabled: a,
             children: "Back"
           }
@@ -13005,9 +13005,9 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-primary cedros-button-md",
-            onClick: p,
+            onClick: f,
             disabled: a || g.length !== 6,
-            children: a ? /* @__PURE__ */ i(Y, { children: [
+            children: a ? /* @__PURE__ */ i(K, { children: [
               /* @__PURE__ */ t(H, { size: "sm" }),
               /* @__PURE__ */ t("span", { children: "Verifying..." })
             ] }) : "Enable 2FA"
@@ -13017,39 +13017,39 @@ function Mo({ onSuccess: e, onCancel: r, className: s = "" }) {
     ] })
   ] }) : null;
 }
-function du({ onStatusChange: e, className: r = "" }) {
-  const { status: s, isLoading: o, error: n, getStatus: a, disableTotp: c, regenerateBackupCodes: d, clearError: l } = Io(), [h, m] = x("status"), [u, f] = x(""), [g, b] = x(""), [w, C] = x(null), [N, A] = x(!1), [E, S] = x(null);
+function hu({ onStatusChange: e, className: r = "" }) {
+  const { status: s, isLoading: o, error: n, getStatus: a, disableTotp: c, regenerateBackupCodes: l, clearError: d } = Uo(), [h, m] = x("status"), [u, p] = x(""), [g, w] = x(""), [y, C] = x(null), [N, A] = x(!1), [E, S] = x(null);
   O(() => {
     a().catch(() => {
     });
   }, [a]);
-  const L = P(() => {
+  const L = T(() => {
     m("status"), e?.(!0);
-  }, [e]), p = async () => {
+  }, [e]), f = async () => {
     A(!0), S(null);
     try {
-      await c(u), m("status"), f(""), e?.(!1);
+      await c(u), m("status"), p(""), e?.(!1);
     } catch (k) {
-      S(k instanceof Error ? k.message : "Failed to disable 2FA"), f("");
+      S(k instanceof Error ? k.message : "Failed to disable 2FA"), p("");
     } finally {
       A(!1);
     }
   }, v = async () => {
     A(!0), S(null);
     try {
-      const k = await d(g);
-      C(k.recoveryCodes), b("");
+      const k = await l(g);
+      C(k.recoveryCodes), w("");
     } catch (k) {
-      S(k instanceof Error ? k.message : "Failed to regenerate codes"), b("");
+      S(k instanceof Error ? k.message : "Failed to regenerate codes"), w("");
     } finally {
       A(!1);
     }
-  }, y = async () => {
-    w && await navigator.clipboard.writeText(w.join(`
+  }, b = async () => {
+    y && await navigator.clipboard.writeText(y.join(`
 `));
   };
   return o && !s ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ t("div", { className: "cedros-totp-loading", children: /* @__PURE__ */ t(H, { size: "md", label: "Loading security settings" }) }) }) : n && !s ? /* @__PURE__ */ i("div", { className: `cedros-totp-settings ${r}`, children: [
-    /* @__PURE__ */ t(ne, { error: n, onDismiss: l }),
+    /* @__PURE__ */ t(se, { error: n, onDismiss: d }),
     /* @__PURE__ */ t(
       "button",
       {
@@ -13059,11 +13059,11 @@ function du({ onStatusChange: e, className: r = "" }) {
         children: "Retry"
       }
     )
-  ] }) : h === "setup" ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ t(Mo, { onSuccess: L, onCancel: () => m("status") }) }) : h === "disable" ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
+  ] }) : h === "setup" ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ t(Do, { onSuccess: L, onCancel: () => m("status") }) }) : h === "disable" ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
     /* @__PURE__ */ t("h3", { className: "cedros-totp-title", children: "Disable two-factor authentication" }),
     /* @__PURE__ */ t("p", { className: "cedros-totp-description cedros-totp-warning", children: "This will make your account less secure. Enter your password to confirm." }),
     E && /* @__PURE__ */ t("div", { className: "cedros-totp-error", children: /* @__PURE__ */ t(
-      ne,
+      se,
       {
         error: { code: "UNKNOWN_ERROR", message: E },
         onDismiss: () => S(null)
@@ -13075,7 +13075,7 @@ function du({ onStatusChange: e, className: r = "" }) {
         label: "Password",
         placeholder: "Enter your password",
         value: u,
-        onChange: (k) => f(k.target.value),
+        onChange: (k) => p(k.target.value),
         disabled: N,
         autoFocus: !0
       }
@@ -13087,7 +13087,7 @@ function du({ onStatusChange: e, className: r = "" }) {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
           onClick: () => {
-            m("status"), f(""), S(null);
+            m("status"), p(""), S(null);
           },
           disabled: N,
           children: "Cancel"
@@ -13098,25 +13098,25 @@ function du({ onStatusChange: e, className: r = "" }) {
         {
           type: "button",
           className: "cedros-button cedros-button-destructive cedros-button-md",
-          onClick: p,
+          onClick: f,
           disabled: N || u.length === 0,
-          children: N ? /* @__PURE__ */ i(Y, { children: [
+          children: N ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t(H, { size: "sm" }),
             /* @__PURE__ */ t("span", { children: "Disabling..." })
           ] }) : "Disable 2FA"
         }
       )
     ] })
-  ] }) }) : h === "regenerate" ? w ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
+  ] }) }) : h === "regenerate" ? y ? /* @__PURE__ */ t("div", { className: `cedros-totp-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-totp-panel", children: [
     /* @__PURE__ */ t("h3", { className: "cedros-totp-title", children: "New recovery codes" }),
     /* @__PURE__ */ t("p", { className: "cedros-totp-description", children: "Save these codes in a secure place. Your old codes are no longer valid." }),
-    /* @__PURE__ */ t("div", { className: "cedros-totp-backup-codes", children: w.map((k, T) => /* @__PURE__ */ t("code", { className: "cedros-totp-backup-code", children: k }, T)) }),
+    /* @__PURE__ */ t("div", { className: "cedros-totp-backup-codes", children: y.map((k, P) => /* @__PURE__ */ t("code", { className: "cedros-totp-backup-code", children: k }, P)) }),
     /* @__PURE__ */ t(
       "button",
       {
         type: "button",
         className: "cedros-button cedros-button-outline cedros-button-md cedros-button-full",
-        onClick: y,
+        onClick: b,
         children: "Copy all codes"
       }
     ),
@@ -13135,17 +13135,17 @@ function du({ onStatusChange: e, className: r = "" }) {
     /* @__PURE__ */ t("h3", { className: "cedros-totp-title", children: "Regenerate recovery codes" }),
     /* @__PURE__ */ t("p", { className: "cedros-totp-description", children: "This will invalidate all existing recovery codes. Enter your authenticator code to confirm." }),
     E && /* @__PURE__ */ t("div", { className: "cedros-totp-error", children: /* @__PURE__ */ t(
-      ne,
+      se,
       {
         error: { code: "UNKNOWN_ERROR", message: E },
         onDismiss: () => S(null)
       }
     ) }),
     /* @__PURE__ */ t("div", { className: "cedros-totp-verify-input", children: /* @__PURE__ */ t(
-      On,
+      qn,
       {
         value: g,
-        onChange: b,
+        onChange: w,
         onComplete: v,
         disabled: N,
         autoFocus: !0
@@ -13158,7 +13158,7 @@ function du({ onStatusChange: e, className: r = "" }) {
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
           onClick: () => {
-            m("status"), b(""), S(null);
+            m("status"), w(""), S(null);
           },
           disabled: N,
           children: "Cancel"
@@ -13171,7 +13171,7 @@ function du({ onStatusChange: e, className: r = "" }) {
           className: "cedros-button cedros-button-primary cedros-button-md",
           onClick: v,
           disabled: N || g.length !== 6,
-          children: N ? /* @__PURE__ */ i(Y, { children: [
+          children: N ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t(H, { size: "sm" }),
             /* @__PURE__ */ t("span", { children: "Regenerating..." })
           ] }) : "Regenerate codes"
@@ -13226,10 +13226,10 @@ function du({ onStatusChange: e, className: r = "" }) {
     )
   ] }) });
 }
-class uu {
+class mu {
   client;
   constructor(r, s, o, n) {
-    this.client = new re({ baseUrl: r, timeoutMs: s, retryAttempts: o, getAccessToken: n });
+    this.client = new te({ baseUrl: r, timeoutMs: s, retryAttempts: o, getAccessToken: n });
   }
   /**
    * Change the user's password
@@ -13258,65 +13258,65 @@ class uu {
     }
   }
 }
-function qt() {
-  const { config: e, authState: r, _internal: s } = Z(), [o, n] = x(!1), [a, c] = x(null), d = q(
-    () => new uu(
+function zt() {
+  const { config: e, authState: r, _internal: s } = ee(), [o, n] = x(!1), [a, c] = x(null), l = q(
+    () => new mu(
       e.serverUrl,
       e.requestTimeout,
       e.retryAttempts,
       s?.getAccessToken
     ),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, s]
-  ), l = P(() => {
+  ), d = T(() => {
     c(null);
-  }, []), h = P(
+  }, []), h = T(
     async (u) => {
       if (r !== "authenticated")
         throw new Error("Must be authenticated to update profile");
       n(!0), c(null);
       try {
-        return await d.updateProfile(u);
-      } catch (f) {
-        const g = f instanceof Error ? f : new Error("Failed to update profile");
+        return await l.updateProfile(u);
+      } catch (p) {
+        const g = p instanceof Error ? p : new Error("Failed to update profile");
         throw c(g), g;
       } finally {
         n(!1);
       }
     },
-    [r, d]
-  ), m = P(
+    [r, l]
+  ), m = T(
     async (u) => {
       if (r !== "authenticated")
         throw new Error("Must be authenticated to change password");
       n(!0), c(null);
       try {
-        await d.changePassword(u);
-      } catch (f) {
-        const g = f instanceof Error ? f : new Error("Failed to change password");
+        await l.changePassword(u);
+      } catch (p) {
+        const g = p instanceof Error ? p : new Error("Failed to change password");
         throw c(g), g;
       } finally {
         n(!1);
       }
     },
-    [r, d]
+    [r, l]
   );
   return {
     isLoading: o,
     error: a,
     updateProfile: h,
     changePassword: m,
-    clearError: l
+    clearError: d
   };
 }
-function hu() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), c = q(
-    () => new re({
+function pu() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), c = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), d = P(async () => {
+  ), l = T(async () => {
     o(!0), a(null);
     try {
       return await c.get("/referral", {
@@ -13328,7 +13328,7 @@ function hu() {
     } finally {
       o(!1);
     }
-  }, [c]), l = P(async () => {
+  }, [c]), d = T(async () => {
     o(!0), a(null);
     try {
       return (await c.post("/referral/regenerate", void 0, {
@@ -13341,17 +13341,17 @@ function hu() {
       o(!1);
     }
   }, [c]);
-  return { getReferral: d, regenerateCode: l, isLoading: s, error: n };
+  return { getReferral: l, regenerateCode: d, isLoading: s, error: n };
 }
-function mu(e) {
+function fu(e) {
   return e?.name ? e.name.split(" ").map((r) => r[0]).join("").toUpperCase().slice(0, 2) : e?.email ? e.email[0].toUpperCase() : "?";
 }
-function wm({
+function Nm({
   onPasswordChange: e,
   onClose: r,
   className: s = ""
 }) {
-  const { user: o, refreshUser: n } = Ut(), { config: a, _internal: c } = Z(), { isLoading: d, error: l, changePassword: h, updateProfile: m, clearError: u } = qt(), [f, g] = x("main"), [b, w] = x(""), [C, N] = x(""), [A, E] = x(""), [S, L] = x(null), [p, v] = x(null), [y, k] = x(!1), T = ee(null), [_, B] = x(o?.payoutWalletAddress ?? ""), [R, I] = x(!1), [M, U] = x(!1), [W, j] = x(null), V = P(async () => {
+  const { user: o, refreshUser: n } = Dt(), { config: a, _internal: c } = ee(), { isLoading: l, error: d, changePassword: h, updateProfile: m, clearError: u } = zt(), [p, g] = x("main"), [w, y] = x(""), [C, N] = x(""), [A, E] = x(""), [S, L] = x(null), [f, v] = x(null), [b, k] = x(!1), P = J(null), [_, B] = x(o?.payoutWalletAddress ?? ""), [R, I] = x(!1), [M, U] = x(!1), [W, j] = x(null), V = T(async () => {
     const Q = _.trim();
     if (Q.length > 0 && (Q.length < 32 || Q.length > 44)) {
       j("Invalid Solana address — must be 32–44 characters.");
@@ -13370,14 +13370,14 @@ function wm({
     } finally {
       I(!1);
     }
-  }, [_, m, n]), { getReferral: F, regenerateCode: G, isLoading: J } = hu(), [K, le] = x(null), [D, $] = x(0), [se, te] = x(!1), [me, _e] = x(!1);
+  }, [_, m, n]), { getReferral: F, regenerateCode: G, isLoading: X } = pu(), [Y, le] = x(null), [D, $] = x(0), [ne, re] = x(!1), [me, _e] = x(!1);
   O(() => {
     F().then((Q) => {
       le(Q.referralCode), $(Q.referralCount), _e(Q.directPayoutEnabled);
     }).catch(() => {
     });
   }, []);
-  const Le = Ft(C), et = C === A, De = b.length > 0 && C.length > 0 && A.length > 0 && Le.isValid && et, Fe = P(
+  const Le = Ot(C), et = C === A, De = w.length > 0 && C.length > 0 && A.length > 0 && Le.isValid && et, Fe = T(
     async (Q) => {
       const Oe = Q.target.files?.[0];
       if (Oe) {
@@ -13385,59 +13385,59 @@ function wm({
         try {
           const pe = new FormData();
           pe.append("file", Oe);
-          const dt = c?.getAccessToken?.(), ut = {};
-          dt && (ut.Authorization = `Bearer ${dt}`);
-          const Pe = await fetch(`${a.serverUrl}/auth/upload/avatar`, {
+          const ut = c?.getAccessToken?.(), ht = {};
+          ut && (ht.Authorization = `Bearer ${ut}`);
+          const Te = await fetch(`${a.serverUrl}/auth/upload/avatar`, {
             method: "POST",
-            headers: ut,
+            headers: ht,
             body: pe,
             credentials: "include"
           });
-          if (!Pe.ok) {
-            const rt = await Pe.json().catch(() => null);
-            throw new Error(rt?.message || rt?.error || `Upload failed (${Pe.status})`);
+          if (!Te.ok) {
+            const rt = await Te.json().catch(() => null);
+            throw new Error(rt?.message || rt?.error || `Upload failed (${Te.status})`);
           }
           await n();
         } catch (pe) {
           L(pe instanceof Error ? pe.message : "Failed to upload avatar");
         } finally {
-          k(!1), T.current && (T.current.value = "");
+          k(!1), P.current && (P.current.value = "");
         }
       }
     },
     [a.serverUrl, c, n]
-  ), jt = P(async () => {
+  ), $t = T(async () => {
     if (De) {
       L(null), v(null);
       try {
         await h({
-          currentPassword: b,
+          currentPassword: w,
           newPassword: C
-        }), w(""), N(""), E(""), v("Password changed successfully. Other sessions have been logged out."), e?.(), setTimeout(() => {
+        }), y(""), N(""), E(""), v("Password changed successfully. Other sessions have been logged out."), e?.(), setTimeout(() => {
           g("main"), v(null);
         }, 2e3);
       } catch (Q) {
         L(Q instanceof Error ? Q.message : "Failed to change password");
       }
     }
-  }, [De, b, C, h, e]), tt = P(() => {
-    g("main"), w(""), N(""), E(""), L(null), u();
+  }, [De, w, C, h, e]), tt = T(() => {
+    g("main"), y(""), N(""), E(""), L(null), u();
   }, [u]);
-  return f === "change-password" ? /* @__PURE__ */ t("div", { className: `cedros-profile-settings ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-profile-panel", children: [
+  return p === "change-password" ? /* @__PURE__ */ t("div", { className: `cedros-profile-settings ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-profile-panel", children: [
     /* @__PURE__ */ t("h3", { className: "cedros-profile-title", children: "Change password" }),
     /* @__PURE__ */ t("p", { className: "cedros-profile-description", children: "Enter your current password and choose a new one. This will log you out of other devices." }),
-    (S || l) && /* @__PURE__ */ t("div", { className: "cedros-profile-error", children: /* @__PURE__ */ t(
-      ne,
+    (S || d) && /* @__PURE__ */ t("div", { className: "cedros-profile-error", children: /* @__PURE__ */ t(
+      se,
       {
-        error: { code: "UNKNOWN_ERROR", message: S || l?.message || "" },
+        error: { code: "UNKNOWN_ERROR", message: S || d?.message || "" },
         onDismiss: () => {
           L(null), u();
         }
       }
     ) }),
-    p && /* @__PURE__ */ i("div", { className: "cedros-profile-success", children: [
+    f && /* @__PURE__ */ i("div", { className: "cedros-profile-success", children: [
       /* @__PURE__ */ t("span", { className: "cedros-profile-success-icon", children: "✓" }),
-      p
+      f
     ] }),
     /* @__PURE__ */ i("div", { className: "cedros-profile-form", children: [
       /* @__PURE__ */ t("div", { className: "cedros-profile-field", children: /* @__PURE__ */ t(
@@ -13445,9 +13445,9 @@ function wm({
         {
           label: "Current password",
           placeholder: "Enter your current password",
-          value: b,
-          onChange: (Q) => w(Q.target.value),
-          disabled: d,
+          value: w,
+          onChange: (Q) => y(Q.target.value),
+          disabled: l,
           autoFocus: !0
         }
       ) }),
@@ -13458,7 +13458,7 @@ function wm({
           placeholder: "Enter new password",
           value: C,
           onChange: (Q) => N(Q.target.value),
-          disabled: d,
+          disabled: l,
           showStrengthMeter: !0
         }
       ) }),
@@ -13469,7 +13469,7 @@ function wm({
           placeholder: "Confirm new password",
           value: A,
           onChange: (Q) => E(Q.target.value),
-          disabled: d,
+          disabled: l,
           error: A.length > 0 && !et ? "Passwords do not match" : void 0
         }
       ) })
@@ -13481,7 +13481,7 @@ function wm({
           type: "button",
           className: "cedros-button cedros-button-outline cedros-button-md",
           onClick: tt,
-          disabled: d,
+          disabled: l,
           children: "Cancel"
         }
       ),
@@ -13490,9 +13490,9 @@ function wm({
         {
           type: "button",
           className: "cedros-button cedros-button-primary cedros-button-md",
-          onClick: jt,
-          disabled: d || !De,
-          children: d ? /* @__PURE__ */ i(Y, { children: [
+          onClick: $t,
+          disabled: l || !De,
+          children: l ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t(H, { size: "sm" }),
             /* @__PURE__ */ t("span", { children: "Changing..." })
           ] }) : "Change password"
@@ -13505,22 +13505,22 @@ function wm({
         "div",
         {
           className: "cedros-profile-avatar-container cedros-profile-avatar-container--clickable",
-          onClick: () => T.current?.click(),
+          onClick: () => P.current?.click(),
           role: "button",
           tabIndex: 0,
           onKeyDown: (Q) => {
-            (Q.key === "Enter" || Q.key === " ") && (Q.preventDefault(), T.current?.click());
+            (Q.key === "Enter" || Q.key === " ") && (Q.preventDefault(), P.current?.click());
           },
           "aria-label": "Change profile picture",
           children: [
-            y ? /* @__PURE__ */ t("div", { className: "cedros-profile-avatar cedros-profile-avatar-fallback", children: /* @__PURE__ */ t(H, { size: "sm" }) }) : o?.picture ? /* @__PURE__ */ t(
+            b ? /* @__PURE__ */ t("div", { className: "cedros-profile-avatar cedros-profile-avatar-fallback", children: /* @__PURE__ */ t(H, { size: "sm" }) }) : o?.picture ? /* @__PURE__ */ t(
               "img",
               {
                 src: o.picture,
                 alt: o.name || "Profile",
                 className: "cedros-profile-avatar"
               }
-            ) : /* @__PURE__ */ t("div", { className: "cedros-profile-avatar cedros-profile-avatar-fallback", children: mu(o) }),
+            ) : /* @__PURE__ */ t("div", { className: "cedros-profile-avatar cedros-profile-avatar-fallback", children: fu(o) }),
             /* @__PURE__ */ t("div", { className: "cedros-profile-avatar-overlay", children: /* @__PURE__ */ i("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
               /* @__PURE__ */ t("path", { d: "M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" }),
               /* @__PURE__ */ t("circle", { cx: "12", cy: "13", r: "4" })
@@ -13528,7 +13528,7 @@ function wm({
             /* @__PURE__ */ t(
               "input",
               {
-                ref: T,
+                ref: P,
                 type: "file",
                 accept: "image/jpeg,image/png,image/gif,image/webp",
                 onChange: Fe,
@@ -13567,12 +13567,12 @@ function wm({
         )
       ] })
     ] }),
-    K && /* @__PURE__ */ i("div", { className: "cedros-profile-section", children: [
+    Y && /* @__PURE__ */ i("div", { className: "cedros-profile-section", children: [
       /* @__PURE__ */ t("h4", { className: "cedros-profile-section-title", children: "Referral" }),
       /* @__PURE__ */ i("div", { className: "cedros-profile-row", children: [
         /* @__PURE__ */ i("div", { className: "cedros-profile-row-content", children: [
           /* @__PURE__ */ t("span", { className: "cedros-profile-row-label", children: "Your code" }),
-          /* @__PURE__ */ t("span", { className: "cedros-profile-row-value cedros-profile-row-value--mono", children: K })
+          /* @__PURE__ */ t("span", { className: "cedros-profile-row-value cedros-profile-row-value--mono", children: Y })
         ] }),
         /* @__PURE__ */ t(
           "button",
@@ -13580,9 +13580,9 @@ function wm({
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: () => {
-              navigator.clipboard.writeText(K), te(!0), setTimeout(() => te(!1), 2e3);
+              navigator.clipboard.writeText(Y), re(!0), setTimeout(() => re(!1), 2e3);
             },
-            children: se ? "Copied" : "Copy"
+            children: ne ? "Copied" : "Copy"
           }
         )
       ] }),
@@ -13603,8 +13603,8 @@ function wm({
               } catch {
               }
             },
-            disabled: J,
-            children: J ? "Regenerating..." : "Regenerate"
+            disabled: X,
+            children: X ? "Regenerating..." : "Regenerate"
           }
         )
       ] })
@@ -13652,10 +13652,10 @@ function wm({
     ) })
   ] }) });
 }
-class pu {
+class gu {
   client;
   constructor(r, s, o, n) {
-    this.client = new re({ baseUrl: r, timeoutMs: s, retryAttempts: o, getAccessToken: n });
+    this.client = new te({ baseUrl: r, timeoutMs: s, retryAttempts: o, getAccessToken: n });
   }
   /**
    * List all credentials linked to the current user
@@ -13679,28 +13679,28 @@ class pu {
     }
   }
 }
-function Uo() {
-  const { config: e, authState: r, _internal: s } = Z(), [o, n] = x([]), [a, c] = x(!1), [d, l] = x(null), h = q(
-    () => new pu(
+function Fo() {
+  const { config: e, authState: r, _internal: s } = ee(), [o, n] = x([]), [a, c] = x(!1), [l, d] = x(null), h = q(
+    () => new gu(
       e.serverUrl,
       e.requestTimeout,
       e.retryAttempts,
       s?.getAccessToken
     ),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, s]
-  ), m = P(() => {
-    l(null);
-  }, []), u = P(async () => {
+  ), m = T(() => {
+    d(null);
+  }, []), u = T(async () => {
     if (r !== "authenticated") {
       n([]);
       return;
     }
-    c(!0), l(null);
+    c(!0), d(null);
     try {
       const g = await h.listCredentials();
       n(g);
     } catch (g) {
-      l(g);
+      d(g);
     } finally {
       c(!1);
     }
@@ -13708,13 +13708,13 @@ function Uo() {
   O(() => {
     r === "authenticated" ? u() : n([]);
   }, [r, u]);
-  const f = P(
+  const p = T(
     async (g) => {
-      c(!0), l(null);
+      c(!0), d(null);
       try {
         await h.unlinkCredential(g), await u();
-      } catch (b) {
-        throw l(b), b;
+      } catch (w) {
+        throw d(w), w;
       } finally {
         c(!1);
       }
@@ -13724,44 +13724,44 @@ function Uo() {
   return {
     credentials: o,
     isLoading: a,
-    error: d,
+    error: l,
     fetchCredentials: u,
-    unlinkCredential: f,
+    unlinkCredential: p,
     clearError: m
   };
 }
-function fu({
+function wu({
   onPasswordChange: e,
   onCancel: r,
   className: s = ""
 }) {
-  const { isLoading: o, error: n, changePassword: a, clearError: c } = qt(), [d, l] = x(""), [h, m] = x(""), [u, f] = x(""), [g, b] = x(null), [w, C] = x(null), N = Ft(h), A = h === u, E = d.length > 0 && h.length > 0 && u.length > 0 && N.isValid && A, S = P(async () => {
+  const { isLoading: o, error: n, changePassword: a, clearError: c } = zt(), [l, d] = x(""), [h, m] = x(""), [u, p] = x(""), [g, w] = x(null), [y, C] = x(null), N = Ot(h), A = h === u, E = l.length > 0 && h.length > 0 && u.length > 0 && N.isValid && A, S = T(async () => {
     if (E) {
-      b(null), C(null);
+      w(null), C(null);
       try {
-        await a({ currentPassword: d, newPassword: h }), l(""), m(""), f(""), C("Password changed successfully. Other sessions have been logged out."), e?.(), setTimeout(() => r(), 2e3);
-      } catch (p) {
-        b(p instanceof Error ? p.message : "Failed to change password");
+        await a({ currentPassword: l, newPassword: h }), d(""), m(""), p(""), C("Password changed successfully. Other sessions have been logged out."), e?.(), setTimeout(() => r(), 2e3);
+      } catch (f) {
+        w(f instanceof Error ? f.message : "Failed to change password");
       }
     }
-  }, [E, d, h, a, e, r]), L = P(() => {
-    b(null), c(), r();
+  }, [E, l, h, a, e, r]), L = T(() => {
+    w(null), c(), r();
   }, [c, r]);
   return /* @__PURE__ */ t("div", { className: `cedros-profile-settings ${s}`, children: /* @__PURE__ */ i("div", { className: "cedros-profile-panel", children: [
     /* @__PURE__ */ t("h3", { className: "cedros-profile-title", children: "Change password" }),
     /* @__PURE__ */ t("p", { className: "cedros-profile-description", children: "Enter your current password and choose a new one. This will log you out of other devices." }),
     (g || n) && /* @__PURE__ */ t("div", { className: "cedros-profile-error", children: /* @__PURE__ */ t(
-      ne,
+      se,
       {
         error: { code: "UNKNOWN_ERROR", message: g || n?.message || "" },
         onDismiss: () => {
-          b(null), c();
+          w(null), c();
         }
       }
     ) }),
-    w && /* @__PURE__ */ i("div", { className: "cedros-profile-success", children: [
+    y && /* @__PURE__ */ i("div", { className: "cedros-profile-success", children: [
       /* @__PURE__ */ t("span", { className: "cedros-profile-success-icon", children: "✓" }),
-      w
+      y
     ] }),
     /* @__PURE__ */ i("div", { className: "cedros-profile-form", children: [
       /* @__PURE__ */ t("div", { className: "cedros-profile-field", children: /* @__PURE__ */ t(
@@ -13769,8 +13769,8 @@ function fu({
         {
           label: "Current password",
           placeholder: "Enter your current password",
-          value: d,
-          onChange: (p) => l(p.target.value),
+          value: l,
+          onChange: (f) => d(f.target.value),
           disabled: o,
           autoFocus: !0
         }
@@ -13781,7 +13781,7 @@ function fu({
           label: "New password",
           placeholder: "Enter new password",
           value: h,
-          onChange: (p) => m(p.target.value),
+          onChange: (f) => m(f.target.value),
           disabled: o,
           showStrengthMeter: !0
         }
@@ -13792,7 +13792,7 @@ function fu({
           label: "Confirm new password",
           placeholder: "Confirm new password",
           value: u,
-          onChange: (p) => f(p.target.value),
+          onChange: (f) => p(f.target.value),
           disabled: o,
           error: u.length > 0 && !A ? "Passwords do not match" : void 0
         }
@@ -13816,7 +13816,7 @@ function fu({
           className: "cedros-button cedros-button-primary cedros-button-md",
           onClick: S,
           disabled: o || !E,
-          children: o ? /* @__PURE__ */ i(Y, { children: [
+          children: o ? /* @__PURE__ */ i(K, { children: [
             /* @__PURE__ */ t(H, { size: "sm" }),
             /* @__PURE__ */ t("span", { children: "Changing..." })
           ] }) : "Change password"
@@ -13825,27 +13825,27 @@ function fu({
     ] })
   ] }) });
 }
-function gu({ onPasswordChange: e, className: r = "" }) {
-  const { user: s, refreshUser: o } = Ut(), { isLoading: n, error: a, updateProfile: c, clearError: d } = qt(), { credentials: l } = Uo(), {
+function yu({ onPasswordChange: e, className: r = "" }) {
+  const { user: s, refreshUser: o } = Dt(), { isLoading: n, error: a, updateProfile: c, clearError: l } = zt(), { credentials: d } = Fo(), {
     forgotPassword: h,
     isLoading: m,
     isSuccess: u,
-    reset: f
-  } = ts(), g = l.some((k) => k.credentialType === "password"), [b, w] = x("view"), [C, N] = x(""), [A, E] = x(null), S = () => s?.name ? s.name.split(" ").map((k) => k[0]).join("").toUpperCase().slice(0, 2) : s?.email ? s.email[0].toUpperCase() : "?", L = P(() => {
-    N(s?.name || ""), w("edit"), E(null);
-  }, [s?.name]), p = P(async () => {
+    reset: p
+  } = ss(), g = d.some((k) => k.credentialType === "password"), [w, y] = x("view"), [C, N] = x(""), [A, E] = x(null), S = () => s?.name ? s.name.split(" ").map((k) => k[0]).join("").toUpperCase().slice(0, 2) : s?.email ? s.email[0].toUpperCase() : "?", L = T(() => {
+    N(s?.name || ""), y("edit"), E(null);
+  }, [s?.name]), f = T(async () => {
     const k = C.trim();
     if (k) {
       E(null);
       try {
-        await c({ name: k }), await o(), w("view");
-      } catch (T) {
-        E(T instanceof Error ? T.message : "Failed to update name");
+        await c({ name: k }), await o(), y("view");
+      } catch (P) {
+        E(P instanceof Error ? P.message : "Failed to update name");
       }
     }
-  }, [C, c, o]), v = P(() => {
-    w("view"), N(""), E(null), d();
-  }, [d]), y = async () => {
+  }, [C, c, o]), v = T(() => {
+    y("view"), N(""), E(null), l();
+  }, [l]), b = async () => {
     if (s?.email) {
       E(null);
       try {
@@ -13855,11 +13855,11 @@ function gu({ onPasswordChange: e, className: r = "" }) {
       }
     }
   };
-  return b === "change-password" ? /* @__PURE__ */ t(
-    fu,
+  return w === "change-password" ? /* @__PURE__ */ t(
+    wu,
     {
       onPasswordChange: e,
-      onCancel: () => w("view"),
+      onCancel: () => y("view"),
       className: r
     }
   ) : /* @__PURE__ */ t("div", { className: `cedros-profile-settings ${r}`, children: /* @__PURE__ */ i("div", { className: "cedros-profile-panel", children: [
@@ -13873,7 +13873,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
         }
       ) : /* @__PURE__ */ t("div", { className: "cedros-profile-avatar cedros-profile-avatar-fallback", children: S() }) }),
       /* @__PURE__ */ i("div", { className: "cedros-profile-info", children: [
-        b === "edit" ? /* @__PURE__ */ i("div", { className: "cedros-profile-name-edit", children: [
+        w === "edit" ? /* @__PURE__ */ i("div", { className: "cedros-profile-name-edit", children: [
           /* @__PURE__ */ t(
             "input",
             {
@@ -13884,7 +13884,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
               disabled: n,
               autoFocus: !0,
               onKeyDown: (k) => {
-                k.key === "Enter" && p(), k.key === "Escape" && v();
+                k.key === "Enter" && f(), k.key === "Escape" && v();
               }
             }
           ),
@@ -13894,7 +13894,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
               {
                 type: "button",
                 className: "cedros-button cedros-button-primary cedros-button-sm",
-                onClick: p,
+                onClick: f,
                 disabled: n || !C.trim(),
                 children: n ? /* @__PURE__ */ t(H, { size: "sm" }) : "Save"
               }
@@ -13920,7 +13920,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
               onClick: L,
               title: "Edit name",
               "aria-label": "Edit name",
-              children: /* @__PURE__ */ t(wu, {})
+              children: /* @__PURE__ */ t(bu, {})
             }
           )
         ] }),
@@ -13928,11 +13928,11 @@ function gu({ onPasswordChange: e, className: r = "" }) {
       ] })
     ] }),
     (A || a) && /* @__PURE__ */ t("div", { className: "cedros-profile-error", children: /* @__PURE__ */ t(
-      ne,
+      se,
       {
         error: { code: "UNKNOWN_ERROR", message: A || a?.message || "" },
         onDismiss: () => {
-          E(null), d();
+          E(null), l();
         }
       }
     ) }),
@@ -13953,7 +13953,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: () => {
-              w("change-password"), E(null);
+              y("change-password"), E(null);
             },
             children: "Change"
           }
@@ -13964,7 +13964,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
             {
               type: "button",
               className: "cedros-profile-row-sent-dismiss",
-              onClick: f,
+              onClick: p,
               "aria-label": "Dismiss",
               children: "×"
             }
@@ -13974,7 +13974,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
-            onClick: y,
+            onClick: b,
             disabled: m,
             children: m ? /* @__PURE__ */ t(H, { size: "sm" }) : "Add password"
           }
@@ -13983,7 +13983,7 @@ function gu({ onPasswordChange: e, className: r = "" }) {
     ] })
   ] }) });
 }
-function wu() {
+function bu() {
   return /* @__PURE__ */ i("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t(
       "path",
@@ -14007,7 +14007,7 @@ function wu() {
     )
   ] });
 }
-const Do = {
+const Oo = {
   password: "Email & Password",
   oauth_google: "Google",
   oauth_apple: "Apple",
@@ -14017,14 +14017,14 @@ const Do = {
   totp: "Authenticator App (2FA)",
   sso_oidc: "Single Sign-On"
 };
-function bu({
+function vu({
   onLinkGoogle: e,
   onLinkApple: r,
   onAddPasskey: s,
   onLinkSolana: o,
   className: n = ""
 }) {
-  const { credentials: a, isLoading: c, error: d, unlinkCredential: l, clearError: h, fetchCredentials: m } = Uo(), { registerPasskey: u, isSupported: f } = So(), [g, b] = x(null), [w, C] = x(!1), N = P(async () => {
+  const { credentials: a, isLoading: c, error: l, unlinkCredential: d, clearError: h, fetchCredentials: m } = Fo(), { registerPasskey: u, isSupported: p } = Lo(), [g, w] = x(null), [y, C] = x(!1), N = T(async () => {
     if (s) {
       s();
       return;
@@ -14036,37 +14036,37 @@ function bu({
     } finally {
       C(!1);
     }
-  }, [s, u, m]), A = P(
+  }, [s, u, m]), A = T(
     async (k) => {
-      const T = k.label || Do[k.credentialType];
+      const P = k.label || Oo[k.credentialType];
       if (window.confirm(
-        `Remove "${T}" as a sign-in method? You won't be able to sign in with it anymore.`
+        `Remove "${P}" as a sign-in method? You won't be able to sign in with it anymore.`
       )) {
-        b(k.id);
+        w(k.id);
         try {
-          await l(k.id);
+          await d(k.id);
         } catch {
         } finally {
-          b(null);
+          w(null);
         }
       }
     },
-    [l]
-  ), E = new Set(a.map((k) => k.credentialType)), S = e && !E.has("oauth_google"), L = r && !E.has("oauth_apple"), p = (s || f) && !E.has("webauthn_passkey"), v = o && !E.has("solana"), y = S || L || p || v;
+    [d]
+  ), E = new Set(a.map((k) => k.credentialType)), S = e && !E.has("oauth_google"), L = r && !E.has("oauth_apple"), f = (s || p) && !E.has("webauthn_passkey"), v = o && !E.has("solana"), b = S || L || f || v;
   return c && a.length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-linked-accounts ${n}`, children: [
     /* @__PURE__ */ t(H, {}),
     /* @__PURE__ */ t("span", { children: "Loading linked accounts..." })
   ] }) : /* @__PURE__ */ i("div", { className: `cedros-linked-accounts ${n}`, children: [
-    d && /* @__PURE__ */ t(
-      ne,
+    l && /* @__PURE__ */ t(
+      se,
       {
-        error: { code: "UNKNOWN_ERROR", message: d.message },
+        error: { code: "UNKNOWN_ERROR", message: l.message },
         onDismiss: h
       }
     ),
     a.length === 0 && !c && /* @__PURE__ */ t("p", { className: "cedros-linked-accounts-empty", children: "No linked sign-in methods found." }),
     a.length > 0 && /* @__PURE__ */ t("ul", { className: "cedros-linked-credential-list", children: a.map((k) => /* @__PURE__ */ t(
-      yu,
+      Au,
       {
         credential: k,
         isUnlinking: g === k.id,
@@ -14074,7 +14074,7 @@ function bu({
       },
       k.id
     )) }),
-    y && /* @__PURE__ */ i("div", { className: "cedros-linked-add", children: [
+    b && /* @__PURE__ */ i("div", { className: "cedros-linked-add", children: [
       /* @__PURE__ */ t("p", { className: "cedros-linked-add-label", children: "Link a new sign-in method" }),
       /* @__PURE__ */ i("div", { className: "cedros-linked-add-buttons", children: [
         S && /* @__PURE__ */ i(
@@ -14084,7 +14084,7 @@ function bu({
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: e,
             children: [
-              /* @__PURE__ */ t(Fo, {}),
+              /* @__PURE__ */ t(Wo, {}),
               " Google"
             ]
           }
@@ -14096,20 +14096,20 @@ function bu({
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: r,
             children: [
-              /* @__PURE__ */ t(Oo, {}),
+              /* @__PURE__ */ t(qo, {}),
               " Apple"
             ]
           }
         ),
-        p && /* @__PURE__ */ t(
+        f && /* @__PURE__ */ t(
           "button",
           {
             type: "button",
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: N,
-            disabled: w,
-            children: w ? /* @__PURE__ */ t(H, { size: "sm" }) : /* @__PURE__ */ i(Y, { children: [
-              /* @__PURE__ */ t(zr, {}),
+            disabled: y,
+            children: y ? /* @__PURE__ */ t(H, { size: "sm" }) : /* @__PURE__ */ i(K, { children: [
+              /* @__PURE__ */ t($r, {}),
               " Passkey"
             ] })
           }
@@ -14121,7 +14121,7 @@ function bu({
             className: "cedros-button cedros-button-outline cedros-button-sm",
             onClick: o,
             children: [
-              /* @__PURE__ */ t(Wo, {}),
+              /* @__PURE__ */ t(zo, {}),
               " Solana"
             ]
           }
@@ -14130,24 +14130,24 @@ function bu({
     ] })
   ] });
 }
-function yu({
+function Au({
   credential: e,
   isUnlinking: r,
   onUnlink: s
 }) {
-  const o = e.label || Do[e.credentialType], n = vu[e.credentialType] || Au;
+  const o = e.label || Oo[e.credentialType], n = Nu[e.credentialType] || ku;
   return /* @__PURE__ */ i("li", { className: "cedros-linked-credential", children: [
     /* @__PURE__ */ t("div", { className: "cedros-linked-credential__icon", children: /* @__PURE__ */ t(n, {}) }),
     /* @__PURE__ */ i("div", { className: "cedros-linked-credential__info", children: [
       /* @__PURE__ */ t("span", { className: "cedros-linked-credential__name", children: o }),
       /* @__PURE__ */ i("span", { className: "cedros-linked-credential__meta", children: [
         "Added ",
-        yn(e.createdAt),
-        e.lastUsedAt && /* @__PURE__ */ i(Y, { children: [
+        An(e.createdAt),
+        e.lastUsedAt && /* @__PURE__ */ i(K, { children: [
           " · Last used ",
-          yn(e.lastUsedAt)
+          An(e.lastUsedAt)
         ] }),
-        e.isPrimary && /* @__PURE__ */ t(Y, { children: " · Primary" })
+        e.isPrimary && /* @__PURE__ */ t(K, { children: " · Primary" })
       ] })
     ] }),
     /* @__PURE__ */ t("div", { className: "cedros-linked-credential__action", children: /* @__PURE__ */ t(
@@ -14163,34 +14163,34 @@ function yu({
     ) })
   ] });
 }
-function yn(e) {
+function An(e) {
   const r = new Date(e), o = (/* @__PURE__ */ new Date()).getTime() - r.getTime(), n = Math.floor(o / (1e3 * 60)), a = Math.floor(o / (1e3 * 60 * 60)), c = Math.floor(o / (1e3 * 60 * 60 * 24));
   return n < 1 ? "just now" : n < 60 ? `${n}m ago` : a < 24 ? `${a}h ago` : c < 30 ? `${c}d ago` : r.toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" });
 }
-const vu = {
-  password: Nu,
-  oauth_google: Fo,
-  oauth_apple: Oo,
-  solana: Wo,
-  webauthn_passkey: zr,
-  webauthn_security_key: zr,
-  totp: ku,
-  sso_oidc: Cu
+const Nu = {
+  password: Cu,
+  oauth_google: Wo,
+  oauth_apple: qo,
+  solana: zo,
+  webauthn_passkey: $r,
+  webauthn_security_key: $r,
+  totp: Eu,
+  sso_oidc: xu
 };
-function Au() {
+function ku() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("circle", { cx: "12", cy: "12", r: "10", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("path", { d: "M12 8v4m0 4h.01", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })
   ] });
 }
-function Nu() {
+function Cu() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("rect", { x: "3", y: "11", width: "18", height: "11", rx: "2", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("path", { d: "M7 11V7a5 5 0 0110 0v4", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }),
     /* @__PURE__ */ t("circle", { cx: "12", cy: "16", r: "1.5", fill: "currentColor" })
   ] });
 }
-function Fo() {
+function Wo() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("path", { d: "M21.8 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.5a4.7 4.7 0 01-2 3.1v2.5h3.3c1.9-1.7 3-4.3 3-7.4z", fill: "#4285F4" }),
     /* @__PURE__ */ t("path", { d: "M12 22c2.7 0 5-.9 6.6-2.4l-3.3-2.5c-.9.6-2 1-3.3 1-2.5 0-4.7-1.7-5.4-4H3.2v2.6A10 10 0 0012 22z", fill: "#34A853" }),
@@ -14198,7 +14198,7 @@ function Fo() {
     /* @__PURE__ */ t("path", { d: "M12 5.9c1.4 0 2.7.5 3.7 1.4l2.8-2.8A10 10 0 0012 2 10 10 0 003.2 7.3l3.4 2.6C7.3 7.6 9.5 5.9 12 5.9z", fill: "#EA4335" })
   ] });
 }
-function Oo() {
+function qo() {
   return /* @__PURE__ */ t("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ t(
     "path",
     {
@@ -14207,27 +14207,27 @@ function Oo() {
     }
   ) });
 }
-function Wo() {
+function zo() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("rect", { x: "2", y: "6", width: "20", height: "14", rx: "2", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("path", { d: "M2 10h20", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("circle", { cx: "17", cy: "14", r: "1.5", fill: "currentColor" })
   ] });
 }
-function zr() {
+function $r() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("circle", { cx: "10", cy: "7", r: "4", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("path", { d: "M3 21v-2a7 7 0 017-7", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }),
     /* @__PURE__ */ t("path", { d: "M17 14v4m0 0v2m0-2h-2m2 0h2", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })
   ] });
 }
-function ku() {
+function Eu() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("rect", { x: "5", y: "2", width: "14", height: "20", rx: "2", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("path", { d: "M9 12h6M12 9v6", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" })
   ] });
 }
-function Cu() {
+function xu() {
   return /* @__PURE__ */ i("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
     /* @__PURE__ */ t("rect", { x: "3", y: "3", width: "8", height: "8", rx: "1", stroke: "currentColor", strokeWidth: "1.5" }),
     /* @__PURE__ */ t("rect", { x: "13", y: "3", width: "8", height: "8", rx: "1", stroke: "currentColor", strokeWidth: "1.5" }),
@@ -14235,10 +14235,137 @@ function Cu() {
     /* @__PURE__ */ t("rect", { x: "13", y: "13", width: "8", height: "8", rx: "1", stroke: "currentColor", strokeWidth: "1.5" })
   ] });
 }
-class Eu {
+const Su = "DELETE";
+function _u() {
+  const { config: e, logout: r } = ee(), [s, o] = x(!1), [n, a] = x(null), c = q(
+    () => new te({
+      baseUrl: e.serverUrl,
+      timeoutMs: e.requestTimeout,
+      retryAttempts: e.retryAttempts
+    }),
+    [e.serverUrl, e.requestTimeout, e.retryAttempts]
+  ), l = q(
+    () => `${e.serverUrl.replace(/\/$/, "")}/account-deletion`,
+    [e.serverUrl]
+  ), d = T(() => {
+    a(null);
+  }, []), h = T(
+    async (u) => {
+      o(!0), a(null);
+      try {
+        await c.post("/account-deletion/request", { email: u });
+      } catch (p) {
+        const g = z(
+          p,
+          "Unable to send the account deletion link. Please try again."
+        );
+        throw a(g), g;
+      } finally {
+        o(!1);
+      }
+    },
+    [c]
+  ), m = T(
+    async (u = Su) => {
+      o(!0), a(null);
+      try {
+        await c.post("/account-deletion/me", { confirmText: u }), await r().catch(() => {
+        });
+      } catch (p) {
+        const g = z(
+          p,
+          "Unable to delete the account. Please review the requirements and try again."
+        );
+        throw a(g), g;
+      } finally {
+        o(!1);
+      }
+    },
+    [c, r]
+  );
+  return {
+    isLoading: s,
+    error: n,
+    accountDeletionUrl: l,
+    requestDeletionEmail: h,
+    deleteAccount: m,
+    clearError: d
+  };
+}
+const Tr = "DELETE";
+function Lu({
+  onDeleted: e,
+  className: r = ""
+}) {
+  const { deleteAccount: s, accountDeletionUrl: o, isLoading: n, error: a, clearError: c } = _u(), [l, d] = x(""), [h, m] = x(null), u = T(async () => {
+    window.confirm(
+      "This permanently removes your login profile and signs you out. Financial and audit records required by law may still be retained. Continue?"
+    ) && (m(null), await s(l), m("Your account has been deleted."), e?.());
+  }, [l, s, e]);
+  return /* @__PURE__ */ i("section", { className: `cedros-account-delete ${r}`, children: [
+    /* @__PURE__ */ i("div", { className: "cedros-account-delete-header", children: [
+      /* @__PURE__ */ i("div", { children: [
+        /* @__PURE__ */ t("h3", { className: "cedros-account-delete-title", children: "Delete account" }),
+        /* @__PURE__ */ t("p", { className: "cedros-account-delete-description", children: "Remove this login profile from the app. Sessions, passkeys, MFA, API keys, and linked Apple credentials will be revoked." })
+      ] }),
+      /* @__PURE__ */ t(
+        "a",
+        {
+          className: "cedros-account-delete-link",
+          href: o,
+          target: "_blank",
+          rel: "noreferrer",
+          children: "Hosted deletion portal"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ t("div", { className: "cedros-warning-box cedros-account-delete-warning", children: /* @__PURE__ */ i("div", { className: "cedros-warning-content", children: [
+      /* @__PURE__ */ t("strong", { children: "Before you continue" }),
+      /* @__PURE__ */ i("p", { children: [
+        "Type ",
+        /* @__PURE__ */ t("code", { children: Tr }),
+        " to confirm. Organization ownership may need to be transferred first, and records required for financial or legal compliance may be retained in anonymized form."
+      ] })
+    ] }) }),
+    a && /* @__PURE__ */ t(se, { error: a, onDismiss: c }),
+    h && /* @__PURE__ */ t("div", { className: "cedros-account-delete-success", children: h }),
+    /* @__PURE__ */ t("label", { className: "cedros-label", htmlFor: "cedros-delete-account-confirm", children: "Confirmation text" }),
+    /* @__PURE__ */ t(
+      "input",
+      {
+        id: "cedros-delete-account-confirm",
+        className: "cedros-input",
+        type: "text",
+        autoComplete: "off",
+        spellCheck: !1,
+        placeholder: Tr,
+        value: l,
+        onChange: (p) => d(p.target.value),
+        disabled: n
+      }
+    ),
+    /* @__PURE__ */ t("p", { className: "cedros-account-delete-hint", children: "Use the hosted deletion portal if the user is already signed out and still needs the public deletion path required by Google Play." }),
+    /* @__PURE__ */ t("div", { className: "cedros-account-delete-actions", children: /* @__PURE__ */ t(
+      "button",
+      {
+        type: "button",
+        className: "cedros-button cedros-button-danger",
+        onClick: () => {
+          u();
+        },
+        disabled: n || l.trim() !== Tr,
+        children: n ? /* @__PURE__ */ i(K, { children: [
+          /* @__PURE__ */ t(H, { size: "sm" }),
+          /* @__PURE__ */ t("span", { children: "Deleting account..." })
+        ] }) : "Delete account"
+      }
+    ) })
+  ] });
+}
+class Tu {
   client;
   constructor(r, s, o, n) {
-    this.client = new re({ baseUrl: r, timeoutMs: s, retryAttempts: o, getAccessToken: n });
+    this.client = new te({ baseUrl: r, timeoutMs: s, retryAttempts: o, getAccessToken: n });
   }
   /**
    * List all active sessions for the current user
@@ -14261,26 +14388,26 @@ class Eu {
     }
   }
 }
-function xu() {
-  const { config: e, authState: r, _internal: s } = Z(), [o, n] = x([]), [a, c] = x(!1), [d, l] = x(null), h = q(
-    () => new Eu(
+function Pu() {
+  const { config: e, authState: r, _internal: s } = ee(), [o, n] = x([]), [a, c] = x(!1), [l, d] = x(null), h = q(
+    () => new Tu(
       e.serverUrl,
       e.requestTimeout,
       e.retryAttempts,
       s?.getAccessToken
     ),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, s]
-  ), m = P(async () => {
+  ), m = T(async () => {
     if (r !== "authenticated") {
       n([]);
       return;
     }
-    c(!0), l(null);
+    c(!0), d(null);
     try {
       const g = await h.listSessions();
       n(g);
     } catch (g) {
-      l(g);
+      d(g);
     } finally {
       c(!1);
     }
@@ -14288,78 +14415,80 @@ function xu() {
   O(() => {
     r === "authenticated" ? m() : n([]);
   }, [r, m]);
-  const u = P(async () => {
-    c(!0), l(null);
+  const u = T(async () => {
+    c(!0), d(null);
     try {
       const g = await h.revokeAllSessions();
       return await m(), g;
     } catch (g) {
-      throw l(g), g;
+      throw d(g), g;
     } finally {
       c(!1);
     }
-  }, [h, m]), f = q(() => o.filter((g) => !g.isCurrent).length, [o]);
+  }, [h, m]), p = q(() => o.filter((g) => !g.isCurrent).length, [o]);
   return {
     sessions: o,
     isLoading: a,
-    error: d,
+    error: l,
     fetchSessions: m,
     revokeAllSessions: u,
-    otherSessionCount: f
+    otherSessionCount: p
   };
 }
-const Su = {
+const Ru = {
   profile: "Profile",
   security: "Security",
   linked: "Linked Accounts"
-}, _u = ["profile", "security", "linked"];
-function bm({
+}, Bu = ["profile", "security", "linked"];
+function km({
   defaultTab: e = "profile",
   onClose: r,
   onPasswordChange: s,
   onTotpChange: o,
-  onLinkGoogle: n,
-  onLinkApple: a,
-  onAddPasskey: c,
+  onAccountDeleted: n,
+  onLinkGoogle: a,
+  onLinkApple: c,
+  onAddPasskey: l,
   onLinkSolana: d,
-  className: l = ""
+  className: h = ""
 }) {
-  const [h, m] = x(e), { sessions: u, isLoading: f, error: g, revokeAllSessions: b } = xu();
-  return /* @__PURE__ */ i("div", { className: `cedros-account-settings ${l}`, children: [
-    /* @__PURE__ */ t("div", { className: "cedros-account-tabs--line", role: "tablist", children: _u.map((w) => /* @__PURE__ */ t(
+  const [m, u] = x(e), { sessions: p, isLoading: g, error: w, revokeAllSessions: y } = Pu();
+  return /* @__PURE__ */ i("div", { className: `cedros-account-settings ${h}`, children: [
+    /* @__PURE__ */ t("div", { className: "cedros-account-tabs--line", role: "tablist", children: Bu.map((C) => /* @__PURE__ */ t(
       "button",
       {
         type: "button",
         role: "tab",
-        "aria-selected": h === w,
-        className: `cedros-account-tab ${h === w ? "cedros-account-tab-active" : ""}`,
-        onClick: () => m(w),
-        children: Su[w]
+        "aria-selected": m === C,
+        className: `cedros-account-tab ${m === C ? "cedros-account-tab-active" : ""}`,
+        onClick: () => u(C),
+        children: Ru[C]
       },
-      w
+      C
     )) }),
     /* @__PURE__ */ i("div", { className: "cedros-account-tab-content", role: "tabpanel", children: [
-      h === "profile" && /* @__PURE__ */ t(gu, { onPasswordChange: s }),
-      h === "security" && /* @__PURE__ */ i("div", { className: "cedros-account-security", children: [
-        /* @__PURE__ */ t(du, { onStatusChange: o }),
+      m === "profile" && /* @__PURE__ */ t(yu, { onPasswordChange: s }),
+      m === "security" && /* @__PURE__ */ i("div", { className: "cedros-account-security", children: [
+        /* @__PURE__ */ t(hu, { onStatusChange: o }),
         /* @__PURE__ */ t(
-          cl,
+          dl,
           {
-            sessions: u,
-            isLoading: f,
-            error: g ?? void 0,
+            sessions: p,
+            isLoading: g,
+            error: w ?? void 0,
             onRevokeAll: async () => {
-              await b();
+              await y();
             }
           }
-        )
+        ),
+        /* @__PURE__ */ t(Lu, { onDeleted: n })
       ] }),
-      h === "linked" && /* @__PURE__ */ t(
-        bu,
+      m === "linked" && /* @__PURE__ */ t(
+        vu,
         {
-          onLinkGoogle: n,
-          onLinkApple: a,
-          onAddPasskey: c,
+          onLinkGoogle: a,
+          onLinkApple: c,
+          onAddPasskey: l,
           onLinkSolana: d
         }
       )
@@ -14375,24 +14504,24 @@ function bm({
     ) })
   ] });
 }
-function ym({ onComplete: e, className: r }) {
+function Cm({ onComplete: e, className: r }) {
   return /* @__PURE__ */ i("div", { className: `cedros-mfa-setup-prompt ${r ?? ""}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-mfa-setup-prompt__header", children: [
       /* @__PURE__ */ t("h2", { className: "cedros-mfa-setup-prompt__title", children: "Two-factor authentication required" }),
       /* @__PURE__ */ t("p", { className: "cedros-mfa-setup-prompt__description", children: "Your administrator requires you to set up two-factor authentication before continuing. This adds an extra layer of security to your account." })
     ] }),
-    /* @__PURE__ */ t("div", { className: "cedros-mfa-setup-prompt__body", children: /* @__PURE__ */ t(Mo, { onSuccess: e }) })
+    /* @__PURE__ */ t("div", { className: "cedros-mfa-setup-prompt__body", children: /* @__PURE__ */ t(Do, { onSuccess: e }) })
   ] });
 }
-function vm({
+function Em({
   onComplete: e,
   onSkip: r,
   className: s
 }) {
-  const { user: o } = Ut(), { isLoading: n, error: a, updateProfile: c, clearError: d } = qt(), [l, h] = x(o?.name ?? ""), m = P(
-    async (f) => {
-      f.preventDefault(), d();
-      const g = l.trim();
+  const { user: o } = Dt(), { isLoading: n, error: a, updateProfile: c, clearError: l } = zt(), [d, h] = x(o?.name ?? ""), m = T(
+    async (p) => {
+      p.preventDefault(), l();
+      const g = d.trim();
       if (!g) {
         e?.();
         return;
@@ -14402,8 +14531,8 @@ function vm({
       } catch {
       }
     },
-    [l, c, d, e]
-  ), u = l.trim().length > 0;
+    [d, c, l, e]
+  ), u = d.trim().length > 0;
   return /* @__PURE__ */ i("div", { className: `cedros-complete-account ${s ?? ""}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-complete-account__header", children: [
       /* @__PURE__ */ t("h2", { className: "cedros-complete-account__title", children: "Complete Your Profile" }),
@@ -14424,8 +14553,8 @@ function vm({
           {
             id: "cedros-complete-name",
             type: "text",
-            value: l,
-            onChange: (f) => h(f.target.value),
+            value: d,
+            onChange: (p) => h(p.target.value),
             placeholder: "Enter your name",
             className: "cedros-complete-account__input",
             maxLength: 100,
@@ -14458,21 +14587,21 @@ function vm({
     ] })
   ] });
 }
-function Lu() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), c = q(
-    () => new re({
+function Iu() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), c = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), d = P(
+  ), l = T(
     async (m) => await c.get(
       `/username/available?username=${encodeURIComponent(m)}`,
       { credentials: "include" }
     ),
     [c]
-  ), l = P(async () => {
+  ), d = T(async () => {
     try {
       return (await c.get(
         "/username/available?username=",
@@ -14481,61 +14610,61 @@ function Lu() {
     } catch {
       return null;
     }
-  }, [c]), h = P(
+  }, [c]), h = T(
     async (m) => {
       o(!0), a(null);
       try {
         await c.patch("/me", { username: m });
       } catch (u) {
-        const f = u instanceof Error ? u : new Error(String(u));
-        throw a(f), f;
+        const p = u instanceof Error ? u : new Error(String(u));
+        throw a(p), p;
       } finally {
         o(!1);
       }
     },
     [c]
   );
-  return { checkAvailability: d, getSuggestion: l, setUsername: h, isLoading: s, error: n };
+  return { checkAvailability: l, getSuggestion: d, setUsername: h, isLoading: s, error: n };
 }
-function Am({
+function xm({
   onComplete: e,
   onSkip: r,
   className: s
 }) {
-  const { checkAvailability: o, getSuggestion: n, setUsername: a, isLoading: c, error: d } = Lu(), [l, h] = x(""), [m, u] = x("idle"), [f, g] = x(""), b = ee(null), w = ee(!0);
-  O(() => (w.current = !0, n().then((E) => {
-    w.current && E && (h(E), u("available"), g("Available"));
+  const { checkAvailability: o, getSuggestion: n, setUsername: a, isLoading: c, error: l } = Iu(), [d, h] = x(""), [m, u] = x("idle"), [p, g] = x(""), w = J(null), y = J(!0);
+  O(() => (y.current = !0, n().then((E) => {
+    y.current && E && (h(E), u("available"), g("Available"));
   }), () => {
-    w.current = !1;
+    y.current = !1;
   }), [n]);
-  const C = P(
+  const C = T(
     (E) => {
       const S = E.toLowerCase().replace(/[^a-z0-9_]/g, "");
-      if (h(S), u("idle"), g(""), b.current && clearTimeout(b.current), S.length < 3) {
+      if (h(S), u("idle"), g(""), w.current && clearTimeout(w.current), S.length < 3) {
         S.length > 0 && (u("error"), g("At least 3 characters"));
         return;
       }
-      u("checking"), b.current = setTimeout(async () => {
+      u("checking"), w.current = setTimeout(async () => {
         try {
           const L = await o(S);
-          if (!w.current) return;
+          if (!y.current) return;
           L.error ? (u("error"), g(L.error)) : L.available ? (u("available"), g("Available")) : (u("taken"), g("Already taken"), L.suggestion);
         } catch {
-          if (!w.current) return;
+          if (!y.current) return;
           u("error"), g("Could not check availability");
         }
       }, 400);
     },
     [o]
-  ), N = P(
+  ), N = T(
     async (E) => {
-      if (E.preventDefault(), !(m !== "available" || !l.trim()))
+      if (E.preventDefault(), !(m !== "available" || !d.trim()))
         try {
-          await a(l.trim()), e?.();
+          await a(d.trim()), e?.();
         } catch {
         }
     },
-    [l, m, a, e]
+    [d, m, a, e]
   ), A = m === "available" && !c;
   return /* @__PURE__ */ i("div", { className: `cedros-choose-username ${s ?? ""}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-choose-username__header", children: [
@@ -14559,7 +14688,7 @@ function Am({
             {
               id: "cedros-choose-username",
               type: "text",
-              value: l,
+              value: d,
               onChange: (E) => C(E.target.value),
               placeholder: "swift_falcon_42",
               className: "cedros-choose-username__input",
@@ -14570,16 +14699,16 @@ function Am({
             }
           )
         ] }),
-        f && /* @__PURE__ */ t(
+        p && /* @__PURE__ */ t(
           "span",
           {
             className: `cedros-choose-username__status cedros-choose-username__status--${m}`,
             role: m === "error" || m === "taken" ? "alert" : void 0,
-            children: m === "checking" ? "Checking..." : f
+            children: m === "checking" ? "Checking..." : p
           }
         )
       ] }),
-      d && /* @__PURE__ */ t("div", { className: "cedros-choose-username__error", role: "alert", children: d.message }),
+      l && /* @__PURE__ */ t("div", { className: "cedros-choose-username__error", role: "alert", children: l.message }),
       /* @__PURE__ */ i("div", { className: "cedros-choose-username__actions", children: [
         /* @__PURE__ */ t(
           "button",
@@ -14604,118 +14733,118 @@ function Am({
     ] })
   ] });
 }
-function Pu() {
-  const e = je(), [r, s] = x(!1), [o, n] = x(null), a = q(() => e ? new re({
+function Mu() {
+  const e = je(), [r, s] = x(!1), [o, n] = x(null), a = q(() => e ? new te({
     baseUrl: e.config.serverUrl,
     timeoutMs: e.config.requestTimeout,
     retryAttempts: e.config.retryAttempts,
     getAccessToken: e._internal?.getAccessToken
-  }) : null, [e]), c = P(() => {
+  }) : null, [e]), c = T(() => {
     n(null);
-  }, []), d = P(
-    async (b) => {
+  }, []), l = T(
+    async (w) => {
       if (!a)
         throw new Error("useDeposit must be used within a CedrosLoginProvider");
-      if (!Number.isInteger(b) || b <= 0) {
-        const w = new Error(
-          `Invalid deposit amount: ${b}. Must be a positive integer (lamports).`
+      if (!Number.isInteger(w) || w <= 0) {
+        const y = new Error(
+          `Invalid deposit amount: ${w}. Must be a positive integer (lamports).`
         );
-        throw n(w.message), w;
+        throw n(y.message), y;
       }
       s(!0), n(null);
       try {
         return await a.post("/deposit", {
-          amount_lamports: b
+          amount_lamports: w
         });
-      } catch (w) {
-        const C = z(w, "Failed to execute deposit");
+      } catch (y) {
+        const C = z(y, "Failed to execute deposit");
         throw n(C.message), C;
       } finally {
         s(!1);
       }
     },
     [a]
-  ), l = P(
-    async (b) => {
+  ), d = T(
+    async (w) => {
       if (!a)
         throw new Error("useDeposit must be used within a CedrosLoginProvider");
-      return await a.get(`/deposit/status/${encodeURIComponent(b)}`);
+      return await a.get(`/deposit/status/${encodeURIComponent(w)}`);
     },
     [a]
-  ), h = P(async () => {
+  ), h = T(async () => {
     if (!a)
       throw new Error("useDeposit must be used within a CedrosLoginProvider");
     s(!0), n(null);
     try {
       return await a.get("/deposit/config");
-    } catch (b) {
-      const w = z(b, "Failed to get deposit config");
-      throw n(w.message), w;
+    } catch (w) {
+      const y = z(w, "Failed to get deposit config");
+      throw n(y.message), y;
     } finally {
       s(!1);
     }
-  }, [a]), m = P(
-    async (b) => {
+  }, [a]), m = T(
+    async (w) => {
       if (!a)
         throw new Error("useDeposit must be used within a CedrosLoginProvider");
       s(!0), n(null);
       try {
-        const w = new URLSearchParams();
-        b?.limit !== void 0 && w.set("limit", String(b.limit)), b?.offset !== void 0 && w.set("offset", String(b.offset));
-        const C = w.toString(), N = C ? `/deposits?${C}` : "/deposits";
+        const y = new URLSearchParams();
+        w?.limit !== void 0 && y.set("limit", String(w.limit)), w?.offset !== void 0 && y.set("offset", String(w.offset));
+        const C = y.toString(), N = C ? `/deposits?${C}` : "/deposits";
         return await a.get(N);
-      } catch (w) {
-        const C = z(w, "Failed to list deposits");
+      } catch (y) {
+        const C = z(y, "Failed to list deposits");
         throw n(C.message), C;
       } finally {
         s(!1);
       }
     },
     [a]
-  ), u = P(
-    async (b) => {
+  ), u = T(
+    async (w) => {
       if (!a)
         throw new Error("useDeposit must be used within a CedrosLoginProvider");
       s(!0), n(null);
       try {
-        const w = new URLSearchParams({
-          input_mint: b.inputMint,
-          amount: String(b.amount),
-          taker: b.taker
+        const y = new URLSearchParams({
+          input_mint: w.inputMint,
+          amount: String(w.amount),
+          taker: w.taker
         });
-        return await a.get(`/deposit/quote?${w}`);
-      } catch (w) {
-        const C = z(w, "Failed to get deposit quote");
+        return await a.get(`/deposit/quote?${y}`);
+      } catch (y) {
+        const C = z(y, "Failed to get deposit quote");
         throw n(C.message), C;
       } finally {
         s(!1);
       }
     },
     [a]
-  ), f = P(
-    async (b) => {
+  ), p = T(
+    async (w) => {
       if (!a)
         throw new Error("useDeposit must be used within a CedrosLoginProvider");
       s(!0), n(null);
       try {
-        return await a.post("/deposit/public", b);
-      } catch (w) {
-        const C = z(w, "Failed to execute public deposit");
+        return await a.post("/deposit/public", w);
+      } catch (y) {
+        const C = z(y, "Failed to execute public deposit");
         throw n(C.message), C;
       } finally {
         s(!1);
       }
     },
     [a]
-  ), g = P(
-    async (b) => {
+  ), g = T(
+    async (w) => {
       if (!a)
         throw new Error("useDeposit must be used within a CedrosLoginProvider");
       s(!0), n(null);
       try {
-        return await a.post("/deposit/micro", b);
-      } catch (w) {
-        const C = z(w, "Failed to execute micro deposit");
+        return await a.post("/deposit/micro", w);
+      } catch (y) {
+        const C = z(y, "Failed to execute micro deposit");
         throw n(C.message), C;
       } finally {
         s(!1);
@@ -14724,11 +14853,11 @@ function Pu() {
     [a]
   );
   return {
-    deposit: d,
+    deposit: l,
     getQuote: u,
-    publicDeposit: f,
+    publicDeposit: p,
     microDeposit: g,
-    getStatus: l,
+    getStatus: d,
     getConfig: h,
     listDeposits: m,
     isLoading: r,
@@ -14736,163 +14865,163 @@ function Pu() {
     clearError: c
   };
 }
-const ns = "data:image/webp;base64,UklGRkACAABXRUJQVlA4IDQCAACQDQCdASo8ADwAPjEWiUMiISEUBFQgAwSgB4Z/TeLt3XMAoQH23eph0gPMB+sn+M9tvngOsA9ADwgPg3/cH9sfZciikEBuA1AB+nf+84CUkAVvA2x4xvyobR+mBaYhjUv/ewHb4hTqOnP38rzsxZX2inOSciAA/v7uqvqGdpWcjjrfMDFaNHumTog38t3yor0kbjn631VsX61cAC749wWuAX74u/f/hpeDFqS/ci8E1g94wk9UVs7BHqtv7f/M9iT1u5ITJV0Gv6tE/CW5j/nVR6yExJ6JoDRDOWQ8zVpWH92r3Lnbnc4WJpOchbRT3H5rv//6PP+F//4ehLUlR/4tkRUKZu/yOa26+sywmY+Xc1X2lXMcUv7+eQ7+FBE7bhKc7htieBfH4eR134AVaILL7PWA2FjzAjfaP1Lgirqoq/ZooE8jVD/b4g3J3O3/TG/4ajHe6clnAI/4NdwrnHX0P/quBU03HqSsQ0qsEMAuhrH/jn+YtDzmjm8q/cGJ44qvi24Hn+G1kxz2XP2S/Gp7ri5cMlo+muuwBjyNJnnEcTt/5cRdYS2cbEBZtpINWj3PuC1EOsd/8cTepSpxODcJHLzktfC1PHW3Pgoh3J5PHjW3TCQ1Wlu/wP8e8OPfNm48BODGChioj3ezblqrOBV+cI+hLi7ReJdvBF/4jY+/Un0asuWnrA6kRNpgOeO8wyl4Ryhkrff+9R1SpyPYP+5T3EuWWLZaCn0bGzyk97S3VAAAAAA=", Tu = "data:image/webp;base64,UklGRmIEAABXRUJQVlA4WAoAAAAIAAAAOwAAOwAAVlA4IIIDAADwDwCdASo8ADwAPm0qkUWkIqGWDVeYQAbEtgBOmZMBu+H816ov3b8R8R2g2FXtxdyh5s3+A60v0APLi9ktgGB/LZjWNAXqgpE6jfW0NF+P4xEhH2L7M+26iGwrTjjcQegyCZqxs+ifvZANjWd279diqZNKUrgOTVtjJGtW4IVtRhMECd5aWVgAAP7nDv3UY/8f1l//xTP/FM/8NU8c9g//sC3+bX/1HZXsNsM57VKG2LVf1a0KdncWO8uPo/Oh79m9ZqjJZwXfPXuvwkK+WDOl6+N8C2Ux6no/V/zkoucKK/JZek7MR5sS8TknXB+6BuVDXou9Rx4aUea2q2IzvLvFIujjKsVYLMab7j9zo48fhgm9YOtjmWuS0WZ4c+6ta0mr3xF4fcdAIFf6oXRSlqovOX0HUiMV//hXwSX1cfP5cLj8c7OTyT/4ce4olJARV95GoY8oF+2uU0blGul3ItlG7c2Hl2/uC6s2WZc7Zukwojx6ed8t97bZ68N1uzCLzPlG7BuYS17F19e0wXnc6vEl3q7ft0K7OEl7r8mY6Kh+Nt/5V/Lp68mFBjLem1JjvC371+lKwez4KCdXwNo2Z04FqyzGpFutY6YQ/r5Tfu7Oi+oNfN0R/W+D4aj1nqHhlqYJzpx2NK4mj0gJIXmX8EArelSQI8mV4Ux9MRPwC2PuZhLTjQZv+Vl4p0D8bSB+Z0rek3hS6G1r80fW3cn767Pz/bXanjVmm34wt1nQPqdJObrZ7vv2NWcEuQKj9d+V6DzeDrq0CtGNcanEB5MY9agi1E6BprEScTdfPXjBeMnPbpD+QO6P7IW4UZ9etCCHtX++S/fl5Iz5RzUr10ojRMw//35C0yTjSEhbe884dPwor64n//KByjUFEGsCPAAXPJp1+O+SiKfUaODq6ncjKayTHXjoXgM7XP1z4sBhIKJZJRiM7vGC/+v/Sk8/jbgZLZDAVz1vLou93y7Yd8hxcWM/BesxgWgeKvl8fjE/Ud8tQKp4425hWh66lzzwxa4J3ctA4/E50wX/eoBOgq0B7+7S6FK4wvPHSNgfh+vwSWIJsJLt/3yjBeb41RRyMDMZqFQTZPEdFpXp48ExEyDayZ6objbjTHoS5WQDnDQpRyqMNKfvd41nhEPdb/hxpzXeTIjWmfHHCT+CQYWXDqLehCh1cRyeYOBwsSlSw5PiquAbsgAARVhJRroAAABFeGlmAABJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAAAAGwEFAAEAAABeAAAAKAEDAAEAAAACAAAAEwIDAAEAAAABAAAAaYcEAAEAAABmAAAAAAAAAEgAAAABAAAASAAAAAEAAAAGAACQBwAEAAAAMDIxMAGRBwAEAAAAAQIDAACgBwAEAAAAMDEwMAGgAwABAAAA//8AAAKgBAABAAAAPAAAAAOgBAABAAAAPAAAAAAAAAA=", Ru = "data:image/webp;base64,UklGRtgCAABXRUJQVlA4WAoAAAAIAAAAOwAAOwAAVlA4IPgBAABQCwCdASo8ADwAPm0wk0ekIqGhKBQMqIANiWkADPF3uV2D8VcQGk1mg+P36i9SLnZvYAQxszEWYzEwX1RVkqG/4BGbJgMSHqhKDFsjWsGfPPrvfef11goNmCDDlBJHVVD+8gAA/vu4q03kl+E7FpjtZ2gc8pQ619Hjv9NywoRZ6az43C1wcrRr/lWzJlJhLWMHN0MkVl1ueAf6Hn8StVzeUfMBXOKkgfe2msx7QWR5PnHW/5c6/35yrtWnrURc2q6UYlGin+v8C2dQqexkW6rX2EEijTI9eEQ46PWH3/59fM2AlMvvR2abaRk5XX7V1triQncRxvMfz5YmYDN+PY/ikcZUNaiFucKoUq5riv0eKCezuFNHecE11ojwJqWRSTWpalkz5autXp6vFS+FT1tWUsB/fs1CCOZxaA1vR1grOEaiuKe1RYm7e05psWtqbXLVmm1bA8Ly9PFkVdCbc6hR3UuBBsFGnVeGOUeMn2onnfvYhBMcM9YPxGdQkwZLXOk1VuQSTk01Shf3fZrFyRlFauftFdPYhKXwqrr+meav1P+KLKBVosqmHnFFfgExsQ/rOf3TSd+mOqQfJA+cF+HojNU7nmM3uDkoCBi+//Gqp+gPNNW8M4LFrol8rxE+7WsjqMgfwv1f+Nr25RtG1Wa/KkniRCAAAABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", Bu = "data:image/webp;base64,UklGRhYJAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSGICAAABkJz9nzon3/nNJGnBXRvBI0sDkR7slpRBaMDl5LByx7cEyBWHtWd+8/uiK/95uEfEBKBnFwRwk6Wjm89PW2Tj9OWNo7VxASQ4DDoIML9fbdLYpbFR21tykDAY8ZCLT9okqZrsD0uqJNl5sj6CIAPwDmdqRlNlz6o0vroE5/vlPObv0kyN/dVE3pmHd31xgt0P1MgBauTHLYjrg2DoClM0DtRi4kmA6ylgrMq2cuDaZm0CoQePyTqVhVTWJ+G7EozXqSyosj4K6cIhVBhZ2MjyMNy/BFcZWeDIE8g/PLaoLLRyF/4vgrlPTMVK/DQH+cPjGpUFV17/i6BEZeGVF+Dh4F/kUYGDR4nKDBPX4AX381Deh2C1Q8vB2F4CDqnMUrkPlPMpY+obLQ/j9+k1GjNNLB0z5hJ5fD0f5Y2XTLkkPn9Hy8X4vsGMW/xvt3JqvKflYnz3nCmXxJc3qLlEXj9mzOe4xJSLcW36Oy0P47cplKl5KMvAfj6HwFKbloOxswrBfWoOyvsQjzWmPErwcKhQi6d84eHgcSGPEgSA4Dq1aMpr8PjL3CemYiV+moP8AY9darGUW/D4u+CEsUiRVyH4p8NwmbE4kZUA9y8IRuvUoijr4xB06zFZpxZDWZ+ER/cBEzW2dXDaZnUMAb06hBOmaIOxmHhlCILenWDrI6MOIio/7kIc+uk85u+SSftkasZ78/AOffYOl17RqNqbqtFqZ+A8+i8BI+tPOiRNNdkfllSNZPvJRYEXDDQI3NJerUFjl8ZmbX8ekIBBuyCAjK8d3Xh52iBbp89vHl2ecIAEh54BVlA4IMwFAADQGwCdASo8ADwAPm0qkkYkIiGhLhtqqIANiWwAqSdaNo+beZFT37f+J9yXOd2J6HfQh5gH6edIDzAfst6vXoO9AD/Lf4DrAP2V9gDzY/+57F39p/3/7k+0RmjvYp/meic9ieyvJnZVfquF/a23ZOCHGT/sfDDjQ89zOL9Gewd+s3Vh/b32Gf28Ejb5ttLg9hoDiFb2tMW81eZU9Z1LHfdRSCsRMzHz0WT4BNgUakGf9oJtrGtVJFxHJfxAatIxnW1qjDi9i3DQtJp9pVNKlMoJEWdPKv3KaaFSlhd/aMGiir9CPcex5QAA+fpjxA6zfUamE3wS2zWwLVrt/fXA5+Wvx9j5SID0zuEHU2LisPUxvtRuIUwNrsUis8zy+IMpzft+ZSg+9gdx9e6+ZvPmtj4OByz5qo26J3rXhPy8LBXSpuPb+f+mP4CoTvYDhzQXh/SIGj8Ez1+W5MJ/Tkdw09wPCs3JuR3yoqO63FH/j81xW5Abr7tCdwfXwv3CXDtOcHwUqPCd1aiU2uT6XwgdnYqYygEXGKFx8nmaUvqSn9p8HmIA9dVTOoEnqYFjrNfWY034N2vjohd16cxnkP4PYvHkIOWa/FEUug7/qbJ/GFLPxNh6y9eQ//MzzXbcPwsT2chWXPBXNVF1S9dxv5NUuEueiw2kdebblQuvUSRLN+zx3VyT2lOzWBUqrzsTmeOlxjVcTA83H99r35O4X7WXNq7HExiWXxrdM/Ih4CvPJaEHPxUE/i6WIz6+VGq4RB3sBKl3P4M7/DLWAwCnwcpX228XezqQ4cS2tttWxLTc9cPd1ofek9qF9lpB8RvakdPnj2PruFA9W3iKbNdmgnb+mIpohHuUR73KdDDOHbyfAiOjPzzqomnIU3jcSt7LKOB/Op97sCk0yd18mVG3prs351B+xmCE2Zd3RFKL+mpMz5qcuAFAfRyodbggdgmFGkEGQ33VryYFl/upr31FGdI52sqzuxd7jZIsqCcznUH/gu+xaBw7wla49EmFNf+Ss+91i9Hsys0FS//Ktru1xWgkeEweX77y6Oot5tHQsDxgy0sAI85V7FmlpiiWXQdM12MGfCBfyRM+N23SjOdReeSILYCgsM3r33/54X+lfDVNj427MvbDFtKccqazlQ+iKqC//MvYwqyiJPL1ZbVoCEP774fKZA3D3qvsVPGlp9LPchpTs4mTJugt8qXl82RwXQCDNZXnbEois53E35hkRr+IJhndoRo1o2sZDoTgykbeOKiynPH03+BcUQ8zmxTmiVlHQym/LL3kRREnUlxs2zPPGb2E+Rpdib+LxOvFSmj9RfTZoYIJnrqNnBIXV2lt7xeZ0srf98JymJxrtr8lx69oSNZIReDddL+3iiUjh6lm7EcYuclqBaKp8q68geo7H1EvKy4nSRx5Q+uz4l/ypo2hVdwi9l+BHjZZmJ7lXkpNTRJ0gZpzquzN2vh/MZQALV6FZ6q4aofA9AJy1DVLdNjV8n6s9eFA5pazxwhLW4tgWMciGf5x6G7HqFPTL1ZL3l447zLGUkqAXjkeVaNmxZ2oNKIuTy6JDc0Z61Z2dgbsg6HwCX1/ux5sk82WsnNIO4CTnWKI1aCtQZaEsBf6hIl9n7VBsgZGIcPpqn7P4mbyf3EbfdfQ32qlawLuAxmDlwRsVsPkw7j4aKbvIBykNcsVXv0/X6UXXaAtw3feJnTwDak2qY6QpMLE9e7PJeuQQ8FXpqI5HoR82kd+DOwGH5F3OpuWsmEt8v7WQG8q1LMkg6vrl3I8047zMl1Yq0VwotbrsKJocsHgsbs/PGOO9v2s8U0Sju/71XRtG5skcy2msae3wixjlGR4i6ZfldMehQD1zf/FbWN9hnHfpq1Fh8+PSA9AzUi33qli8ixISbH+tw7CcumxvegMk88HMNZlVdnIEzIfyHrSdZ2S98yX2OYZw0+JyaBbQxI0fOr6KpuMD6FVGLrdN9dgOTgOPQgAAEVYSUa6AAAARXhpZgAASUkqAAgAAAAGABIBAwABAAAAAQAAABoBBQABAAAAVgAAABsBBQABAAAAXgAAACgBAwABAAAAAgAAABMCAwABAAAAAQAAAGmHBAABAAAAZgAAAAAAAABIAAAAAQAAAEgAAAABAAAABgAAkAcABAAAADAyMTABkQcABAAAAAECAwAAoAcABAAAADAxMDABoAMAAQAAAP//AAACoAQAAQAAADwAAAADoAQAAQAAADwAAAAAAAAA", Iu = "data:image/webp;base64,UklGRo4EAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSA4CAAABkGXb2to2V9/v6D1Jmd5CQ5GXPYXAJMrtPOJMoMzMzDgIPYY5+vVds6T/m0BEOGzAtm1IBlR2d8kXUMyaADjeuHr9V7qj3E5/XrvaOA5AHCqzFgHTFz9tUTmEyq1PF6cBqVWDOLjkwS6VPsu8KqnaewRU7j5KIjipgFiQfCf1IGch8wMlv9QhcWk4nLlL9Z4l6b3y7hmUvGQkmF1nnrMC85zrc5CozDUQtwamisNSDCmxjL5jpqxMzfhutFCCY3+5110CaI9/jhVIcPg/DxiIB/x/eKgijLxkRobTyxFEw7zVm0NqcYg5LNAzKD3n4QbmyRVqWCiXJyD9uN7z0Ha9Dw4N5gzOnHU4IMJ7egt8HuYWasIJnlg46fkYgul9qgWU+9PA2Z7b2FngnR3e49Qm1QbKzVPNnltZ8wozK2S8et0SN34wt0LOnynVCsp02xI7tKSqqXYsV7ZtD/lpeaEfNyw/k9evWuKK7XfQ9ruP9/RW/s74t872N1bw2MY8n0Acmlb/KQ04AJ8t5PkeEbpDnbmR2/5392FiOfRFlCuTkIGsMh/aPBeGZFLBYuiM1IIUZLOD0NnMNBMWZdE/4bLo32MQ0wxcJnsvhcnerRhSLvPPhcj8s5DIsmtU6Tj1L1U6zvcEElfrVlHyqGy3epC4om5Vsg3OlO50UQ2V6Qa65LWf6TZ1J/11faBLlpgAVlA4IJgBAADwCQCdASo8ADwAPm0ylEckIyIhKAoAgA2JaQATzh4OcBkEByVmbl5z9gD9U/+J2APQgLaX4twLu19/UVxAWN1IKXE4cIqJBhoyQ0yDYn61m3zk6T7FMg0AAP78+EMvGgC8jLXmcbbmqvufKjG8Tv1M9Krl47vOW74O/Rapv2DgXbg9iK6PrRQG/9d9+rF/ESxzbszVFn3GThrMBmsklj/LPWDQ0pKzG7EyjQL6p6gfUwMze+wPhzJpn8tMqlUVgq6/QSUVcgG+ztsi73rA3vl3n4baeF1INsbuosTXtnsotVYuTii6rscx9OUTvevYcPNvcL9MPhyWeCQw0qynnGtzCIw+oFRN0+TN1mqXkFyk/rFBcH+FHiI6s9XX5EWCKn5vTRt/0RbS687PiXPFC5Zk/Gk4+538IYi+HZDjvlQQWOH/vddfYTerQ5QqWJt1YuaZNThQ2u+/DtXfZPRy1iWWLR9SKFFtlGrqBKWF5nPRPWWMNA3OssvUtvCNBLBA4cn1whzy+SpbgLvnaepxiykjKsU/MhzgAABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", Mu = "data:image/webp;base64,UklGRqwEAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSL8BAAABkGvbtmlLc5997yvbmW19gBnbDm2kjF5UmW3bthXZVZFdZ+81r+87Z1XlEaHIbSNlMstwos4XUBSTLAFQo/u01Zdf/yLDDze3zB/YwADJEoOoJAKg7oTdH4SF+XxiZlMgSESzwAJdVn2iUJzzOUMiLhQKf+/va2FtBLMBuu1zpHcsincUXhtoTKLsCTVX/KF3wrLhPLm/OWzZtjQWfZ7RhYyAC/lxMowpSzJYJAyFkZDQc21FBMUT7BqGjpHxf3m+XlEPUHE/f3vGgPzmw4awRUaTexkyJhwfNShctVgZXyJDXq4CUyjNy6Y4fVOBIkAPR2GcOE7Jm2NQ/RE9YzXht3a5VYvlOX0xF0fy+tp/ozBuQg6DzZYb6Bi7ed4rB5Mp/1Co4cNhLUo1StLxDIDqrynUoRswiF6nFnIxsDpnZ5WBW0GFZ1qZ8HfLDk5txHHsGDpSa6B0cXZEa+DsTr1M+P4qPdXwjynU4+1/a7oN3Sm6G+meSd27oHsHde++7puj+tYpv7G6b7vun6L7l6n+oZp/t7JmUNUqqhpJV5upakJVLaqqgVW1t6rmV401NGMc1djqH4rpIseSfyPFkgAAVlA4IAQCAABQDACdASo8ADwAPm0yk0akIyGhJgzogA2JaQAThroHvLxu+aPf5G2BYxv+B6XHzx6GPon/o+qz/tOAA/TM82gR0vnExWoiQRM36jlg2UIvwCSqySErzuguz9EP2x/7hsNazr91aIworWI7AAD+/TZ+6Ipl444OdT+2wU0Ov+T8oJuVP/vUbT/w1Jsv6Awnl6rvF/xetfOPt3gTQZZi0Y/AOx563J7CJkqTR/fc/n34zyeKzR80fhfv4ef+Hjhz/CX5aQo+58zg/FdE+7bLoophGfG0szI513EH+q+Gc73H1PFdJYf7CF8v5dhr3tMwEVX5Ji2ZxejK8xrf/E6nVXqlA4DrYNRP09InHc+fEqO/fH8xr+rMf4y1F9TOnwVffZblLoTP6lot0m/sh7sTiDQr0mIA8TiHoOffGDG6KzV+B3239udfhzD740gkRi/m53abX0Ku3vAgadgFFqL0vk8M/4aI+cI+0fbLW17mWGeMu21wSRRQiv5iNgGKR3vEGXAItcLDft1uUzWAfbe1X3zK/ymT7bA/76PB6UUknm+Y5MM4osurUXU/k7P38pN/3slnGfpFzjl4c3USY4mH9ZCJYUuC/kGEnq/yRPalPdODNFvW6s8MiQeQejYNRY0LsJ0WXkK8vXiDmihCivYAOPoSovesL7on+WAArDNM/BcQSQvCYABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", Uu = "data:image/webp;base64,UklGRnIIAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSK4BAAABkHPbtrE9+z73/RTbqWw7Lf+BbbNKbTudbZe2qy+VbVv3PmeHj05G6ohg4LaRounNMtN1voB42ABA5R7TNlx5+O7du9e3Tiwb0b4EgFyAOCQM1Z16+DWFUZC7m3uVB2zKQGBhe+77RGHonJffCL1zQuHDxQ1hrEmTatDjHIXOC2MgzpNf1tVJkWgsGhyihI7JIE74aUYp2ITFAoz9QO+ZAs7zanvkEilKbIkMJS5ANwoJmrCodYVOmBqh5zIEJjZc9xods4A4rrPGxGitrJSU71yNyH4Myl7JTEl+5zzYSH9nlkrxHBzxWUzLVEnhh+YI/gq3+UphpvA8m/s7/wg9M4bjFNg/0vplrxQ+rQEDg/xihmT23jxYJZ8UPq8OA5z77Wt405FDR4poSMjiAJhPRxUIu8D+UVonOhfNPEVHPM9juFacwo+1V6kJQ3Y9Sa8ljhPuUvRk4UdNWU9ST3b9n0W3iG5DumdS9y7o3kHVu6/75ii/dbpvrO7brvtPUf2X6f5DVf/dmpxBmauociRVbqbKCXW5qCoHVuXempxf1dZQtXFUbat/yKZTtSUBVlA4INwFAABwGgCdASo8ADwAPm0qj0WkIqEZ+zYAQAbEtgBOmZoZF+E8zGoP3X8VbcdLvma8t+jH0E+YB+ofSA8wH7VdQv0AP75/iOsG9ADy3/Y5/b/91fgI/Y7MOesb0e/q+TUR1vt7VO6mwG0imO70GM5/0P7BX6qelv7EP209lz9oDRea09ZR+SjhX7sBu/ZS7tG917rPgI3Q7XsB7luy2hAg/95C2Z1L362OH1oFziDY/K5gWoSytSAtiKvA/jW1MehBzdLzJfszPPBvGa15IYwIVRTjO2Hz5ZS9HjLMehwAAP64SgjD3qeg6NRe/Ok+iFhrG3pgglCfbam3yBaDUH36sUiQx0PB1ZZyOHq0ky+f97h6tJMvo0p9LkfXecWOFJ8J5G7yRPuL4tzGLT09QulTJw42xp2hd+lMgIa51XoHx/iftn8B2D3k92H5jOQr+uIXFHHK5FpcTG+qGEF+np0LiQa+vdW7/+ZzOLVRf7jR5X3ANPt93Ng92DW7NflVr6kMr88O/v2ZNb0vtgao2Am/R3CDKiNq89f86CT6r2L2g1oTui7H3E1yhSPQpEOz01I3fhfiMMv4weqKuoedxn/xLg5uzHa6Gte4C/dQYkG3ZFSy4CXQtRjftBrjX/Oj+HpSUPDsv0wPW+ml5NbBKDCj2f3SD8TVMf2ZfHrOkR602RVk2UmKC+H0Y9iK6k98vsgPINtz0II8X7Mj2nJkTC6IMLuQ8dNTUq9VXOnhXrdhNZoaH94ePo6baBl3hTGFAnD3/b+gR/vtbqV7wktuX6fpnjeTBe/Drp6z3neeANj/aX4CsU9w67nwYOjZhueCjxaDKUnNjLPjI1e0BoTbcOzOQ0wHJHZJ+Pt608StBu4HiJ8NjH46fnvXL3yiMoSvkAuwCE1AakA+eU1u3unyjl1/MnZQmbp8fzfsfrFesehLPcIkYdCiZ+52QbmINNTjEsvjuBuZRubBE+Laihppsxoo4efGIo0xkw0etu1+yzvkqp88w3pBq0mRl13gnnc+2zl6SmhwgmNFbz+F8qAqmdfJL8iaNSGEWlPlpczDDe62GBZMlBhQmq/XCn/1b+VazHvJXkoIFDF+wktMg+rKfLyfTlXdK0cs+Kn8h+rjMakkf3WLo1TftMLn+O+x/Gat+BGstJrM1xvCSSnHQY+NV4B4gRqyZ55gRNnqN/0lWrATOcHUaGXpkTIM/yxFjxcePcSFo+t2aJ5lShtVukETzRxaIXgRkpROeWQHWpTHOaexmXOzF0b833qJSoXMk2zB/uMrgDzKd7d3ohUz8Ra08WYKlAuMQD08bF4+jUepEspqPLoYLQ73TfmL+1LwKxyTV3gEu6WnxBPWPLnYIGYN9U47ZNlB+NgHgYtKTyii6060RAG+wN32WUVFxCZw0HMHnHFgwxD34L/anlpS7mOrjKgyuGYhFC7iHqTQHuoAO1ekBHV+rndnbETKfa1F7LxNLYq+dmJyytmQrJUCGjelorI1m/TMQNiFVrY4FCI1Gl2W1JsZsw9zA+Bh3JmjkC0H5/0JV6JotNMatJIZ4v5PqwJe3r8xd+FNS3ynccdu+xtVdc27qwVdoomciZD5oXYey9KAFSAKO594sBKZNWUJTLXnt0BJbdF8FkQYvg3DQajYY2p+ixd5Ag7o92gw0pVVDDOP+WQxiEmKqgWJyTBsnsBk2Bxi2Unsv8S/4PmE8Hy/vy+Mij+aTAKZvg716IHfHX0/JMeFfmAnsZ39Q0qkfdPtq6+CxbGZ7wKDsK/8l/MVGuyd6faJFt5wyoOXuNrr3JC9EoBmjcOzkVw/6RNP49poZ1xzsX3q7B4HGfI/XSfRQq3HeZ2j12d0E3gCAube4oExaT1sx/v8F+f61QOsGdSaqM2im6qOGkSRkrRQ7L8hvS8vEYJeVkAbFvX5ov7e/egYYNToMHj651c5/rCVYtB9Ned6GvGN8R0x3t7+lsf8+ofhHRzpyvwxd6c5pREZVOKnXzplhJ61mki4JmAAAABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", Du = "data:image/svg+xml,%3csvg%20width='88'%20height='88'%20viewBox='0%200%2088%2088'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='88'%20height='88'%20fill='url(%23paint0_linear_170_79)'/%3e%3crect%20x='25.6665'%20y='25.6667'%20width='11'%20height='36.6667'%20rx='1.83333'%20fill='white'/%3e%3crect%20x='51.3335'%20y='25.6667'%20width='11'%20height='36.6667'%20rx='1.83333'%20fill='white'/%3e%3crect%20x='29.3335'%20y='40.3333'%20width='29.3333'%20height='7.33333'%20fill='white'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_170_79'%20x1='-75.3077'%20y1='-55'%20x2='146.302'%20y2='148.167'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23FF00FF'/%3e%3cstop%20offset='0.531673'%20stop-color='%237A84FF'/%3e%3cstop%20offset='1'%20stop-color='%2305FAFF'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e", Fu = "data:image/webp;base64,UklGRh4HAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSNwBAAABkFxbexpJnyR3z8y+ajXMkAnjnnOgbUUxEAHjkpldWQwzFUn6v3PGVNI/AUQEA7dt49gN3PXavTlfQDeNAeyqg4PL5buRyOhteXlwcJWtHU8qzUIBs+30g7/s4N8Hp7cZFAtpDc7Bbr8xplB8iFJBYvBC4fjGdgvnElqdwc6XFPGRnQxehC93wjgzbxRYf1UYA+dkiJSrG1DMV6zDoW+MkQmMkd8Owdl5AsvOM3gm0geeXwY7R/Tu0EcmM3re6cF2Rr/kTJiBMmPZh+2q/wtm4ozD9qrB0tucMhunvL0Upg1n6JmRnmda4HCckVkZeRyuMWjjF0peCD9vhK3jAgMzM/BCDQ576225m/bCwcA+qzS/PLUwDrsr1ZDdcAa3KtWQWzDYPKZoQDjeDJyoVEdOAPf0cA/Lf1F0IPy1fG8VWmXvgF4LnoOLDFoIvPiaUQuRr99pNr8dUZEj0YToQnfjreaQd7oL6T6Tuu+C7juo++6rfnOUv3W631jNb7v+P8U+1ZDAZxZG9R+q/e+GxcbPuRcRftkIq+pVVD2Srjdr94TDnJ6w7MGqedFhH1bVA6t67zk9/3ctzw+YAhvSc431KExyjjNHQ2zLcTRzq/8op0vKJd+OREbvUnJJAFZQOCBaBAAA8BUAnQEqPAA8AD5tMJRHJCMiISgb+1CADYlsAJ0zIUCfxfmY2f+0b2AbztDnPeKX0qPMp+wHrDehz0AP7J/o+tP9ADy3f23+C79yPYA/aqK9mONrQbuszbsEyALJNTfg+Z6NjG2v+ETCuvlr1q6QUqEiAMUndG/WwfnjJIOTfOBS4W1w0HjOJa1XQ2K33n2b07EOjOBapwKzyoA2erTBTnEKlFjllBy68GBjZ+UKnlzN/f5ibbb4gAD+i9OsnW0xUnmTpyhVasIKzTu0BsXnfBm4rHJqGMFJBUgTESDXEPcNjAeaHP8ck9qdNBH4L/h53tXgHeZttc7c4lwTa6U4Lziz8qUoy8ce0IMc5TFElawGj16tME0GzSSbUqgH7/tYA6huPsWM2z3GjP8b9y7paRbINxwYRtuE90I6QVsNrEkbhL1YfwxRXnuobOfSe3KFVamrvsOqwTCMqlNfjsR3pyoiZ+lYt3+AH6x4ZVNltbYI5KiVhgCu1isooK324ldloH3zhlefYKEwTCYfNjbeH5UiL7JSev+t/C+ftc3TkAHcsvrLCU6n5pYYY2Yr1kRq+r6XVzI6iXuA/TqwMk6xq1PmdzHOwKavncLjWJrk0uU/5E5WKqXM0tgl5s3pduHjb5aiAt0ikEisMyYwnIhDiSemPRdGON4RlwSb3OEpZjhuZqoyen4Sw/fULewt3hAZizeiPZx1o9LS3M/4r3v/M6/o5925VJcmxAf/yjsyjCz0mV+6NuIeWp8shrFaIGgeduVJoZ0Kys1WjSLuFg9QvF5LlkOZ2k7WrzSu4ucsUOS/X4wnQvB0RCnR1PCsU4NDdLfxvQITUgGIuVTJ7LR73PHzZam/Z21oy3euiU55ffITekwjR4SgVoPvhxbdBSyVePf/twm62pSK9IfgPGN+ttubhQub1ooVZymdQCrS3goEs6dlnl/6TVfkgxFyBfAORkZafeu/Va2vIgUBNUQd48W8oPiMFjx+SAKx1qm2IwCLnuhJGf9M4nCzu7oo43f+nBeT07IjB+FpFKRGFNvlpLEXhPclSgFkqeU1W2eNqW2zShCWkQkgfE1HAoNX3z+CQcRQJq+HkC2nSjFdFYT8UNYNS6lYcyVWzEnOos1qpsNRxnLqY2Dl5CCT3Yeg/qT8chfF9ZadFvzNTEIDlARoN//7IU23MtuLdpsAjsiGfBHuR7y4lemYPdD/9Cuff9Qn/r/xlhmB5x2Y9Z1yME3aANAb5+u3lYz01zUlWwakKVmv9fhaeu/YzQ7BXLlcb+cbaIF5t/COmObnt20zaTfjad542f7p7f2Xea134nvyPYS+EAgjM+GufHvl9tXCrrRbH0pn7kH2XEGx9VbO4mY54+QZa5kPr0j3AOEtKd7SJWjlg5TQfgIuB6KoLGainSwF+pPdiCmzEzAOa1eFwn//2VdDMeq42/bKH8U4orewhLh60ci/S0BRBuItNMc+v1+vxl0YyS5it4AAAEVYSUa6AAAARXhpZgAASUkqAAgAAAAGABIBAwABAAAAAQAAABoBBQABAAAAVgAAABsBBQABAAAAXgAAACgBAwABAAAAAgAAABMCAwABAAAAAQAAAGmHBAABAAAAZgAAAAAAAABIAAAAAQAAAEgAAAABAAAABgAAkAcABAAAADAyMTABkQcABAAAAAECAwAAoAcABAAAADAxMDABoAMAAQAAAP//AAACoAQAAQAAADwAAAADoAQAAQAAADwAAAAAAAAA", Ou = "data:image/svg+xml,%3csvg%20width='868'%20height='868'%20viewBox='0%200%20868%20868'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20cx='434'%20cy='434'%20r='434'%20fill='%231B262D'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M234.563%20184H640.697C650.387%20184%20659.339%20189.164%20664.172%20197.542L782.495%20402.657C788.631%20413.294%20786.808%20426.72%20778.056%20435.346L452.368%20756.327C441.818%20766.724%20424.846%20766.724%20414.296%20756.327L89.0484%20435.78C80.0927%20426.954%2078.4157%20413.136%2085.0013%20402.433L211.48%20196.884C216.405%20188.879%20225.146%20184%20234.563%20184ZM588.257%20275.577V333.129H472.567V373.032C553.82%20377.296%20614.782%20394.81%20615.234%20415.802L615.231%20459.563C614.779%20480.556%20553.82%20498.069%20472.567%20502.333V600.259H395.746V502.333C314.492%20498.069%20253.531%20480.555%20253.078%20459.563L253.081%20415.802C253.533%20394.81%20314.492%20377.296%20395.746%20373.032V333.129H280.055V275.577H588.257ZM434.156%20472.268C520.868%20472.268%20593.345%20457.459%20611.082%20437.683C596.041%20420.912%20541.636%20407.713%20472.567%20404.089V445.867C460.187%20446.516%20447.336%20446.858%20434.156%20446.858C420.976%20446.858%20408.125%20446.516%20395.746%20445.867V404.089C326.676%20407.713%20272.271%20420.912%20257.23%20437.683C274.968%20457.459%20347.444%20472.268%20434.156%20472.268Z'%20fill='%23009393'/%3e%3c/svg%3e";
-function qo(e) {
+const as = "data:image/webp;base64,UklGRkACAABXRUJQVlA4IDQCAACQDQCdASo8ADwAPjEWiUMiISEUBFQgAwSgB4Z/TeLt3XMAoQH23eph0gPMB+sn+M9tvngOsA9ADwgPg3/cH9sfZciikEBuA1AB+nf+84CUkAVvA2x4xvyobR+mBaYhjUv/ewHb4hTqOnP38rzsxZX2inOSciAA/v7uqvqGdpWcjjrfMDFaNHumTog38t3yor0kbjn631VsX61cAC749wWuAX74u/f/hpeDFqS/ci8E1g94wk9UVs7BHqtv7f/M9iT1u5ITJV0Gv6tE/CW5j/nVR6yExJ6JoDRDOWQ8zVpWH92r3Lnbnc4WJpOchbRT3H5rv//6PP+F//4ehLUlR/4tkRUKZu/yOa26+sywmY+Xc1X2lXMcUv7+eQ7+FBE7bhKc7htieBfH4eR134AVaILL7PWA2FjzAjfaP1Lgirqoq/ZooE8jVD/b4g3J3O3/TG/4ajHe6clnAI/4NdwrnHX0P/quBU03HqSsQ0qsEMAuhrH/jn+YtDzmjm8q/cGJ44qvi24Hn+G1kxz2XP2S/Gp7ri5cMlo+muuwBjyNJnnEcTt/5cRdYS2cbEBZtpINWj3PuC1EOsd/8cTepSpxODcJHLzktfC1PHW3Pgoh3J5PHjW3TCQ1Wlu/wP8e8OPfNm48BODGChioj3ezblqrOBV+cI+hLi7ReJdvBF/4jY+/Un0asuWnrA6kRNpgOeO8wyl4Ryhkrff+9R1SpyPYP+5T3EuWWLZaCn0bGzyk97S3VAAAAAA=", Uu = "data:image/webp;base64,UklGRmIEAABXRUJQVlA4WAoAAAAIAAAAOwAAOwAAVlA4IIIDAADwDwCdASo8ADwAPm0qkUWkIqGWDVeYQAbEtgBOmZMBu+H816ov3b8R8R2g2FXtxdyh5s3+A60v0APLi9ktgGB/LZjWNAXqgpE6jfW0NF+P4xEhH2L7M+26iGwrTjjcQegyCZqxs+ifvZANjWd279diqZNKUrgOTVtjJGtW4IVtRhMECd5aWVgAAP7nDv3UY/8f1l//xTP/FM/8NU8c9g//sC3+bX/1HZXsNsM57VKG2LVf1a0KdncWO8uPo/Oh79m9ZqjJZwXfPXuvwkK+WDOl6+N8C2Ux6no/V/zkoucKK/JZek7MR5sS8TknXB+6BuVDXou9Rx4aUea2q2IzvLvFIujjKsVYLMab7j9zo48fhgm9YOtjmWuS0WZ4c+6ta0mr3xF4fcdAIFf6oXRSlqovOX0HUiMV//hXwSX1cfP5cLj8c7OTyT/4ce4olJARV95GoY8oF+2uU0blGul3ItlG7c2Hl2/uC6s2WZc7Zukwojx6ed8t97bZ68N1uzCLzPlG7BuYS17F19e0wXnc6vEl3q7ft0K7OEl7r8mY6Kh+Nt/5V/Lp68mFBjLem1JjvC371+lKwez4KCdXwNo2Z04FqyzGpFutY6YQ/r5Tfu7Oi+oNfN0R/W+D4aj1nqHhlqYJzpx2NK4mj0gJIXmX8EArelSQI8mV4Ux9MRPwC2PuZhLTjQZv+Vl4p0D8bSB+Z0rek3hS6G1r80fW3cn767Pz/bXanjVmm34wt1nQPqdJObrZ7vv2NWcEuQKj9d+V6DzeDrq0CtGNcanEB5MY9agi1E6BprEScTdfPXjBeMnPbpD+QO6P7IW4UZ9etCCHtX++S/fl5Iz5RzUr10ojRMw//35C0yTjSEhbe884dPwor64n//KByjUFEGsCPAAXPJp1+O+SiKfUaODq6ncjKayTHXjoXgM7XP1z4sBhIKJZJRiM7vGC/+v/Sk8/jbgZLZDAVz1vLou93y7Yd8hxcWM/BesxgWgeKvl8fjE/Ud8tQKp4425hWh66lzzwxa4J3ctA4/E50wX/eoBOgq0B7+7S6FK4wvPHSNgfh+vwSWIJsJLt/3yjBeb41RRyMDMZqFQTZPEdFpXp48ExEyDayZ6objbjTHoS5WQDnDQpRyqMNKfvd41nhEPdb/hxpzXeTIjWmfHHCT+CQYWXDqLehCh1cRyeYOBwsSlSw5PiquAbsgAARVhJRroAAABFeGlmAABJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAAAAGwEFAAEAAABeAAAAKAEDAAEAAAACAAAAEwIDAAEAAAABAAAAaYcEAAEAAABmAAAAAAAAAEgAAAABAAAASAAAAAEAAAAGAACQBwAEAAAAMDIxMAGRBwAEAAAAAQIDAACgBwAEAAAAMDEwMAGgAwABAAAA//8AAAKgBAABAAAAPAAAAAOgBAABAAAAPAAAAAAAAAA=", Du = "data:image/webp;base64,UklGRtgCAABXRUJQVlA4WAoAAAAIAAAAOwAAOwAAVlA4IPgBAABQCwCdASo8ADwAPm0wk0ekIqGhKBQMqIANiWkADPF3uV2D8VcQGk1mg+P36i9SLnZvYAQxszEWYzEwX1RVkqG/4BGbJgMSHqhKDFsjWsGfPPrvfef11goNmCDDlBJHVVD+8gAA/vu4q03kl+E7FpjtZ2gc8pQ619Hjv9NywoRZ6az43C1wcrRr/lWzJlJhLWMHN0MkVl1ueAf6Hn8StVzeUfMBXOKkgfe2msx7QWR5PnHW/5c6/35yrtWnrURc2q6UYlGin+v8C2dQqexkW6rX2EEijTI9eEQ46PWH3/59fM2AlMvvR2abaRk5XX7V1triQncRxvMfz5YmYDN+PY/ikcZUNaiFucKoUq5riv0eKCezuFNHecE11ojwJqWRSTWpalkz5autXp6vFS+FT1tWUsB/fs1CCOZxaA1vR1grOEaiuKe1RYm7e05psWtqbXLVmm1bA8Ly9PFkVdCbc6hR3UuBBsFGnVeGOUeMn2onnfvYhBMcM9YPxGdQkwZLXOk1VuQSTk01Shf3fZrFyRlFauftFdPYhKXwqrr+meav1P+KLKBVosqmHnFFfgExsQ/rOf3TSd+mOqQfJA+cF+HojNU7nmM3uDkoCBi+//Gqp+gPNNW8M4LFrol8rxE+7WsjqMgfwv1f+Nr25RtG1Wa/KkniRCAAAABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", Fu = "data:image/webp;base64,UklGRhYJAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSGICAAABkJz9nzon3/nNJGnBXRvBI0sDkR7slpRBaMDl5LByx7cEyBWHtWd+8/uiK/95uEfEBKBnFwRwk6Wjm89PW2Tj9OWNo7VxASQ4DDoIML9fbdLYpbFR21tykDAY8ZCLT9okqZrsD0uqJNl5sj6CIAPwDmdqRlNlz6o0vroE5/vlPObv0kyN/dVE3pmHd31xgt0P1MgBauTHLYjrg2DoClM0DtRi4kmA6ylgrMq2cuDaZm0CoQePyTqVhVTWJ+G7EozXqSyosj4K6cIhVBhZ2MjyMNy/BFcZWeDIE8g/PLaoLLRyF/4vgrlPTMVK/DQH+cPjGpUFV17/i6BEZeGVF+Dh4F/kUYGDR4nKDBPX4AX381Deh2C1Q8vB2F4CDqnMUrkPlPMpY+obLQ/j9+k1GjNNLB0z5hJ5fD0f5Y2XTLkkPn9Hy8X4vsGMW/xvt3JqvKflYnz3nCmXxJc3qLlEXj9mzOe4xJSLcW36Oy0P47cplKl5KMvAfj6HwFKbloOxswrBfWoOyvsQjzWmPErwcKhQi6d84eHgcSGPEgSA4Dq1aMpr8PjL3CemYiV+moP8AY9darGUW/D4u+CEsUiRVyH4p8NwmbE4kZUA9y8IRuvUoijr4xB06zFZpxZDWZ+ER/cBEzW2dXDaZnUMAb06hBOmaIOxmHhlCILenWDrI6MOIio/7kIc+uk85u+SSftkasZ78/AOffYOl17RqNqbqtFqZ+A8+i8BI+tPOiRNNdkfllSNZPvJRYEXDDQI3NJerUFjl8ZmbX8ekIBBuyCAjK8d3Xh52iBbp89vHl2ecIAEh54BVlA4IMwFAADQGwCdASo8ADwAPm0qkkYkIiGhLhtqqIANiWwAqSdaNo+beZFT37f+J9yXOd2J6HfQh5gH6edIDzAfst6vXoO9AD/Lf4DrAP2V9gDzY/+57F39p/3/7k+0RmjvYp/meic9ieyvJnZVfquF/a23ZOCHGT/sfDDjQ89zOL9Gewd+s3Vh/b32Gf28Ejb5ttLg9hoDiFb2tMW81eZU9Z1LHfdRSCsRMzHz0WT4BNgUakGf9oJtrGtVJFxHJfxAatIxnW1qjDi9i3DQtJp9pVNKlMoJEWdPKv3KaaFSlhd/aMGiir9CPcex5QAA+fpjxA6zfUamE3wS2zWwLVrt/fXA5+Wvx9j5SID0zuEHU2LisPUxvtRuIUwNrsUis8zy+IMpzft+ZSg+9gdx9e6+ZvPmtj4OByz5qo26J3rXhPy8LBXSpuPb+f+mP4CoTvYDhzQXh/SIGj8Ez1+W5MJ/Tkdw09wPCs3JuR3yoqO63FH/j81xW5Abr7tCdwfXwv3CXDtOcHwUqPCd1aiU2uT6XwgdnYqYygEXGKFx8nmaUvqSn9p8HmIA9dVTOoEnqYFjrNfWY034N2vjohd16cxnkP4PYvHkIOWa/FEUug7/qbJ/GFLPxNh6y9eQ//MzzXbcPwsT2chWXPBXNVF1S9dxv5NUuEueiw2kdebblQuvUSRLN+zx3VyT2lOzWBUqrzsTmeOlxjVcTA83H99r35O4X7WXNq7HExiWXxrdM/Ih4CvPJaEHPxUE/i6WIz6+VGq4RB3sBKl3P4M7/DLWAwCnwcpX228XezqQ4cS2tttWxLTc9cPd1ofek9qF9lpB8RvakdPnj2PruFA9W3iKbNdmgnb+mIpohHuUR73KdDDOHbyfAiOjPzzqomnIU3jcSt7LKOB/Op97sCk0yd18mVG3prs351B+xmCE2Zd3RFKL+mpMz5qcuAFAfRyodbggdgmFGkEGQ33VryYFl/upr31FGdI52sqzuxd7jZIsqCcznUH/gu+xaBw7wla49EmFNf+Ss+91i9Hsys0FS//Ktru1xWgkeEweX77y6Oot5tHQsDxgy0sAI85V7FmlpiiWXQdM12MGfCBfyRM+N23SjOdReeSILYCgsM3r33/54X+lfDVNj427MvbDFtKccqazlQ+iKqC//MvYwqyiJPL1ZbVoCEP774fKZA3D3qvsVPGlp9LPchpTs4mTJugt8qXl82RwXQCDNZXnbEois53E35hkRr+IJhndoRo1o2sZDoTgykbeOKiynPH03+BcUQ8zmxTmiVlHQym/LL3kRREnUlxs2zPPGb2E+Rpdib+LxOvFSmj9RfTZoYIJnrqNnBIXV2lt7xeZ0srf98JymJxrtr8lx69oSNZIReDddL+3iiUjh6lm7EcYuclqBaKp8q68geo7H1EvKy4nSRx5Q+uz4l/ypo2hVdwi9l+BHjZZmJ7lXkpNTRJ0gZpzquzN2vh/MZQALV6FZ6q4aofA9AJy1DVLdNjV8n6s9eFA5pazxwhLW4tgWMciGf5x6G7HqFPTL1ZL3l447zLGUkqAXjkeVaNmxZ2oNKIuTy6JDc0Z61Z2dgbsg6HwCX1/ux5sk82WsnNIO4CTnWKI1aCtQZaEsBf6hIl9n7VBsgZGIcPpqn7P4mbyf3EbfdfQ32qlawLuAxmDlwRsVsPkw7j4aKbvIBykNcsVXv0/X6UXXaAtw3feJnTwDak2qY6QpMLE9e7PJeuQQ8FXpqI5HoR82kd+DOwGH5F3OpuWsmEt8v7WQG8q1LMkg6vrl3I8047zMl1Yq0VwotbrsKJocsHgsbs/PGOO9v2s8U0Sju/71XRtG5skcy2msae3wixjlGR4i6ZfldMehQD1zf/FbWN9hnHfpq1Fh8+PSA9AzUi33qli8ixISbH+tw7CcumxvegMk88HMNZlVdnIEzIfyHrSdZ2S98yX2OYZw0+JyaBbQxI0fOr6KpuMD6FVGLrdN9dgOTgOPQgAAEVYSUa6AAAARXhpZgAASUkqAAgAAAAGABIBAwABAAAAAQAAABoBBQABAAAAVgAAABsBBQABAAAAXgAAACgBAwABAAAAAgAAABMCAwABAAAAAQAAAGmHBAABAAAAZgAAAAAAAABIAAAAAQAAAEgAAAABAAAABgAAkAcABAAAADAyMTABkQcABAAAAAECAwAAoAcABAAAADAxMDABoAMAAQAAAP//AAACoAQAAQAAADwAAAADoAQAAQAAADwAAAAAAAAA", Ou = "data:image/webp;base64,UklGRo4EAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSA4CAAABkGXb2to2V9/v6D1Jmd5CQ5GXPYXAJMrtPOJMoMzMzDgIPYY5+vVds6T/m0BEOGzAtm1IBlR2d8kXUMyaADjeuHr9V7qj3E5/XrvaOA5AHCqzFgHTFz9tUTmEyq1PF6cBqVWDOLjkwS6VPsu8KqnaewRU7j5KIjipgFiQfCf1IGch8wMlv9QhcWk4nLlL9Z4l6b3y7hmUvGQkmF1nnrMC85zrc5CozDUQtwamisNSDCmxjL5jpqxMzfhutFCCY3+5110CaI9/jhVIcPg/DxiIB/x/eKgijLxkRobTyxFEw7zVm0NqcYg5LNAzKD3n4QbmyRVqWCiXJyD9uN7z0Ha9Dw4N5gzOnHU4IMJ7egt8HuYWasIJnlg46fkYgul9qgWU+9PA2Z7b2FngnR3e49Qm1QbKzVPNnltZ8wozK2S8et0SN34wt0LOnynVCsp02xI7tKSqqXYsV7ZtD/lpeaEfNyw/k9evWuKK7XfQ9ruP9/RW/s74t872N1bw2MY8n0Acmlb/KQ04AJ8t5PkeEbpDnbmR2/5392FiOfRFlCuTkIGsMh/aPBeGZFLBYuiM1IIUZLOD0NnMNBMWZdE/4bLo32MQ0wxcJnsvhcnerRhSLvPPhcj8s5DIsmtU6Tj1L1U6zvcEElfrVlHyqGy3epC4om5Vsg3OlO50UQ2V6Qa65LWf6TZ1J/11faBLlpgAVlA4IJgBAADwCQCdASo8ADwAPm0ylEckIyIhKAoAgA2JaQATzh4OcBkEByVmbl5z9gD9U/+J2APQgLaX4twLu19/UVxAWN1IKXE4cIqJBhoyQ0yDYn61m3zk6T7FMg0AAP78+EMvGgC8jLXmcbbmqvufKjG8Tv1M9Krl47vOW74O/Rapv2DgXbg9iK6PrRQG/9d9+rF/ESxzbszVFn3GThrMBmsklj/LPWDQ0pKzG7EyjQL6p6gfUwMze+wPhzJpn8tMqlUVgq6/QSUVcgG+ztsi73rA3vl3n4baeF1INsbuosTXtnsotVYuTii6rscx9OUTvevYcPNvcL9MPhyWeCQw0qynnGtzCIw+oFRN0+TN1mqXkFyk/rFBcH+FHiI6s9XX5EWCKn5vTRt/0RbS687PiXPFC5Zk/Gk4+538IYi+HZDjvlQQWOH/vddfYTerQ5QqWJt1YuaZNThQ2u+/DtXfZPRy1iWWLR9SKFFtlGrqBKWF5nPRPWWMNA3OssvUtvCNBLBA4cn1whzy+SpbgLvnaepxiykjKsU/MhzgAABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", Wu = "data:image/webp;base64,UklGRqwEAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSL8BAAABkGvbtmlLc5997yvbmW19gBnbDm2kjF5UmW3bthXZVZFdZ+81r+87Z1XlEaHIbSNlMstwos4XUBSTLAFQo/u01Zdf/yLDDze3zB/YwADJEoOoJAKg7oTdH4SF+XxiZlMgSESzwAJdVn2iUJzzOUMiLhQKf+/va2FtBLMBuu1zpHcsincUXhtoTKLsCTVX/KF3wrLhPLm/OWzZtjQWfZ7RhYyAC/lxMowpSzJYJAyFkZDQc21FBMUT7BqGjpHxf3m+XlEPUHE/f3vGgPzmw4awRUaTexkyJhwfNShctVgZXyJDXq4CUyjNy6Y4fVOBIkAPR2GcOE7Jm2NQ/RE9YzXht3a5VYvlOX0xF0fy+tp/ozBuQg6DzZYb6Bi7ed4rB5Mp/1Co4cNhLUo1StLxDIDqrynUoRswiF6nFnIxsDpnZ5WBW0GFZ1qZ8HfLDk5txHHsGDpSa6B0cXZEa+DsTr1M+P4qPdXwjynU4+1/a7oN3Sm6G+meSd27oHsHde++7puj+tYpv7G6b7vun6L7l6n+oZp/t7JmUNUqqhpJV5upakJVLaqqgVW1t6rmV401NGMc1djqH4rpIseSfyPFkgAAVlA4IAQCAABQDACdASo8ADwAPm0yk0akIyGhJgzogA2JaQAThroHvLxu+aPf5G2BYxv+B6XHzx6GPon/o+qz/tOAA/TM82gR0vnExWoiQRM36jlg2UIvwCSqySErzuguz9EP2x/7hsNazr91aIworWI7AAD+/TZ+6Ipl444OdT+2wU0Ov+T8oJuVP/vUbT/w1Jsv6Awnl6rvF/xetfOPt3gTQZZi0Y/AOx563J7CJkqTR/fc/n34zyeKzR80fhfv4ef+Hjhz/CX5aQo+58zg/FdE+7bLoophGfG0szI513EH+q+Gc73H1PFdJYf7CF8v5dhr3tMwEVX5Ji2ZxejK8xrf/E6nVXqlA4DrYNRP09InHc+fEqO/fH8xr+rMf4y1F9TOnwVffZblLoTP6lot0m/sh7sTiDQr0mIA8TiHoOffGDG6KzV+B3239udfhzD740gkRi/m53abX0Ku3vAgadgFFqL0vk8M/4aI+cI+0fbLW17mWGeMu21wSRRQiv5iNgGKR3vEGXAItcLDft1uUzWAfbe1X3zK/ymT7bA/76PB6UUknm+Y5MM4osurUXU/k7P38pN/3slnGfpFzjl4c3USY4mH9ZCJYUuC/kGEnq/yRPalPdODNFvW6s8MiQeQejYNRY0LsJ0WXkK8vXiDmihCivYAOPoSovesL7on+WAArDNM/BcQSQvCYABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", qu = "data:image/webp;base64,UklGRnIIAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSK4BAAABkHPbtrE9+z73/RTbqWw7Lf+BbbNKbTudbZe2qy+VbVv3PmeHj05G6ohg4LaRounNMtN1voB42ABA5R7TNlx5+O7du9e3Tiwb0b4EgFyAOCQM1Z16+DWFUZC7m3uVB2zKQGBhe+77RGHonJffCL1zQuHDxQ1hrEmTatDjHIXOC2MgzpNf1tVJkWgsGhyihI7JIE74aUYp2ITFAoz9QO+ZAs7zanvkEilKbIkMJS5ANwoJmrCodYVOmBqh5zIEJjZc9xods4A4rrPGxGitrJSU71yNyH4Myl7JTEl+5zzYSH9nlkrxHBzxWUzLVEnhh+YI/gq3+UphpvA8m/s7/wg9M4bjFNg/0vplrxQ+rQEDg/xihmT23jxYJZ8UPq8OA5z77Wt405FDR4poSMjiAJhPRxUIu8D+UVonOhfNPEVHPM9juFacwo+1V6kJQ3Y9Sa8ljhPuUvRk4UdNWU9ST3b9n0W3iG5DumdS9y7o3kHVu6/75ii/dbpvrO7brvtPUf2X6f5DVf/dmpxBmauociRVbqbKCXW5qCoHVuXempxf1dZQtXFUbat/yKZTtSUBVlA4INwFAABwGgCdASo8ADwAPm0qj0WkIqEZ+zYAQAbEtgBOmZoZF+E8zGoP3X8VbcdLvma8t+jH0E+YB+ofSA8wH7VdQv0AP75/iOsG9ADy3/Y5/b/91fgI/Y7MOesb0e/q+TUR1vt7VO6mwG0imO70GM5/0P7BX6qelv7EP209lz9oDRea09ZR+SjhX7sBu/ZS7tG917rPgI3Q7XsB7luy2hAg/95C2Z1L362OH1oFziDY/K5gWoSytSAtiKvA/jW1MehBzdLzJfszPPBvGa15IYwIVRTjO2Hz5ZS9HjLMehwAAP64SgjD3qeg6NRe/Ok+iFhrG3pgglCfbam3yBaDUH36sUiQx0PB1ZZyOHq0ky+f97h6tJMvo0p9LkfXecWOFJ8J5G7yRPuL4tzGLT09QulTJw42xp2hd+lMgIa51XoHx/iftn8B2D3k92H5jOQr+uIXFHHK5FpcTG+qGEF+np0LiQa+vdW7/+ZzOLVRf7jR5X3ANPt93Ng92DW7NflVr6kMr88O/v2ZNb0vtgao2Am/R3CDKiNq89f86CT6r2L2g1oTui7H3E1yhSPQpEOz01I3fhfiMMv4weqKuoedxn/xLg5uzHa6Gte4C/dQYkG3ZFSy4CXQtRjftBrjX/Oj+HpSUPDsv0wPW+ml5NbBKDCj2f3SD8TVMf2ZfHrOkR602RVk2UmKC+H0Y9iK6k98vsgPINtz0II8X7Mj2nJkTC6IMLuQ8dNTUq9VXOnhXrdhNZoaH94ePo6baBl3hTGFAnD3/b+gR/vtbqV7wktuX6fpnjeTBe/Drp6z3neeANj/aX4CsU9w67nwYOjZhueCjxaDKUnNjLPjI1e0BoTbcOzOQ0wHJHZJ+Pt608StBu4HiJ8NjH46fnvXL3yiMoSvkAuwCE1AakA+eU1u3unyjl1/MnZQmbp8fzfsfrFesehLPcIkYdCiZ+52QbmINNTjEsvjuBuZRubBE+Laihppsxoo4efGIo0xkw0etu1+yzvkqp88w3pBq0mRl13gnnc+2zl6SmhwgmNFbz+F8qAqmdfJL8iaNSGEWlPlpczDDe62GBZMlBhQmq/XCn/1b+VazHvJXkoIFDF+wktMg+rKfLyfTlXdK0cs+Kn8h+rjMakkf3WLo1TftMLn+O+x/Gat+BGstJrM1xvCSSnHQY+NV4B4gRqyZ55gRNnqN/0lWrATOcHUaGXpkTIM/yxFjxcePcSFo+t2aJ5lShtVukETzRxaIXgRkpROeWQHWpTHOaexmXOzF0b833qJSoXMk2zB/uMrgDzKd7d3ohUz8Ra08WYKlAuMQD08bF4+jUepEspqPLoYLQ73TfmL+1LwKxyTV3gEu6WnxBPWPLnYIGYN9U47ZNlB+NgHgYtKTyii6060RAG+wN32WUVFxCZw0HMHnHFgwxD34L/anlpS7mOrjKgyuGYhFC7iHqTQHuoAO1ekBHV+rndnbETKfa1F7LxNLYq+dmJyytmQrJUCGjelorI1m/TMQNiFVrY4FCI1Gl2W1JsZsw9zA+Bh3JmjkC0H5/0JV6JotNMatJIZ4v5PqwJe3r8xd+FNS3ynccdu+xtVdc27qwVdoomciZD5oXYey9KAFSAKO594sBKZNWUJTLXnt0BJbdF8FkQYvg3DQajYY2p+ixd5Ag7o92gw0pVVDDOP+WQxiEmKqgWJyTBsnsBk2Bxi2Unsv8S/4PmE8Hy/vy+Mij+aTAKZvg716IHfHX0/JMeFfmAnsZ39Q0qkfdPtq6+CxbGZ7wKDsK/8l/MVGuyd6faJFt5wyoOXuNrr3JC9EoBmjcOzkVw/6RNP49poZ1xzsX3q7B4HGfI/XSfRQq3HeZ2j12d0E3gCAube4oExaT1sx/v8F+f61QOsGdSaqM2im6qOGkSRkrRQ7L8hvS8vEYJeVkAbFvX5ov7e/egYYNToMHj651c5/rCVYtB9Ned6GvGN8R0x3t7+lsf8+ofhHRzpyvwxd6c5pREZVOKnXzplhJ61mki4JmAAAABFWElGugAAAEV4aWYAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAATAgMAAQAAAAEAAABphwQAAQAAAGYAAAAAAAAASAAAAAEAAABIAAAAAQAAAAYAAJAHAAQAAAAwMjEwAZEHAAQAAAABAgMAAKAHAAQAAAAwMTAwAaADAAEAAAD//wAAAqAEAAEAAAA8AAAAA6AEAAEAAAA8AAAAAAAAAA==", zu = "data:image/svg+xml,%3csvg%20width='88'%20height='88'%20viewBox='0%200%2088%2088'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='88'%20height='88'%20fill='url(%23paint0_linear_170_79)'/%3e%3crect%20x='25.6665'%20y='25.6667'%20width='11'%20height='36.6667'%20rx='1.83333'%20fill='white'/%3e%3crect%20x='51.3335'%20y='25.6667'%20width='11'%20height='36.6667'%20rx='1.83333'%20fill='white'/%3e%3crect%20x='29.3335'%20y='40.3333'%20width='29.3333'%20height='7.33333'%20fill='white'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_170_79'%20x1='-75.3077'%20y1='-55'%20x2='146.302'%20y2='148.167'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23FF00FF'/%3e%3cstop%20offset='0.531673'%20stop-color='%237A84FF'/%3e%3cstop%20offset='1'%20stop-color='%2305FAFF'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e", ju = "data:image/webp;base64,UklGRh4HAABXRUJQVlA4WAoAAAAYAAAAOwAAOwAAQUxQSNwBAAABkFxbexpJnyR3z8y+ajXMkAnjnnOgbUUxEAHjkpldWQwzFUn6v3PGVNI/AUQEA7dt49gN3PXavTlfQDeNAeyqg4PL5buRyOhteXlwcJWtHU8qzUIBs+30g7/s4N8Hp7cZFAtpDc7Bbr8xplB8iFJBYvBC4fjGdgvnElqdwc6XFPGRnQxehC93wjgzbxRYf1UYA+dkiJSrG1DMV6zDoW+MkQmMkd8Owdl5AsvOM3gm0geeXwY7R/Tu0EcmM3re6cF2Rr/kTJiBMmPZh+2q/wtm4ozD9qrB0tucMhunvL0Upg1n6JmRnmda4HCckVkZeRyuMWjjF0peCD9vhK3jAgMzM/BCDQ576225m/bCwcA+qzS/PLUwDrsr1ZDdcAa3KtWQWzDYPKZoQDjeDJyoVEdOAPf0cA/Lf1F0IPy1fG8VWmXvgF4LnoOLDFoIvPiaUQuRr99pNr8dUZEj0YToQnfjreaQd7oL6T6Tuu+C7juo++6rfnOUv3W631jNb7v+P8U+1ZDAZxZG9R+q/e+GxcbPuRcRftkIq+pVVD2Srjdr94TDnJ6w7MGqedFhH1bVA6t67zk9/3ctzw+YAhvSc431KExyjjNHQ2zLcTRzq/8op0vKJd+OREbvUnJJAFZQOCBaBAAA8BUAnQEqPAA8AD5tMJRHJCMiISgb+1CADYlsAJ0zIUCfxfmY2f+0b2AbztDnPeKX0qPMp+wHrDehz0AP7J/o+tP9ADy3f23+C79yPYA/aqK9mONrQbuszbsEyALJNTfg+Z6NjG2v+ETCuvlr1q6QUqEiAMUndG/WwfnjJIOTfOBS4W1w0HjOJa1XQ2K33n2b07EOjOBapwKzyoA2erTBTnEKlFjllBy68GBjZ+UKnlzN/f5ibbb4gAD+i9OsnW0xUnmTpyhVasIKzTu0BsXnfBm4rHJqGMFJBUgTESDXEPcNjAeaHP8ck9qdNBH4L/h53tXgHeZttc7c4lwTa6U4Lziz8qUoy8ce0IMc5TFElawGj16tME0GzSSbUqgH7/tYA6huPsWM2z3GjP8b9y7paRbINxwYRtuE90I6QVsNrEkbhL1YfwxRXnuobOfSe3KFVamrvsOqwTCMqlNfjsR3pyoiZ+lYt3+AH6x4ZVNltbYI5KiVhgCu1isooK324ldloH3zhlefYKEwTCYfNjbeH5UiL7JSev+t/C+ftc3TkAHcsvrLCU6n5pYYY2Yr1kRq+r6XVzI6iXuA/TqwMk6xq1PmdzHOwKavncLjWJrk0uU/5E5WKqXM0tgl5s3pduHjb5aiAt0ikEisMyYwnIhDiSemPRdGON4RlwSb3OEpZjhuZqoyen4Sw/fULewt3hAZizeiPZx1o9LS3M/4r3v/M6/o5925VJcmxAf/yjsyjCz0mV+6NuIeWp8shrFaIGgeduVJoZ0Kys1WjSLuFg9QvF5LlkOZ2k7WrzSu4ucsUOS/X4wnQvB0RCnR1PCsU4NDdLfxvQITUgGIuVTJ7LR73PHzZam/Z21oy3euiU55ffITekwjR4SgVoPvhxbdBSyVePf/twm62pSK9IfgPGN+ttubhQub1ooVZymdQCrS3goEs6dlnl/6TVfkgxFyBfAORkZafeu/Va2vIgUBNUQd48W8oPiMFjx+SAKx1qm2IwCLnuhJGf9M4nCzu7oo43f+nBeT07IjB+FpFKRGFNvlpLEXhPclSgFkqeU1W2eNqW2zShCWkQkgfE1HAoNX3z+CQcRQJq+HkC2nSjFdFYT8UNYNS6lYcyVWzEnOos1qpsNRxnLqY2Dl5CCT3Yeg/qT8chfF9ZadFvzNTEIDlARoN//7IU23MtuLdpsAjsiGfBHuR7y4lemYPdD/9Cuff9Qn/r/xlhmB5x2Y9Z1yME3aANAb5+u3lYz01zUlWwakKVmv9fhaeu/YzQ7BXLlcb+cbaIF5t/COmObnt20zaTfjad542f7p7f2Xea134nvyPYS+EAgjM+GufHvl9tXCrrRbH0pn7kH2XEGx9VbO4mY54+QZa5kPr0j3AOEtKd7SJWjlg5TQfgIuB6KoLGainSwF+pPdiCmzEzAOa1eFwn//2VdDMeq42/bKH8U4orewhLh60ci/S0BRBuItNMc+v1+vxl0YyS5it4AAAEVYSUa6AAAARXhpZgAASUkqAAgAAAAGABIBAwABAAAAAQAAABoBBQABAAAAVgAAABsBBQABAAAAXgAAACgBAwABAAAAAgAAABMCAwABAAAAAQAAAGmHBAABAAAAZgAAAAAAAABIAAAAAQAAAEgAAAABAAAABgAAkAcABAAAADAyMTABkQcABAAAAAECAwAAoAcABAAAADAxMDABoAMAAQAAAP//AAACoAQAAQAAADwAAAADoAQAAQAAADwAAAAAAAAA", $u = "data:image/svg+xml,%3csvg%20width='868'%20height='868'%20viewBox='0%200%20868%20868'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20cx='434'%20cy='434'%20r='434'%20fill='%231B262D'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M234.563%20184H640.697C650.387%20184%20659.339%20189.164%20664.172%20197.542L782.495%20402.657C788.631%20413.294%20786.808%20426.72%20778.056%20435.346L452.368%20756.327C441.818%20766.724%20424.846%20766.724%20414.296%20756.327L89.0484%20435.78C80.0927%20426.954%2078.4157%20413.136%2085.0013%20402.433L211.48%20196.884C216.405%20188.879%20225.146%20184%20234.563%20184ZM588.257%20275.577V333.129H472.567V373.032C553.82%20377.296%20614.782%20394.81%20615.234%20415.802L615.231%20459.563C614.779%20480.556%20553.82%20498.069%20472.567%20502.333V600.259H395.746V502.333C314.492%20498.069%20253.531%20480.555%20253.078%20459.563L253.081%20415.802C253.533%20394.81%20314.492%20377.296%20395.746%20373.032V333.129H280.055V275.577H588.257ZM434.156%20472.268C520.868%20472.268%20593.345%20457.459%20611.082%20437.683C596.041%20420.912%20541.636%20407.713%20472.567%20404.089V445.867C460.187%20446.516%20447.336%20446.858%20434.156%20446.858C420.976%20446.858%20408.125%20446.516%20395.746%20445.867V404.089C326.676%20407.713%20272.271%20420.912%20257.23%20437.683C274.968%20457.459%20347.444%20472.268%20434.156%20472.268Z'%20fill='%23009393'/%3e%3c/svg%3e";
+function jo(e) {
   const r = e.toUpperCase();
-  return os.find((o) => o.symbol === r)?.decimals ?? 6;
+  return is.find((o) => o.symbol === r)?.decimals ?? 6;
 }
-function Wu(e, r) {
-  const s = e.toUpperCase(), n = os.find((a) => a.symbol === s)?.decimals ?? r;
+function Vu(e, r) {
+  const s = e.toUpperCase(), n = is.find((a) => a.symbol === s)?.decimals ?? r;
   return n === void 0 ? 2 : s === "SOL" ? 4 : n === 6 && s !== "SOL" ? 2 : n > 6 ? 6 : n;
 }
-const os = [
+const is = [
   {
     mint: "So11111111111111111111111111111111111111112",
     symbol: "SOL",
     name: "Solana",
     decimals: 9,
-    logoUrl: ns
+    logoUrl: as
   },
   {
     mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
     symbol: "USDC",
     name: "Circle USD",
     decimals: 6,
-    logoUrl: Uu
+    logoUrl: qu
   },
   {
     mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
     symbol: "USDT",
     name: "Tether USD",
     decimals: 6,
-    logoUrl: Ou
+    logoUrl: $u
   },
   {
     mint: "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
     symbol: "EURC",
     name: "Circle Euro",
     decimals: 6,
-    logoUrl: Bu
+    logoUrl: Fu
   },
   {
     mint: "USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB",
     symbol: "USD1",
     name: "WLFI USD",
     decimals: 6,
-    logoUrl: Fu
+    logoUrl: ju
   },
   {
     mint: "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
     symbol: "PYUSD",
     name: "PayPal USD",
     decimals: 6,
-    logoUrl: Mu
+    logoUrl: Wu
   },
   {
     mint: "USDH1SM1ojwWUga67PGrgFWUHibbjqMvuMaDkRJTgkX",
     symbol: "USDH",
     name: "Hubble USD",
     decimals: 6,
-    logoUrl: Du
+    logoUrl: zu
   },
   {
     mint: "CASHVDm2wsJXfhj6VWxb7GiMdoLc17Du7paH4bNr5woT",
     symbol: "CASH",
     name: "Stripe USD",
     decimals: 6,
-    logoUrl: Ru
+    logoUrl: Du
   },
   {
     mint: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
     symbol: "BONK",
     name: "Bonk",
     decimals: 5,
-    logoUrl: Tu
+    logoUrl: Uu
   },
   {
     mint: "oreoU2P8bN6jkk3jbaiVxYnG1dCXcYxwhwyK9jSybcp",
     symbol: "ORE",
     name: "Ore",
     decimals: 11,
-    logoUrl: Iu
+    logoUrl: Ou
   }
-], Et = 1e9, zo = 1e4, Ze = {
+], xt = 1e9, $o = 1e4, Ze = {
   mint: "So11111111111111111111111111111111111111112",
   symbol: "SOL",
   name: "Solana",
   decimals: 9,
-  logoUrl: ns
-}, It = {
+  logoUrl: as
+}, Mt = {
   mint: "other",
   symbol: "OTHER",
   name: "Other",
   decimals: 6
-}, qu = /* @__PURE__ */ new Set(["USDC", "USDT", "USD1", "PYUSD", "USDH", "CASH"]);
-function vn(e) {
+}, Hu = /* @__PURE__ */ new Set(["USDC", "USDT", "USD1", "PYUSD", "USDH", "CASH"]);
+function Nn(e) {
   return e.map((r) => r.trim()).filter(Boolean);
 }
-function jo(e, r, s) {
+function Vo(e, r, s) {
   return e === "sol" ? "SOL" : e === "single-token" ? r.symbol : s.some((n) => n.symbol === "USDC") ? "SOL or USDC" : "SOL or supported tokens";
 }
-function as(e, r, s) {
-  if (qu.has(e.symbol)) return 1;
+function cs(e, r, s) {
+  if (Hu.has(e.symbol)) return 1;
   const o = r.tokenPrices?.[e.symbol];
   if (o && o > 0) return o;
   if (e.symbol === "SOL") return r.solPriceUsd || null;
   const n = s?.[e.symbol];
   return n && n > 0 ? n : null;
 }
-function $o(e, r) {
-  return e.toFixed(Wu(r));
+function Ho(e, r) {
+  return e.toFixed(Vu(r));
 }
-function zu(e) {
+function Gu(e) {
   return e.companyFeePercent > 0 || e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_swap" || e.feePolicy === "user_pays_privacy";
 }
-function ju(e, r, s) {
+function Qu(e, r, s) {
   const { feePolicy: o, privacyFeePercent: n, swapFeePercent: a, companyFeePercent: c } = e;
-  let d = c;
-  return s || (o === "user_pays_all" ? (d += a, r && (d += n)) : o === "user_pays_privacy" && r ? d += n : o === "user_pays_swap" && (d += a)), d;
+  let l = c;
+  return s || (o === "user_pays_all" ? (l += a, r && (l += n)) : o === "user_pays_privacy" && r ? l += n : o === "user_pays_swap" && (l += a)), l;
 }
-function $u(e, r) {
-  const s = r < e.publicMinUsd, o = r >= e.privateMinUsd, n = [], a = !s && o && (e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_privacy") && (e.privacyFeeFixedLamports > 0 || e.privacyFeePercent > 0), c = !s && (e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_swap") && (e.swapFeeFixedLamports > 0 || e.swapFeePercent > 0), d = e.companyFeeFixedLamports > 0 || e.companyFeePercent > 0;
+function Ku(e, r) {
+  const s = r < e.publicMinUsd, o = r >= e.privateMinUsd, n = [], a = !s && o && (e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_privacy") && (e.privacyFeeFixedLamports > 0 || e.privacyFeePercent > 0), c = !s && (e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_swap") && (e.swapFeeFixedLamports > 0 || e.swapFeePercent > 0), l = e.companyFeeFixedLamports > 0 || e.companyFeePercent > 0;
   if (a) {
-    const l = e.privacyFeeFixedLamports / Et, h = e.privacyFeePercent, m = l * e.solPriceUsd, u = r * (h / 100);
-    n.push({ label: "Privacy", solAmount: l, percent: h, usdAmount: m + u });
+    const d = e.privacyFeeFixedLamports / xt, h = e.privacyFeePercent, m = d * e.solPriceUsd, u = r * (h / 100);
+    n.push({ label: "Privacy", solAmount: d, percent: h, usdAmount: m + u });
   }
   if (c) {
-    const l = e.swapFeeFixedLamports / Et, h = e.swapFeePercent, m = l * e.solPriceUsd, u = r * (h / 100);
-    n.push({ label: "Swap", solAmount: l, percent: h, usdAmount: m + u });
+    const d = e.swapFeeFixedLamports / xt, h = e.swapFeePercent, m = d * e.solPriceUsd, u = r * (h / 100);
+    n.push({ label: "Swap", solAmount: d, percent: h, usdAmount: m + u });
   }
-  if (d) {
-    const l = e.companyFeeFixedLamports / Et, h = e.companyFeePercent, m = l * e.solPriceUsd, u = r * (h / 100);
-    n.push({ label: "Service", solAmount: l, percent: h, usdAmount: m + u });
+  if (l) {
+    const d = e.companyFeeFixedLamports / xt, h = e.companyFeePercent, m = d * e.solPriceUsd, u = r * (h / 100);
+    n.push({ label: "Service", solAmount: d, percent: h, usdAmount: m + u });
   }
   return n;
 }
-function Vo(e, r, s) {
-  const o = $u(e, r), n = s === 0 ? 0 : s < 0.01 ? 0.01 : s;
+function Go(e, r, s) {
+  const o = Ku(e, r), n = s === 0 ? 0 : s < 0.01 ? 0.01 : s;
   if (o.length === 0)
     return s === 0 ? "No fees" : `Total: $${n.toFixed(2)}`;
-  const a = o.reduce((b, w) => b + w.solAmount, 0), c = o.reduce((b, w) => b + w.percent, 0), d = { fee: 7, sol: 8, rate: 7, usd: 8 }, l = (b) => {
-    const w = b.label.padEnd(d.fee), C = b.solAmount.toFixed(4).padStart(6).padEnd(d.sol), N = (b.percent.toFixed(2) + "%").padStart(5).padEnd(d.rate), E = ("$" + (b.usdAmount === 0 ? 0 : Math.max(b.usdAmount, 0.01)).toFixed(2)).padEnd(d.usd);
-    return `${w} │ ${C} │ ${N} │ ${E}`;
-  }, h = `${"Fee".padEnd(d.fee)} │ ${"SOL".padEnd(d.sol)} │ ${"+ Rate".padEnd(d.rate)} │ ${"= Total".padEnd(d.usd)}`, m = `${"─".repeat(d.fee)}─┼─${"─".repeat(d.sol)}─┼─${"─".repeat(d.rate)}─┼─${"─".repeat(d.usd)}`, u = ("$" + n.toFixed(2)).padEnd(d.usd), f = `${"TOTAL".padEnd(d.fee)} │ ${a.toFixed(4).padStart(6).padEnd(d.sol)} │ ${(c.toFixed(2) + "%").padStart(5).padEnd(d.rate)} │ ${u}`;
-  return [h, m, ...o.map(l), m, f].join(`
+  const a = o.reduce((w, y) => w + y.solAmount, 0), c = o.reduce((w, y) => w + y.percent, 0), l = { fee: 7, sol: 8, rate: 7, usd: 8 }, d = (w) => {
+    const y = w.label.padEnd(l.fee), C = w.solAmount.toFixed(4).padStart(6).padEnd(l.sol), N = (w.percent.toFixed(2) + "%").padStart(5).padEnd(l.rate), E = ("$" + (w.usdAmount === 0 ? 0 : Math.max(w.usdAmount, 0.01)).toFixed(2)).padEnd(l.usd);
+    return `${y} │ ${C} │ ${N} │ ${E}`;
+  }, h = `${"Fee".padEnd(l.fee)} │ ${"SOL".padEnd(l.sol)} │ ${"+ Rate".padEnd(l.rate)} │ ${"= Total".padEnd(l.usd)}`, m = `${"─".repeat(l.fee)}─┼─${"─".repeat(l.sol)}─┼─${"─".repeat(l.rate)}─┼─${"─".repeat(l.usd)}`, u = ("$" + n.toFixed(2)).padEnd(l.usd), p = `${"TOTAL".padEnd(l.fee)} │ ${a.toFixed(4).padStart(6).padEnd(l.sol)} │ ${(c.toFixed(2) + "%").padStart(5).padEnd(l.rate)} │ ${u}`;
+  return [h, m, ...o.map(d), m, p].join(`
 `);
 }
-function Vu(e) {
+function Yu(e) {
   const r = e.privacyFeeFixedLamports > 0 || e.privacyFeePercent > 0, s = e.swapFeeFixedLamports > 0 || e.swapFeePercent > 0, o = e.companyFeeFixedLamports > 0 || e.companyFeePercent > 0;
   return !r && !s && !o ? "No processing fees apply to deposits." : "A small fee may apply. We'll show exact totals before you confirm.";
 }
-function zt(e, r) {
+function jt(e, r) {
   if (r <= 0) return 0;
-  const s = r < e.publicMinUsd, o = r >= e.privateMinUsd, n = ju(e, o, s);
+  const s = r < e.publicMinUsd, o = r >= e.privateMinUsd, n = Qu(e, o, s);
   let a = e.companyFeeFixedLamports;
   s || (o && (e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_privacy") && (a += e.privacyFeeFixedLamports), (e.feePolicy === "user_pays_all" || e.feePolicy === "user_pays_swap") && (a += e.swapFeeFixedLamports));
-  const c = a / Et * e.solPriceUsd, d = r * (n / 100);
-  return c + d;
+  const c = a / xt * e.solPriceUsd, l = r * (n / 100);
+  return c + l;
 }
-function Hu({
+function Zu({
   step: e,
   sessionId: r,
   demoMode: s,
@@ -14900,41 +15029,41 @@ function Hu({
   depositMethod: n,
   depositAddress: a,
   receiveAmountUsd: c,
-  selectedToken: d,
-  currencyMode: l,
+  selectedToken: l,
+  currencyMode: d,
   config: h,
   solanaPubkey: m,
   pollInterval: u,
-  getStatus: f,
+  getStatus: p,
   onSuccess: g,
-  setResult: b,
-  setStep: w,
+  setResult: w,
+  setStep: y,
   setFlowError: C
 }) {
   O(() => {
     if (!(e === "confirm" || e === "show-address" || e === "waiting") || !r || s) return;
     let A = !1, E = 0, S = 0;
-    const L = 360, p = 5, v = async () => {
+    const L = 360, f = 5, v = async () => {
       if (!(A || E >= L)) {
         E++;
         try {
-          const y = await f(r);
-          if (S = 0, y.status === "completed" || y.status === "detected") {
-            const k = y.amountLamports ? y.amountLamports / Math.pow(10, d.decimals) : 0, T = y.amountLamports || 0, _ = {
-              token: l === "sol" ? null : d,
+          const b = await p(r);
+          if (S = 0, b.status === "completed" || b.status === "detected") {
+            const k = b.amountLamports ? b.amountLamports / Math.pow(10, l.decimals) : 0, P = b.amountLamports || 0, _ = {
+              token: d === "sol" ? null : l,
               amount: k,
-              amountSmallestUnit: T,
-              txSignature: y.txSignature || "",
+              amountSmallestUnit: P,
+              txSignature: b.txSignature || "",
               sessionId: r,
-              response: y,
+              response: b,
               method: "receive",
               depositAddress: m ?? void 0
             };
-            b(_), w("success"), g?.(_);
+            w(_), y("success"), g?.(_);
             return;
           }
         } catch {
-          if (S++, S >= p) {
+          if (S++, S >= f) {
             C(
               "Unable to check deposit status. Please check your connection and try again."
             );
@@ -14951,20 +15080,20 @@ function Hu({
     e,
     r,
     s,
-    f,
-    d,
+    p,
     l,
+    d,
     m,
     g,
     u,
-    b,
     w,
+    y,
     C
   ]), O(() => {
     if (!s || !o || e !== "waiting" || n !== "receive" || !a) return;
     const N = window.setTimeout(() => {
-      const A = c ?? h.privateMinUsd, E = d.symbol === "SOL" && h.solPriceUsd > 0 ? A / h.solPriceUsd : A, S = Math.round(E * Math.pow(10, d.decimals)), L = {
-        token: l === "sol" ? null : d,
+      const A = c ?? h.privateMinUsd, E = l.symbol === "SOL" && h.solPriceUsd > 0 ? A / h.solPriceUsd : A, S = Math.round(E * Math.pow(10, l.decimals)), L = {
+        token: d === "sol" ? null : l,
         amount: E,
         amountSmallestUnit: S,
         txSignature: `demo-tx-${Date.now()}`,
@@ -14979,7 +15108,7 @@ function Hu({
         method: "receive",
         depositAddress: a ?? void 0
       };
-      b(L), w("success"), g?.(L);
+      w(L), y("success"), g?.(L);
     }, o);
     return () => window.clearTimeout(N);
   }, [
@@ -14990,15 +15119,15 @@ function Hu({
     a,
     c,
     h,
-    d,
     l,
+    d,
     r,
     g,
-    b,
-    w
+    w,
+    y
   ]);
 }
-function Gu({
+function Xu({
   siteName: e,
   config: r,
   depositConfig: s,
@@ -15006,12 +15135,12 @@ function Gu({
   token: n,
   tokens: a,
   onContinue: c,
-  onCancel: d
+  onCancel: l
 }) {
-  const l = r?.title ?? "How Deposits Work", h = r?.exchangeName ?? "Coinbase", m = ga(r?.exchangeUrl) ?? "https://www.coinbase.com", u = r?.showExchangeSuggestion !== !1, f = jo(o, n, a), g = e ? `${e} uses the Solana blockchain to process secure, private payments.` : "This site uses the Solana blockchain to process secure, private payments.", b = r?.body ?? g, w = zu(s), C = Vu(s);
+  const d = r?.title ?? "How Deposits Work", h = r?.exchangeName ?? "Coinbase", m = ya(r?.exchangeUrl) ?? "https://www.coinbase.com", u = r?.showExchangeSuggestion !== !1, p = Vo(o, n, a), g = e ? `${e} uses the Solana blockchain to process secure, private payments.` : "This site uses the Solana blockchain to process secure, private payments.", w = r?.body ?? g, y = Gu(s), C = Yu(s);
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step", children: [
-    /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: l }),
-    /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-step-desc", children: b }),
+    /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: d }),
+    /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-step-desc", children: w }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-explainer-content", children: [
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-explainer-item", children: [
         /* @__PURE__ */ t("span", { className: "cedros-deposit-flow-explainer-icon cedros-deposit-flow-icon-shield" }),
@@ -15030,7 +15159,7 @@ function Gu({
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-explainer-item", children: [
         /* @__PURE__ */ t("span", { className: "cedros-deposit-flow-explainer-icon cedros-deposit-flow-icon-coin" }),
         /* @__PURE__ */ i("div", { children: [
-          /* @__PURE__ */ t("strong", { children: w ? "Transparent Fees" : "Low Fees" }),
+          /* @__PURE__ */ t("strong", { children: y ? "Transparent Fees" : "Low Fees" }),
           /* @__PURE__ */ t("p", { children: C })
         ] })
       ] })
@@ -15038,19 +15167,19 @@ function Gu({
     u && /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-explainer-exchange", children: /* @__PURE__ */ i("p", { className: "cedros-deposit-flow-explainer-exchange-text", children: [
       /* @__PURE__ */ t("strong", { children: "New to Solana?" }),
       " You can purchase ",
-      f,
+      p,
       " using your credit card at",
       " ",
       /* @__PURE__ */ t("a", { href: m, target: "_blank", rel: "noopener noreferrer", children: h }),
       ", then send it here to fund your account."
     ] }) }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-actions", children: [
-      d && /* @__PURE__ */ t(
+      l && /* @__PURE__ */ t(
         "button",
         {
           type: "button",
           className: "cedros-deposit-flow-button cedros-deposit-flow-button-secondary",
-          onClick: d,
+          onClick: l,
           children: "Cancel"
         }
       ),
@@ -15066,7 +15195,7 @@ function Gu({
     ] })
   ] });
 }
-function Qu({
+function Ju({
   token: e,
   tokens: r,
   currencyMode: s,
@@ -15074,10 +15203,10 @@ function Qu({
   isAuthorizing: n,
   error: a,
   onAuthorize: c,
-  onBack: d
+  onBack: l
 }) {
-  const [l, h] = x(""), m = jo(s, e, r), u = (f) => {
-    f.preventDefault(), l.trim() && (c(l), h(""));
+  const [d, h] = x(""), m = Vo(s, e, r), u = (p) => {
+    p.preventDefault(), d.trim() && (c(d), h(""));
   };
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step", children: [
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Authorize Deposit" }),
@@ -15090,8 +15219,8 @@ function Qu({
           {
             id: "deposit-password",
             type: "password",
-            value: l,
-            onChange: (f) => h(f.target.value),
+            value: d,
+            onChange: (p) => h(p.target.value),
             className: "cedros-deposit-flow-input",
             placeholder: "Enter your password",
             disabled: n,
@@ -15106,7 +15235,7 @@ function Qu({
           {
             type: "button",
             className: "cedros-deposit-flow-button cedros-deposit-flow-button-secondary",
-            onClick: d,
+            onClick: l,
             disabled: n,
             children: "Back"
           }
@@ -15116,7 +15245,7 @@ function Qu({
           {
             type: "submit",
             className: "cedros-deposit-flow-button cedros-deposit-flow-button-primary",
-            disabled: !l.trim() || n,
+            disabled: !d.trim() || n,
             children: n ? "Authorizing..." : "Continue"
           }
         )
@@ -15124,14 +15253,14 @@ function Qu({
     ] })
   ] });
 }
-function is(e, r) {
+function ls(e, r) {
   return r.privateDepositsEnabled && e >= r.privateMinUsd ? "private" : e >= r.publicMinUsd ? "public" : "sol_micro";
 }
-const Ku = 1e4, Mt = 1e3, Ho = 3;
-function Yu(e) {
+const eh = 1e4, Ut = 1e3, Qo = 3;
+function th(e) {
   return Number.isFinite(e) ? `$${Math.round(e)}` : "$0";
 }
-function Zu(e, r) {
+function rh(e, r) {
   switch (e) {
     case "private":
       return {
@@ -15148,42 +15277,42 @@ function Zu(e, r) {
     case "sol_micro":
       return {
         label: "SOL Only",
-        detail: `SOL only under ${Yu(r.solMicroMaxUsd)}`,
+        detail: `SOL only under ${th(r.solMicroMaxUsd)}`,
         note: "Small deposits must be sent in SOL and are visible on-chain. Increase the amount to use tokens."
       };
   }
 }
-function cs(e, r, s) {
+function ds(e, r, s) {
   return Math.min(Math.max(e, r), s);
 }
-function Xu(e, r) {
+function sh(e, r) {
   if (r <= 0) return 0;
-  const s = cs(e / r, 0, 1);
-  return Math.round(Math.pow(s, 1 / Ho) * Mt);
+  const s = ds(e / r, 0, 1);
+  return Math.round(Math.pow(s, 1 / Qo) * Ut);
 }
-function Ju(e, r) {
-  const s = cs(e / Mt, 0, 1);
-  return r * Math.pow(s, Ho);
+function nh(e, r) {
+  const s = ds(e / Ut, 0, 1);
+  return r * Math.pow(s, Qo);
 }
-function Go(e) {
+function Ko(e) {
   return e < 10 ? 0.01 : e < 100 ? 1 : e < 500 ? 5 : e < 1e3 ? 10 : e < 5e3 ? 25 : 50;
 }
-function eh(e) {
+function oh(e) {
   return e < 1 ? 2 : 0;
 }
-function An(e) {
-  const r = Go(e), s = Math.round(e / r) * r, o = eh(r);
+function kn(e) {
+  const r = Ko(e), s = Math.round(e / r) * r, o = oh(r);
   return Number(s.toFixed(o));
 }
-function Qo({
+function Yo({
   config: e,
   valueUsd: r,
   onChange: s,
-  maxUsd: o = Ku,
+  maxUsd: o = eh,
   disabled: n = !1,
   className: a = ""
 }) {
-  const c = cs(Number.isFinite(r) ? r : 0, 0, o), d = q(() => is(c, e), [c, e]), l = Zu(d, e), h = Xu(c, o), m = h / Mt * 100;
+  const c = ds(Number.isFinite(r) ? r : 0, 0, o), l = q(() => ls(c, e), [c, e]), d = rh(l, e), h = sh(c, o), m = h / Ut * 100;
   return /* @__PURE__ */ i("div", { className: `cedros-tiered-slider ${a}`, children: [
     /* @__PURE__ */ i("div", { className: "cedros-tiered-slider-input-row", children: [
       /* @__PURE__ */ i("div", { className: "cedros-tiered-slider-input", children: [
@@ -15193,22 +15322,22 @@ function Qo({
           {
             type: "number",
             value: c || "",
-            onChange: (u) => s(An(Math.max(0, Math.min(parseFloat(u.target.value) || 0, o)))),
+            onChange: (u) => s(kn(Math.max(0, Math.min(parseFloat(u.target.value) || 0, o)))),
             placeholder: "Enter amount",
             disabled: n,
             min: 0,
-            step: Go(c),
+            step: Ko(c),
             className: "cedros-deposit-flow-input cedros-tiered-slider-input-field",
             "aria-label": "Deposit amount"
           }
         )
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-tiered-slider-tier", children: [
-        /* @__PURE__ */ i("span", { className: `cedros-tiered-slider-badge cedros-tiered-slider-badge-${d}`, children: [
-          d === "sol_micro" && /* @__PURE__ */ t("img", { src: ns, alt: "SOL", className: "cedros-tiered-slider-badge-icon" }),
-          l.label
+        /* @__PURE__ */ i("span", { className: `cedros-tiered-slider-badge cedros-tiered-slider-badge-${l}`, children: [
+          l === "sol_micro" && /* @__PURE__ */ t("img", { src: as, alt: "SOL", className: "cedros-tiered-slider-badge-icon" }),
+          d.label
         ] }),
-        /* @__PURE__ */ t("span", { className: "cedros-tiered-slider-tier-detail", children: l.detail })
+        /* @__PURE__ */ t("span", { className: "cedros-tiered-slider-tier-detail", children: d.detail })
       ] })
     ] }),
     /* @__PURE__ */ t(
@@ -15216,10 +15345,10 @@ function Qo({
       {
         type: "range",
         min: 0,
-        max: Mt,
+        max: Ut,
         step: 1,
         value: h,
-        onChange: (u) => s(An(Ju(parseFloat(u.target.value), o))),
+        onChange: (u) => s(kn(nh(parseFloat(u.target.value), o))),
         className: "cedros-tiered-slider-range",
         style: {
           background: `linear-gradient(to right, var(--cedros-primary) 0%, var(--cedros-primary) ${m}%, var(--cedros-border) ${m}%, var(--cedros-border) 100%)`
@@ -15228,10 +15357,10 @@ function Qo({
         "aria-label": "Deposit amount slider"
       }
     ),
-    l.note && /* @__PURE__ */ t("div", { className: "cedros-tiered-slider-note", children: l.note })
+    d.note && /* @__PURE__ */ t("div", { className: "cedros-tiered-slider-note", children: d.note })
   ] });
 }
-function th({
+function ah({
   tokens: e,
   selectedToken: r,
   onSelect: s,
@@ -15239,9 +15368,9 @@ function th({
   placeholder: n = "Select token",
   disabled: a = !1,
   className: c = "",
-  searchable: d = !0
+  searchable: l = !0
 }) {
-  const [l, h] = x(!1), [m, u] = x(""), f = ee(null), g = ee(null), b = q(() => {
+  const [d, h] = x(!1), [m, u] = x(""), p = J(null), g = J(null), w = q(() => {
     if (!m.trim()) return e;
     const A = m.toLowerCase();
     return e.filter(
@@ -15250,33 +15379,33 @@ function th({
   }, [e, m]);
   O(() => {
     const A = (E) => {
-      f.current && !f.current.contains(E.target) && (h(!1), u(""));
+      p.current && !p.current.contains(E.target) && (h(!1), u(""));
     };
-    if (l)
+    if (d)
       return document.addEventListener("mousedown", A), () => document.removeEventListener("mousedown", A);
-  }, [l]), O(() => {
-    l && d && g.current && g.current.focus();
-  }, [l, d]), O(() => {
+  }, [d]), O(() => {
+    d && l && g.current && g.current.focus();
+  }, [d, l]), O(() => {
     o === void 0 || a || (h(!0), u(""));
   }, [o, a]);
-  const w = P(() => {
-    a || (h((A) => !A), l && u(""));
-  }, [a, l]), C = P(
+  const y = T(() => {
+    a || (h((A) => !A), d && u(""));
+  }, [a, d]), C = T(
     (A) => {
       s(A), h(!1), u("");
     },
     [s]
-  ), N = P(
+  ), N = T(
     (A) => {
-      A.key === "Escape" ? (h(!1), u("")) : A.key === "Enter" && b.length === 1 && C(b[0]);
+      A.key === "Escape" ? (h(!1), u("")) : A.key === "Enter" && w.length === 1 && C(w[0]);
     },
-    [b, C]
+    [w, C]
   );
   return /* @__PURE__ */ i(
     "div",
     {
-      ref: f,
-      className: `cedros-token-selector ${l ? "cedros-token-selector-open" : ""} ${a ? "cedros-token-selector-disabled" : ""} ${c}`,
+      ref: p,
+      className: `cedros-token-selector ${d ? "cedros-token-selector-open" : ""} ${a ? "cedros-token-selector-disabled" : ""} ${c}`,
       onKeyDown: N,
       children: [
         /* @__PURE__ */ i(
@@ -15284,10 +15413,10 @@ function th({
           {
             type: "button",
             className: "cedros-token-selector-trigger",
-            onClick: w,
+            onClick: y,
             disabled: a,
             "aria-haspopup": "listbox",
-            "aria-expanded": l,
+            "aria-expanded": d,
             children: [
               r ? /* @__PURE__ */ i("span", { className: "cedros-token-selector-selected", children: [
                 r.logoUrl && /* @__PURE__ */ t(
@@ -15303,12 +15432,12 @@ function th({
                 ),
                 /* @__PURE__ */ t("span", { className: "cedros-token-symbol", children: r.symbol })
               ] }) : /* @__PURE__ */ t("span", { className: "cedros-token-selector-placeholder", children: n }),
-              /* @__PURE__ */ t("span", { className: "cedros-token-selector-arrow", children: l ? "▲" : "▼" })
+              /* @__PURE__ */ t("span", { className: "cedros-token-selector-arrow", children: d ? "▲" : "▼" })
             ]
           }
         ),
-        l && /* @__PURE__ */ i("div", { className: "cedros-token-selector-dropdown", role: "listbox", children: [
-          d && /* @__PURE__ */ t("div", { className: "cedros-token-search", children: /* @__PURE__ */ t(
+        d && /* @__PURE__ */ i("div", { className: "cedros-token-selector-dropdown", role: "listbox", children: [
+          l && /* @__PURE__ */ t("div", { className: "cedros-token-search", children: /* @__PURE__ */ t(
             "input",
             {
               ref: g,
@@ -15319,7 +15448,7 @@ function th({
               className: "cedros-token-search-input"
             }
           ) }),
-          /* @__PURE__ */ t("div", { className: "cedros-token-list", children: b.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-token-empty", children: "No tokens found" }) : /* @__PURE__ */ t(Y, { children: b.map((A) => /* @__PURE__ */ i(
+          /* @__PURE__ */ t("div", { className: "cedros-token-list", children: w.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-token-empty", children: "No tokens found" }) : /* @__PURE__ */ t(K, { children: w.map((A) => /* @__PURE__ */ i(
             "button",
             {
               type: "button",
@@ -15353,27 +15482,27 @@ function th({
     }
   );
 }
-function Ko({
+function Zo({
   token: e,
   tokens: r,
   quickActionSymbols: s,
   customTokenSymbols: o,
   onTokenSelect: n
 }) {
-  const [a, c] = x(!1), [d, l] = x(0), h = q(() => {
+  const [a, c] = x(!1), [l, d] = x(0), h = q(() => {
     const m = o.length === 0 ? r : r.filter((g) => o.includes(g.symbol)), u = m.length > 0 ? m : r;
-    return u.some((g) => g.symbol === It.symbol) ? u : [...u, It];
+    return u.some((g) => g.symbol === Mt.symbol) ? u : [...u, Mt];
   }, [r, o]);
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-field", children: [
     /* @__PURE__ */ t("label", { className: "cedros-deposit-flow-label", children: "Token" }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-token-quick", children: [
       s.map((m) => {
-        const u = r.find((g) => g.symbol === m), f = e.symbol === m;
+        const u = r.find((g) => g.symbol === m), p = e.symbol === m;
         return /* @__PURE__ */ i(
           "button",
           {
             type: "button",
-            className: `cedros-deposit-flow-token-quick-btn ${f ? "is-active" : ""}`,
+            className: `cedros-deposit-flow-token-quick-btn ${p ? "is-active" : ""}`,
             onClick: () => {
               u && (c(!1), n(u));
             },
@@ -15399,24 +15528,24 @@ function Ko({
           type: "button",
           className: `cedros-deposit-flow-token-quick-btn ${a ? "is-active" : ""}`,
           onClick: () => {
-            c(!0), l((m) => m + 1);
+            c(!0), d((m) => m + 1);
           },
           children: "Custom"
         }
       )
     ] }),
     a && /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-token-custom", children: /* @__PURE__ */ t(
-      th,
+      ah,
       {
         tokens: h,
         selectedToken: e,
         onSelect: n,
-        openSignal: d
+        openSignal: l
       }
     ) })
   ] });
 }
-function rh({
+function ih({
   token: e,
   tokens: r,
   quickActionSymbols: s,
@@ -15424,27 +15553,27 @@ function rh({
   currencyMode: n,
   minAmount: a,
   maxAmount: c,
-  depositAddress: d,
-  walletReady: l,
+  depositAddress: l,
+  walletReady: d,
   needsUnlock: h,
   copied: m,
   isListening: u,
-  config: f,
+  config: p,
   onCopy: g,
-  onTokenSelect: b,
-  onUnlockRequired: w,
+  onTokenSelect: w,
+  onUnlockRequired: y,
   onConfirm: C,
   onBack: N
 }) {
-  const [A, E] = x(f.privateMinUsd), [S, L] = x(!1), [p, v] = x(null), k = is(A, f) === "sol_micro", T = e.symbol === It.symbol, _ = zt(f, A), B = _ === 0 ? 0 : _ < 0.01 ? 0.01 : _, R = T ? "Fees: calculated after deposit" : _ === 0 ? "No fees" : `Fees: $${B.toFixed(2)} total`, I = T ? "" : Vo(f, A, _), M = as(k ? Ze : e, f), U = M ? A / M : e.symbol === "SOL" && f.solPriceUsd > 0 ? A / f.solPriceUsd : null, W = U != null ? $o(U, k ? "SOL" : e.symbol) : null, V = A - _ <= 0 && A > 0, F = !T && A > 0 && !V && U != null && U >= a && U <= c;
+  const [A, E] = x(p.privateMinUsd), [S, L] = x(!1), [f, v] = x(null), k = ls(A, p) === "sol_micro", P = e.symbol === Mt.symbol, _ = jt(p, A), B = _ === 0 ? 0 : _ < 0.01 ? 0.01 : _, R = P ? "Fees: calculated after deposit" : _ === 0 ? "No fees" : `Fees: $${B.toFixed(2)} total`, I = P ? "" : Go(p, A, _), M = cs(k ? Ze : e, p), U = M ? A / M : e.symbol === "SOL" && p.solPriceUsd > 0 ? A / p.solPriceUsd : null, W = U != null ? Ho(U, k ? "SOL" : e.symbol) : null, V = A - _ <= 0 && A > 0, F = !P && A > 0 && !V && U != null && U >= a && U <= c;
   O(() => {
     if (n === "multi-token")
       if (k && e.symbol !== "SOL") {
         v(e);
-        const J = r.find((K) => K.symbol === "SOL");
-        J && b(J);
-      } else !k && p && e.symbol === "SOL" && (b(p), v(null));
-  }, [k, e.symbol, n, r, b, p, e]);
+        const X = r.find((Y) => Y.symbol === "SOL");
+        X && w(X);
+      } else !k && f && e.symbol === "SOL" && (w(f), v(null));
+  }, [k, e.symbol, n, r, w, f, e]);
   const G = () => {
     F && U != null && C(U, e);
   };
@@ -15452,28 +15581,28 @@ function rh({
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Choose Amount" }),
     /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-step-desc", children: "Set how much you want to deposit. Higher tiers unlock privacy." }),
     n === "multi-token" && !k && /* @__PURE__ */ t(
-      Ko,
+      Zo,
       {
         token: e,
         tokens: r,
         quickActionSymbols: s,
         customTokenSymbols: o,
-        onTokenSelect: b
+        onTokenSelect: w
       }
     ),
     /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-field", children: /* @__PURE__ */ t(
-      Qo,
+      Yo,
       {
-        config: f,
+        config: p,
         valueUsd: A,
         onChange: E,
-        maxUsd: zo
+        maxUsd: $o
       }
     ) }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-field", children: [
-      /* @__PURE__ */ t("label", { className: "cedros-deposit-flow-label", children: T ? "Sign to send tokens to this address" : `Sign to send ${W ?? "--"} ${k ? "SOL" : e.symbol} to this address` }),
+      /* @__PURE__ */ t("label", { className: "cedros-deposit-flow-label", children: P ? "Sign to send tokens to this address" : `Sign to send ${W ?? "--"} ${k ? "SOL" : e.symbol} to this address` }),
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-address-box", children: [
-        /* @__PURE__ */ t("code", { className: "cedros-deposit-flow-address", children: d || "Loading..." }),
+        /* @__PURE__ */ t("code", { className: "cedros-deposit-flow-address", children: l || "Loading..." }),
         /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-address-actions", children: [
           /* @__PURE__ */ t(
             "button",
@@ -15482,15 +15611,15 @@ function rh({
               className: "cedros-deposit-flow-copy-btn cedros-deposit-flow-copy-icon",
               onClick: g,
               title: "Copy address",
-              disabled: !d,
+              disabled: !l,
               children: m ? "✓" : "⧉"
             }
           ),
-          d && /* @__PURE__ */ t(
+          l && /* @__PURE__ */ t(
             "a",
             {
               className: "cedros-deposit-flow-copy-btn cedros-deposit-flow-copy-link cedros-deposit-flow-copy-icon",
-              href: `https://orbmarkets.io/account/${d}`,
+              href: `https://orbmarkets.io/account/${l}`,
               target: "_blank",
               rel: "noopener noreferrer",
               title: "View on Orb Markets",
@@ -15520,12 +15649,12 @@ function rh({
               "aria-label": `Fee breakdown: ${I.replaceAll(`
 `, ", ")}`,
               "aria-expanded": S,
-              onClick: (J) => {
-                J.stopPropagation(), L((K) => !K);
+              onClick: (X) => {
+                X.stopPropagation(), L((Y) => !Y);
               },
               onBlur: () => L(!1),
-              onKeyDown: (J) => {
-                J.key === "Escape" && L(!1);
+              onKeyDown: (X) => {
+                X.key === "Escape" && L(!1);
               },
               children: "i"
             }
@@ -15540,12 +15669,12 @@ function rh({
     u && /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-info-banner", children: "Listening for incoming transfers. We will confirm automatically." }),
     h && /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-warning", children: [
       /* @__PURE__ */ t("p", { children: "Your wallet is locked. Unlock it to continue." }),
-      w && /* @__PURE__ */ t(
+      y && /* @__PURE__ */ t(
         "button",
         {
           type: "button",
           className: "cedros-deposit-flow-button cedros-deposit-flow-button-secondary",
-          onClick: w,
+          onClick: y,
           children: "Unlock Wallet"
         }
       )
@@ -15566,14 +15695,14 @@ function rh({
           type: "button",
           className: "cedros-deposit-flow-button cedros-deposit-flow-button-primary",
           onClick: G,
-          disabled: !F || !l || !d,
+          disabled: !F || !d || !l,
           children: "Deposit"
         }
       )
     ] })
   ] });
 }
-function sh({ depositAddress: e }) {
+function ch({ depositAddress: e }) {
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step cedros-deposit-flow-step-centered", children: [
     /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-spinner" }),
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Signing Transfer" }),
@@ -15589,7 +15718,7 @@ function sh({ depositAddress: e }) {
     ] })
   ] });
 }
-function nh({
+function lh({
   token: e,
   tokens: r,
   quickActionSymbols: s,
@@ -15597,30 +15726,30 @@ function nh({
   tokenPriceUsd: n,
   currencyMode: a,
   depositAddress: c,
-  copied: d,
-  isListening: l,
+  copied: l,
+  isListening: d,
   config: h,
   onCopy: m,
   onTokenSelect: u,
-  onAmountChange: f,
+  onAmountChange: p,
   onSent: g,
-  onBack: b
+  onBack: w
 }) {
-  const [w, C] = x(h.privateMinUsd), [N, A] = x(!1), [E, S] = x(null), p = is(w, h) === "sol_micro", v = e.symbol === It.symbol, y = zt(h, w), k = y === 0 ? 0 : y < 0.01 ? 0.01 : y, T = v ? "Fees: calculated after deposit" : y === 0 ? "No fees" : `Fees: $${k.toFixed(2)} total`, _ = v ? "" : Vo(h, w, y), B = v || w > 0, R = as(p ? Ze : e, h, n), I = R ? w / R : null, M = I ? $o(I, e.symbol) : null;
+  const [y, C] = x(h.privateMinUsd), [N, A] = x(!1), [E, S] = x(null), f = ls(y, h) === "sol_micro", v = e.symbol === Mt.symbol, b = jt(h, y), k = b === 0 ? 0 : b < 0.01 ? 0.01 : b, P = v ? "Fees: calculated after deposit" : b === 0 ? "No fees" : `Fees: $${k.toFixed(2)} total`, _ = v ? "" : Go(h, y, b), B = v || y > 0, R = cs(f ? Ze : e, h, n), I = R ? y / R : null, M = I ? Ho(I, e.symbol) : null;
   return O(() => {
     if (a === "multi-token")
-      if (p && e.symbol !== "SOL") {
+      if (f && e.symbol !== "SOL") {
         S(e);
         const U = r.find((W) => W.symbol === "SOL");
         U && u(U);
-      } else !p && E && e.symbol === "SOL" && (u(E), S(null));
-  }, [p, e.symbol, a, r, u, E, e]), O(() => {
-    f(w);
-  }, [w, f]), c ? /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step", children: [
+      } else !f && E && e.symbol === "SOL" && (u(E), S(null));
+  }, [f, e.symbol, a, r, u, E, e]), O(() => {
+    p(y);
+  }, [y, p]), c ? /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step", children: [
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Send Deposit" }),
     /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-step-desc", children: "Send funds to your deposit address. We'll confirm automatically." }),
-    a === "multi-token" && !p && /* @__PURE__ */ t(
-      Ko,
+    a === "multi-token" && !f && /* @__PURE__ */ t(
+      Zo,
       {
         token: e,
         tokens: r,
@@ -15632,18 +15761,18 @@ function nh({
     !v && /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-field", children: [
       /* @__PURE__ */ t("label", { className: "cedros-deposit-flow-label", children: "Deposit Amount" }),
       /* @__PURE__ */ t(
-        Qo,
+        Yo,
         {
           config: h,
-          valueUsd: w,
+          valueUsd: y,
           onChange: C,
-          maxUsd: zo
+          maxUsd: $o
         }
       )
     ] }),
     v && /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-note", children: "Send any token you want. We'll detect the deposit, swap it, and credit your balance automatically." }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-field", children: [
-      /* @__PURE__ */ t("label", { className: "cedros-deposit-flow-label", children: v ? "Send any token to this address" : `Send ${M ?? "--"} ${p ? "SOL" : e.symbol} to this address` }),
+      /* @__PURE__ */ t("label", { className: "cedros-deposit-flow-label", children: v ? "Send any token to this address" : `Send ${M ?? "--"} ${f ? "SOL" : e.symbol} to this address` }),
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-address-box", children: [
         /* @__PURE__ */ t("code", { className: "cedros-deposit-flow-address", children: c }),
         /* @__PURE__ */ t(
@@ -15653,11 +15782,11 @@ function nh({
             className: "cedros-deposit-flow-copy-btn",
             onClick: m,
             title: "Copy address",
-            children: d ? "✓" : "📋"
+            children: l ? "✓" : "📋"
           }
         )
       ] }),
-      d && /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-copied-msg", children: "Copied!" })
+      l && /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-copied-msg", children: "Copied!" })
     ] }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-info-stack", children: [
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-info-item", children: [
@@ -15667,7 +15796,7 @@ function nh({
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-info-item", children: [
         /* @__PURE__ */ t("span", { className: "cedros-deposit-flow-info-dot" }),
         /* @__PURE__ */ i("span", { children: [
-          T,
+          P,
           !v && /* @__PURE__ */ t(
             "button",
             {
@@ -15694,14 +15823,14 @@ function nh({
         /* @__PURE__ */ t("span", { children: "Credits appear after confirmation (typically ~30s)." })
       ] })
     ] }),
-    l && /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-info-banner", children: "Listening for your deposit. We'll notify you when it arrives." }),
+    d && /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-info-banner", children: "Listening for your deposit. We'll notify you when it arrives." }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-actions", children: [
       /* @__PURE__ */ t(
         "button",
         {
           type: "button",
           className: "cedros-deposit-flow-button cedros-deposit-flow-button-secondary",
-          onClick: b,
+          onClick: w,
           children: "Back"
         }
       ),
@@ -15722,7 +15851,7 @@ function nh({
     /* @__PURE__ */ t("p", { className: "cedros-deposit-flow-step-desc", children: "Your embedded wallet is not set up. Please complete wallet enrollment first." })
   ] });
 }
-function oh({ token: e, depositAddress: r, copied: s, feeLine: o, onCopy: n }) {
+function dh({ token: e, depositAddress: r, copied: s, feeLine: o, onCopy: n }) {
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step cedros-deposit-flow-step-centered", children: [
     /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-spinner" }),
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Waiting for Deposit" }),
@@ -15779,8 +15908,8 @@ function oh({ token: e, depositAddress: r, copied: s, feeLine: o, onCopy: n }) {
     ] })
   ] });
 }
-function ah({ result: e, config: r, onNewDeposit: s }) {
-  const o = e.token ?? Ze, n = as(o, r), a = n ? e.amount * n : e.amount, c = zt(r, a), d = Math.max(a - c, 0), l = c === 0 ? 0 : c < 0.01 ? 0.01 : c;
+function uh({ result: e, config: r, onNewDeposit: s }) {
+  const o = e.token ?? Ze, n = cs(o, r), a = n ? e.amount * n : e.amount, c = jt(r, a), l = Math.max(a - c, 0), d = c === 0 ? 0 : c < 0.01 ? 0.01 : c;
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step cedros-deposit-flow-step-centered", children: [
     /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-success-icon", children: "✓" }),
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Deposit Successful!" }),
@@ -15833,14 +15962,14 @@ function ah({ result: e, config: r, onNewDeposit: s }) {
         /* @__PURE__ */ t("span", { className: "cedros-deposit-flow-summary-label", children: "Total Fees" }),
         /* @__PURE__ */ i("span", { className: "cedros-deposit-flow-summary-value cedros-deposit-flow-fee", children: [
           "-$",
-          l.toFixed(2)
+          d.toFixed(2)
         ] })
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-summary-row", children: [
         /* @__PURE__ */ t("span", { className: "cedros-deposit-flow-summary-label", children: "Credits Added" }),
         /* @__PURE__ */ i("span", { className: "cedros-deposit-flow-summary-value cedros-deposit-flow-credit", children: [
           "+$",
-          d.toFixed(2)
+          l.toFixed(2)
         ] })
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-summary-row", children: [
@@ -15859,7 +15988,7 @@ function ah({ result: e, config: r, onNewDeposit: s }) {
     ) })
   ] });
 }
-function ih({ error: e, onRetry: r, onCancel: s }) {
+function hh({ error: e, onRetry: r, onCancel: s }) {
   return /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-step cedros-deposit-flow-step-centered", children: [
     /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-error-icon", children: "✕" }),
     /* @__PURE__ */ t("h4", { className: "cedros-deposit-flow-step-title", children: "Deposit Failed" }),
@@ -15886,7 +16015,7 @@ function ih({ error: e, onRetry: r, onCancel: s }) {
     ] })
   ] });
 }
-function ch({ steps: e, currentStepIndex: r, currentStep: s }) {
+function mh({ steps: e, currentStepIndex: r, currentStep: s }) {
   return /* @__PURE__ */ t("div", { className: "cedros-deposit-flow-steps", children: e.map((o, n) => {
     const a = r >= n, c = o.key === s;
     return /* @__PURE__ */ i(
@@ -15908,7 +16037,7 @@ function ch({ steps: e, currentStepIndex: r, currentStep: s }) {
     );
   }) });
 }
-function Nm({
+function Sm({
   config: e,
   currencyMode: r,
   depositMethod: s,
@@ -15916,45 +16045,45 @@ function Nm({
   defaultToken: n,
   minAmount: a,
   maxAmount: c = 1e4,
-  onSuccess: d,
-  onError: l,
+  onSuccess: l,
+  onError: d,
   onCancel: h,
   onUnlockRequired: m,
   onAuthorize: u,
-  className: f = "",
+  className: p = "",
   showStepIndicator: g = !0,
-  pollInterval: b = 5e3,
-  demoMode: w = !1,
+  pollInterval: w = 5e3,
+  demoMode: y = !1,
   demoAutoConfirmMs: C,
   tokenPriceUsd: N,
   showExplainer: A = !1,
   siteName: E,
   explainerConfig: S
 }) {
-  const { deposit: L, getStatus: p, error: v, clearError: y } = Pu(), k = Dt(), T = vn(e.quickActionTokens), _ = vn(e.customTokenSymbols), B = q(() => {
-    const X = e.customTokens ?? [];
-    if (X.length === 0) return o;
-    const ie = new Set(o.map((be) => be.symbol)), fe = [...o];
-    for (const be of X)
-      ie.has(be.symbol) || (fe.push({
-        mint: be.mint,
-        symbol: be.symbol,
-        name: be.symbol,
-        decimals: be.decimals,
-        logoUrl: be.logoUrl
-      }), ie.add(be.symbol));
+  const { deposit: L, getStatus: f, error: v, clearError: b } = Mu(), k = Ft(), P = Nn(e.quickActionTokens), _ = Nn(e.customTokenSymbols), B = q(() => {
+    const Z = e.customTokens ?? [];
+    if (Z.length === 0) return o;
+    const ie = new Set(o.map((ye) => ye.symbol)), fe = [...o];
+    for (const ye of Z)
+      ie.has(ye.symbol) || (fe.push({
+        mint: ye.mint,
+        symbol: ye.symbol,
+        name: ye.symbol,
+        decimals: ye.decimals,
+        logoUrl: ye.logoUrl
+      }), ie.add(ye.symbol));
     return fe;
   }, [o, e.customTokens]), R = q(() => {
     if (_.length === 0) return B;
-    const X = B.filter((ie) => _.includes(ie.symbol));
-    return X.length > 0 ? X : B;
-  }, [B, _]), I = e.privateDepositsEnabled, M = s ? s === "sign" && !I ? "receive" : s : I && k.hasExternalWallet ? "sign" : "receive", U = T[0] ? B.find((X) => X.symbol === T[0]) : void 0, W = r === "sol" ? Ze : r === "single-token" ? U ?? B.find((X) => X.symbol === "USDC") ?? B[0] ?? Ze : n ?? U ?? B.find((X) => X.symbol === "USDC") ?? B.find((X) => X.symbol !== "SOL") ?? B[0] ?? Ze, j = P(() => A ? "explainer" : "unlock", [A]), [V, F] = x(j), [G, J] = x(W), [K, le] = x(""), [D, $] = x(null), [se, te] = x(null), [me, _e] = x(null), [Le, et] = x(null), [De, Fe] = x(!1), [jt, tt] = x(!1), [Q, Oe] = x(null), pe = ee(null);
+    const Z = B.filter((ie) => _.includes(ie.symbol));
+    return Z.length > 0 ? Z : B;
+  }, [B, _]), I = e.privateDepositsEnabled, M = s ? s === "sign" && !I ? "receive" : s : I && k.hasExternalWallet ? "sign" : "receive", U = P[0] ? B.find((Z) => Z.symbol === P[0]) : void 0, W = r === "sol" ? Ze : r === "single-token" ? U ?? B.find((Z) => Z.symbol === "USDC") ?? B[0] ?? Ze : n ?? U ?? B.find((Z) => Z.symbol === "USDC") ?? B.find((Z) => Z.symbol !== "SOL") ?? B[0] ?? Ze, j = T(() => A ? "explainer" : "unlock", [A]), [V, F] = x(j), [G, X] = x(W), [Y, le] = x(""), [D, $] = x(null), [ne, re] = x(null), [me, _e] = x(null), [Le, et] = x(null), [De, Fe] = x(!1), [$t, tt] = x(!1), [Q, Oe] = x(null), pe = J(null);
   O(() => () => {
     pe.current && clearTimeout(pe.current);
   }, []), O(() => {
-    F(j()), J(W), le(""), $(null), te(null), _e(null), et(null), Fe(!1), tt(!1), Oe(null), y();
-  }, [r, M, W, y]);
-  const dt = a ?? e.privateMinSol, ut = c, Pe = parseFloat(K), rt = k.status === "enrolled_locked" || k.status === "enrolled_unlocked" || k.status === "unlocked", $t = rt && k.isUnlocked, Vt = rt && !k.isUnlocked, ds = P(() => {
+    F(j()), X(W), le(""), $(null), re(null), _e(null), et(null), Fe(!1), tt(!1), Oe(null), b();
+  }, [r, M, W, b]);
+  const ut = a ?? e.privateMinSol, ht = c, Te = parseFloat(Y), rt = k.status === "enrolled_locked" || k.status === "enrolled_unlocked" || k.status === "unlocked", Vt = rt && k.isUnlocked, Ht = rt && !k.isUnlocked, hs = T(() => {
     let fe = M === "sign" ? [
       { key: "unlock", label: "Authorize" },
       { key: "confirm", label: "Send" },
@@ -15967,46 +16096,46 @@ function Nm({
       { key: "success", label: "Complete" }
     ];
     return A && (fe = [{ key: "explainer", label: "Info" }, ...fe]), fe;
-  }, [M, A])(), Jo = ds.findIndex((X) => X.key === V), us = P((X) => {
-    J(X);
-  }, []), ea = P(
-    async (X) => {
+  }, [M, A])(), ta = hs.findIndex((Z) => Z.key === V), ms = T((Z) => {
+    X(Z);
+  }, []), ra = T(
+    async (Z) => {
       if (!u) {
         F(M === "sign" ? "confirm" : "show-address");
         return;
       }
-      tt(!0), te(null);
+      tt(!0), re(null);
       try {
-        const fe = await u(X, M === "sign" ? Pe : null, G);
+        const fe = await u(Z, M === "sign" ? Te : null, G);
         _e(fe.sessionId), et(fe.depositAddress), F(M === "sign" ? "confirm" : "show-address");
       } catch (ie) {
         const fe = ie instanceof Error ? ie : new Error("Authorization failed");
-        te(fe.message);
+        re(fe.message);
       } finally {
         tt(!1);
       }
     },
-    [u, M, Pe, G]
-  ), ta = P(
-    async (X, ie) => {
-      y(), te(null), F("signing");
-      const fe = X ?? Pe, be = ie ?? G;
-      if (!w) {
-        if (Vt && m) {
+    [u, M, Te, G]
+  ), sa = T(
+    async (Z, ie) => {
+      b(), re(null), F("signing");
+      const fe = Z ?? Te, ye = ie ?? G;
+      if (!y) {
+        if (Ht && m) {
           m(), F("confirm");
           return;
         }
-        if (!$t) {
-          te("Wallet not ready"), F("error");
+        if (!Vt) {
+          re("Wallet not ready"), F("error");
           return;
         }
       }
       try {
-        const We = Math.round(fe * Math.pow(10, be.decimals));
-        if (w) {
-          await new Promise((oa) => setTimeout(oa, 1500));
-          const ms = {
-            token: r === "sol" ? null : be,
+        const We = Math.round(fe * Math.pow(10, ye.decimals));
+        if (y) {
+          await new Promise((ia) => setTimeout(ia, 1500));
+          const fs = {
+            token: r === "sol" ? null : ye,
             amount: fe,
             amountSmallestUnit: We,
             txSignature: `demo-tx-${Date.now()}`,
@@ -16020,11 +16149,11 @@ function Nm({
             },
             method: "sign"
           };
-          $(ms), F("success"), d?.(ms);
+          $(fs), F("success"), l?.(fs);
           return;
         }
-        const He = await L(We), hs = {
-          token: r === "sol" ? null : be,
+        const He = await L(We), ps = {
+          token: r === "sol" ? null : ye,
           amount: fe,
           amountSmallestUnit: We,
           txSignature: He.txSignature,
@@ -16032,44 +16161,44 @@ function Nm({
           response: He,
           method: "sign"
         };
-        $(hs), F("success"), d?.(hs);
+        $(ps), F("success"), l?.(ps);
       } catch (We) {
         const He = We instanceof Error ? We : new Error("Deposit failed");
-        te(He.message), F("error"), l?.(He);
+        re(He.message), F("error"), d?.(He);
       }
     },
     [
       L,
-      Pe,
+      Te,
       G,
       r,
-      w,
+      y,
       me,
-      $t,
       Vt,
+      Ht,
       m,
-      d,
       l,
-      y
+      d,
+      b
     ]
-  ), ra = P(() => {
+  ), na = T(() => {
     F("waiting");
-  }, []), Ht = P(async () => {
-    const X = Le || k.solanaPubkey;
-    if (X) {
+  }, []), Gt = T(async () => {
+    const Z = Le || k.solanaPubkey;
+    if (Z) {
       pe.current && clearTimeout(pe.current);
       try {
-        await navigator.clipboard.writeText(X), Fe(!0), pe.current = setTimeout(() => Fe(!1), 2e3);
+        await navigator.clipboard.writeText(Z), Fe(!0), pe.current = setTimeout(() => Fe(!1), 2e3);
       } catch {
         const ie = document.createElement("textarea");
-        ie.value = X, document.body.appendChild(ie), ie.select(), document.execCommand("copy"), document.body.removeChild(ie), Fe(!0), pe.current = setTimeout(() => Fe(!1), 2e3);
+        ie.value = Z, document.body.appendChild(ie), ie.select(), document.execCommand("copy"), document.body.removeChild(ie), Fe(!0), pe.current = setTimeout(() => Fe(!1), 2e3);
       }
     }
   }, [Le, k.solanaPubkey]);
-  Hu({
+  Zu({
     step: V,
     sessionId: me,
-    demoMode: w,
+    demoMode: y,
     demoAutoConfirmMs: C,
     depositMethod: M,
     depositAddress: Le,
@@ -16078,27 +16207,27 @@ function Nm({
     currencyMode: r,
     config: e,
     solanaPubkey: k.solanaPubkey,
-    pollInterval: b,
-    getStatus: p,
-    onSuccess: d,
+    pollInterval: w,
+    getStatus: f,
+    onSuccess: l,
     setResult: $,
     setStep: F,
-    setFlowError: te
+    setFlowError: re
   });
-  const sa = P(() => {
-    F(j()), le(""), $(null), te(null), y();
-  }, [j, y]);
+  const oa = T(() => {
+    F(j()), le(""), $(null), re(null), b();
+  }, [j, b]);
   if (!e.enabled)
-    return /* @__PURE__ */ t("div", { className: `cedros-deposit-flow cedros-deposit-flow-disabled ${f}`, children: /* @__PURE__ */ t("p", { children: "Deposits are not currently available." }) });
-  const na = Q ? (() => {
-    const X = zt(e, Q);
-    return X === 0 ? "No fees" : `Fees: $${Math.max(X, 0.01).toFixed(2)} total`;
+    return /* @__PURE__ */ t("div", { className: `cedros-deposit-flow cedros-deposit-flow-disabled ${p}`, children: /* @__PURE__ */ t("p", { children: "Deposits are not currently available." }) });
+  const aa = Q ? (() => {
+    const Z = jt(e, Q);
+    return Z === 0 ? "No fees" : `Fees: $${Math.max(Z, 0.01).toFixed(2)} total`;
   })() : "Fees: calculated after deposit";
-  return /* @__PURE__ */ i("div", { className: `cedros-deposit-flow ${f}`, children: [
-    g && V !== "error" && /* @__PURE__ */ t(ch, { steps: ds, currentStepIndex: Jo, currentStep: V }),
+  return /* @__PURE__ */ i("div", { className: `cedros-deposit-flow ${p}`, children: [
+    g && V !== "error" && /* @__PURE__ */ t(mh, { steps: hs, currentStepIndex: ta, currentStep: V }),
     /* @__PURE__ */ i("div", { className: "cedros-deposit-flow-content", children: [
       V === "explainer" && /* @__PURE__ */ t(
-        Gu,
+        Xu,
         {
           siteName: E,
           config: S,
@@ -16111,80 +16240,80 @@ function Nm({
         }
       ),
       V === "unlock" && /* @__PURE__ */ t(
-        Qu,
+        Ju,
         {
           token: G,
           tokens: R,
           currencyMode: r,
           depositMethod: M,
-          isAuthorizing: jt,
-          error: se,
-          onAuthorize: ea,
+          isAuthorizing: $t,
+          error: ne,
+          onAuthorize: ra,
           onBack: A ? () => F("explainer") : void 0,
           onCancel: h
         }
       ),
       V === "confirm" && M === "sign" && /* @__PURE__ */ t(
-        rh,
+        ih,
         {
           token: G,
           tokens: B,
-          quickActionSymbols: T,
+          quickActionSymbols: P,
           customTokenSymbols: _,
           currencyMode: r,
-          minAmount: dt,
-          maxAmount: ut,
+          minAmount: ut,
+          maxAmount: ht,
           depositAddress: Le || k.solanaPubkey,
-          walletReady: $t || w,
-          needsUnlock: Vt && !w,
+          walletReady: Vt || y,
+          needsUnlock: Ht && !y,
           copied: De,
-          isListening: !!me && !w,
+          isListening: !!me && !y,
           config: e,
-          onCopy: Ht,
-          onTokenSelect: us,
+          onCopy: Gt,
+          onTokenSelect: ms,
           onUnlockRequired: m,
-          onConfirm: (X, ie) => ta(X, ie),
+          onConfirm: (Z, ie) => sa(Z, ie),
           onBack: () => F("unlock"),
           onCancel: h
         }
       ),
-      V === "signing" && /* @__PURE__ */ t(sh, { depositAddress: k.solanaPubkey }),
+      V === "signing" && /* @__PURE__ */ t(ch, { depositAddress: k.solanaPubkey }),
       V === "show-address" && /* @__PURE__ */ t(
-        nh,
+        lh,
         {
           token: G,
           tokens: B,
-          quickActionSymbols: T,
+          quickActionSymbols: P,
           customTokenSymbols: _,
           tokenPriceUsd: N,
           currencyMode: r,
           depositAddress: Le || k.solanaPubkey,
           copied: De,
-          isListening: !!me && !w,
+          isListening: !!me && !y,
           config: e,
-          onCopy: Ht,
-          onTokenSelect: us,
+          onCopy: Gt,
+          onTokenSelect: ms,
           onAmountChange: Oe,
-          onSent: ra,
+          onSent: na,
           onBack: () => F("unlock"),
           onCancel: h
         }
       ),
       V === "waiting" && /* @__PURE__ */ t(
-        oh,
+        dh,
         {
           token: G,
           depositAddress: Le || k.solanaPubkey,
           copied: De,
-          feeLine: na,
-          onCopy: Ht
+          feeLine: aa,
+          onCopy: Gt
         }
       ),
-      V === "success" && D && /* @__PURE__ */ t(ah, { result: D, config: e, onNewDeposit: sa }),
+      V === "success" && D && /* @__PURE__ */ t(uh, { result: D, config: e, onNewDeposit: oa }),
       V === "error" && /* @__PURE__ */ t(
-        ih,
+        hh,
         {
-          error: se || v || "An error occurred",
+          error: ne || v || "An error occurred",
           onRetry: () => F("confirm"),
           onCancel: h
         }
@@ -16192,15 +16321,15 @@ function Nm({
     ] })
   ] });
 }
-function Yo() {
-  const e = je(), [r, s] = x(!1), [o, n] = x(null), a = q(() => e ? new re({
+function Xo() {
+  const e = je(), [r, s] = x(!1), [o, n] = x(null), a = q(() => e ? new te({
     baseUrl: e.config.serverUrl,
     timeoutMs: e.config.requestTimeout,
     retryAttempts: e.config.retryAttempts,
     getAccessToken: e._internal?.getAccessToken
-  }) : null, [e]), c = P(() => {
+  }) : null, [e]), c = T(() => {
     n(null);
-  }, []), d = P(async () => {
+  }, []), l = T(async () => {
     if (!a)
       throw new Error("useCredits must be used within a CedrosLoginProvider");
     s(!0), n(null);
@@ -16212,7 +16341,7 @@ function Yo() {
     } finally {
       s(!1);
     }
-  }, [a]), l = P(async () => {
+  }, [a]), d = T(async () => {
     if (!a)
       throw new Error("useCredits must be used within a CedrosLoginProvider");
     s(!0), n(null);
@@ -16224,7 +16353,7 @@ function Yo() {
     } finally {
       s(!1);
     }
-  }, [a]), h = P(
+  }, [a]), h = T(
     async (m) => {
       if (!a)
         throw new Error("useCredits must be used within a CedrosLoginProvider");
@@ -16232,11 +16361,11 @@ function Yo() {
       try {
         const u = new URLSearchParams();
         m?.currency && u.set("currency", m.currency), m?.limit !== void 0 && u.set("limit", m.limit.toString()), m?.offset !== void 0 && u.set("offset", m.offset.toString());
-        const f = u.toString(), g = f ? `/credits/history?${f}` : "/credits/history";
+        const p = u.toString(), g = p ? `/credits/history?${p}` : "/credits/history";
         return await a.get(g);
       } catch (u) {
-        const f = z(u, "Failed to fetch transaction history");
-        throw n(f.message), f;
+        const p = z(u, "Failed to fetch transaction history");
+        throw n(p.message), p;
       } finally {
         s(!1);
       }
@@ -16244,73 +16373,73 @@ function Yo() {
     [a]
   );
   return {
-    getBalance: d,
-    getAllBalances: l,
+    getBalance: l,
+    getAllBalances: d,
     getHistory: h,
     isLoading: r,
     error: o,
     clearError: c
   };
 }
-function km({
+function _m({
   showAllCurrencies: e = !1,
   refreshInterval: r = 0,
   compact: s = !1,
   className: o = "",
   onLoad: n
 }) {
-  const { getBalance: a, getAllBalances: c, isLoading: d, error: l, clearError: h } = Yo(), [m, u] = x([]), [f, g] = x(null), b = P(async () => {
+  const { getBalance: a, getAllBalances: c, isLoading: l, error: d, clearError: h } = Xo(), [m, u] = x([]), [p, g] = x(null), w = T(async () => {
     try {
       if (e) {
-        const w = await c();
-        u(w), n?.(w);
+        const y = await c();
+        u(y), n?.(y);
       } else {
-        const w = await a();
-        u([w]), n?.([w]);
+        const y = await a();
+        u([y]), n?.([y]);
       }
       g(null);
-    } catch (w) {
-      g(w instanceof Error ? w.message : "Failed to load balance");
+    } catch (y) {
+      g(y instanceof Error ? y.message : "Failed to load balance");
     }
   }, [e, a, c, n]);
   if (O(() => {
-    b();
-  }, [b]), O(() => {
+    w();
+  }, [w]), O(() => {
     if (r <= 0) return;
-    const w = setInterval(b, r);
-    return () => clearInterval(w);
-  }, [r, b]), f || l)
+    const y = setInterval(w, r);
+    return () => clearInterval(y);
+  }, [r, w]), p || d)
     return /* @__PURE__ */ i("div", { className: `cedros-credit-balance cedros-credit-balance-error ${o}`, children: [
-      /* @__PURE__ */ t("p", { className: "cedros-credit-error", children: f || l }),
+      /* @__PURE__ */ t("p", { className: "cedros-credit-error", children: p || d }),
       /* @__PURE__ */ t(
         "button",
         {
           type: "button",
           className: "cedros-credit-retry",
           onClick: () => {
-            h(), g(null), b();
+            h(), g(null), w();
           },
           children: "Retry"
         }
       )
     ] });
-  if (d && m.length === 0)
+  if (l && m.length === 0)
     return /* @__PURE__ */ i("div", { className: `cedros-credit-balance cedros-credit-balance-loading ${o}`, children: [
       /* @__PURE__ */ t("span", { className: "cedros-credit-loading-indicator" }),
       /* @__PURE__ */ t("span", { className: "cedros-credit-loading-text", children: "Loading balance..." })
     ] });
   if (s) {
-    const w = m[0];
+    const y = m[0];
     return /* @__PURE__ */ i("div", { className: `cedros-credit-balance cedros-credit-balance-compact ${o}`, children: [
-      w ? /* @__PURE__ */ t(
+      y ? /* @__PURE__ */ t(
         "span",
         {
           className: "cedros-credit-value",
-          title: `${w.balanceLamports} lamports`,
-          children: w.display
+          title: `${y.balanceLamports} lamports`,
+          children: y.display
         }
       ) : /* @__PURE__ */ t("span", { className: "cedros-credit-value cedros-credit-value-zero", children: "0.0000 SOL" }),
-      d && /* @__PURE__ */ t("span", { className: "cedros-credit-refresh-indicator", title: "Refreshing..." })
+      l && /* @__PURE__ */ t("span", { className: "cedros-credit-refresh-indicator", title: "Refreshing..." })
     ] });
   }
   return /* @__PURE__ */ i("div", { className: `cedros-credit-balance ${o}`, children: [
@@ -16321,23 +16450,23 @@ function km({
         {
           type: "button",
           className: "cedros-credit-refresh",
-          onClick: b,
-          disabled: d,
+          onClick: w,
+          disabled: l,
           title: "Refresh balance",
-          children: d ? "..." : "↻"
+          children: l ? "..." : "↻"
         }
       )
     ] }),
     m.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-credit-empty", children: [
       /* @__PURE__ */ t("p", { className: "cedros-credit-empty-message", children: "No credit balance yet." }),
       /* @__PURE__ */ t("p", { className: "cedros-credit-empty-hint", children: "Make a deposit to get started." })
-    ] }) : /* @__PURE__ */ t("div", { className: "cedros-credit-list", children: m.map((w) => /* @__PURE__ */ i("div", { className: "cedros-credit-item", children: [
-      /* @__PURE__ */ t("span", { className: "cedros-credit-currency", children: w.currency }),
-      /* @__PURE__ */ t("span", { className: "cedros-credit-amount", children: w.display })
-    ] }, w.currency)) })
+    ] }) : /* @__PURE__ */ t("div", { className: "cedros-credit-list", children: m.map((y) => /* @__PURE__ */ i("div", { className: "cedros-credit-item", children: [
+      /* @__PURE__ */ t("span", { className: "cedros-credit-currency", children: y.currency }),
+      /* @__PURE__ */ t("span", { className: "cedros-credit-amount", children: y.display })
+    ] }, y.currency)) })
   ] });
 }
-const Lr = [
+const Pr = [
   { key: "all", label: "All", txTypes: null },
   { key: "deposits", label: "Deposits", txTypes: ["deposit"] },
   { key: "usage", label: "Usage", txTypes: ["spend", "usage", "charge"] },
@@ -16347,11 +16476,11 @@ const Lr = [
     txTypes: ["refund", "adjustment", "bonus", "credit"]
   }
 ];
-function lh(e, r) {
-  const s = e < 0, o = Math.abs(e), n = qo(r), a = o / Math.pow(10, n), c = s ? "-" : "+";
+function ph(e, r) {
+  const s = e < 0, o = Math.abs(e), n = jo(r), a = o / Math.pow(10, n), c = s ? "-" : "+";
   return r.toUpperCase() === "SOL" ? `${c}${a.toFixed(4)} SOL` : `${c}$${a.toFixed(2)}`;
 }
-function dh(e) {
+function fh(e) {
   const r = new Date(e), s = /* @__PURE__ */ new Date(), o = s.getTime() - r.getTime();
   if (o < 0) return "Just now";
   const n = Math.floor(o / (1e3 * 60 * 60 * 24));
@@ -16369,7 +16498,7 @@ function dh(e) {
     year: r.getFullYear() !== s.getFullYear() ? "numeric" : void 0
   });
 }
-function uh(e) {
+function gh(e) {
   return e ? {
     deposit: "Deposit",
     spend: "Usage",
@@ -16381,11 +16510,11 @@ function uh(e) {
     credit: "Credit"
   }[e.toLowerCase()] || e : "Transaction";
 }
-function hh(e, r) {
+function wh(e, r) {
   const s = (e || "").toLowerCase();
   return s === "deposit" ? "↓" : s === "spend" || s === "usage" || s === "charge" ? "↑" : s === "refund" ? "←" : s === "bonus" || s === "credit" ? "★" : r ? "+" : "−";
 }
-function Cm({
+function Lm({
   defaultTab: e = "all",
   pageSize: r = 10,
   refreshInterval: s = 0,
@@ -16393,13 +16522,13 @@ function Cm({
   onLoad: n,
   onTransactionClick: a
 }) {
-  const { getHistory: c, isLoading: d, error: l, clearError: h } = Yo(), [m, u] = x(e), [f, g] = x([]), [b, w] = x(0), [C, N] = x(0), [A, E] = x(null), S = Lr.find((R) => R.key === m) || Lr[0], L = q(() => S.txTypes === null ? f : f.filter((R) => {
+  const { getHistory: c, isLoading: l, error: d, clearError: h } = Xo(), [m, u] = x(e), [p, g] = x([]), [w, y] = x(0), [C, N] = x(0), [A, E] = x(null), S = Pr.find((R) => R.key === m) || Pr[0], L = q(() => S.txTypes === null ? p : p.filter((R) => {
     const I = R.txType || "";
     return S.txTypes.some((M) => I.toLowerCase() === M.toLowerCase());
-  }), [f, S.txTypes]), p = P(async () => {
+  }), [p, S.txTypes]), f = T(async () => {
     try {
       const R = await c({ limit: r * 3, offset: C });
-      g(R.transactions), w(R.total), n?.(R), E(null);
+      g(R.transactions), y(R.total), n?.(R), E(null);
     } catch (R) {
       E(R instanceof Error ? R.message : "Failed to load history");
     }
@@ -16407,39 +16536,39 @@ function Cm({
   O(() => {
     N(0);
   }, [m]), O(() => {
-    p();
-  }, [p]), O(() => {
+    f();
+  }, [f]), O(() => {
     if (s <= 0) return;
-    const R = setInterval(p, s);
+    const R = setInterval(f, s);
     return () => clearInterval(R);
-  }, [s, p]);
-  const v = S.txTypes === null ? b : L.length, y = Math.ceil(v / r), k = Math.floor(C / r) + 1, T = (R) => {
+  }, [s, f]);
+  const v = S.txTypes === null ? w : L.length, b = Math.ceil(v / r), k = Math.floor(C / r) + 1, P = (R) => {
     const I = (R - 1) * r;
     N(Math.max(0, Math.min(I, Math.max(0, v - r))));
   }, _ = (R) => {
     u(R);
   };
-  if (A || l)
+  if (A || d)
     return /* @__PURE__ */ i("div", { className: `cedros-tx-history cedros-tx-history-error ${o}`, children: [
-      /* @__PURE__ */ t("p", { className: "cedros-tx-error", children: A || l }),
+      /* @__PURE__ */ t("p", { className: "cedros-tx-error", children: A || d }),
       /* @__PURE__ */ t(
         "button",
         {
           type: "button",
           className: "cedros-tx-retry",
           onClick: () => {
-            h(), E(null), p();
+            h(), E(null), f();
           },
           children: "Retry"
         }
       )
     ] });
-  if (d && f.length === 0)
+  if (l && p.length === 0)
     return /* @__PURE__ */ i("div", { className: `cedros-tx-history cedros-tx-history-loading ${o}`, children: [
       /* @__PURE__ */ t("span", { className: "cedros-tx-loading-indicator" }),
       /* @__PURE__ */ t("span", { className: "cedros-tx-loading-text", children: "Loading transactions..." })
     ] });
-  const B = (R) => R.txTypes === null ? f.length : f.filter((I) => {
+  const B = (R) => R.txTypes === null ? p.length : p.filter((I) => {
     const M = I.txType || "";
     return R.txTypes.some((U) => M.toLowerCase() === U.toLowerCase());
   }).length;
@@ -16451,14 +16580,14 @@ function Cm({
         {
           type: "button",
           className: "cedros-tx-refresh",
-          onClick: p,
-          disabled: d,
+          onClick: f,
+          disabled: l,
           title: "Refresh",
-          children: d ? "..." : "↻"
+          children: l ? "..." : "↻"
         }
       )
     ] }),
-    /* @__PURE__ */ t("div", { className: "cedros-tx-tabs", children: Lr.map((R) => {
+    /* @__PURE__ */ t("div", { className: "cedros-tx-tabs", children: Pr.map((R) => {
       const I = B(R), M = m === R.key;
       return /* @__PURE__ */ i(
         "button",
@@ -16477,7 +16606,7 @@ function Cm({
     L.length === 0 ? /* @__PURE__ */ i("div", { className: "cedros-tx-empty", children: [
       /* @__PURE__ */ t("p", { className: "cedros-tx-empty-message", children: m === "all" ? "No transactions yet." : `No ${S.label.toLowerCase()} found.` }),
       m === "all" && /* @__PURE__ */ t("p", { className: "cedros-tx-empty-hint", children: "Make a deposit to get started." })
-    ] }) : /* @__PURE__ */ i(Y, { children: [
+    ] }) : /* @__PURE__ */ i(K, { children: [
       /* @__PURE__ */ t("div", { className: "cedros-tx-list", children: L.slice(0, r).map((R) => {
         const I = R.amountLamports >= 0;
         return /* @__PURE__ */ i(
@@ -16495,23 +16624,23 @@ function Cm({
                 "div",
                 {
                   className: `cedros-tx-icon ${I ? "cedros-tx-icon-positive" : "cedros-tx-icon-negative"}`,
-                  children: hh(R.txType, I)
+                  children: wh(R.txType, I)
                 }
               ),
               /* @__PURE__ */ i("div", { className: "cedros-tx-content", children: [
                 /* @__PURE__ */ i("div", { className: "cedros-tx-row-main", children: [
-                  /* @__PURE__ */ t("span", { className: "cedros-tx-type", children: uh(R.txType) }),
+                  /* @__PURE__ */ t("span", { className: "cedros-tx-type", children: gh(R.txType) }),
                   /* @__PURE__ */ t(
                     "span",
                     {
                       className: `cedros-tx-amount ${I ? "cedros-tx-amount-positive" : "cedros-tx-amount-negative"}`,
-                      children: lh(R.amountLamports, R.currency)
+                      children: ph(R.amountLamports, R.currency)
                     }
                   )
                 ] }),
                 /* @__PURE__ */ i("div", { className: "cedros-tx-row-details", children: [
                   /* @__PURE__ */ t("span", { className: "cedros-tx-description", children: R.description }),
-                  /* @__PURE__ */ t("span", { className: "cedros-tx-date", children: dh(R.createdAt) })
+                  /* @__PURE__ */ t("span", { className: "cedros-tx-date", children: fh(R.createdAt) })
                 ] })
               ] })
             ]
@@ -16519,13 +16648,13 @@ function Cm({
           R.id
         );
       }) }),
-      y > 1 && /* @__PURE__ */ i("div", { className: "cedros-tx-pagination", children: [
+      b > 1 && /* @__PURE__ */ i("div", { className: "cedros-tx-pagination", children: [
         /* @__PURE__ */ t(
           "button",
           {
             type: "button",
             className: "cedros-tx-page-btn",
-            onClick: () => T(k - 1),
+            onClick: () => P(k - 1),
             disabled: k <= 1,
             children: "Previous"
           }
@@ -16534,15 +16663,15 @@ function Cm({
           "Page ",
           k,
           " of ",
-          y
+          b
         ] }),
         /* @__PURE__ */ t(
           "button",
           {
             type: "button",
             className: "cedros-tx-page-btn",
-            onClick: () => T(k + 1),
-            disabled: k >= y,
+            onClick: () => P(k + 1),
+            disabled: k >= b,
             children: "Next"
           }
         )
@@ -16550,52 +16679,52 @@ function Cm({
     ] })
   ] });
 }
-function Zo() {
-  const e = je(), [r, s] = x(!1), [o, n] = x(null), [a, c] = x(null), d = q(() => e ? new re({
+function Jo() {
+  const e = je(), [r, s] = x(!1), [o, n] = x(null), [a, c] = x(null), l = q(() => e ? new te({
     baseUrl: e.config.serverUrl,
     timeoutMs: e.config.requestTimeout,
     retryAttempts: e.config.retryAttempts,
     getAccessToken: e._internal?.getAccessToken
-  }) : null, [e]), l = P(() => {
+  }) : null, [e]), d = T(() => {
     n(null);
-  }, []), h = P(async () => {
-    if (!d)
+  }, []), h = T(async () => {
+    if (!l)
       throw new Error("useWithdrawal must be used within a CedrosLoginProvider");
     try {
-      return await d.get("/wallet/withdraw/balances");
+      return await l.get("/wallet/withdraw/balances");
     } catch (g) {
-      const b = z(g, "Failed to fetch wallet balances");
-      throw n(b.message), b;
+      const w = z(g, "Failed to fetch wallet balances");
+      throw n(w.message), w;
     }
-  }, [d]), m = P(
-    async (g, b) => {
-      if (!d)
+  }, [l]), m = T(
+    async (g, w) => {
+      if (!l)
         throw new Error("useWithdrawal must be used within a CedrosLoginProvider");
       s(!0), n(null);
       try {
-        const w = await d.post("/wallet/withdraw/sol", {
+        const y = await l.post("/wallet/withdraw/sol", {
           destination: g,
-          amount_lamports: b
+          amount_lamports: w
         });
-        return c(w), w;
-      } catch (w) {
-        const C = z(w, "Failed to withdraw SOL");
+        return c(y), y;
+      } catch (y) {
+        const C = z(y, "Failed to withdraw SOL");
         throw n(C.message), C;
       } finally {
         s(!1);
       }
     },
-    [d]
-  ), u = P(
-    async (g, b, w) => {
-      if (!d)
+    [l]
+  ), u = T(
+    async (g, w, y) => {
+      if (!l)
         throw new Error("useWithdrawal must be used within a CedrosLoginProvider");
       s(!0), n(null);
       try {
-        const C = await d.post("/wallet/withdraw/spl", {
+        const C = await l.post("/wallet/withdraw/spl", {
           destination: g,
-          token_mint: b,
-          amount: w
+          token_mint: w,
+          amount: y
         });
         return c(C), C;
       } catch (C) {
@@ -16605,38 +16734,38 @@ function Zo() {
         s(!1);
       }
     },
-    [d]
-  ), f = P(
-    async (g = 10, b = 0) => {
-      if (!d)
+    [l]
+  ), p = T(
+    async (g = 10, w = 0) => {
+      if (!l)
         throw new Error("useWithdrawal must be used within a CedrosLoginProvider");
       try {
-        const w = Math.max(1, Math.min(100, Math.trunc(g))), C = Math.max(0, Math.trunc(b)), N = new URLSearchParams({
-          limit: String(w),
+        const y = Math.max(1, Math.min(100, Math.trunc(g))), C = Math.max(0, Math.trunc(w)), N = new URLSearchParams({
+          limit: String(y),
           offset: String(C)
         });
-        return await d.get(
+        return await l.get(
           `/wallet/withdraw/history?${N}`
         );
-      } catch (w) {
-        const C = z(w, "Failed to fetch withdrawal history");
+      } catch (y) {
+        const C = z(y, "Failed to fetch withdrawal history");
         throw n(C.message), C;
       }
     },
-    [d]
+    [l]
   );
   return {
     withdrawSol: m,
     withdrawSpl: u,
     getBalances: h,
-    getHistory: f,
+    getHistory: p,
     isSubmitting: r,
     error: o,
-    clearError: l,
+    clearError: d,
     lastResult: a
   };
 }
-const Pr = "So11111111111111111111111111111111111111112", mh = {
+const Rr = "So11111111111111111111111111111111111111112", yh = {
   EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: "USDC",
   Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB: "USDT",
   HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr: "EURC",
@@ -16647,10 +16776,10 @@ const Pr = "So11111111111111111111111111111111111111112", mh = {
   DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: "BONK",
   oreoU2P8bN6jkk3jbaiVxYnG1dCXcYxwhwyK9jSybcp: "ORE"
 };
-function ph(e) {
+function bh(e) {
   return e.length < 32 || e.length > 50 ? !1 : /^[1-9A-HJ-NP-Za-km-z]+$/.test(e);
 }
-function Tr(e) {
+function Br(e) {
   return e.length <= 16 ? e : `${e.slice(0, 6)}...${e.slice(-6)}`;
 }
 function bt(e, r) {
@@ -16659,93 +16788,93 @@ function bt(e, r) {
     maximumFractionDigits: Math.min(r, 6)
   });
 }
-function Em({
+function Tm({
   onSuccess: e,
   onError: r,
   onCancel: s,
   className: o = ""
 }) {
-  const n = je(), { withdrawSol: a, withdrawSpl: c, getBalances: d, isSubmitting: l, error: h, clearError: m } = Zo(), [u, f] = x("loading"), [g, b] = x([]), [w, C] = x(null), [N, A] = x(""), [E, S] = x(""), [L, p] = x(null), [v, y] = x(null), [k, T] = x(null), _ = n?.config.solana?.network ?? "mainnet-beta", B = q(() => {
+  const n = je(), { withdrawSol: a, withdrawSpl: c, getBalances: l, isSubmitting: d, error: h, clearError: m } = Jo(), [u, p] = x("loading"), [g, w] = x([]), [y, C] = x(null), [N, A] = x(""), [E, S] = x(""), [L, f] = x(null), [v, b] = x(null), [k, P] = x(null), _ = n?.config.solana?.network ?? "mainnet-beta", B = q(() => {
     if (!L?.txSignature) return "";
     const F = `https://explorer.solana.com/tx/${L.txSignature}`;
     return _ === "mainnet-beta" ? F : `${F}?cluster=${encodeURIComponent(_)}`;
   }, [L, _]), R = q(() => {
-    if (!w || !E) return "0";
+    if (!y || !E) return "0";
     const F = parseFloat(E);
-    return isNaN(F) || F <= 0 ? "0" : Math.floor(F * Math.pow(10, w.decimals)).toString();
-  }, [E, w]);
+    return isNaN(F) || F <= 0 ? "0" : Math.floor(F * Math.pow(10, y.decimals)).toString();
+  }, [E, y]);
   O(() => {
     if (!n) return;
     let F = !1;
     return (async () => {
       try {
-        const G = await d();
+        const G = await l();
         if (F) return;
-        const J = [];
-        G.solLamports > 0 && J.push({
+        const X = [];
+        G.solLamports > 0 && X.push({
           symbol: "SOL",
-          mint: Pr,
+          mint: Rr,
           decimals: 9,
           rawBalance: String(G.solLamports),
           displayBalance: bt(String(G.solLamports), 9)
         });
-        for (const K of G.tokens) {
-          const le = mh[K.mint] ?? Tr(K.mint);
-          J.push({
+        for (const Y of G.tokens) {
+          const le = yh[Y.mint] ?? Br(Y.mint);
+          X.push({
             symbol: le,
-            mint: K.mint,
-            decimals: K.decimals,
-            rawBalance: K.amount,
-            displayBalance: bt(K.amount, K.decimals)
+            mint: Y.mint,
+            decimals: Y.decimals,
+            rawBalance: Y.amount,
+            displayBalance: bt(Y.amount, Y.decimals)
           });
         }
-        b(J), f((J.length > 0, "select"));
+        w(X), p((X.length > 0, "select"));
       } catch {
-        F || (T("Failed to load wallet balances"), f("select"));
+        F || (P("Failed to load wallet balances"), p("select"));
       }
     })(), () => {
       F = !0;
     };
-  }, [n, d]);
-  const I = P(
+  }, [n, l]);
+  const I = T(
     (F) => {
-      C(F), f("form"), m(), y(null), S("");
+      C(F), p("form"), m(), b(null), S("");
     },
     [m]
-  ), M = P(() => {
-    if (!w) return;
-    const F = Number(w.rawBalance) / Math.pow(10, w.decimals);
-    w.mint === Pr ? S(String(Math.max(0, F - 0.01))) : S(String(F));
-  }, [w]), U = P(() => {
-    if (y(null), !N.trim()) {
-      y("Destination address is required");
+  ), M = T(() => {
+    if (!y) return;
+    const F = Number(y.rawBalance) / Math.pow(10, y.decimals);
+    y.mint === Rr ? S(String(Math.max(0, F - 0.01))) : S(String(F));
+  }, [y]), U = T(() => {
+    if (b(null), !N.trim()) {
+      b("Destination address is required");
       return;
     }
-    if (!ph(N.trim())) {
-      y("Invalid Solana address");
+    if (!bh(N.trim())) {
+      b("Invalid Solana address");
       return;
     }
     if (!E || parseFloat(E) <= 0 || isNaN(parseFloat(E))) {
-      y("Please enter a valid amount");
+      b("Please enter a valid amount");
       return;
     }
     if (R === "0") {
-      y("Amount is too small");
+      b("Amount is too small");
       return;
     }
-    f("confirm");
-  }, [N, E, R]), W = P(async () => {
-    if (w) {
-      f("processing"), m();
+    p("confirm");
+  }, [N, E, R]), W = T(async () => {
+    if (y) {
+      p("processing"), m();
       try {
         let F;
-        w.mint === Pr ? F = await a(N.trim(), Number(R)) : F = await c(N.trim(), w.mint, R), p(F), f("success"), e?.(F);
+        y.mint === Rr ? F = await a(N.trim(), Number(R)) : F = await c(N.trim(), y.mint, R), f(F), p("success"), e?.(F);
       } catch (F) {
-        f("confirm"), r?.(F instanceof Error ? F : new Error(String(F)));
+        p("confirm"), r?.(F instanceof Error ? F : new Error(String(F)));
       }
     }
   }, [
-    w,
+    y,
     N,
     R,
     a,
@@ -16753,10 +16882,10 @@ function Em({
     m,
     e,
     r
-  ]), j = P(() => {
-    m(), y(null), u === "form" ? (f("select"), C(null), S(""), A("")) : u === "confirm" && f("form");
-  }, [u, m]), V = P(() => {
-    f("select"), C(null), A(""), S(""), p(null), m(), y(null);
+  ]), j = T(() => {
+    m(), b(null), u === "form" ? (p("select"), C(null), S(""), A("")) : u === "confirm" && p("form");
+  }, [u, m]), V = T(() => {
+    p("select"), C(null), A(""), S(""), f(null), m(), b(null);
   }, [m]);
   return n ? /* @__PURE__ */ i("div", { className: `cedros-withdrawal ${o}`, children: [
     u === "loading" && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-processing", children: [
@@ -16768,7 +16897,7 @@ function Em({
         /* @__PURE__ */ t("h3", { className: "cedros-withdrawal-title", children: "Withdraw" }),
         /* @__PURE__ */ t("p", { className: "cedros-withdrawal-subtitle", children: "Select a token to withdraw" })
       ] }),
-      k && /* @__PURE__ */ t(ne, { error: k }),
+      k && /* @__PURE__ */ t(se, { error: k }),
       g.length === 0 && !k && /* @__PURE__ */ t("p", { className: "cedros-withdrawal-empty", children: "No tokens found in your wallet." }),
       /* @__PURE__ */ t("div", { className: "cedros-withdrawal-tokens", children: g.map((F) => /* @__PURE__ */ i(
         "button",
@@ -16793,7 +16922,7 @@ function Em({
         }
       )
     ] }),
-    u === "form" && w && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-form", children: [
+    u === "form" && y && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-form", children: [
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-header", children: [
         /* @__PURE__ */ t(
           "button",
@@ -16806,14 +16935,14 @@ function Em({
         ),
         /* @__PURE__ */ i("h3", { className: "cedros-withdrawal-title", children: [
           "Withdraw ",
-          w.symbol
+          y.symbol
         ] })
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-balance-hint", children: [
         "Balance: ",
-        w.displayBalance,
+        y.displayBalance,
         " ",
-        w.symbol
+        y.symbol
       ] }),
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-field", children: [
         /* @__PURE__ */ t("label", { className: "cedros-label", htmlFor: "cedros-withdrawal-destination", children: "Destination Address" }),
@@ -16834,7 +16963,7 @@ function Em({
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-field", children: [
         /* @__PURE__ */ i("label", { className: "cedros-label", htmlFor: "cedros-withdrawal-amount", children: [
           "Amount (",
-          w.symbol,
+          y.symbol,
           ")"
         ] }),
         /* @__PURE__ */ i("div", { className: "cedros-withdrawal-amount-row", children: [
@@ -16862,7 +16991,7 @@ function Em({
           )
         ] })
       ] }),
-      (v || h) && /* @__PURE__ */ t(ne, { error: v || h || "" }),
+      (v || h) && /* @__PURE__ */ t(se, { error: v || h || "" }),
       /* @__PURE__ */ t(
         "button",
         {
@@ -16873,7 +17002,7 @@ function Em({
         }
       )
     ] }),
-    u === "confirm" && w && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-confirm", children: [
+    u === "confirm" && y && /* @__PURE__ */ i("div", { className: "cedros-withdrawal-confirm", children: [
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-header", children: [
         /* @__PURE__ */ t(
           "button",
@@ -16881,7 +17010,7 @@ function Em({
             type: "button",
             className: "cedros-button cedros-button-ghost cedros-button-sm",
             onClick: j,
-            disabled: l,
+            disabled: d,
             children: "Back"
           }
         ),
@@ -16890,26 +17019,26 @@ function Em({
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-summary", children: [
         /* @__PURE__ */ i("div", { className: "cedros-withdrawal-summary-row", children: [
           /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-label", children: "Token" }),
-          /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-value", children: w.symbol })
+          /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-value", children: y.symbol })
         ] }),
         /* @__PURE__ */ i("div", { className: "cedros-withdrawal-summary-row", children: [
           /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-label", children: "Amount" }),
           /* @__PURE__ */ i("span", { className: "cedros-withdrawal-summary-value", children: [
-            bt(R, w.decimals),
+            bt(R, y.decimals),
             " ",
-            w.symbol
+            y.symbol
           ] })
         ] }),
         /* @__PURE__ */ i("div", { className: "cedros-withdrawal-summary-row", children: [
           /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-label", children: "Destination" }),
-          /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-value", title: N, children: Tr(N) })
+          /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-value", title: N, children: Br(N) })
         ] }),
         /* @__PURE__ */ i("div", { className: "cedros-withdrawal-summary-row", children: [
           /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-label", children: "Est. Fee" }),
           /* @__PURE__ */ t("span", { className: "cedros-withdrawal-summary-value", children: "~0.000005 SOL" })
         ] })
       ] }),
-      h && /* @__PURE__ */ t(ne, { error: h }),
+      h && /* @__PURE__ */ t(se, { error: h }),
       /* @__PURE__ */ i("div", { className: "cedros-withdrawal-actions", children: [
         /* @__PURE__ */ t(
           "button",
@@ -16917,7 +17046,7 @@ function Em({
             type: "button",
             className: "cedros-button cedros-button-outline",
             onClick: j,
-            disabled: l,
+            disabled: d,
             children: "Cancel"
           }
         ),
@@ -16927,8 +17056,8 @@ function Em({
             type: "button",
             className: "cedros-button cedros-button-primary",
             onClick: W,
-            disabled: l,
-            children: l ? "Sending..." : "Confirm & Send"
+            disabled: d,
+            children: d ? "Sending..." : "Confirm & Send"
           }
         )
       ] })
@@ -16937,7 +17066,7 @@ function Em({
       /* @__PURE__ */ t(H, {}),
       /* @__PURE__ */ i("p", { className: "cedros-withdrawal-processing-text", children: [
         "Sending ",
-        w?.symbol,
+        y?.symbol,
         "..."
       ] })
     ] }),
@@ -16945,9 +17074,9 @@ function Em({
       /* @__PURE__ */ t("div", { className: "cedros-withdrawal-success-icon", children: "✓" }),
       /* @__PURE__ */ t("h3", { className: "cedros-withdrawal-title", children: "Withdrawal Complete" }),
       /* @__PURE__ */ i("p", { className: "cedros-withdrawal-subtitle", children: [
-        bt(R, w?.decimals ?? 9),
+        bt(R, y?.decimals ?? 9),
         " ",
-        w?.symbol,
+        y?.symbol,
         " ",
         "sent"
       ] }),
@@ -16960,7 +17089,7 @@ function Em({
             href: B,
             target: "_blank",
             rel: "noreferrer",
-            children: Tr(L.txSignature)
+            children: Br(L.txSignature)
           }
         )
       ] }),
@@ -16976,22 +17105,22 @@ function Em({
     ] })
   ] }) : null;
 }
-function fh(e, r) {
+function vh(e, r) {
   if (e === "sol") return "SOL";
   if (!r) return "SPL";
-  const s = os.find((o) => o.mint === r);
+  const s = is.find((o) => o.mint === r);
   return s ? s.symbol : `${r.slice(0, 4)}...${r.slice(-4)}`;
 }
-function gh(e, r) {
+function Ah(e, r) {
   const s = Number(e);
   if (Number.isNaN(s)) return e;
-  const o = qo(r), n = s / Math.pow(10, o);
+  const o = jo(r), n = s / Math.pow(10, o);
   return r === "SOL" ? `${n.toFixed(4)} SOL` : `${n.toFixed(2)} ${r}`;
 }
-function wh(e) {
+function Nh(e) {
   return e.length <= 12 ? e : `${e.slice(0, 4)}...${e.slice(-4)}`;
 }
-function bh(e) {
+function kh(e) {
   const r = new Date(e), s = /* @__PURE__ */ new Date(), o = s.getTime() - r.getTime();
   if (o < 0) return "Just now";
   const n = Math.floor(o / (1e3 * 60 * 60 * 24));
@@ -17009,28 +17138,28 @@ function bh(e) {
     year: r.getFullYear() !== s.getFullYear() ? "numeric" : void 0
   });
 }
-function xm({
+function Pm({
   pageSize: e = 10,
   className: r = "",
   onTransactionClick: s,
   explorerUrl: o = "https://solscan.io"
 }) {
-  const n = o.startsWith("https://") ? o : "https://solscan.io", { getHistory: a, error: c, clearError: d } = Zo(), [l, h] = x([]), [m, u] = x(0), [f, g] = x(0), [b, w] = x(!1), [C, N] = x(null), A = P(async () => {
-    w(!0);
+  const n = o.startsWith("https://") ? o : "https://solscan.io", { getHistory: a, error: c, clearError: l } = Jo(), [d, h] = x([]), [m, u] = x(0), [p, g] = x(0), [w, y] = x(!1), [C, N] = x(null), A = T(async () => {
+    y(!0);
     try {
-      const p = await a(e, f);
-      h(p.items), u(p.total), N(null);
-    } catch (p) {
-      N(p instanceof Error ? p.message : "Failed to load withdrawal history");
+      const f = await a(e, p);
+      h(f.items), u(f.total), N(null);
+    } catch (f) {
+      N(f instanceof Error ? f.message : "Failed to load withdrawal history");
     } finally {
-      w(!1);
+      y(!1);
     }
-  }, [e, f, a]);
+  }, [e, p, a]);
   O(() => {
     A();
   }, [A]);
-  const E = Math.ceil(m / e), S = Math.floor(f / e) + 1, L = (p) => {
-    const v = (p - 1) * e;
+  const E = Math.ceil(m / e), S = Math.floor(p / e) + 1, L = (f) => {
+    const v = (f - 1) * e;
     g(Math.max(0, Math.min(v, Math.max(0, m - e))));
   };
   return C || c ? /* @__PURE__ */ i("div", { className: `cedros-withdrawal-history cedros-withdrawal-history-error ${r}`, children: [
@@ -17041,12 +17170,12 @@ function xm({
         type: "button",
         className: "cedros-withdrawal-retry",
         onClick: () => {
-          d(), N(null), A();
+          l(), N(null), A();
         },
         children: "Retry"
       }
     )
-  ] }) : b && l.length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-withdrawal-history cedros-withdrawal-history-loading ${r}`, children: [
+  ] }) : w && d.length === 0 ? /* @__PURE__ */ i("div", { className: `cedros-withdrawal-history cedros-withdrawal-history-loading ${r}`, children: [
     /* @__PURE__ */ t("span", { className: "cedros-tx-loading-indicator" }),
     /* @__PURE__ */ t("span", { className: "cedros-tx-loading-text", children: "Loading withdrawal history..." })
   ] }) : /* @__PURE__ */ i("div", { className: `cedros-withdrawal-history ${r}`, children: [
@@ -17058,22 +17187,22 @@ function xm({
           type: "button",
           className: "cedros-tx-refresh",
           onClick: A,
-          disabled: b,
+          disabled: w,
           title: "Refresh",
-          children: b ? "..." : "↻"
+          children: w ? "..." : "↻"
         }
       )
     ] }),
-    l.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-tx-empty", children: /* @__PURE__ */ t("p", { className: "cedros-tx-empty-message", children: "No withdrawal history yet." }) }) : /* @__PURE__ */ i(Y, { children: [
-      /* @__PURE__ */ t("div", { className: "cedros-tx-list", children: l.map((p) => {
-        const v = fh(p.tokenType, p.tokenMint);
+    d.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-tx-empty", children: /* @__PURE__ */ t("p", { className: "cedros-tx-empty-message", children: "No withdrawal history yet." }) }) : /* @__PURE__ */ i(K, { children: [
+      /* @__PURE__ */ t("div", { className: "cedros-tx-list", children: d.map((f) => {
+        const v = vh(f.tokenType, f.tokenMint);
         return /* @__PURE__ */ i(
           "div",
           {
             className: "cedros-tx-item cedros-tx-item-negative",
-            onClick: () => s?.(p),
-            onKeyDown: (y) => {
-              (y.key === "Enter" || y.key === " ") && (y.preventDefault(), s?.(p));
+            onClick: () => s?.(f),
+            onKeyDown: (b) => {
+              (b.key === "Enter" || b.key === " ") && (b.preventDefault(), s?.(f));
             },
             role: s ? "button" : void 0,
             tabIndex: s ? 0 : void 0,
@@ -17085,7 +17214,7 @@ function xm({
                     v,
                     " Withdrawal"
                   ] }),
-                  /* @__PURE__ */ t("span", { className: "cedros-tx-amount cedros-tx-amount-negative", children: gh(p.amount, v) })
+                  /* @__PURE__ */ t("span", { className: "cedros-tx-amount cedros-tx-amount-negative", children: Ah(f.amount, v) })
                 ] }),
                 /* @__PURE__ */ i("div", { className: "cedros-tx-row-details", children: [
                   /* @__PURE__ */ i("span", { className: "cedros-tx-description", children: [
@@ -17094,31 +17223,31 @@ function xm({
                     /* @__PURE__ */ t(
                       "a",
                       {
-                        href: `${n}/account/${p.destination}`,
+                        href: `${n}/account/${f.destination}`,
                         target: "_blank",
                         rel: "noopener noreferrer",
-                        onClick: (y) => y.stopPropagation(),
-                        children: wh(p.destination)
+                        onClick: (b) => b.stopPropagation(),
+                        children: Nh(f.destination)
                       }
                     ),
                     " · ",
                     /* @__PURE__ */ t(
                       "a",
                       {
-                        href: `${n}/tx/${p.txSignature}`,
+                        href: `${n}/tx/${f.txSignature}`,
                         target: "_blank",
                         rel: "noopener noreferrer",
-                        onClick: (y) => y.stopPropagation(),
+                        onClick: (b) => b.stopPropagation(),
                         children: "tx"
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ t("span", { className: "cedros-tx-date", children: bh(p.createdAt) })
+                  /* @__PURE__ */ t("span", { className: "cedros-tx-date", children: kh(f.createdAt) })
                 ] })
               ] })
             ]
           },
-          p.id
+          f.id
         );
       }) }),
       E > 1 && /* @__PURE__ */ i("div", { className: "cedros-tx-pagination", children: [
@@ -17152,7 +17281,7 @@ function xm({
     ] })
   ] });
 }
-function Sm({
+function Rm({
   brandLogo: e,
   brandName: r,
   title: s = "Welcome back",
@@ -17160,10 +17289,10 @@ function Sm({
   termsText: n,
   onSuccess: a,
   defaultTab: c = "login",
-  children: d,
-  className: l = ""
+  children: l,
+  className: d = ""
 }) {
-  return /* @__PURE__ */ i("div", { className: `cedros-full-page-layout ${l}`, children: [
+  return /* @__PURE__ */ i("div", { className: `cedros-full-page-layout ${d}`, children: [
     (e || r) && /* @__PURE__ */ i("div", { className: "cedros-brand-header", children: [
       e,
       r && /* @__PURE__ */ t("span", { className: "cedros-brand-name", children: r })
@@ -17173,12 +17302,12 @@ function Sm({
         /* @__PURE__ */ t("h1", { className: "cedros-full-page-title", children: s }),
         o && /* @__PURE__ */ t("p", { className: "cedros-full-page-subtitle", children: o })
       ] }),
-      d ?? /* @__PURE__ */ t(rs, { defaultTab: c, onSuccess: a })
+      l ?? /* @__PURE__ */ t(ns, { defaultTab: c, onSuccess: a })
     ] }),
     n && /* @__PURE__ */ t("p", { className: "cedros-terms-footer", children: n })
   ] });
 }
-function _m({
+function Bm({
   brandName: e = "Your Brand",
   brandLogo: r,
   tagline: s = "Your tagline goes here. Make it compelling.",
@@ -17186,10 +17315,10 @@ function _m({
   subtitle: n = "Enter your credentials to access your account",
   onSuccess: a,
   defaultTab: c = "login",
-  children: d,
-  className: l = ""
+  children: l,
+  className: d = ""
 }) {
-  return /* @__PURE__ */ i("div", { className: `cedros-split-page-layout ${l}`, children: [
+  return /* @__PURE__ */ i("div", { className: `cedros-split-page-layout ${d}`, children: [
     /* @__PURE__ */ t("div", { className: "cedros-split-page-brand", children: /* @__PURE__ */ i("div", { className: "cedros-split-page-brand-content", children: [
       r ?? /* @__PURE__ */ t("div", { className: "cedros-split-page-logo", children: e.charAt(0).toUpperCase() }),
       /* @__PURE__ */ t("h1", { className: "cedros-split-page-brand-name", children: e }),
@@ -17198,29 +17327,29 @@ function _m({
     /* @__PURE__ */ t("div", { className: "cedros-split-page-form", children: /* @__PURE__ */ i("div", { className: "cedros-split-page-form-content", children: [
       /* @__PURE__ */ t("h2", { className: "cedros-split-page-title", children: o }),
       n && /* @__PURE__ */ t("p", { className: "cedros-split-page-subtitle", children: n }),
-      d ?? /* @__PURE__ */ t(rs, { defaultTab: c, onSuccess: a })
+      l ?? /* @__PURE__ */ t(ns, { defaultTab: c, onSuccess: a })
     ] }) })
   ] });
 }
-function Lm() {
-  const { config: e, _internal: r } = Z(), [s, o] = x({
+function Im() {
+  const { config: e, _internal: r } = ee(), [s, o] = x({
     allowed: !1,
     reason: void 0,
     isLoading: !1,
     error: null
   }), n = q(
-    () => new Wa(
+    () => new za(
       e.serverUrl,
       e.requestTimeout,
       e.retryAttempts,
       r?.getAccessToken
     ),
     [e.serverUrl, e.requestTimeout, e.retryAttempts, r]
-  ), a = P(
-    async (l) => {
+  ), a = T(
+    async (d) => {
       o((h) => ({ ...h, isLoading: !0, error: null }));
       try {
-        const h = await n.authorize(l), m = {
+        const h = await n.authorize(d), m = {
           allowed: h.allowed,
           reason: h.reason,
           isLoading: !1,
@@ -17238,10 +17367,10 @@ function Lm() {
       }
     },
     [n]
-  ), c = P(
-    async (l) => (await a(l)).allowed,
+  ), c = T(
+    async (d) => (await a(d)).allowed,
     [a]
-  ), d = P(() => {
+  ), l = T(() => {
     o({
       allowed: !1,
       reason: void 0,
@@ -17252,129 +17381,129 @@ function Lm() {
   return {
     authorize: c,
     lastCheck: s,
-    clearCheck: d,
+    clearCheck: l,
     checkAuthorization: a
   };
 }
-function Pm() {
-  const { listAllWallets: e, createDerivedWallet: r, deleteDerivedWallet: s } = Xe(), [o, n] = x([]), [a, c] = x(!1), [d, l] = x(null), h = P(async () => {
-    c(!0), l(null);
+function Mm() {
+  const { listAllWallets: e, createDerivedWallet: r, deleteDerivedWallet: s } = Xe(), [o, n] = x([]), [a, c] = x(!1), [l, d] = x(null), h = T(async () => {
+    c(!0), d(null);
     try {
       const g = await e();
       n(g.wallets);
     } catch (g) {
-      const b = g instanceof Error ? g.message : "Failed to list wallets";
-      l(b);
+      const w = g instanceof Error ? g.message : "Failed to list wallets";
+      d(w);
     } finally {
       c(!1);
     }
-  }, [e]), m = P(
+  }, [e]), m = T(
     async (g) => {
-      c(!0), l(null);
+      c(!0), d(null);
       try {
-        const b = await r({ label: g });
-        return await h(), b;
-      } catch (b) {
-        const w = b instanceof Error ? b.message : "Failed to create wallet";
-        throw l(w), b;
+        const w = await r({ label: g });
+        return await h(), w;
+      } catch (w) {
+        const y = w instanceof Error ? w.message : "Failed to create wallet";
+        throw d(y), w;
       } finally {
         c(!1);
       }
     },
     [r, h]
-  ), u = P(
+  ), u = T(
     async (g) => {
-      c(!0), l(null);
+      c(!0), d(null);
       try {
         await s(g), await h();
-      } catch (b) {
-        const w = b instanceof Error ? b.message : "Failed to delete wallet";
-        throw l(w), b;
+      } catch (w) {
+        const y = w instanceof Error ? w.message : "Failed to delete wallet";
+        throw d(y), w;
       } finally {
         c(!1);
       }
     },
     [s, h]
-  ), f = P(() => l(null), []);
+  ), p = T(() => d(null), []);
   return {
     wallets: o,
     isLoading: a,
     createWallet: m,
     deleteWallet: u,
     refresh: h,
-    error: d,
-    clearError: f
+    error: l,
+    clearError: p
   };
 }
-function Tm() {
-  const e = je(), [r, s] = x(!1), [o, n] = x(null), [a, c] = x(null), d = q(() => e ? new re({
+function Um() {
+  const e = je(), [r, s] = x(!1), [o, n] = x(null), [a, c] = x(null), l = q(() => e ? new te({
     baseUrl: e.config.serverUrl,
     timeoutMs: e.config.requestTimeout,
     retryAttempts: e.config.retryAttempts,
     getAccessToken: e._internal?.getAccessToken
-  }) : null, [e]), l = P(async () => {
-    if (!d)
+  }) : null, [e]), d = T(async () => {
+    if (!l)
       throw new Error("usePendingRecovery must be used within a CedrosLoginProvider");
     s(!0), n(null);
     try {
-      const u = await d.get("/wallet/pending-recovery");
+      const u = await l.get("/wallet/pending-recovery");
       c(u);
     } catch (u) {
-      const f = z(u, "Failed to fetch pending recovery");
-      throw n(f.message), f;
+      const p = z(u, "Failed to fetch pending recovery");
+      throw n(p.message), p;
     } finally {
       s(!1);
     }
-  }, [d]), h = P(async () => {
-    if (!d)
+  }, [l]), h = T(async () => {
+    if (!l)
       throw new Error("usePendingRecovery must be used within a CedrosLoginProvider");
     s(!0), n(null);
     try {
       const u = { confirmed: !0 };
-      await d.post("/wallet/acknowledge-recovery", u), c(null);
+      await l.post("/wallet/acknowledge-recovery", u), c(null);
     } catch (u) {
-      const f = z(u, "Failed to acknowledge recovery");
-      throw n(f.message), f;
+      const p = z(u, "Failed to acknowledge recovery");
+      throw n(p.message), p;
     } finally {
       s(!1);
     }
-  }, [d]), m = P(() => n(null), []);
+  }, [l]), m = T(() => n(null), []);
   return O(() => {
-    d && e?.authState === "authenticated" && l().catch(() => {
+    l && e?.authState === "authenticated" && d().catch(() => {
     });
-  }, [d, e?.authState, l]), {
+  }, [l, e?.authState, d]), {
     hasPendingRecovery: a?.hasPendingRecovery ?? !1,
     recoveryType: a?.recoveryType ?? null,
     recoveryPhrase: a?.recoveryPhrase ?? null,
     expiresAt: a?.expiresAt ? new Date(a.expiresAt) : null,
-    fetchPendingRecovery: l,
+    fetchPendingRecovery: d,
     acknowledgeRecovery: h,
     isLoading: r,
     error: o,
     clearError: m
   };
 }
-function Rm(e = {}) {
-  const { onExternalSign: r } = e, { solanaPubkey: s, hasExternalWallet: o, status: n, isUnlocked: a } = Dt(), {
+function Dm(e = {}) {
+  const { onExternalSign: r } = e, { solanaPubkey: s, hasExternalWallet: o, status: n, isUnlocked: a } = Ft(), {
     signTransaction: c,
-    isSigning: d,
-    error: l,
+    isSigning: l,
+    error: d,
     clearError: h
-  } = Cl(), m = q(() => o && r ? "external" : n === "enrolled_locked" || n === "enrolled_unlocked" ? "sss" : "none", [o, r, n]), u = m !== "none", f = n === "enrolled_locked" || n === "enrolled_unlocked";
+  } = xl(), m = q(() => o && r ? "external" : n === "enrolled_locked" || n === "enrolled_unlocked" ? "sss" : "none", [o, r, n]), u = m !== "none", p = n === "enrolled_locked" || n === "enrolled_unlocked";
   return {
-    signTransaction: P(
-      async (b, w) => {
+    signTransaction: T(
+      async (w, y) => {
         if (m === "external") {
           if (!r)
             throw new Error("External wallet signing callback not provided");
-          return r(b);
+          return r(w);
         }
         if (m === "sss") {
-          if (!w && !a)
+          if (!y && !a)
             throw new Error(
               "Credential required for signing. Unlock wallet first or provide credential."
             );
-          return w ? c(b, w) : c(b);
+          return y ? c(w, y) : c(w);
         }
         throw new Error("No signing method available. Enroll a wallet first.");
       },
@@ -17382,34 +17511,34 @@ function Rm(e = {}) {
     ),
     signingMethod: m,
     canSign: u,
-    isSigning: d,
+    isSigning: l,
     publicKey: s,
     hasExternalWallet: o,
-    hasSssWallet: f,
+    hasSssWallet: p,
     isSssUnlocked: a,
-    error: l,
+    error: d,
     clearError: h
   };
 }
-function Bm() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(null), [n, a] = x(!1), [c, d] = x(null), l = q(
-    () => new re({
+function Fm() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(null), [n, a] = x(!1), [c, l] = x(null), d = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), h = P(async () => {
-    a(!0), d(null);
+  ), h = T(async () => {
+    a(!0), l(null);
     try {
-      await l.post("/welcome-completed", {});
+      await d.post("/welcome-completed", {});
     } catch (u) {
-      const f = u instanceof Error ? u : new Error(String(u));
-      throw d(f), f;
+      const p = u instanceof Error ? u : new Error(String(u));
+      throw l(p), p;
     } finally {
       a(!1);
     }
-  }, [l]), m = P(() => {
+  }, [d]), m = T(() => {
     o(null);
   }, []);
   return {
@@ -17421,8 +17550,8 @@ function Bm() {
     error: c
   };
 }
-function Im() {
-  const { config: e } = Z(), r = e.theme ?? "auto", s = e.unstyled ?? !1, o = ha({
+function Om() {
+  const { config: e } = ee(), r = e.theme ?? "auto", s = e.unstyled ?? !1, o = pa({
     theme: s ? void 0 : r,
     themeOverrides: s ? void 0 : e.themeOverrides
   });
@@ -17435,15 +17564,15 @@ function Im() {
     overrides: e.themeOverrides
   };
 }
-function yh() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), [c, d] = x([]), [l, h] = x(0), m = q(
-    () => new re({
+function Ch() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), [c, l] = x([]), [d, h] = x(0), m = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), u = P(async () => {
+  ), u = T(async () => {
     o(!0), a(null);
     try {
       const g = await m.post(
@@ -17451,111 +17580,111 @@ function yh() {
         {},
         { credentials: "include" }
       );
-      return d((b) => [g, ...b]), h((b) => b + 1), g;
+      return l((w) => [g, ...w]), h((w) => w + 1), g;
     } catch (g) {
-      const b = g instanceof Error ? g : new Error(String(g));
-      throw a(b), b;
+      const w = g instanceof Error ? g : new Error(String(g));
+      throw a(w), w;
     } finally {
       o(!1);
     }
-  }, [m]), f = P(async () => {
+  }, [m]), p = T(async () => {
     o(!0), a(null);
     try {
       const g = await m.get("/access-codes/mine", {
         credentials: "include"
       });
-      d(g.items), h(g.total);
+      l(g.items), h(g.total);
     } catch (g) {
-      const b = g instanceof Error ? g : new Error(String(g));
-      throw a(b), b;
+      const w = g instanceof Error ? g : new Error(String(g));
+      throw a(w), w;
     } finally {
       o(!1);
     }
   }, [m]);
   return {
     codes: c,
-    total: l,
+    total: d,
     generateCode: u,
-    fetchCodes: f,
+    fetchCodes: p,
     isLoading: s,
     error: n
   };
 }
-function Mm() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), [c, d] = x(null), [l, h] = x(null), [m, u] = x(null), [f, g] = x(null), b = f !== null && f !== "none", w = q(
-    () => new re({
+function Wm() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), [c, l] = x(null), [d, h] = x(null), [m, u] = x(null), [p, g] = x(null), w = p !== null && p !== "none", y = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), C = P(async () => {
+  ), C = T(async () => {
     o(!0), a(null);
     try {
-      const A = await w.get("/kyc/status", {
+      const A = await y.get("/kyc/status", {
         credentials: "include"
       });
-      return d(A.status), h(A.verifiedAt ?? null), u(A.expiresAt ?? null), g(A.enforcementMode), A;
+      return l(A.status), h(A.verifiedAt ?? null), u(A.expiresAt ?? null), g(A.enforcementMode), A;
     } catch (A) {
       const E = A instanceof Error ? A : new Error(String(A));
       throw a(E), E;
     } finally {
       o(!1);
     }
-  }, [w]), N = P(async () => {
+  }, [y]), N = T(async () => {
     o(!0), a(null);
     try {
-      const A = await w.post(
+      const A = await y.post(
         "/kyc/start",
         void 0,
         { credentials: "include" }
       );
-      return d("pending"), A.redirectUrl;
+      return l("pending"), A.redirectUrl;
     } catch (A) {
       const E = A instanceof Error ? A : new Error(String(A));
       throw a(E), E;
     } finally {
       o(!1);
     }
-  }, [w]);
+  }, [y]);
   return {
     status: c,
-    verifiedAt: l,
+    verifiedAt: d,
     expiresAt: m,
-    isRequired: b,
-    enforcementMode: f,
+    isRequired: w,
+    enforcementMode: p,
     fetchStatus: C,
     startVerification: N,
     isLoading: s,
     error: n
   };
 }
-function vh() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), [c, d] = x(null), [l, h] = x([]), [m, u] = x(0), f = q(
-    () => new re({
+function Eh() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), [c, l] = x(null), [d, h] = x([]), [m, u] = x(0), p = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), g = P(async () => {
+  ), g = T(async () => {
     o(!0), a(null);
     try {
-      const C = await f.get("/referral/rewards", {
+      const C = await p.get("/referral/rewards", {
         credentials: "include"
       });
-      return d(C), C;
+      return l(C), C;
     } catch (C) {
       const N = C instanceof Error ? C : new Error(String(C));
       throw a(N), N;
     } finally {
       o(!1);
     }
-  }, [f]), b = P(
+  }, [p]), w = T(
     async (C = 10, N = 0) => {
       o(!0), a(null);
       try {
-        const A = await f.get(
+        const A = await p.get(
           `/referral/rewards/history?limit=${C}&offset=${N}`,
           { credentials: "include" }
         );
@@ -17567,16 +17696,16 @@ function vh() {
         o(!1);
       }
     },
-    [f]
-  ), w = P(
+    [p]
+  ), y = T(
     async (C) => {
       o(!0), a(null);
       try {
-        await f.post(
+        await p.post(
           "/referral/payout-wallet",
           { walletAddress: C },
           { credentials: "include" }
-        ), d(
+        ), l(
           (N) => N && { ...N, payoutWalletAddress: C }
         );
       } catch (N) {
@@ -17586,23 +17715,23 @@ function vh() {
         o(!1);
       }
     },
-    [f]
+    [p]
   );
   return {
     rewards: c,
-    history: l,
+    history: d,
     historyTotal: m,
     fetchRewards: g,
-    fetchHistory: b,
-    setPayoutWallet: w,
+    fetchHistory: w,
+    setPayoutWallet: y,
     isLoading: s,
     error: n
   };
 }
-function Rr(e, r) {
+function Ir(e, r) {
   return r === "SOL" ? (e / 1e9).toFixed(4) + " SOL" : "$" + (e / 1e6).toFixed(2);
 }
-function Ah(e) {
+function xh(e) {
   try {
     return new Date(e).toLocaleDateString(void 0, {
       year: "numeric",
@@ -17613,11 +17742,11 @@ function Ah(e) {
     return e;
   }
 }
-const Nh = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-function kh(e) {
-  return Nh.test(e);
+const Sh = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+function _h(e) {
+  return Sh.test(e);
 }
-function Ch(e) {
+function Lh(e) {
   switch (e) {
     case "signup":
       return "Sign-up";
@@ -17629,7 +17758,7 @@ function Ch(e) {
       return e;
   }
 }
-function Eh({ status: e }) {
+function Th({ status: e }) {
   const s = {
     pending: "cedros-rewards-panel__badge--pending",
     completed: "cedros-rewards-panel__badge--completed",
@@ -17638,46 +17767,46 @@ function Eh({ status: e }) {
   }[e] ?? "cedros-rewards-panel__badge--pending";
   return /* @__PURE__ */ t("span", { className: `cedros-rewards-panel__badge ${s}`, children: e.charAt(0).toUpperCase() + e.slice(1) });
 }
-const yt = 10;
-function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
+const vt = 10;
+function qm({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
   const {
     rewards: s,
     history: o,
     historyTotal: n,
     fetchRewards: a,
     fetchHistory: c,
-    setPayoutWallet: d,
-    isLoading: l,
+    setPayoutWallet: l,
+    isLoading: d,
     error: h
-  } = vh(), [m, u] = x(0), [f, g] = x(""), [b, w] = x(null), [C, N] = x(!1), [A, E] = x(!1);
+  } = Eh(), [m, u] = x(0), [p, g] = x(""), [w, y] = x(null), [C, N] = x(!1), [A, E] = x(!1);
   O(() => {
     a().catch(() => {
-    }), c(yt, 0).catch(() => {
+    }), c(vt, 0).catch(() => {
     });
   }, [a, c]), O(() => {
     s?.payoutWalletAddress != null && g(s.payoutWalletAddress);
   }, [s?.payoutWalletAddress]);
-  const S = P(
-    (y) => {
-      u(y), c(yt, y * yt).catch(() => {
+  const S = T(
+    (b) => {
+      u(b), c(vt, b * vt).catch(() => {
       });
     },
     [c]
-  ), L = Math.ceil(n / yt), p = P(async () => {
-    const y = f.trim();
-    if (y !== "" && !kh(y)) {
-      w("Invalid address. Must be a base58 string between 32 and 44 characters.");
+  ), L = Math.ceil(n / vt), f = T(async () => {
+    const b = p.trim();
+    if (b !== "" && !_h(b)) {
+      y("Invalid address. Must be a base58 string between 32 and 44 characters.");
       return;
     }
-    w(null), N(!0), E(!1);
+    y(null), N(!0), E(!1);
     try {
-      await d(y === "" ? null : y), E(!0);
+      await l(b === "" ? null : b), E(!0);
     } catch (k) {
-      w(k instanceof Error ? k.message : "Failed to save wallet address.");
+      y(k instanceof Error ? k.message : "Failed to save wallet address.");
     } finally {
       N(!1);
     }
-  }, [f, d]), v = s?.rewardType === "direct_payout" ? "Direct Payout" : "Credits";
+  }, [p, l]), v = s?.rewardType === "direct_payout" ? "Direct Payout" : "Credits";
   return /* @__PURE__ */ i(
     "div",
     {
@@ -17693,11 +17822,11 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
             children: [
               /* @__PURE__ */ i("div", { className: "cedros-rewards-panel__card", children: [
                 /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-label", children: "Total Earned" }),
-                /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-value", children: s ? Rr(s.totalEarned, s.currency) : "—" })
+                /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-value", children: s ? Ir(s.totalEarned, s.currency) : "—" })
               ] }),
               /* @__PURE__ */ i("div", { className: "cedros-rewards-panel__card", children: [
                 /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-label", children: "Pending Payouts" }),
-                /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-value", children: s ? `${Rr(s.pendingAmount, s.currency)} (${s.pendingCount})` : "—" })
+                /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-value", children: s ? `${Ir(s.pendingAmount, s.currency)} (${s.pendingCount})` : "—" })
               ] }),
               /* @__PURE__ */ i("div", { className: "cedros-rewards-panel__card", children: [
                 /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__card-label", children: "Referrals" }),
@@ -17736,12 +17865,12 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
                     id: "cedros-payout-wallet-input",
                     type: "text",
                     className: "cedros-rewards-panel__wallet-input",
-                    value: f,
-                    onChange: (y) => {
-                      g(y.target.value), w(null), E(!1);
+                    value: p,
+                    onChange: (b) => {
+                      g(b.target.value), y(null), E(!1);
                     },
                     placeholder: "Base58 Solana address",
-                    "aria-describedby": b ? "cedros-wallet-error" : void 0,
+                    "aria-describedby": w ? "cedros-wallet-error" : void 0,
                     disabled: C
                   }
                 ),
@@ -17750,22 +17879,22 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
                   {
                     type: "button",
                     className: "cedros-rewards-panel__wallet-save-btn",
-                    onClick: p,
-                    disabled: C || l,
+                    onClick: f,
+                    disabled: C || d,
                     children: C ? "Saving..." : "Save"
                   }
                 )
               ] }),
-              b && /* @__PURE__ */ t(
+              w && /* @__PURE__ */ t(
                 "div",
                 {
                   id: "cedros-wallet-error",
                   className: "cedros-rewards-panel__wallet-error",
                   role: "alert",
-                  children: b
+                  children: w
                 }
               ),
-              A && !b && /* @__PURE__ */ t(
+              A && !w && /* @__PURE__ */ t(
                 "div",
                 {
                   className: "cedros-rewards-panel__wallet-success",
@@ -17783,7 +17912,7 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
             "aria-label": "Reward history",
             children: [
               /* @__PURE__ */ t("h3", { className: "cedros-rewards-panel__section-title", children: "History" }),
-              l && o.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-rewards-panel__loading", "aria-busy": "true", children: "Loading..." }) : o.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-rewards-panel__empty", children: "No rewards yet." }) : /* @__PURE__ */ i(Y, { children: [
+              d && o.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-rewards-panel__loading", "aria-busy": "true", children: "Loading..." }) : o.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-rewards-panel__empty", children: "No rewards yet." }) : /* @__PURE__ */ i(K, { children: [
                 /* @__PURE__ */ t("div", { className: "cedros-rewards-panel__table-wrapper", role: "region", "aria-label": "Reward history table", tabIndex: 0, children: /* @__PURE__ */ i("table", { className: "cedros-rewards-panel__table", children: [
                   /* @__PURE__ */ t("thead", { children: /* @__PURE__ */ i("tr", { children: [
                     /* @__PURE__ */ t("th", { scope: "col", className: "cedros-rewards-panel__th", children: "Date" }),
@@ -17792,26 +17921,26 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
                     /* @__PURE__ */ t("th", { scope: "col", className: "cedros-rewards-panel__th", children: "Status" }),
                     /* @__PURE__ */ t("th", { scope: "col", className: "cedros-rewards-panel__th", children: "Transaction" })
                   ] }) }),
-                  /* @__PURE__ */ t("tbody", { children: o.map((y) => /* @__PURE__ */ i("tr", { className: "cedros-rewards-panel__tr", children: [
-                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: Ah(y.createdAt) }),
-                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: Ch(y.triggerType) }),
-                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: Rr(y.amount, y.currency) }),
-                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: /* @__PURE__ */ t(Eh, { status: y.status }) }),
-                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: y.txSignature ? /* @__PURE__ */ i(
+                  /* @__PURE__ */ t("tbody", { children: o.map((b) => /* @__PURE__ */ i("tr", { className: "cedros-rewards-panel__tr", children: [
+                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: xh(b.createdAt) }),
+                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: Lh(b.triggerType) }),
+                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: Ir(b.amount, b.currency) }),
+                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: /* @__PURE__ */ t(Th, { status: b.status }) }),
+                    /* @__PURE__ */ t("td", { className: "cedros-rewards-panel__td", children: b.txSignature ? /* @__PURE__ */ i(
                       "a",
                       {
-                        href: `${e}/tx/${y.txSignature}`,
+                        href: `${e}/tx/${b.txSignature}`,
                         target: "_blank",
                         rel: "noopener noreferrer",
                         className: "cedros-rewards-panel__tx-link",
-                        "aria-label": `View transaction ${y.txSignature.slice(0, 8)}... on Solana explorer`,
+                        "aria-label": `View transaction ${b.txSignature.slice(0, 8)}... on Solana explorer`,
                         children: [
-                          y.txSignature.slice(0, 8),
+                          b.txSignature.slice(0, 8),
                           "..."
                         ]
                       }
                     ) : /* @__PURE__ */ t("span", { className: "cedros-rewards-panel__tx-none", children: "—" }) })
-                  ] }, y.id)) })
+                  ] }, b.id)) })
                 ] }) }),
                 L > 1 && /* @__PURE__ */ i(
                   "div",
@@ -17826,7 +17955,7 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
                           type: "button",
                           className: "cedros-rewards-panel__page-btn",
                           onClick: () => S(m - 1),
-                          disabled: m === 0 || l,
+                          disabled: m === 0 || d,
                           "aria-label": "Previous page",
                           children: "Previous"
                         }
@@ -17842,7 +17971,7 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
                           type: "button",
                           className: "cedros-rewards-panel__page-btn",
                           onClick: () => S(m + 1),
-                          disabled: m >= L - 1 || l,
+                          disabled: m >= L - 1 || d,
                           "aria-label": "Next page",
                           children: "Next"
                         }
@@ -17858,7 +17987,7 @@ function Um({ explorerUrl: e = "https://explorer.solana.com", className: r }) {
     }
   );
 }
-function Nn(e) {
+function Cn(e) {
   try {
     return new Date(e).toLocaleDateString(void 0, {
       year: "numeric",
@@ -17869,18 +17998,18 @@ function Nn(e) {
     return e;
   }
 }
-function kn(e) {
+function En(e) {
   return e.expiresAt && new Date(e.expiresAt) < /* @__PURE__ */ new Date() ? "expired" : e.maxUses !== null && e.currentUses >= e.maxUses ? "used" : "active";
 }
-function xh({ status: e }) {
+function Ph({ status: e }) {
   return /* @__PURE__ */ t("span", { className: `cedros-invite-panel__badge ${{
     active: "cedros-invite-panel__badge--active",
     used: "cedros-invite-panel__badge--used",
     expired: "cedros-invite-panel__badge--expired"
   }[e] ?? ""}`, children: e.charAt(0).toUpperCase() + e.slice(1) });
 }
-function Sh({ text: e }) {
-  const [r, s] = x(!1), o = P(async () => {
+function Rh({ text: e }) {
+  const [r, s] = x(!1), o = T(async () => {
     try {
       await navigator.clipboard.writeText(e), s(!0), setTimeout(() => s(!1), 2e3);
     } catch {
@@ -17898,22 +18027,22 @@ function Sh({ text: e }) {
     }
   );
 }
-function Dm({ className: e }) {
-  const { codes: r, total: s, generateCode: o, fetchCodes: n, isLoading: a, error: c } = yh(), [d, l] = x(!1), [h, m] = x(null);
+function zm({ className: e }) {
+  const { codes: r, total: s, generateCode: o, fetchCodes: n, isLoading: a, error: c } = Ch(), [l, d] = x(!1), [h, m] = x(null);
   O(() => {
     n().catch(() => {
     });
   }, [n]);
-  const u = P(async () => {
-    l(!0), m(null);
+  const u = T(async () => {
+    d(!0), m(null);
     try {
       await o();
     } catch (g) {
       m(g instanceof Error ? g.message : "Failed to generate invite code.");
     } finally {
-      l(!1);
+      d(!1);
     }
-  }, [o]), f = r.filter((g) => kn(g) === "active").length;
+  }, [o]), p = r.filter((g) => En(g) === "active").length;
   return /* @__PURE__ */ i(
     "div",
     {
@@ -17923,7 +18052,7 @@ function Dm({ className: e }) {
         /* @__PURE__ */ i("div", { className: "cedros-invite-panel__header", children: [
           /* @__PURE__ */ t("h2", { className: "cedros-invite-panel__title", children: "Invite Codes" }),
           /* @__PURE__ */ i("span", { className: "cedros-invite-panel__budget", "aria-live": "polite", children: [
-            f,
+            p,
             " active · ",
             s,
             " total"
@@ -17937,9 +18066,9 @@ function Dm({ className: e }) {
             type: "button",
             className: "cedros-button cedros-button-primary cedros-button-md",
             onClick: u,
-            disabled: d || a,
-            "aria-busy": d,
-            children: d ? "Generating..." : "Generate Invite Code"
+            disabled: l || a,
+            "aria-busy": l,
+            children: l ? "Generating..." : "Generate Invite Code"
           }
         ),
         /* @__PURE__ */ t("section", { className: "cedros-invite-panel__list-section", "aria-label": "Your invite codes", children: a && r.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-invite-panel__loading", "aria-busy": "true", children: "Loading..." }) : r.length === 0 ? /* @__PURE__ */ t("div", { className: "cedros-invite-panel__empty", children: "No invite codes yet. Generate one above." }) : /* @__PURE__ */ t(
@@ -17959,14 +18088,14 @@ function Dm({ className: e }) {
                 /* @__PURE__ */ t("th", { scope: "col", className: "cedros-invite-panel__th", children: /* @__PURE__ */ t("span", { className: "cedros-sr-only", children: "Actions" }) })
               ] }) }),
               /* @__PURE__ */ t("tbody", { children: r.map((g) => {
-                const b = kn(g), w = g.maxUses !== null ? `${g.currentUses} / ${g.maxUses}` : `${g.currentUses}`;
+                const w = En(g), y = g.maxUses !== null ? `${g.currentUses} / ${g.maxUses}` : `${g.currentUses}`;
                 return /* @__PURE__ */ i("tr", { className: "cedros-invite-panel__tr", children: [
                   /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td cedros-invite-panel__td--code", children: /* @__PURE__ */ t("code", { className: "cedros-invite-panel__code", children: g.code }) }),
-                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: w }),
-                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: Nn(g.createdAt) }),
-                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: g.expiresAt ? Nn(g.expiresAt) : "—" }),
-                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: /* @__PURE__ */ t(xh, { status: b }) }),
-                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: /* @__PURE__ */ t(Sh, { text: g.code }) })
+                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: y }),
+                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: Cn(g.createdAt) }),
+                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: g.expiresAt ? Cn(g.expiresAt) : "—" }),
+                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: /* @__PURE__ */ t(Ph, { status: w }) }),
+                  /* @__PURE__ */ t("td", { className: "cedros-invite-panel__td", children: /* @__PURE__ */ t(Rh, { text: g.code }) })
                 ] }, g.id);
               }) })
             ] })
@@ -17976,12 +18105,12 @@ function Dm({ className: e }) {
     }
   );
 }
-function Fm({
+function jm({
   status: e,
   startVerification: r,
   className: s
 }) {
-  const [o, n] = x(!1), [a, c] = x(null), d = P(async () => {
+  const [o, n] = x(!1), [a, c] = x(null), l = T(async () => {
     n(!0), c(null);
     try {
       const m = await r();
@@ -17996,22 +18125,22 @@ function Fm({
   }, [r]);
   if (e === "verified")
     return null;
-  let l;
+  let d;
   switch (e) {
     case "pending":
-      l = "Your identity verification is being processed.";
+      d = "Your identity verification is being processed.";
       break;
     case "failed":
-      l = "Identity verification failed. Please try again.";
+      d = "Identity verification failed. Please try again.";
       break;
     case "expired":
-      l = "Your identity verification has expired. Please verify again.";
+      d = "Your identity verification has expired. Please verify again.";
       break;
     case "canceled":
-      l = "Verification was canceled. Please try again.";
+      d = "Verification was canceled. Please try again.";
       break;
     default:
-      l = "Identity verification is required to continue.";
+      d = "Identity verification is required to continue.";
       break;
   }
   const h = e !== "pending";
@@ -18022,13 +18151,13 @@ function Fm({
       role: "alert",
       children: [
         /* @__PURE__ */ i("div", { className: "cedros-kyc-banner-content", children: [
-          /* @__PURE__ */ t("span", { className: "cedros-kyc-banner-message", children: l }),
+          /* @__PURE__ */ t("span", { className: "cedros-kyc-banner-message", children: d }),
           h && /* @__PURE__ */ t(
             "button",
             {
               type: "button",
               className: "cedros-kyc-banner-button",
-              onClick: d,
+              onClick: l,
               disabled: o,
               children: o ? "Starting..." : "Verify Identity"
             }
@@ -18039,8 +18168,8 @@ function Fm({
     }
   );
 }
-const _h = 3e3, Lh = 6e4;
-function Ph(e) {
+const Bh = 3e3, Ih = 6e4;
+function Mh(e) {
   switch (e) {
     case "verified":
       return "Identity verified successfully!";
@@ -18054,24 +18183,24 @@ function Ph(e) {
       return "Verification was canceled.";
   }
 }
-function Om({ fetchStatus: e, onComplete: r, className: s }) {
-  const [o, n] = x(null), [a, c] = x(!1), d = ee(r), l = ee(e);
+function $m({ fetchStatus: e, onComplete: r, className: s }) {
+  const [o, n] = x(null), [a, c] = x(!1), l = J(r), d = J(e);
   O(() => {
-    d.current = r, l.current = e;
+    l.current = r, d.current = e;
   }, [r, e]), O(() => {
     let m = !1, u = null;
-    const f = setTimeout(() => {
+    const p = setTimeout(() => {
       c(!0), u !== null && clearInterval(u);
-    }, Lh), g = async () => {
+    }, Ih), g = async () => {
       try {
-        const b = await l.current();
+        const w = await d.current();
         if (m) return;
-        n(b.status), b.status !== "pending" && (clearTimeout(f), u !== null && clearInterval(u), d.current?.(b.status));
+        n(w.status), w.status !== "pending" && (clearTimeout(p), u !== null && clearInterval(u), l.current?.(w.status));
       } catch {
       }
     };
-    return g(), u = setInterval(g, _h), () => {
-      m = !0, clearTimeout(f), u !== null && clearInterval(u);
+    return g(), u = setInterval(g, Bh), () => {
+      m = !0, clearTimeout(p), u !== null && clearInterval(u);
     };
   }, []);
   const h = !o || o === "pending";
@@ -18094,7 +18223,7 @@ function Om({ fetchStatus: e, onComplete: r, className: s }) {
       "p",
       {
         className: `cedros-kyc-callback-message cedros-kyc-callback-message--${o}`,
-        children: Ph(o)
+        children: Mh(o)
       }
     ),
     r && /* @__PURE__ */ t(
@@ -18108,76 +18237,76 @@ function Om({ fetchStatus: e, onComplete: r, className: s }) {
     )
   ] }) });
 }
-function Th() {
-  const { config: e, _internal: r } = Z(), [s, o] = x(!1), [n, a] = x(null), [c, d] = x(null), [l, h] = x(null), [m, u] = x(null), [f, g] = x(null), b = f !== null && f !== "none", w = q(
-    () => new re({
+function Uh() {
+  const { config: e, _internal: r } = ee(), [s, o] = x(!1), [n, a] = x(null), [c, l] = x(null), [d, h] = x(null), [m, u] = x(null), [p, g] = x(null), w = p !== null && p !== "none", y = q(
+    () => new te({
       baseUrl: e.serverUrl,
       timeoutMs: e.requestTimeout,
       getAccessToken: r?.getAccessToken
     }),
     [e.serverUrl, e.requestTimeout, r]
-  ), C = P(async () => {
+  ), C = T(async () => {
     o(!0), a(null);
     try {
-      const S = await w.get("/accreditation/status", {
+      const S = await y.get("/accreditation/status", {
         credentials: "include"
       });
-      return d(S.status), h(S.verifiedAt ?? null), u(S.expiresAt ?? null), g(S.enforcementMode), S;
+      return l(S.status), h(S.verifiedAt ?? null), u(S.expiresAt ?? null), g(S.enforcementMode), S;
     } catch (S) {
       const L = S instanceof Error ? S : new Error(String(S));
       throw a(L), L;
     } finally {
       o(!1);
     }
-  }, [w]), N = P(
+  }, [y]), N = T(
     async (S, L) => {
       o(!0), a(null);
       try {
-        const p = await w.post(
+        const f = await y.post(
           "/accreditation/submit",
           { method: S, ...L },
           { credentials: "include" }
         );
-        return d("pending"), p;
-      } catch (p) {
-        const v = p instanceof Error ? p : new Error(String(p));
+        return l("pending"), f;
+      } catch (f) {
+        const v = f instanceof Error ? f : new Error(String(f));
         throw a(v), v;
       } finally {
         o(!1);
       }
     },
-    [w]
-  ), A = P(
-    async (S, L, p) => {
+    [y]
+  ), A = T(
+    async (S, L, f) => {
       o(!0), a(null);
       try {
         const v = new FormData();
-        v.append("submissionId", S), v.append("documentType", p), v.append("file", L);
-        const y = r?.getAccessToken?.(), k = {};
-        y && (k.Authorization = `Bearer ${y}`);
-        const T = await fetch(`${e.serverUrl}/accreditation/upload`, {
+        v.append("submissionId", S), v.append("documentType", f), v.append("file", L);
+        const b = r?.getAccessToken?.(), k = {};
+        b && (k.Authorization = `Bearer ${b}`);
+        const P = await fetch(`${e.serverUrl}/accreditation/upload`, {
           method: "POST",
           headers: k,
           credentials: "include",
           body: v
         });
-        if (!T.ok) {
-          const _ = await T.text().catch(() => T.statusText);
-          throw new Error(`Upload failed (${T.status}): ${_}`);
+        if (!P.ok) {
+          const _ = await P.text().catch(() => P.statusText);
+          throw new Error(`Upload failed (${P.status}): ${_}`);
         }
-        return T.json();
+        return P.json();
       } catch (v) {
-        const y = v instanceof Error ? v : new Error(String(v));
-        throw a(y), y;
+        const b = v instanceof Error ? v : new Error(String(v));
+        throw a(b), b;
       } finally {
         o(!1);
       }
     },
     [e.serverUrl, r]
-  ), E = P(async () => {
+  ), E = T(async () => {
     o(!0), a(null);
     try {
-      return (await w.get(
+      return (await y.get(
         "/accreditation/submissions",
         { credentials: "include" }
       )).submissions;
@@ -18187,13 +18316,13 @@ function Th() {
     } finally {
       o(!1);
     }
-  }, [w]);
+  }, [y]);
   return {
     status: c,
-    verifiedAt: l,
+    verifiedAt: d,
     expiresAt: m,
-    isRequired: b,
-    enforcementMode: f,
+    isRequired: w,
+    enforcementMode: p,
     fetchStatus: C,
     submitVerification: N,
     uploadDocument: A,
@@ -18202,7 +18331,7 @@ function Th() {
     error: n
   };
 }
-const Cn = [
+const xn = [
   { method: "income", label: "Income", description: "Verify via annual income ($200K+ individual / $300K+ joint)" },
   { method: "net_worth", label: "Net Worth", description: "Verify via net worth ($1M+ excluding primary residence)" },
   { method: "credential", label: "Professional Credential", description: "Verify via FINRA license (Series 7, 65, or 82)" },
@@ -18210,20 +18339,20 @@ const Cn = [
   { method: "insider", label: "Insider / Officer", description: "Self-certify as a director, executive officer, or general partner" },
   { method: "investment_threshold", label: "Investment Threshold", description: "Qualify via investment commitment ($200K+ individual / $1M+ entity)" }
 ];
-function vt({ label: e, acceptedTypes: r = ".pdf,.jpg,.jpeg,.png,.tiff", documentType: s, files: o, onFilesChange: n, maxFiles: a = 5 }) {
-  const c = ee(null), [d, l] = x(!1), h = P((u) => {
+function At({ label: e, acceptedTypes: r = ".pdf,.jpg,.jpeg,.png,.tiff", documentType: s, files: o, onFilesChange: n, maxFiles: a = 5 }) {
+  const c = J(null), [l, d] = x(!1), h = T((u) => {
     if (!u) return;
-    const f = Array.from(u), g = [...o, ...f].slice(0, a);
+    const p = Array.from(u), g = [...o, ...p].slice(0, a);
     n(g);
   }, [o, a, n]), m = (u) => {
-    n(o.filter((f, g) => g !== u));
+    n(o.filter((p, g) => g !== u));
   };
   return /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__upload-zone", children: [
     /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__upload-label", children: e }),
     /* @__PURE__ */ i(
       "div",
       {
-        className: `cedros-accreditation-wizard__drop-area${d ? " cedros-accreditation-wizard__drop-area--active" : ""}`,
+        className: `cedros-accreditation-wizard__drop-area${l ? " cedros-accreditation-wizard__drop-area--active" : ""}`,
         role: "button",
         tabIndex: 0,
         "aria-label": `Upload files: ${e}`,
@@ -18232,11 +18361,11 @@ function vt({ label: e, acceptedTypes: r = ".pdf,.jpg,.jpeg,.png,.tiff", documen
           (u.key === "Enter" || u.key === " ") && c.current?.click();
         },
         onDragOver: (u) => {
-          u.preventDefault(), l(!0);
+          u.preventDefault(), d(!0);
         },
-        onDragLeave: () => l(!1),
+        onDragLeave: () => d(!1),
         onDrop: (u) => {
-          u.preventDefault(), l(!1), h(u.dataTransfer.files);
+          u.preventDefault(), d(!1), h(u.dataTransfer.files);
         },
         children: [
           /* @__PURE__ */ t("span", { children: "Click or drag files here" }),
@@ -18256,24 +18385,24 @@ function vt({ label: e, acceptedTypes: r = ".pdf,.jpg,.jpeg,.png,.tiff", documen
         "aria-hidden": "true"
       }
     ),
-    o.length > 0 && /* @__PURE__ */ t("ul", { className: "cedros-accreditation-wizard__file-list", "aria-label": "Uploaded files", children: o.map((u, f) => /* @__PURE__ */ i("li", { className: "cedros-accreditation-wizard__file-item", children: [
+    o.length > 0 && /* @__PURE__ */ t("ul", { className: "cedros-accreditation-wizard__file-list", "aria-label": "Uploaded files", children: o.map((u, p) => /* @__PURE__ */ i("li", { className: "cedros-accreditation-wizard__file-item", children: [
       /* @__PURE__ */ t("span", { children: u.name }),
-      /* @__PURE__ */ t("button", { type: "button", className: "cedros-accreditation-wizard__file-remove", onClick: () => m(f), "aria-label": `Remove ${u.name}`, children: "Remove" })
-    ] }, `${u.name}-${f}`)) })
+      /* @__PURE__ */ t("button", { type: "button", className: "cedros-accreditation-wizard__file-remove", onClick: () => m(p), "aria-label": `Remove ${u.name}`, children: "Remove" })
+    ] }, `${u.name}-${p}`)) })
   ] });
 }
-function Rh(e, r, s, o) {
+function Dh(e, r, s, o) {
   r({ ...e, [s]: o });
 }
-function At(e, r) {
+function Nt(e, r) {
   return e.filter((s) => s.documentType === r).map((s) => s.file);
 }
-function Nt(e, r, s, o) {
+function kt(e, r, s, o) {
   const n = e.filter((a) => a.documentType !== r);
   o([...n, ...s.map((a) => ({ file: a, documentType: r }))]);
 }
-function Bh({ method: e, formData: r, onFormDataChange: s, fileEntries: o, onFileEntriesChange: n }) {
-  const a = (c, d) => Rh(r, s, c, d);
+function Fh({ method: e, formData: r, onFormDataChange: s, fileEntries: o, onFileEntriesChange: n }) {
+  const a = (c, l) => Dh(r, s, c, l);
   return e === "income" ? /* @__PURE__ */ i("fieldset", { className: "cedros-accreditation-wizard__fieldset", children: [
     /* @__PURE__ */ t("legend", { className: "cedros-accreditation-wizard__fieldset-legend", children: "Income Details" }),
     /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__field", children: [
@@ -18297,7 +18426,7 @@ function Bh({ method: e, formData: r, onFormDataChange: s, fileEntries: o, onFil
       /* @__PURE__ */ t("label", { className: "cedros-accreditation-wizard__label", htmlFor: "userStatement", children: "Statement about current year income expectation" }),
       /* @__PURE__ */ t("textarea", { id: "userStatement", className: "cedros-accreditation-wizard__textarea", rows: 3, value: r.userStatement ?? "", onChange: (c) => a("userStatement", c.target.value) })
     ] }),
-    /* @__PURE__ */ t(vt, { label: "Upload tax documents (W-2, 1040, 1099, K-1) from the last 2 years", documentType: "tax_return", files: At(o, "tax_return"), onFilesChange: (c) => Nt(o, "tax_return", c, n) })
+    /* @__PURE__ */ t(At, { label: "Upload tax documents (W-2, 1040, 1099, K-1) from the last 2 years", documentType: "tax_return", files: Nt(o, "tax_return"), onFilesChange: (c) => kt(o, "tax_return", c, n) })
   ] }) : e === "net_worth" ? /* @__PURE__ */ i("fieldset", { className: "cedros-accreditation-wizard__fieldset", children: [
     /* @__PURE__ */ t("legend", { className: "cedros-accreditation-wizard__fieldset-legend", children: "Net Worth Details" }),
     /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__field", children: [
@@ -18305,8 +18434,8 @@ function Bh({ method: e, formData: r, onFormDataChange: s, fileEntries: o, onFil
       /* @__PURE__ */ t("input", { id: "netWorthAmount", type: "number", min: 0, className: "cedros-accreditation-wizard__input", value: r.statedAmountUsd ?? "", onChange: (c) => a("statedAmountUsd", c.target.valueAsNumber) })
     ] }),
     /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__note", children: "Documents must be dated within the last 90 days." }),
-    /* @__PURE__ */ t(vt, { label: "Upload asset documents (bank/brokerage statements, property appraisals)", documentType: "asset_statement", files: At(o, "asset_statement"), onFilesChange: (c) => Nt(o, "asset_statement", c, n) }),
-    /* @__PURE__ */ t(vt, { label: "Upload liability documents (credit report)", documentType: "liability_statement", files: At(o, "liability_statement"), onFilesChange: (c) => Nt(o, "liability_statement", c, n) })
+    /* @__PURE__ */ t(At, { label: "Upload asset documents (bank/brokerage statements, property appraisals)", documentType: "asset_statement", files: Nt(o, "asset_statement"), onFilesChange: (c) => kt(o, "asset_statement", c, n) }),
+    /* @__PURE__ */ t(At, { label: "Upload liability documents (credit report)", documentType: "liability_statement", files: Nt(o, "liability_statement"), onFilesChange: (c) => kt(o, "liability_statement", c, n) })
   ] }) : e === "credential" ? /* @__PURE__ */ i("fieldset", { className: "cedros-accreditation-wizard__fieldset", children: [
     /* @__PURE__ */ t("legend", { className: "cedros-accreditation-wizard__fieldset-legend", children: "Professional Credential" }),
     /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__field", children: [
@@ -18326,7 +18455,7 @@ function Bh({ method: e, formData: r, onFormDataChange: s, fileEntries: o, onFil
   ] }) : e === "third_party_letter" ? /* @__PURE__ */ i("fieldset", { className: "cedros-accreditation-wizard__fieldset", children: [
     /* @__PURE__ */ t("legend", { className: "cedros-accreditation-wizard__fieldset-legend", children: "Third-Party Letter" }),
     /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__note", children: "Letter must be dated within the last 90 days." }),
-    /* @__PURE__ */ t(vt, { label: "Upload verification letter from a CPA, attorney, RIA, or broker-dealer", documentType: "letter", files: At(o, "letter"), onFilesChange: (c) => Nt(o, "letter", c, n), maxFiles: 1 })
+    /* @__PURE__ */ t(At, { label: "Upload verification letter from a CPA, attorney, RIA, or broker-dealer", documentType: "letter", files: Nt(o, "letter"), onFilesChange: (c) => kt(o, "letter", c, n), maxFiles: 1 })
   ] }) : e === "insider" ? /* @__PURE__ */ i("fieldset", { className: "cedros-accreditation-wizard__fieldset", children: [
     /* @__PURE__ */ t("legend", { className: "cedros-accreditation-wizard__fieldset-legend", children: "Insider / Officer" }),
     /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__field", children: [
@@ -18360,33 +18489,33 @@ function Bh({ method: e, formData: r, onFormDataChange: s, fileEntries: o, onFil
     /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__note", children: "Per 2025 SEC guidance, a minimum investment commitment serves as evidence of accredited status." })
   ] });
 }
-function Wm({ onComplete: e, onCancel: r, className: s }) {
-  const { submitVerification: o, uploadDocument: n, isLoading: a, error: c } = Th(), [d, l] = x(1), [h, m] = x(null), [u, f] = x({}), [g, b] = x([]), [w, C] = x(!1), [N, A] = x(null), E = (v) => {
-    m(v), l(2);
+function Vm({ onComplete: e, onCancel: r, className: s }) {
+  const { submitVerification: o, uploadDocument: n, isLoading: a, error: c } = Uh(), [l, d] = x(1), [h, m] = x(null), [u, p] = x({}), [g, w] = x([]), [y, C] = x(!1), [N, A] = x(null), E = (v) => {
+    m(v), d(2);
   }, S = () => {
-    d === 2 ? l(1) : d === 3 ? l(2) : r?.();
-  }, L = P(async () => {
+    l === 2 ? d(1) : l === 3 ? d(2) : r?.();
+  }, L = T(async () => {
     if (h) {
       A(null);
       try {
         const { submissionId: v } = await o(h, u);
-        for (const y of g)
-          await n(v, y.file, y.documentType);
+        for (const b of g)
+          await n(v, b.file, b.documentType);
         C(!0), e?.(v);
       } catch (v) {
         A(v instanceof Error ? v.message : "Submission failed. Please try again.");
       }
     }
-  }, [h, u, g, o, n, e]), p = Cn.find((v) => v.method === h);
-  return w ? /* @__PURE__ */ t("div", { className: `cedros-accreditation-wizard cedros-accreditation-wizard--success ${s ?? ""}`, role: "status", children: /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__success-message", children: "Submitted for review. You will be notified once your accreditation is verified." }) }) : /* @__PURE__ */ i("div", { className: `cedros-accreditation-wizard ${s ?? ""}`, children: [
-    /* @__PURE__ */ t("div", { className: "cedros-accreditation-wizard__header", children: /* @__PURE__ */ t("nav", { className: "cedros-accreditation-wizard__steps", "aria-label": "Wizard steps", children: ["Choose Method", "Fill Details", "Review & Submit"].map((v, y) => /* @__PURE__ */ i("span", { className: `cedros-accreditation-wizard__step${d === y + 1 ? " cedros-accreditation-wizard__step--active" : ""}`, "aria-current": d === y + 1 ? "step" : void 0, children: [
-      y + 1,
+  }, [h, u, g, o, n, e]), f = xn.find((v) => v.method === h);
+  return y ? /* @__PURE__ */ t("div", { className: `cedros-accreditation-wizard cedros-accreditation-wizard--success ${s ?? ""}`, role: "status", children: /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__success-message", children: "Submitted for review. You will be notified once your accreditation is verified." }) }) : /* @__PURE__ */ i("div", { className: `cedros-accreditation-wizard ${s ?? ""}`, children: [
+    /* @__PURE__ */ t("div", { className: "cedros-accreditation-wizard__header", children: /* @__PURE__ */ t("nav", { className: "cedros-accreditation-wizard__steps", "aria-label": "Wizard steps", children: ["Choose Method", "Fill Details", "Review & Submit"].map((v, b) => /* @__PURE__ */ i("span", { className: `cedros-accreditation-wizard__step${l === b + 1 ? " cedros-accreditation-wizard__step--active" : ""}`, "aria-current": l === b + 1 ? "step" : void 0, children: [
+      b + 1,
       ". ",
       v
     ] }, v)) }) }),
-    d === 1 && /* @__PURE__ */ i("section", { className: "cedros-accreditation-wizard__section", "aria-labelledby": "step1-heading", children: [
+    l === 1 && /* @__PURE__ */ i("section", { className: "cedros-accreditation-wizard__section", "aria-labelledby": "step1-heading", children: [
       /* @__PURE__ */ t("h2", { id: "step1-heading", className: "cedros-accreditation-wizard__section-title", children: "Choose Verification Method" }),
-      /* @__PURE__ */ t("div", { className: "cedros-accreditation-wizard__method-grid", role: "list", children: Cn.map((v) => /* @__PURE__ */ i(
+      /* @__PURE__ */ t("div", { className: "cedros-accreditation-wizard__method-grid", role: "list", children: xn.map((v) => /* @__PURE__ */ i(
         "button",
         {
           type: "button",
@@ -18402,27 +18531,27 @@ function Wm({ onComplete: e, onCancel: r, className: s }) {
       )) }),
       r && /* @__PURE__ */ t("button", { type: "button", className: "cedros-accreditation-wizard__cancel", onClick: r, children: "Cancel" })
     ] }),
-    d === 2 && h && /* @__PURE__ */ i("section", { className: "cedros-accreditation-wizard__section", "aria-labelledby": "step2-heading", children: [
-      /* @__PURE__ */ t("h2", { id: "step2-heading", className: "cedros-accreditation-wizard__section-title", children: p?.label }),
-      /* @__PURE__ */ t(Bh, { method: h, formData: u, onFormDataChange: f, fileEntries: g, onFileEntriesChange: b }),
+    l === 2 && h && /* @__PURE__ */ i("section", { className: "cedros-accreditation-wizard__section", "aria-labelledby": "step2-heading", children: [
+      /* @__PURE__ */ t("h2", { id: "step2-heading", className: "cedros-accreditation-wizard__section-title", children: f?.label }),
+      /* @__PURE__ */ t(Fh, { method: h, formData: u, onFormDataChange: p, fileEntries: g, onFileEntriesChange: w }),
       /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__actions", children: [
         /* @__PURE__ */ t("button", { type: "button", className: "cedros-accreditation-wizard__back", onClick: S, children: "Back" }),
-        /* @__PURE__ */ t("button", { type: "button", className: "cedros-accreditation-wizard__next", onClick: () => l(3), children: "Review" })
+        /* @__PURE__ */ t("button", { type: "button", className: "cedros-accreditation-wizard__next", onClick: () => d(3), children: "Review" })
       ] })
     ] }),
-    d === 3 && h && /* @__PURE__ */ i("section", { className: "cedros-accreditation-wizard__section", "aria-labelledby": "step3-heading", children: [
+    l === 3 && h && /* @__PURE__ */ i("section", { className: "cedros-accreditation-wizard__section", "aria-labelledby": "step3-heading", children: [
       /* @__PURE__ */ t("h2", { id: "step3-heading", className: "cedros-accreditation-wizard__section-title", children: "Review & Submit" }),
       /* @__PURE__ */ i("dl", { className: "cedros-accreditation-wizard__review-list", children: [
         /* @__PURE__ */ t("dt", { className: "cedros-accreditation-wizard__review-term", children: "Method" }),
-        /* @__PURE__ */ t("dd", { className: "cedros-accreditation-wizard__review-detail", children: p?.label }),
-        Object.entries(u).filter(([, v]) => v !== void 0 && v !== "" && v !== null).map(([v, y]) => /* @__PURE__ */ i("div", { children: [
+        /* @__PURE__ */ t("dd", { className: "cedros-accreditation-wizard__review-detail", children: f?.label }),
+        Object.entries(u).filter(([, v]) => v !== void 0 && v !== "" && v !== null).map(([v, b]) => /* @__PURE__ */ i("div", { children: [
           /* @__PURE__ */ t("dt", { className: "cedros-accreditation-wizard__review-term", children: v }),
-          /* @__PURE__ */ t("dd", { className: "cedros-accreditation-wizard__review-detail", children: String(y) })
+          /* @__PURE__ */ t("dd", { className: "cedros-accreditation-wizard__review-detail", children: String(b) })
         ] }, v))
       ] }),
       g.length > 0 && /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__review-files", children: [
         /* @__PURE__ */ t("p", { className: "cedros-accreditation-wizard__review-files-heading", children: "Documents to upload:" }),
-        /* @__PURE__ */ t("ul", { children: g.map((v, y) => /* @__PURE__ */ i("li", { children: [
+        /* @__PURE__ */ t("ul", { children: g.map((v, b) => /* @__PURE__ */ i("li", { children: [
           v.file.name,
           " ",
           /* @__PURE__ */ i("span", { className: "cedros-accreditation-wizard__doc-type", children: [
@@ -18430,7 +18559,7 @@ function Wm({ onComplete: e, onCancel: r, className: s }) {
             v.documentType,
             ")"
           ] })
-        ] }, `${v.file.name}-${y}`)) })
+        ] }, `${v.file.name}-${b}`)) })
       ] }),
       (c || N) && /* @__PURE__ */ t("div", { className: "cedros-accreditation-wizard__error", role: "alert", children: N ?? c?.message }),
       /* @__PURE__ */ i("div", { className: "cedros-accreditation-wizard__actions", children: [
@@ -18440,7 +18569,7 @@ function Wm({ onComplete: e, onCancel: r, className: s }) {
     ] })
   ] });
 }
-function qm({
+function Hm({
   status: e,
   onStartVerification: r,
   className: s
@@ -18482,7 +18611,7 @@ function qm({
     }
   );
 }
-const ls = fa(null), jr = {
+const us = wa(null), Vr = {
   auth: {
     email: "Email",
     password: "Password",
@@ -18539,189 +18668,191 @@ const ls = fa(null), jr = {
     strong: "Strong"
   }
 };
-function Ih(e, r) {
-  return Xo(e, r);
+function Oh(e, r) {
+  return ea(e, r);
 }
-function Xo(e, r) {
+function ea(e, r) {
   const s = { ...e };
   for (const o in r)
     if (Object.prototype.hasOwnProperty.call(r, o)) {
       const n = e[o], a = r[o];
-      typeof n == "object" && n !== null && typeof a == "object" && a !== null ? s[o] = Xo(
+      typeof n == "object" && n !== null && typeof a == "object" && a !== null ? s[o] = ea(
         n,
         a
       ) : a !== void 0 && (s[o] = a);
     }
   return s;
 }
-function zm({
+function Gm({
   children: e,
   locale: r = "en",
   translations: s
 }) {
-  const o = q(() => ({ t: s ? Ih(jr, s) : jr, locale: r }), [s, r]);
-  return /* @__PURE__ */ t(ls.Provider, { value: o, children: e });
+  const o = q(() => ({ t: s ? Oh(Vr, s) : Vr, locale: r }), [s, r]);
+  return /* @__PURE__ */ t(us.Provider, { value: o, children: e });
 }
-function jm() {
-  return Mn(ls)?.t ?? jr;
+function Qm() {
+  return Dn(us)?.t ?? Vr;
 }
-function $m() {
-  return Mn(ls)?.locale ?? "en";
+function Km() {
+  return Dn(us)?.locale ?? "en";
 }
 export {
-  bm as AccountSettings,
-  qm as AccreditationBanner,
-  Wm as AccreditationWizard,
-  gd as AdminAccessCodes,
-  Td as AdminAccreditationQueue,
-  Ta as AdminDepositList,
-  Pa as AdminDepositStats,
-  Ba as AdminPrivacyPeriodDeposits,
-  Zl as AdminReferralPayouts,
-  Id as AdminSanctionsPanel,
-  Fa as AdminUserList,
-  Ma as AdminWithdrawalHistory,
-  Ia as AdminWithdrawalQueue,
-  Ra as AdminWithdrawalStats,
-  Hc as AppleLoginButton,
-  qa as AuthenticationSettings,
-  hm as CapabilityWarning,
-  gm as CedrosAdminDashboard,
-  Gm as CedrosLoginProvider,
-  Am as ChooseUsernamePrompt,
-  vm as CompleteAccountPrompt,
-  cd as ComplianceSettings,
-  km as CreditBalance,
-  Ha as CreditSystemSettings,
-  Nm as DepositFlow,
-  wa as EmailLoginForm,
-  ba as EmailRegisterForm,
-  Cp as EmailSettings,
-  za as EmbeddedWalletSettings,
-  Xc as ErrorBoundary,
-  ne as ErrorMessage,
-  ep as FEATURE_FLAG_ENV_PREFIX,
-  tp as FEATURE_FLAG_REGISTRY,
-  jc as ForgotPasswordForm,
-  Sm as FullPageLayout,
-  ya as GoogleLoginButton,
-  Cm as History,
-  zm as I18nProvider,
-  Dm as InviteCodePanel,
-  Ca as InviteForm,
-  Ea as InviteList,
-  Fm as KycBanner,
-  Om as KycCallback,
-  bu as LinkedAccounts,
+  km as AccountSettings,
+  Hm as AccreditationBanner,
+  Vm as AccreditationWizard,
+  yd as AdminAccessCodes,
+  Bd as AdminAccreditationQueue,
+  Ba as AdminDepositList,
+  Ra as AdminDepositStats,
+  Ma as AdminPrivacyPeriodDeposits,
+  Jl as AdminReferralPayouts,
+  Ud as AdminSanctionsPanel,
+  Wa as AdminUserList,
+  Da as AdminWithdrawalHistory,
+  Ua as AdminWithdrawalQueue,
+  Ia as AdminWithdrawalStats,
+  Qc as AppleLoginButton,
+  ja as AuthenticationSettings,
+  wm as CapabilityWarning,
+  Am as CedrosAdminDashboard,
+  Xm as CedrosLoginProvider,
+  xm as ChooseUsernamePrompt,
+  Em as CompleteAccountPrompt,
+  dd as ComplianceSettings,
+  _m as CreditBalance,
+  Qa as CreditSystemSettings,
+  Lu as DeleteAccountSection,
+  Sm as DepositFlow,
+  ba as EmailLoginForm,
+  va as EmailRegisterForm,
+  Lp as EmailSettings,
+  $a as EmbeddedWalletSettings,
+  el as ErrorBoundary,
+  se as ErrorMessage,
+  op as FEATURE_FLAG_ENV_PREFIX,
+  ap as FEATURE_FLAG_REGISTRY,
+  Vc as ForgotPasswordForm,
+  Rm as FullPageLayout,
+  Aa as GoogleLoginButton,
+  Lm as History,
+  Gm as I18nProvider,
+  zm as InviteCodePanel,
+  xa as InviteForm,
+  Sa as InviteList,
+  jm as KycBanner,
+  $m as KycCallback,
+  vu as LinkedAccounts,
   H as LoadingSpinner,
-  im as LoginButton,
-  rs as LoginForm,
-  cm as LoginModal,
-  ka as MemberList,
-  ym as MfaSetupPrompt,
-  dm as OrgSelector,
-  um as OrgSwitcher,
-  On as OtpInput,
-  Yc as PasskeyLoginButton,
-  xl as PasskeyPrompt,
+  hm as LoginButton,
+  ns as LoginForm,
+  mm as LoginModal,
+  Ea as MemberList,
+  Cm as MfaSetupPrompt,
+  fm as OrgSelector,
+  gm as OrgSwitcher,
+  qn as OtpInput,
+  Xc as PasskeyLoginButton,
+  _l as PasskeyPrompt,
   ve as PasswordInput,
-  Ha as PrivacyCashSettings,
-  Od as ProfileDropdown,
-  gu as ProfileTab,
-  fl as RecoveryPhraseDisplay,
-  gl as RecoveryPhraseInput,
-  dd as ReferralSettings,
-  lm as ResetPasswordForm,
-  Um as RewardsPanel,
-  os as SUPPORTED_TOKENS,
-  fm as SecuritySettings,
-  Ga as ServerSettings,
-  cl as SessionList,
-  Ot as SettingsPageLayout,
-  Fd as SetupWizard,
-  hd as SignupSettings,
-  va as SolanaLoginButton,
-  _m as SplitPageLayout,
-  pm as SystemSettings,
-  Qo as TieredAmountSlider,
-  kd as TokenGateSettings,
-  th as TokenSelector,
-  du as TotpSettings,
-  Mo as TotpSetup,
-  mp as TotpVerify,
-  wm as UserProfileSettings,
-  Wl as WalletAddressRow,
-  kl as WalletEnrollment,
-  mm as WalletManager,
-  Ml as WalletRecovery,
-  ql as WalletStatus,
-  Pl as WalletUnlock,
-  xp as WebhookSettings,
-  Em as WithdrawalFlow,
-  xm as WithdrawalHistory,
-  jr as defaultTranslations,
-  rp as getAutoDiscoverableFeatureDefaults,
-  sp as getAutoDiscoverableFeatureFlagNames,
-  np as getDefaultFeatureFlags,
-  Qm as getEmbeddedWalletInfo,
-  op as getFeatureFlagDefinition,
-  ap as getFeatureFlagDefinitions,
-  ip as getFeatureFlagEnvVar,
-  is as getTierForAmount,
-  Km as isEmbeddedWalletAvailable,
-  cp as isFeatureEnabled,
-  Ih as mergeTranslations,
-  lp as parseFeatureFlagBoolean,
-  dp as readFeatureFlagEnv,
-  yp as registerMobileWallet,
-  up as resolveFeatureFlags,
-  yh as useAccessCodes,
-  Th as useAccreditation,
-  _p as useAdminDeposits,
-  Np as useAdminUsers,
-  Vc as useAppleAuth,
-  Ut as useAuth,
-  Zm as useAuthState,
-  Xm as useAuthUI,
-  Lm as useAuthorize,
-  Z as useCedrosLogin,
-  Im as useCedrosTheme,
-  Uo as useCredentials,
-  Yo as useCredits,
-  Pu as useDeposit,
-  pp as useEmailAuth,
-  wp as useGoogleAuth,
-  qc as useInstantLink,
-  Na as useInvites,
-  Mm as useKyc,
-  $m as useLocale,
-  Aa as useMembers,
-  Oa as useOrgs,
-  El as usePasskeySigning,
-  ts as usePasswordReset,
-  Tm as usePendingRecovery,
-  Bm as usePostLogin,
-  qt as useProfile,
-  hu as useReferral,
-  vh as useRewards,
-  Dn as useServerFeatures,
-  xu as useSessions,
-  Al as useSetPassword,
-  Lo as useSetup,
-  vp as useSolanaAuth,
-  qn as useSystemSettings,
-  Io as useTotp,
-  fp as useTotpVerify,
-  Rm as useTransactionSigning,
-  jm as useTranslations,
-  Lu as useUsername,
-  Dt as useWallet,
-  vl as useWalletEnrollment,
+  Qa as PrivacyCashSettings,
+  qd as ProfileDropdown,
+  yu as ProfileTab,
+  wl as RecoveryPhraseDisplay,
+  yl as RecoveryPhraseInput,
+  hd as ReferralSettings,
+  pm as ResetPasswordForm,
+  qm as RewardsPanel,
+  is as SUPPORTED_TOKENS,
+  vm as SecuritySettings,
+  Ka as ServerSettings,
+  dl as SessionList,
+  Wt as SettingsPageLayout,
+  Wd as SetupWizard,
+  pd as SignupSettings,
+  Na as SolanaLoginButton,
+  Bm as SplitPageLayout,
+  bm as SystemSettings,
+  Yo as TieredAmountSlider,
+  Ed as TokenGateSettings,
+  ah as TokenSelector,
+  hu as TotpSettings,
+  Do as TotpSetup,
+  yp as TotpVerify,
+  Nm as UserProfileSettings,
+  zl as WalletAddressRow,
+  El as WalletEnrollment,
+  ym as WalletManager,
+  Dl as WalletRecovery,
+  jl as WalletStatus,
+  Rl as WalletUnlock,
+  Pp as WebhookSettings,
+  Tm as WithdrawalFlow,
+  Pm as WithdrawalHistory,
+  Vr as defaultTranslations,
+  ip as getAutoDiscoverableFeatureDefaults,
+  cp as getAutoDiscoverableFeatureFlagNames,
+  lp as getDefaultFeatureFlags,
+  Jm as getEmbeddedWalletInfo,
+  dp as getFeatureFlagDefinition,
+  up as getFeatureFlagDefinitions,
+  hp as getFeatureFlagEnvVar,
+  ls as getTierForAmount,
+  ep as isEmbeddedWalletAvailable,
+  mp as isFeatureEnabled,
+  Oh as mergeTranslations,
+  pp as parseFeatureFlagBoolean,
+  fp as readFeatureFlagEnv,
+  Cp as registerMobileWallet,
+  gp as resolveFeatureFlags,
+  Ch as useAccessCodes,
+  _u as useAccountDeletion,
+  Uh as useAccreditation,
+  Bp as useAdminDeposits,
+  Sp as useAdminUsers,
+  Gc as useAppleAuth,
+  Dt as useAuth,
+  rp as useAuthState,
+  sp as useAuthUI,
+  Im as useAuthorize,
+  ee as useCedrosLogin,
+  Om as useCedrosTheme,
+  Fo as useCredentials,
+  Xo as useCredits,
+  Mu as useDeposit,
+  bp as useEmailAuth,
+  Np as useGoogleAuth,
+  jc as useInstantLink,
+  Ca as useInvites,
+  Wm as useKyc,
+  Km as useLocale,
+  ka as useMembers,
+  qa as useOrgs,
+  Sl as usePasskeySigning,
+  ss as usePasswordReset,
+  Um as usePendingRecovery,
+  Fm as usePostLogin,
+  zt as useProfile,
+  pu as useReferral,
+  Eh as useRewards,
+  On as useServerFeatures,
+  Pu as useSessions,
+  kl as useSetPassword,
+  Po as useSetup,
+  Ep as useSolanaAuth,
+  jn as useSystemSettings,
+  Uo as useTotp,
+  vp as useTotpVerify,
+  Dm as useTransactionSigning,
+  Qm as useTranslations,
+  Iu as useUsername,
+  Ft as useWallet,
+  Nl as useWalletEnrollment,
   Xe as useWalletMaterial,
-  Il as useWalletRecovery,
-  Cl as useWalletSigning,
-  Pm as useWallets,
-  So as useWebAuthn,
-  Zo as useWithdrawal,
-  Ft as validatePassword
+  Ul as useWalletRecovery,
+  xl as useWalletSigning,
+  Mm as useWallets,
+  Lo as useWebAuthn,
+  Jo as useWithdrawal,
+  Ot as validatePassword
 };

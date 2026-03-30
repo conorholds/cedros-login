@@ -23,7 +23,7 @@ use crate::repositories::{
     default_expiry, generate_verification_token, hash_verification_token, normalize_email,
     TokenType,
 };
-use crate::services::EmailService;
+use crate::services::{delete_account, EmailService};
 use crate::utils::authenticate;
 use crate::AppState;
 
@@ -326,8 +326,7 @@ pub async fn delete_user<C: AuthCallback, E: EmailService>(
         ));
     }
 
-    // Delete the user
-    state.user_repo.delete(user_id).await?;
+    delete_account(&state, user_id, Some(&headers)).await?;
 
     tracing::info!(
         admin_id = %admin_id,
@@ -823,6 +822,7 @@ mod tests {
                 enabled: false,
                 client_id: None,
                 team_id: None,
+                ..AppleConfig::default()
             },
             solana: SolanaConfig::default(),
             webauthn: WebAuthnConfig::default(),

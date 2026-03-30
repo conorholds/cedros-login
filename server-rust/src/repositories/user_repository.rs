@@ -177,6 +177,17 @@ impl UserEntity {
             accreditation_expires_at: None,
         }
     }
+
+    /// Returns true when the account has been anonymized and cannot log in anymore.
+    pub fn is_deleted(&self) -> bool {
+        self.auth_methods.is_empty()
+            && self.email.is_none()
+            && self.password_hash.is_none()
+            && self.wallet_address.is_none()
+            && self.google_id.is_none()
+            && self.apple_id.is_none()
+            && self.name.as_deref() == Some("Deleted Account")
+    }
 }
 
 /// User repository trait
@@ -244,6 +255,13 @@ pub trait UserRepository: Send + Sync {
 
     /// Delete a user by ID
     async fn delete(&self, id: Uuid) -> Result<(), AppError>;
+
+    /// Anonymize a user while preserving FK-linked compliance and financial records.
+    async fn anonymize_for_deletion(
+        &self,
+        id: Uuid,
+        replacement_referral_code: &str,
+    ) -> Result<UserEntity, AppError>;
 
     /// Count users by auth method
     ///
@@ -725,6 +743,77 @@ impl UserRepository for InMemoryUserRepository {
         Ok(())
     }
 
+    async fn anonymize_for_deletion(
+        &self,
+        id: Uuid,
+        replacement_referral_code: &str,
+    ) -> Result<UserEntity, AppError> {
+        let mut users = self.users.write().await;
+        let user = users
+            .get_mut(&id)
+            .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+        let old_email = user.email.clone();
+        let old_wallet = user.wallet_address.clone();
+        let old_google_id = user.google_id.clone();
+        let old_apple_id = user.apple_id.clone();
+        let old_stripe_customer_id = user.stripe_customer_id.clone();
+        let old_referral_code = user.referral_code.clone();
+
+        user.email = None;
+        user.email_verified = false;
+        user.password_hash = None;
+        user.name = Some("Deleted Account".to_string());
+        user.username = None;
+        user.picture = None;
+        user.wallet_address = None;
+        user.google_id = None;
+        user.apple_id = None;
+        user.stripe_customer_id = None;
+        user.auth_methods.clear();
+        user.is_system_admin = false;
+        user.updated_at = Utc::now();
+        user.last_login_at = None;
+        user.welcome_completed_at = None;
+        user.referral_code = replacement_referral_code.to_string();
+        user.referred_by = None;
+        user.payout_wallet_address = None;
+        user.kyc_status = "none".to_string();
+        user.kyc_verified_at = None;
+        user.kyc_expires_at = None;
+        user.accreditation_status = "none".to_string();
+        user.accreditation_verified_at = None;
+        user.accreditation_expires_at = None;
+
+        let updated = user.clone();
+        drop(users);
+
+        if let Some(email) = old_email {
+            self.email_index.write().await.remove(&normalize_email(&email));
+        }
+        if let Some(wallet) = old_wallet {
+            self.wallet_index.write().await.remove(&wallet);
+        }
+        if let Some(google_id) = old_google_id {
+            self.google_id_index.write().await.remove(&google_id);
+        }
+        if let Some(apple_id) = old_apple_id {
+            self.apple_id_index.write().await.remove(&apple_id);
+        }
+        if let Some(stripe_customer_id) = old_stripe_customer_id {
+            self.stripe_customer_id_index
+                .write()
+                .await
+                .remove(&stripe_customer_id);
+        }
+
+        let mut referral_index = self.referral_code_index.write().await;
+        referral_index.remove(&old_referral_code);
+        referral_index.insert(replacement_referral_code.to_string(), id);
+
+        Ok(updated)
+    }
+
     async fn count_by_auth_methods(
         &self,
     ) -> Result<std::collections::HashMap<String, u64>, AppError> {
@@ -801,7 +890,7 @@ impl UserRepository for InMemoryUserRepository {
         };
 
         let users = self.users.read().await;
-        Ok(users.get(&user_id).cloned())
+        Ok(users.get(&user_id).filter(|user| !user.is_deleted()).cloned())
     }
 
     async fn count_referrals(&self, user_id: Uuid) -> Result<u64, AppError> {
