@@ -50,8 +50,17 @@ export type {
 // barrel which re-exports wallet hooks that transitively import crypto.
 export { useAuth, type UseAuthReturn } from "./hooks/useAuth";
 export { useEmailAuth, type UseEmailAuthReturn } from "./hooks/useEmailAuth";
+export {
+  useForgotPassword,
+  type UseForgotPasswordReturn,
+} from "./hooks/useForgotPassword";
 export { useGoogleAuth, type UseGoogleAuthReturn } from "./hooks/useGoogleAuth";
 export { useAppleAuth, type UseAppleAuthReturn } from "./hooks/useAppleAuth";
+export type { AppleSignInPayload } from "./hooks/useAppleAuth";
+export {
+  useAccountDeletion,
+  type UseAccountDeletionReturn,
+} from "./hooks/useAccountDeletion";
 export { useSolanaAuth, type UseSolanaAuthReturn } from "./hooks/useSolanaAuth";
 export { useMobileWalletAuth, type UseMobileWalletAuthReturn, type MobileWalletCredentials } from "./hooks/useMobileWalletAuth";
 export { useOrgs, type UseOrgsReturn } from "./hooks/useOrgs";
@@ -97,6 +106,10 @@ export type {
   ForgotPasswordFormStrings,
   ForgotPasswordFormStyleProps,
 } from "./components/auth";
+export {
+  DeleteAccountSection,
+  type DeleteAccountSectionProps,
+} from "./components/account";
 
 // Components - Screens
 export { LoginScreen } from "./components/screens";

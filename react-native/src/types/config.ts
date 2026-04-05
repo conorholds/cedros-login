@@ -86,6 +86,62 @@ export interface SessionConfig {
 }
 
 /**
+ * Token storage adapter contract for React Native session persistence.
+ */
+export interface TokenStorageAdapter {
+  getItem: (key: string) => Promise<string | null>;
+  setItem: (key: string, value: string) => Promise<void>;
+  removeItem: (key: string) => Promise<void>;
+  securityLevel: "secure" | "insecure";
+}
+
+/**
+ * Secure storage configuration for persisted auth tokens.
+ */
+export interface SecureStorageConfig {
+  /**
+   * Custom adapter for secure token storage.
+   * When omitted, the provider attempts to use `react-native-keychain`.
+   */
+  adapter?: TokenStorageAdapter;
+  /**
+   * Service name used for native secure storage entries.
+   * @default "cedros.login"
+   */
+  service?: string;
+  /**
+   * Explicit opt-in for AsyncStorage fallback when secure storage is unavailable.
+   * Use only for local development or tests.
+   * @default false
+   */
+  allowInsecureStorage?: boolean;
+}
+
+/**
+ * Mobile store-compliance checks enforced by the provider.
+ */
+export interface ComplianceConfig {
+  /**
+   * Validation mode for publishability checks.
+   * - `strict`: throw on violations
+   * - `warn`: log warnings only
+   * - `off`: disable checks
+   * @default `warn` in development, `strict` otherwise
+   */
+  mode?: "strict" | "warn" | "off";
+  /**
+   * Required when intentionally omitting Sign in with Apple on iOS while still
+   * using other social sign-in methods.
+   */
+  appleSignInExemptionReason?: string;
+  /**
+   * Optional override for the hosted external account deletion URL used in
+   * Play Console disclosures. Defaults to `${serverUrl}/auth/account-deletion`.
+   */
+  accountDeletionUrl?: string;
+}
+
+/**
  * Authentication callbacks
  */
 export interface AuthCallbacks {
@@ -293,6 +349,10 @@ export interface CedrosLoginConfig {
   // Session handling
   /** Session/token configuration */
   session?: SessionConfig;
+  /** Secure token storage configuration for mobile clients */
+  secureStorage?: SecureStorageConfig;
+  /** Publishability checks for App Store / Play Store auth requirements */
+  compliance?: ComplianceConfig;
 
   // Callbacks
   /** Authentication event callbacks */

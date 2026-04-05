@@ -285,41 +285,12 @@ pub fn load_privacy_config() -> super::PrivacyConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Mutex;
-
-    struct EnvGuard {
-        key: &'static str,
-        prev: Option<String>,
-    }
-
-    impl Drop for EnvGuard {
-        fn drop(&mut self) {
-            if let Some(value) = &self.prev {
-                std::env::set_var(self.key, value);
-            } else {
-                std::env::remove_var(self.key);
-            }
-        }
-    }
-
-    fn set_env(key: &'static str, value: &str) -> EnvGuard {
-        let prev = std::env::var(key).ok();
-        std::env::set_var(key, value);
-        EnvGuard { key, prev }
-    }
-
-    fn clear_env(key: &'static str) -> EnvGuard {
-        let prev = std::env::var(key).ok();
-        std::env::remove_var(key);
-        EnvGuard { key, prev }
-    }
-
-    static ENV_LOCK: Mutex<()> = Mutex::new(());
+    use crate::test_env::{clear_env, lock_env, set_env};
 
     #[test]
     fn test_cookie_secure_default_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _env = set_env("ENVIRONMENT", "production");
+        let _lock = lock_env();
+        let _env = set_env("ENVIRONMENT", Some("production"));
         let _clear_secure = clear_env("COOKIE_SECURE");
         let config = load_cookie_config();
         assert!(config.secure);
@@ -327,8 +298,8 @@ mod tests {
 
     #[test]
     fn test_cookie_secure_default_in_development() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _env = set_env("ENVIRONMENT", "development");
+        let _lock = lock_env();
+        let _env = set_env("ENVIRONMENT", Some("development"));
         let _clear_secure = clear_env("COOKIE_SECURE");
         let config = load_cookie_config();
         assert!(!config.secure);
@@ -336,17 +307,17 @@ mod tests {
 
     #[test]
     fn test_cookie_secure_env_override_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _env = set_env("ENVIRONMENT", "production");
-        let _secure = set_env("COOKIE_SECURE", "false");
+        let _lock = lock_env();
+        let _env = set_env("ENVIRONMENT", Some("production"));
+        let _secure = set_env("COOKIE_SECURE", Some("false"));
         let config = load_cookie_config();
         assert!(!config.secure);
     }
 
     #[test]
     fn test_email_verification_default_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _env = set_env("ENVIRONMENT", "production");
+        let _lock = lock_env();
+        let _env = set_env("ENVIRONMENT", Some("production"));
         let _clear = clear_env("EMAIL_REQUIRE_VERIFICATION");
         let config = load_email_config();
         assert!(config.require_verification);
@@ -354,8 +325,8 @@ mod tests {
 
     #[test]
     fn test_email_verification_default_in_development() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _env = set_env("ENVIRONMENT", "development");
+        let _lock = lock_env();
+        let _env = set_env("ENVIRONMENT", Some("development"));
         let _clear = clear_env("EMAIL_REQUIRE_VERIFICATION");
         let config = load_email_config();
         assert!(!config.require_verification);
@@ -363,7 +334,7 @@ mod tests {
 
     #[test]
     fn test_cors_defaults_to_empty_when_unset() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let _clear = clear_env("CORS_ORIGINS");
         let config = load_cors_config();
         assert!(config.allowed_origins.is_empty());
@@ -371,8 +342,8 @@ mod tests {
 
     #[test]
     fn test_cookie_path_prefix_defaults_to_auth_base_path() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _auth = set_env("AUTH_BASE_PATH", "/auth");
+        let _lock = lock_env();
+        let _auth = set_env("AUTH_BASE_PATH", Some("/auth"));
         let _clear = clear_env("COOKIE_PATH_PREFIX");
         let config = load_cookie_config();
         assert_eq!(config.path_prefix, "/auth");
@@ -380,10 +351,10 @@ mod tests {
 
     #[test]
     fn test_load_server_config_sso_callback_url() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let _env = set_env(
             "SSO_CALLBACK_URL",
-            "https://auth.example.com/auth/sso/callback",
+            Some("https://auth.example.com/auth/sso/callback"),
         );
         let config = load_server_config();
         assert_eq!(
@@ -394,8 +365,8 @@ mod tests {
 
     #[test]
     fn test_load_server_config_auth_base_path() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _env = set_env("AUTH_BASE_PATH", "/auth/v2");
+        let _lock = lock_env();
+        let _env = set_env("AUTH_BASE_PATH", Some("/auth/v2"));
         let config = load_server_config();
         assert_eq!(config.auth_base_path, "/auth/v2");
     }

@@ -48,6 +48,9 @@ pub mod utils;
 
 mod router;
 
+#[cfg(test)]
+pub(crate) mod test_env;
+
 pub use callback::{AuthCallback, AuthCallbackPayload, NoopCallback, ReferralRewardPayload};
 pub use config::{Config, DatabaseConfig, NotificationConfig};
 pub use errors::AppError;

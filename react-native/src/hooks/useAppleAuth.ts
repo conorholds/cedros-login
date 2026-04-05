@@ -3,8 +3,18 @@ import { getAuthApi } from "../services/api";
 import type { AuthError, AuthResponse } from "../types";
 import { useCedrosLogin } from "../context/CedrosLoginProvider";
 
+export interface AppleSignInPayload {
+  idToken: string;
+  authorizationCode?: string;
+  nonce?: string;
+  fullName?: {
+    givenName?: string;
+    familyName?: string;
+  };
+}
+
 export interface UseAppleAuthReturn {
-  signIn: (idToken: string) => Promise<AuthResponse>;
+  signIn: (request: string | AppleSignInPayload) => Promise<AuthResponse>;
   isLoading: boolean;
   error: AuthError | null;
   clearError: () => void;
@@ -16,11 +26,25 @@ export function useAppleAuth(): UseAppleAuthReturn {
   const { login: contextLogin } = useCedrosLogin();
 
   const signIn = useCallback(
-    async (idToken: string): Promise<AuthResponse> => {
+    async (request: string | AppleSignInPayload): Promise<AuthResponse> => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await getAuthApi().appleSignIn({ idToken });
+        const payload =
+          typeof request === "string" ? { idToken: request } : request;
+        const fullName = payload.fullName;
+        const name = fullName
+          ? [fullName.givenName, fullName.familyName]
+              .filter(Boolean)
+              .join(" ")
+              .trim() || undefined
+          : undefined;
+        const response = await getAuthApi().appleSignIn({
+          idToken: payload.idToken,
+          authorizationCode: payload.authorizationCode,
+          nonce: payload.nonce,
+          name,
+        });
         if (response.tokens && response.user) {
           contextLogin(response.user, response.tokens);
         }

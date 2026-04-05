@@ -24,11 +24,10 @@ export interface GoogleSignInRequest {
 export interface AppleSignInRequest {
   idToken: string;
   authorizationCode?: string;
-  user?: string;
-  fullName?: {
-    givenName?: string;
-    familyName?: string;
-  };
+  name?: string;
+  nonce?: string;
+  referral?: string;
+  accessCode?: string;
 }
 
 export interface SolanaSignInRequest {
@@ -196,6 +195,14 @@ export class AuthApi {
 
   async verifyEmail(token: string): Promise<void> {
     await this.client.post("/auth/verify-email", { token });
+  }
+
+  async requestAccountDeletion(email: string): Promise<void> {
+    await this.client.post("/auth/account-deletion/request", { email });
+  }
+
+  async deleteCurrentAccount(confirmText = "DELETE"): Promise<void> {
+    await this.client.post("/auth/account-deletion/me", { confirmText });
   }
 
   /** Public accessor for the token manager (avoids private bracket access) */

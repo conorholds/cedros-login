@@ -1,5 +1,7 @@
-import type { TokenPair } from "../types";
-import { getItem, setItem, removeItem } from "./storage";
+import type { TokenPair, TokenStorageAdapter } from "../types";
+import {
+  createAsyncStorageTokenStorage,
+} from "./tokenStorage";
 
 const TOKEN_KEY = "auth_tokens";
 const REFRESH_BUFFER_MS = 60_000; // Refresh 1 minute before expiry
@@ -10,9 +12,10 @@ interface StoredTokenData {
 }
 
 /**
- * Token manager for React Native using AsyncStorage
+ * Token manager for React Native token storage adapters.
  */
 export class TokenManager {
+  private storage: TokenStorageAdapter;
   private tokens: TokenPair | null = null;
   private expiresAt: number = 0;
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
@@ -22,7 +25,8 @@ export class TokenManager {
   /** RN-03: Deduplicates concurrent refresh calls. */
   private refreshInFlight: Promise<void> | null = null;
 
-  constructor() {
+  constructor(storage: TokenStorageAdapter = createAsyncStorageTokenStorage()) {
+    this.storage = storage;
     this.loadFromStorage();
   }
 
@@ -31,7 +35,7 @@ export class TokenManager {
    */
   private async loadFromStorage(): Promise<void> {
     try {
-      const data = await getItem(TOKEN_KEY);
+      const data = await this.storage.getItem(TOKEN_KEY);
       if (data) {
         const parsed = JSON.parse(data) as StoredTokenData;
         // Only load if not expired
@@ -41,12 +45,12 @@ export class TokenManager {
           this.scheduleRefresh();
         } else {
           // Clear expired tokens
-          await removeItem(TOKEN_KEY);
+          await this.storage.removeItem(TOKEN_KEY);
         }
       }
     } catch (err) {
       console.warn('[TokenManager] Failed to parse stored tokens; clearing corrupted data.', err instanceof Error ? err.message : String(err));
-      await removeItem(TOKEN_KEY).catch(() => undefined);
+      await this.storage.removeItem(TOKEN_KEY).catch(() => undefined);
     }
   }
 
@@ -79,7 +83,7 @@ export class TokenManager {
       tokens,
       expiresAt: this.expiresAt,
     };
-    await setItem(TOKEN_KEY, JSON.stringify(data));
+    await this.storage.setItem(TOKEN_KEY, JSON.stringify(data));
 
     this.scheduleRefresh();
   }
@@ -126,7 +130,7 @@ export class TokenManager {
     this.tokens = null;
     this.expiresAt = 0;
     this.clearRefreshTimer();
-    await removeItem(TOKEN_KEY);
+    await this.storage.removeItem(TOKEN_KEY);
   }
 
   /**

@@ -13,6 +13,7 @@ import { Input } from "../shared/Input";
 import { Button } from "../shared/Button";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
+import { useForgotPassword } from "../../hooks/useForgotPassword";
 import { useCedrosTheme } from "../../context/ThemeContext";
 import { validateEmail } from "../../utils/validation";
 
@@ -81,13 +82,23 @@ export function ForgotPasswordForm({
   testID = "forgot-password-form",
 }: ForgotPasswordFormProps): React.ReactElement {
   const { colors, spacing, typography } = useCedrosTheme();
+  const {
+    forgotPassword,
+    isLoading: hookIsLoading,
+    isSuccess: hookIsSuccess,
+    error: hookError,
+  } = useForgotPassword();
   const copy = { ...DEFAULT_STRINGS, ...strings };
+  const usesInternalSubmit = !onSubmit;
 
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [didSubmitSucceed, setDidSubmitSucceed] = useState(false);
+  const isLoading = usesInternalSubmit ? hookIsLoading : isSubmitting;
+  const error = usesInternalSubmit ? hookError?.message ?? null : submitError;
+  const isSuccess = usesInternalSubmit ? hookIsSuccess : didSubmitSucceed;
 
   const validateForm = useCallback((): boolean => {
     if (!email.trim()) {
@@ -107,25 +118,31 @@ export function ForgotPasswordForm({
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
-
     try {
       if (onSubmit) {
+        setIsSubmitting(true);
+        setSubmitError(null);
+        setDidSubmitSucceed(false);
         await onSubmit(email.trim());
+        setDidSubmitSucceed(true);
+      } else {
+        await forgotPassword(email.trim());
       }
-      setIsSuccess(true);
       onSuccess?.();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to send reset email. Please try again.",
-      );
+      if (onSubmit) {
+        setSubmitError(
+          err instanceof Error
+            ? err.message
+            : "Failed to send reset email. Please try again.",
+        );
+      }
     } finally {
-      setIsLoading(false);
+      if (onSubmit) {
+        setIsSubmitting(false);
+      }
     }
-  }, [email, onSubmit, onSuccess, validateForm]);
+  }, [email, forgotPassword, onSubmit, onSuccess, validateForm]);
 
   if (isSuccess) {
     return (

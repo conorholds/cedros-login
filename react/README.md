@@ -206,22 +206,19 @@ function AuthStatus() {
 |-----------|-------------|
 | `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections. **Auto-detects first run and shows SetupWizard.** |
 | `SetupWizard` | First-run setup wizard — creates the first admin account (email, password, name, org). Shown automatically by `CedrosAdminDashboard` when no admin exists. |
-| `cedrosLoginInstalledExtension` | Ready-made installed-extension descriptor for manifest-aware `AdminShell` composition |
-| `cedrosLoginPlugin` | Admin plugin for use with the shared `AdminShell` from `@cedros/data-react/admin` |
+| `cedrosLoginPlugin` | Admin plugin for use with the shared `AdminShell` from `@cedros/admin-react` |
 | `AdminPanel` | Legacy admin dashboard with tabs for members, invites, sessions, system settings |
 | `SystemSettings` | System settings editor (privacy, withdrawal, rate limits) - system admin only |
 
 #### Admin Plugin System
 
-The admin dashboard supports a plugin architecture for creating unified dashboards that combine sections from multiple Cedros packages (e.g., cedros-login + cedros-pay). The shared host now lives in `@cedros/data-react/admin`.
+The admin dashboard supports a plugin architecture for creating unified dashboards that combine sections from multiple Cedros packages (e.g., cedros-login + cedros-pay). The shared host now lives in `@cedros/admin-react`.
 
 | Export | Description |
 |--------|-------------|
-| `cedrosLoginInstalledExtension` | Ready-made installed-extension bundle for the preferred `installedExtensions` host path |
 | `cedrosLoginPlugin` | Plugin definition for cedros-login admin sections |
-| `CedrosLoginAdminSectionWrapper` | Temporary wrapper that recreates `CedrosLoginContext` inside the shared shell |
-| `AdminShell` | Import from `@cedros/data-react/admin` |
-| `useAdminShell` | Import from `@cedros/data-react/admin` |
+| `AdminShell` | Import from `@cedros/admin-react` |
+| `useAdminShell` | Import from `@cedros/admin-react` |
 
 ### Shared
 
@@ -1557,15 +1554,12 @@ function AdminApp() {
 When using both `@cedros/login-react` and `@cedros/pay-react`, you can create a unified admin dashboard that combines sections from both packages using the plugin architecture:
 
 ```tsx
-import { AdminShell, HOST_SERVICE_IDS } from '@cedros/data-react/admin';
-import '@cedros/data-react/admin/styles.css';
+import { AdminShell, HOST_SERVICE_IDS } from '@cedros/admin-react';
+import '@cedros/admin-react/styles.css';
 import { useCedrosLogin } from '@cedros/login-react';
 import { useOrgs } from '@cedros/login-react';
-import {
-  CedrosLoginAdminSectionWrapper,
-  cedrosLoginInstalledExtension,
-} from '@cedros/login-react/admin-only';
-import { cedrosPayInstalledExtension } from '@cedros/pay-react';
+import { cedrosLoginPlugin } from '@cedros/login-react/admin-only';
+import { cedrosPayPlugin } from '@cedros/pay-react';
 
 function UnifiedAdminDashboard() {
   const { user, getAccessToken } = useCedrosLogin();
@@ -1594,12 +1588,11 @@ function UnifiedAdminDashboard() {
   return (
     <AdminShell
       title="Admin Dashboard"
-      installedExtensions={[cedrosLoginInstalledExtension, cedrosPayInstalledExtension]}
+      plugins={[cedrosLoginPlugin, cedrosPayPlugin]}
       hostContext={hostContext}
       defaultSection="cedros-login:users"
       pageSize={20}
       refreshInterval={30000}
-      sectionWrappers={[CedrosLoginAdminSectionWrapper]}
     />
   );
 }
@@ -1607,8 +1600,8 @@ function UnifiedAdminDashboard() {
 
 **How it works:**
 
-1. Each package exports a static extension manifest plus a ready-made installed-extension adapter
-2. `AdminShell` from `@cedros/data-react/admin` aggregates sections from all installed extensions into a unified sidebar
+1. Each package exports an `AdminPlugin` that defines its sections and components
+2. `AdminShell` from `@cedros/admin-react` aggregates sections from all registered plugins into a unified sidebar
 3. Sections are grouped (Users, Store, Configuration) and sorted by order
 4. Each plugin's CSS is isolated via namespace scoping
 

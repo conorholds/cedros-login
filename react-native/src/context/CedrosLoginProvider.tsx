@@ -17,6 +17,10 @@ import { initializeApiServices, getAuthApi } from "../services/api";
 import { TokenManager } from "../utils/tokenManager";
 import { useAutoFeatures } from "../hooks/useAutoFeatures";
 import {
+  resolveTokenStorageAdapter,
+  validatePublishableAuthCompliance,
+} from "../utils";
+import {
   CedrosThemeProvider,
   type CedrosThemeOverrides,
 } from "./ThemeContext";
@@ -95,8 +99,17 @@ export function CedrosLoginProvider({
     serverAppleClientId,
   ]);
 
+  const tokenStorage = useMemo(
+    () => resolveTokenStorageAdapter(resolvedConfig.secureStorage),
+    [resolvedConfig.secureStorage],
+  );
+
+  if (!(isAutoFeatures && featuresLoading)) {
+    validatePublishableAuthCompliance(resolvedConfig, tokenStorage);
+  }
+
   useEffect(() => {
-    const tokenManager = new TokenManager();
+    const tokenManager = new TokenManager(tokenStorage);
     initializeApiServices({
       config: resolvedConfig,
       tokenManager,
@@ -104,7 +117,7 @@ export function CedrosLoginProvider({
     return () => {
       tokenManager.destroy();
     };
-  }, [resolvedConfig]);
+  }, [resolvedConfig, tokenStorage]);
 
   const login = useCallback(async (newUser: AuthUser, tokens?: TokenPair) => {
     setUser(newUser);

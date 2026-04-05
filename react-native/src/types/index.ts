@@ -30,6 +30,9 @@ export type {
   FormConfig,
   TotpConfig,
   WalletConfig,
+  TokenStorageAdapter,
+  SecureStorageConfig,
+  ComplianceConfig,
   CedrosLoginConfig,
 } from "./config";
 

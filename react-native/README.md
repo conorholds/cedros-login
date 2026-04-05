@@ -15,9 +15,9 @@ yarn add @cedros/login-react-native
 ### 2. Install required peer dependencies
 
 ```bash
-npm install @react-native-async-storage/async-storage
+npm install @react-native-async-storage/async-storage react-native-keychain
 # or
-yarn add @react-native-async-storage/async-storage
+yarn add @react-native-async-storage/async-storage react-native-keychain
 ```
 
 ### 3. Platform-specific setup (optional, for social auth)
@@ -44,6 +44,7 @@ npm install @invertase/react-native-apple-authentication
 Configure in your app:
 
 - iOS: Enable "Sign in with Apple" capability in Xcode
+- Return the Apple `authorizationCode` and `nonce` to Cedros so the server can store a revocable refresh token
 - Android: Requires iOS app in App Store first
 
 See: https://github.com/invertase/react-native-apple-authentication
@@ -122,72 +123,67 @@ function LoginScreen() {
 }
 ```
 
-### Google Sign-In
+### Fully Custom Auth Screens
+
+For a fully app-owned theme, use `CedrosLoginProvider` plus the auth hooks and
+render your own React Native components. The exported `Button`, `Input`, and
+other Cedros UI primitives are optional conveniences, not required.
 
 ```tsx
-import { GoogleLoginButton, useGoogleAuth } from "@cedros/login-react-native";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
+import {
+  CedrosLoginProvider,
+  useForgotPassword,
+} from "@cedros/login-react-native";
 
-function GoogleAuthScreen() {
-  const { signIn: cedrosSignIn, isLoading, error } = useGoogleAuth();
+function ForgotPasswordScreen() {
+  const [email, setEmail] = useState("");
+  const { forgotPassword, isLoading, isSuccess, error } = useForgotPassword();
 
-  const handleGoogleSignIn = async () => {
-    try {
-      // Get ID token from Google SDK
-      const { idToken } = await GoogleSignin.signIn();
-
-      // Pass to Cedros
-      const response = await cedrosSignIn(idToken);
-      console.log("Google auth success:", response.user);
-    } catch (err) {
-      console.error("Google auth failed:", err);
-    }
-  };
+  if (isSuccess) {
+    return <Text>Check your email for reset instructions.</Text>;
+  }
 
   return (
-    <GoogleLoginButton
-      onPress={handleGoogleSignIn}
-      isLoading={isLoading}
-      error={error?.message}
-    />
+    <View>
+      <TextInput value={email} onChangeText={setEmail} />
+      {error && <Text>{error.message}</Text>}
+      <Pressable onPress={() => forgotPassword(email)} disabled={isLoading}>
+        <Text>{isLoading ? "Sending..." : "Send reset link"}</Text>
+      </Pressable>
+    </View>
   );
 }
 ```
+
+### Google Sign-In
+
+```tsx
+import { GoogleLoginButton } from "@cedros/login-react-native";
+
+function GoogleAuthScreen() {
+  return <GoogleLoginButton />;
+}
+```
+
+`GoogleLoginButton` uses the native `GoogleSigninButton` automatically when
+`@react-native-google-signin/google-signin` is installed. You can still pass
+`onRequestToken` for a custom Google SDK flow if needed.
 
 ### Apple Sign-In
 
 ```tsx
-import { AppleLoginButton, useAppleAuth } from "@cedros/login-react-native";
-import { appleAuth } from "@invertase/react-native-apple-authentication";
+import { AppleLoginButton } from "@cedros/login-react-native";
 
 function AppleAuthScreen() {
-  const { signIn: cedrosSignIn, isLoading, error } = useAppleAuth();
-
-  const handleAppleSignIn = async () => {
-    try {
-      // Get credential from Apple SDK
-      const appleCredential = await appleAuth.performRequest({
-        requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
-      });
-
-      // Pass ID token to Cedros
-      const response = await cedrosSignIn(appleCredential.identityToken);
-      console.log("Apple auth success:", response.user);
-    } catch (err) {
-      console.error("Apple auth failed:", err);
-    }
-  };
-
-  return (
-    <AppleLoginButton
-      onPress={handleAppleSignIn}
-      isLoading={isLoading}
-      error={error?.message}
-    />
-  );
+  return <AppleLoginButton />;
 }
 ```
+
+On iOS, `AppleLoginButton` uses the native Apple sign-in control automatically
+when `@invertase/react-native-apple-authentication` is installed. You can still
+pass `onRequestToken` for a custom Apple SDK flow.
 
 ### Solana Wallet Authentication
 
@@ -296,8 +292,10 @@ UI Components → Hooks → API Services → Backend
 | ----------------------- | ------------------------------------------------ |
 | `useAuth()`             | Session management (logout, refresh)             |
 | `useEmailAuth()`        | Email/password authentication                    |
+| `useForgotPassword()`   | Forgot-password email request flow               |
 | `useGoogleAuth()`       | Google Sign-In                                   |
 | `useAppleAuth()`        | Apple Sign-In                                    |
+| `useAccountDeletion()`  | In-app deletion + hosted deletion URL            |
 | `useSolanaAuth()`       | Solana wallet authentication (sign-in call)      |
 | `useMobileWalletAuth()` | MWA challenge-sign flow (Android, built-in)      |
 | `useOrgs()`             | Organization management                          |
@@ -398,7 +396,7 @@ export default App;
 
 - ✅ Two-factor authentication (TOTP)
 - ✅ Biometric wallet unlock
-- ✅ Secure token storage (AsyncStorage)
+- ✅ Secure token storage (Keychain / Keystore by default)
 - ✅ Session revocation
 - ✅ Crypto utilities (AES-GCM, Argon2, Shamir Secret Sharing)
 
@@ -420,13 +418,20 @@ export default App;
 
 | Feature         | Web (@cedros/login-react) | Mobile (@cedros/login-react-native)          |
 | --------------- | ------------------------- | -------------------------------------------- |
-| **Storage**     | localStorage/cookies      | AsyncStorage                                 |
+| **Storage**     | localStorage/cookies      | Keychain / Keystore (AsyncStorage only by opt-in fallback) |
 | **Google Auth** | Google Identity Services  | @react-native-google-signin                  |
 | **Apple Auth**  | Sign in with Apple JS     | @invertase/react-native-apple-authentication |
 | **Solana**      | Browser wallet adapters   | Mobile Wallet Adapter                        |
 | **Biometrics**  | WebAuthn                  | Platform APIs (via dependencies)             |
 | **UI**          | React DOM                 | React Native                                 |
 | **Admin**       | Included                  | **Excluded**                                 |
+
+## Publishing Compliance
+
+- Install `react-native-keychain` or provide `config.secureStorage.adapter` before shipping. Production compliance checks reject insecure token persistence.
+- If Google Sign-In is enabled on iOS, also enable Sign in with Apple unless you have an App Store exemption and set `config.compliance.appleSignInExemptionReason`.
+- The hosted public deletion URL defaults to `${serverUrl}/auth/account-deletion`, or you can override it with `config.compliance.accountDeletionUrl`.
+- Use `useAccountDeletion()` or `DeleteAccountSection` to satisfy the in-app account deletion requirement while also reusing the hosted external deletion portal for Google Play.
 
 ## API Reference
 
@@ -437,7 +442,7 @@ All components, hooks, types, and utilities are exported from the main entry poi
 export { EmailLoginForm, GoogleLoginButton, WalletStatus, ... };
 
 // Hooks
-export { useAuth, useEmailAuth, useGoogleAuth, useWallet, ... };
+export { useAuth, useEmailAuth, useForgotPassword, useGoogleAuth, ... };
 
 // Context
 export { CedrosLoginProvider, useCedrosLogin };

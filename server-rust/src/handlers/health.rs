@@ -157,32 +157,9 @@ mod tests {
         JwtService, LogEmailService, MfaAttemptService, PasswordService, SolanaService,
         TotpService, WalletSigningService, WebAuthnService,
     };
+    use crate::test_env::{clear_env, lock_env, set_env};
     use crate::utils::TokenCipher;
     use crate::{Config, NoopCallback, Storage};
-    use std::sync::Mutex;
-
-    struct EnvGuard {
-        key: &'static str,
-        previous: Option<String>,
-    }
-
-    impl Drop for EnvGuard {
-        fn drop(&mut self) {
-            if let Some(value) = &self.previous {
-                unsafe { std::env::set_var(self.key, value) };
-            } else {
-                unsafe { std::env::remove_var(self.key) };
-            }
-        }
-    }
-
-    fn set_env(key: &'static str, value: &str) -> EnvGuard {
-        let previous = std::env::var(key).ok();
-        unsafe { std::env::set_var(key, value) };
-        EnvGuard { key, previous }
-    }
-
-    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     fn base_config() -> Config {
         Config {
@@ -345,6 +322,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_health_check_in_memory() {
+        let _lock = lock_env();
+        let _replicas = clear_env("REPLICAS");
         let config = base_config();
         let state = build_state(config);
 
@@ -361,6 +340,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_readiness_check_in_memory() {
+        let _lock = lock_env();
+        let _replicas = clear_env("REPLICAS");
         let config = base_config();
         let state = build_state(config);
 
@@ -372,8 +353,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_readiness_check_memory_multi_instance_is_degraded() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _replicas = set_env("REPLICAS", "2");
+        let _lock = lock_env();
+        let _replicas = set_env("REPLICAS", Some("2"));
         let config = base_config();
         let state = build_state(config);
 

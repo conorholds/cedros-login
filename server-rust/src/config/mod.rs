@@ -796,7 +796,7 @@ impl Config {
 mod tests {
     use super::*;
     use base64::Engine;
-    use std::sync::Mutex;
+    use crate::test_env::{lock_env, set_env};
 
     fn base_config() -> Config {
         Config {
@@ -884,9 +884,9 @@ mod tests {
 
     #[test]
     fn test_cookie_secure_passes_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -899,9 +899,9 @@ mod tests {
 
     #[test]
     fn test_jwt_rsa_private_key_required_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -915,9 +915,9 @@ mod tests {
 
     #[test]
     fn test_jwt_rsa_private_key_required_in_staging() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "staging".to_string();
@@ -965,8 +965,8 @@ mod tests {
 
     #[test]
     fn test_rate_limit_memory_rejected_in_production_multi_instance() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _replicas = set_env("REPLICAS", "2");
+        let _lock = lock_env();
+        let _replicas = set_env("REPLICAS", Some("2"));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -980,34 +980,11 @@ mod tests {
         assert!(err.contains("RATE_LIMIT_STORE=memory is not allowed"));
     }
 
-    struct EnvGuard {
-        key: &'static str,
-        prev: Option<String>,
-    }
-
-    impl Drop for EnvGuard {
-        fn drop(&mut self) {
-            if let Some(value) = &self.prev {
-                std::env::set_var(self.key, value);
-            } else {
-                std::env::remove_var(self.key);
-            }
-        }
-    }
-
-    fn set_env(key: &'static str, value: &str) -> EnvGuard {
-        let prev = std::env::var(key).ok();
-        std::env::set_var(key, value);
-        EnvGuard { key, prev }
-    }
-
-    static ENV_LOCK: Mutex<()> = Mutex::new(());
-
     #[test]
     fn test_from_env_runs_validation() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _jwt = set_env("JWT_SECRET", "short");
-        let _google = set_env("GOOGLE_ENABLED", "false");
+        let _lock = lock_env();
+        let _jwt = set_env("JWT_SECRET", Some("short"));
+        let _google = set_env("GOOGLE_ENABLED", Some("false"));
 
         let err = Config::from_env().unwrap_err().to_string();
         assert!(err.contains("JWT_SECRET must be at least"));
@@ -1016,9 +993,9 @@ mod tests {
     #[test]
     fn test_cors_required_in_production() {
         // F-03: CORS origins must be configured in production-like envs
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -1031,9 +1008,9 @@ mod tests {
 
     #[test]
     fn test_cors_required_in_staging() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "staging".to_string();
@@ -1055,9 +1032,9 @@ mod tests {
 
     #[test]
     fn test_cors_passes_in_production_with_origins() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -1069,9 +1046,9 @@ mod tests {
 
     #[test]
     fn test_privacy_sidecar_requires_https_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -1103,9 +1080,9 @@ mod tests {
 
     #[test]
     fn test_sso_callback_url_requires_https_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -1120,9 +1097,9 @@ mod tests {
 
     #[test]
     fn test_sso_callback_url_required_when_frontend_not_https_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let totp_secret = "s".repeat(MIN_JWT_SECRET_LENGTH);
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", &totp_secret);
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(&totp_secret));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -1142,8 +1119,8 @@ mod tests {
 
     #[test]
     fn test_totp_encryption_secret_required_in_production() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", "");
+        let _lock = lock_env();
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(""));
 
         let mut config = base_config();
         config.notification.environment = "production".to_string();
@@ -1157,8 +1134,8 @@ mod tests {
 
     #[test]
     fn test_totp_encryption_secret_required_in_staging() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        let _totp = set_env("TOTP_ENCRYPTION_SECRET", "");
+        let _lock = lock_env();
+        let _totp = set_env("TOTP_ENCRYPTION_SECRET", Some(""));
 
         let mut config = base_config();
         config.notification.environment = "staging".to_string();

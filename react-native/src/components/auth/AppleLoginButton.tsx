@@ -10,13 +10,36 @@ import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
 import { useAppleAuth } from "../../hooks/useAppleAuth";
+import type { AppleSignInPayload } from "../../hooks/useAppleAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import type { AuthError } from "../../types";
+import {
+  getAppleAuthModule,
+  requestNativeAppleCredential,
+} from "../../utils/nativeAuthModules";
+
+type NativeAppleButtonProps = {
+  buttonStyle?: unknown;
+  buttonType?: unknown;
+  cornerRadius?: number;
+  onPress: () => void;
+  disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
+};
+
+type NativeAppleButtonComponent = React.ComponentType<NativeAppleButtonProps> & {
+  Style?: {
+    BLACK?: unknown;
+  };
+  Type?: {
+    SIGN_IN?: unknown;
+  };
+};
 
 export interface AppleLoginButtonProps {
-  /** Callback invoked on press; should trigger native Apple Sign-In and return the ID token. */
-  onRequestToken: () => Promise<{ idToken: string }>;
+  /** Callback invoked on press; should trigger native Apple Sign-In and return the auth payload. */
+  onRequestToken?: () => Promise<AppleSignInPayload>;
   onSuccess?: () => void;
   onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
@@ -27,10 +50,8 @@ export interface AppleLoginButtonProps {
  * Apple Sign-In button component.
  *
  * @remarks
- * This component uses the Apple logo Unicode character as a placeholder icon.
- * Consumers should provide their own custom Apple icon for production use to ensure
- * consistent rendering across all platforms and devices.
- * Consider using react-native-vector-icons or the official Apple Sign In button assets.
+ * Use the native Apple authentication UI in `onRequestToken`.
+ * This component only submits the resulting credential to the Cedros backend.
  */
 export function AppleLoginButton({
   onRequestToken,
@@ -40,11 +61,14 @@ export function AppleLoginButton({
   testID = "apple-login-button",
 }: AppleLoginButtonProps): React.ReactElement {
   const { signIn, isLoading, error } = useAppleAuth();
+  const appleModule = getAppleAuthModule();
+  const NativeAppleButton =
+    (appleModule?.AppleButton as NativeAppleButtonComponent | undefined) ?? null;
 
   const handlePress = useCallback(async () => {
     try {
-      const { idToken } = await onRequestToken();
-      await signIn(idToken);
+      const applePayload = await (onRequestToken ?? requestNativeAppleCredential)();
+      await signIn(applePayload);
       onSuccess?.();
     } catch (e) {
       const authError: AuthError =
@@ -60,46 +84,38 @@ export function AppleLoginButton({
       {error && (
         <ErrorMessage error={error} style={{ marginBottom: spacing.sm }} />
       )}
-      <TouchableOpacity
-        onPress={handlePress}
-        disabled={isLoading}
-        activeOpacity={0.8}
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: colors.black,
-          borderRadius: 8,
-          paddingVertical: spacing.md,
-          paddingHorizontal: spacing.lg,
-        }}
-        testID={testID}
-        accessibilityRole="button"
-        accessibilityLabel="Sign in with Apple"
-      >
-        {isLoading ? (
-          <LoadingSpinner size="small" color={colors.white} />
-        ) : (
-          <>
-            <View
-              style={{
-                width: 20,
-                height: 20,
-                marginRight: spacing.md,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  color: colors.white,
-                  fontSize: 16,
-                  fontWeight: typography.weights.bold,
-                }}
-              >
-                &#63743;
-              </Text>
-            </View>
+      {NativeAppleButton ? (
+        <NativeAppleButton
+          buttonStyle={NativeAppleButton.Style?.BLACK}
+          buttonType={NativeAppleButton.Type?.SIGN_IN}
+          cornerRadius={8}
+          onPress={handlePress}
+          disabled={isLoading}
+          style={{ height: 44 }}
+        />
+      ) : (
+        <TouchableOpacity
+          onPress={handlePress}
+          disabled={isLoading}
+          activeOpacity={0.8}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: colors.black,
+            borderWidth: 1,
+            borderColor: colors.black,
+            borderRadius: 8,
+            paddingVertical: spacing.md,
+            paddingHorizontal: spacing.lg,
+          }}
+          testID={testID}
+          accessibilityRole="button"
+          accessibilityLabel="Sign in with Apple"
+        >
+          {isLoading ? (
+            <LoadingSpinner size="small" color={colors.white} />
+          ) : (
             <Text
               style={{
                 fontSize: typography.sizes.base,
@@ -107,11 +123,11 @@ export function AppleLoginButton({
                 color: colors.white,
               }}
             >
-              Continue with Apple
+              Sign in with Apple
             </Text>
-          </>
-        )}
-      </TouchableOpacity>
+          )}
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

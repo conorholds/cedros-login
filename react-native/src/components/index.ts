@@ -48,6 +48,12 @@ export { MemberList, type MemberListProps } from "./members/MemberList";
 export { InviteForm, type InviteFormProps } from "./invites/InviteForm";
 export { InviteList, type InviteListProps } from "./invites/InviteList";
 
+// Account components
+export {
+  DeleteAccountSection,
+  type DeleteAccountSectionProps,
+} from "./account/DeleteAccountSection";
+
 // Session components
 export { SessionList, type SessionListProps } from "./sessions/SessionList";
 

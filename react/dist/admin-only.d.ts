@@ -1,30 +1,29 @@
-import { AdminHostContext } from '@cedros/data-react/admin';
-import { AdminHostServiceBag } from '@cedros/data-react/admin';
-import { AdminModule } from '@cedros/data-react/admin';
-import { AdminModuleId } from '@cedros/data-react/admin';
-import { AdminModuleManifest } from '@cedros/data-react/admin';
-import { AdminModulePermission } from '@cedros/data-react/admin';
-import { AdminModuleRegistry } from '@cedros/data-react/admin';
-import { AdminPlugin } from '@cedros/data-react/admin';
-import { AdminShellSectionWrapper } from '@cedros/data-react/admin';
-import { CedrosExtensionManifest } from '@cedros/data-react/admin';
-import { CedrosExtensionPackageSurface } from '@cedros/data-react/admin';
-import { CedrosInstalledExtension } from '@cedros/data-react/admin';
-import { CedrosInstalledExtensionCatalog } from '@cedros/data-react/admin';
+import { AdminGroupConfig } from '@cedros/admin-react';
+import { AdminHostContext } from '@cedros/admin-react';
+import { AdminHostServiceBag } from '@cedros/admin-react';
+import { AdminPlugin } from '@cedros/admin-react';
+import { AdminSectionConfig } from '@cedros/admin-react';
+import { AdminSectionProps } from '@cedros/admin-react';
+import { HostContext } from '@cedros/admin-react';
+import { PluginContext } from '@cedros/admin-react';
+import { PluginId } from '@cedros/admin-react';
+import { PluginPermission } from '@cedros/admin-react';
+import { PluginRegistry } from '@cedros/admin-react';
+import { QualifiedSectionId } from '@cedros/admin-react';
+import { ResolvedSection } from '@cedros/admin-react';
+import { SectionId } from '@cedros/admin-react';
+
+export { AdminGroupConfig }
 
 export { AdminHostContext }
 
 export { AdminHostServiceBag }
 
-export { AdminModule }
+export { AdminPlugin }
 
-export { AdminModuleId }
+export { AdminSectionConfig }
 
-export { AdminModuleManifest }
-
-export { AdminModulePermission }
-
-export { AdminModuleRegistry }
+export { AdminSectionProps }
 
 /**
  * All section IDs registered by the cedros-login plugin.
@@ -47,28 +46,24 @@ export declare const CEDROS_LOGIN_SECTION_IDS: {
     readonly settingsServer: "settings-server";
 };
 
-export { CedrosExtensionManifest }
-
-export { CedrosExtensionPackageSurface }
-
-export { CedrosInstalledExtension }
-
-export { CedrosInstalledExtensionCatalog }
-
-export declare const cedrosLoginAdminModuleManifest: AdminModuleManifest;
-
-export declare const CedrosLoginAdminSectionWrapper: AdminShellSectionWrapper;
-
-export declare const cedrosLoginExtensionManifest: CedrosExtensionManifest;
-
-/**
- * Ready-made installed-extension descriptor for AdminShell's preferred
- * `installedExtensions` composition path.
- */
-export declare const cedrosLoginInstalledExtension: CedrosInstalledExtension;
-
 declare const cedrosLoginPlugin: AdminPlugin;
 export { cedrosLoginPlugin }
 export { cedrosLoginPlugin as loginPlugin }
+
+export { HostContext }
+
+export { PluginContext }
+
+export { PluginId }
+
+export { PluginPermission }
+
+export { PluginRegistry }
+
+export { QualifiedSectionId }
+
+export { ResolvedSection }
+
+export { SectionId }
 
 export { }

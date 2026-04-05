@@ -1,7 +1,16 @@
 export { useAuth, type UseAuthReturn } from "./useAuth";
 export { useEmailAuth, type UseEmailAuthReturn } from "./useEmailAuth";
+export {
+  useForgotPassword,
+  type UseForgotPasswordReturn,
+} from "./useForgotPassword";
 export { useGoogleAuth, type UseGoogleAuthReturn } from "./useGoogleAuth";
 export { useAppleAuth, type UseAppleAuthReturn } from "./useAppleAuth";
+export type { AppleSignInPayload } from "./useAppleAuth";
+export {
+  useAccountDeletion,
+  type UseAccountDeletionReturn,
+} from "./useAccountDeletion";
 export { useSolanaAuth, type UseSolanaAuthReturn } from "./useSolanaAuth";
 export { useMobileWalletAuth, type UseMobileWalletAuthReturn, type MobileWalletCredentials } from "./useMobileWalletAuth";
 export { useOrgs, type UseOrgsReturn } from "./useOrgs";

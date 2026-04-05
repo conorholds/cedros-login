@@ -473,7 +473,8 @@ mod tests {
     use crate::models::sso::SsoAuthState;
     use crate::repositories::{NonceEntity, SessionEntity, UserEntity, WebAuthnChallenge};
     use chrono::{Duration as ChronoDuration, Utc};
-    use std::sync::Mutex;
+    #[cfg(feature = "postgres")]
+    use crate::test_env::{lock_env, set_env};
     use std::time::Duration;
     use uuid::Uuid;
 
@@ -701,39 +702,10 @@ mod tests {
         assert_eq!(removed_challenges, 0);
     }
 
-    #[cfg(feature = "postgres")]
-    static ENV_LOCK: Mutex<()> = Mutex::new(());
-
-    #[cfg(feature = "postgres")]
-    struct EnvGuard {
-        key: &'static str,
-        prev: Option<String>,
-    }
-
-    #[cfg(feature = "postgres")]
-    impl Drop for EnvGuard {
-        fn drop(&mut self) {
-            match self.prev.as_deref() {
-                Some(v) => std::env::set_var(self.key, v),
-                None => std::env::remove_var(self.key),
-            }
-        }
-    }
-
-    #[cfg(feature = "postgres")]
-    fn set_env(key: &'static str, value: Option<&str>) -> EnvGuard {
-        let prev = std::env::var(key).ok();
-        match value {
-            Some(v) => std::env::set_var(key, v),
-            None => std::env::remove_var(key),
-        }
-        EnvGuard { key, prev }
-    }
-
     #[test]
     #[cfg(feature = "postgres")]
     fn test_select_totp_encryption_secret_requires_dedicated_secret_in_staging() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let _env = set_env("ENVIRONMENT", Some("staging"));
         let _totp = set_env("TOTP_ENCRYPTION_SECRET", None);
         let _jwt = set_env("JWT_SECRET", Some(&"s".repeat(32)));
@@ -745,7 +717,7 @@ mod tests {
     #[test]
     #[cfg(feature = "postgres")]
     fn test_select_totp_encryption_secret_allows_jwt_secret_in_development() {
-        let _lock = ENV_LOCK.lock().unwrap();
+        let _lock = lock_env();
         let _env = set_env("ENVIRONMENT", Some("development"));
         let _totp = set_env("TOTP_ENCRYPTION_SECRET", None);
         let _jwt = set_env("JWT_SECRET", Some(&"s".repeat(32)));
