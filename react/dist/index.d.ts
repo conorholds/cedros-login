@@ -3468,16 +3468,7 @@ export declare interface SolanaConfig {
     autoConnect?: boolean;
 }
 
-/**
- * Solana wallet login button with one-click authentication.
- *
- * Uses the standard wallet adapter modal for wallet selection, which provides
- * real brand icons and discovers all wallet-standard-compliant wallets.
- *
- * When `walletContext` is provided, assumes a WalletProvider exists in the tree.
- * Otherwise, wraps itself with WalletProvider for self-contained operation.
- */
-export declare function SolanaLoginButton(props: SolanaLoginButtonProps): JSX.Element;
+export declare function SolanaLoginButton(props: SolanaLoginButtonProps): JSX.Element | null;
 
 export declare interface SolanaLoginButtonProps {
     onSuccess?: () => void;
@@ -3486,44 +3477,11 @@ export declare interface SolanaLoginButtonProps {
     variant?: 'default' | 'outline';
     size?: 'sm' | 'md' | 'lg';
     disabled?: boolean;
-    /**
-     * Hide the button if no Solana wallets are detected.
-     * When true (default), button renders nothing if no wallets are installed.
-     * When false, button always renders (useful for showing "install wallet" prompts).
-     * @default true
-     */
     hideIfNoWallet?: boolean;
-    /** Called when the button's loading state changes (connecting, signing, etc.). */
     onLoadingChange?: (loading: boolean) => void;
-    /** Access code forwarded to the server when this flow creates a new account. */
     accessCode?: string;
-    /**
-     * Solana wallet adapter context. Pass this from @solana/wallet-adapter-react's useWallet().
-     * When provided, the component assumes a WalletProvider exists in the React tree and
-     * uses the consumer's wallet context for wallet discovery and connection.
-     * When omitted, the component provides its own WalletProvider with wallet-standard discovery.
-     */
-    walletContext?: {
-        publicKey: {
-            toBase58: () => string;
-        } | null;
-        signMessage: ((message: Uint8Array) => Promise<Uint8Array>) | null;
-        connected: boolean;
-        connecting: boolean;
-        connect: () => Promise<void>;
-        wallet: {
-            adapter: {
-                name: string;
-            };
-        } | null;
+    walletContext?: Omit<WalletAdapterState, 'select'> & {
         select: (walletName: string) => void;
-        wallets: Array<{
-            adapter: {
-                name: string;
-                icon: string;
-                readyState: string;
-            };
-        }>;
     };
 }
 
@@ -5927,6 +5885,23 @@ export declare interface UseWithdrawalReturn {
  */
 export declare function validatePassword(password: string): PasswordValidation;
 
+declare interface WalletAdapterState {
+    publicKey: {
+        toBase58: () => string;
+    } | null;
+    signMessage: ((message: Uint8Array) => Promise<Uint8Array>) | null;
+    connected: boolean;
+    connecting: boolean;
+    connect: () => Promise<void>;
+    wallet: {
+        adapter: {
+            name: string;
+        };
+    } | null;
+    wallets: WalletLike[];
+    select: (walletName: string | null) => void;
+}
+
 export declare function WalletAddressRow({ address, label, showCopy, showExplorerLink, allowReveal, className, }: WalletAddressRowProps): JSX.Element;
 
 export declare interface WalletAddressRowProps {
@@ -6068,6 +6043,14 @@ export declare interface WalletEnrollRequest {
      * Contains the full seed for server-side storage until user acknowledges
      */
     recoveryData?: string;
+}
+
+declare interface WalletLike {
+    adapter: {
+        name: string;
+        icon: string;
+        readyState: string;
+    };
 }
 
 /**

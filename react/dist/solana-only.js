@@ -1,6 +1,6 @@
 import { C as r, F as s, a as o, g as t, b as F, c as n, i as g, p as i, r as u, d as l, u as E } from "./useAuth-BRvlrIkP.js";
 import { u as p } from "./useCedrosLogin-BDbp-ld1.js";
-import { S as f, r as A, u as R } from "./SolanaLoginButton-CZpQicbG.js";
+import { S as f, r as A, u as R } from "./SolanaLoginButton-Dp_Lp2eF.js";
 import { E as _, L as m } from "./ErrorMessage-59nRkszi.js";
 export {
   r as CedrosLoginProvider,
