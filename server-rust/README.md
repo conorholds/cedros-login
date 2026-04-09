@@ -106,7 +106,7 @@ On a fresh install (no users in the database), you need to create the first admi
 
 **Option A: UI Setup Wizard (recommended)**
 
-If you're using `@cedros/login-react`, the `<CedrosAdminDashboard>` component automatically detects that no admin exists and shows a WordPress-style setup wizard. Just open the admin page in your browser — it will prompt for email, password, name, and organization name.
+If you're building your admin route with `@cedros/admin-react` and `@cedros/login-react/admin-only`, check `useSetup().status?.needsSetup` under a `CedrosLoginProvider` and render `<SetupWizard />` from `@cedros/login-react/non-wallet` until the first admin account is created.
 
 **Option B: API call**
 

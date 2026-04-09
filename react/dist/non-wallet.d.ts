@@ -286,6 +286,36 @@ export declare interface CedrosLoginProviderProps {
     children: ReactNode;
 }
 
+/** Request to create the first admin user */
+declare interface CreateFirstAdminRequest {
+    /** Admin email address */
+    email: string;
+    /** Admin password */
+    password: string;
+    /** Optional display name */
+    name?: string;
+    /** Organization name (defaults to "My Organization" on server) */
+    orgName?: string;
+}
+
+/** Response after creating first admin */
+declare interface CreateFirstAdminResponse {
+    /** Whether admin was successfully created */
+    success: boolean;
+    /** Created user ID */
+    userId: string;
+    /** Message for the user */
+    message: string;
+}
+
+/**
+ * Create organization request
+ */
+declare interface CreateOrgRequest {
+    name: string;
+    slug?: string;
+}
+
 /**
  * Email/password login form
  */
@@ -495,6 +525,43 @@ export declare interface LoginFormProps {
     defaultTab?: 'login' | 'register';
 }
 
+/**
+ * Membership - user's relationship to an organization
+ */
+declare interface Membership {
+    id?: string;
+    userId?: string;
+    orgId?: string;
+    role: OrgRole;
+    joinedAt?: string;
+}
+
+/**
+ * Organization entity
+ */
+declare interface Organization {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl?: string;
+    isPersonal: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+/**
+ * Organization role in RBAC hierarchy
+ * owner > admin > member
+ */
+declare type OrgRole = 'owner' | 'admin' | 'member';
+
+/**
+ * Organization with membership details for the current user
+ */
+declare interface OrgWithMembership extends Organization {
+    membership: Membership;
+}
+
 export declare function parseFeatureFlagBoolean(value: unknown): boolean | undefined;
 
 export declare function PasskeyLoginButton({ onSuccess, onError, className, children, disabled, accessCode, }: PasskeyLoginButtonProps): JSX.Element;
@@ -537,6 +604,11 @@ export declare interface PasswordValidation {
     };
     strength: 'weak' | 'fair' | 'good' | 'strong';
 }
+
+/**
+ * Permission types for RBAC
+ */
+declare type Permission = 'org:delete' | 'org:update' | 'org:read' | 'member:invite' | 'member:remove' | 'member:role_change' | 'member:read' | 'invite:create' | 'invite:cancel' | 'invite:read' | 'audit:read';
 
 /**
  * Post-login action returned by the server after authentication
@@ -629,6 +701,51 @@ export declare interface SessionConfig {
  *   auth is not possible (e.g., cross-origin scenarios without proper CORS).
  */
 export declare type SessionStorage = 'cookie' | 'memory' | 'localStorage' | 'sessionStorage';
+
+/**
+ * Setup types for first-run configuration
+ */
+/** Response from setup status check */
+declare interface SetupStatusResponse {
+    /** Whether initial setup is needed (no admin exists) */
+    needsSetup: boolean;
+    /** Whether at least one admin user exists */
+    hasAdmin: boolean;
+    /** Server version for compatibility checking */
+    serverVersion: string;
+}
+
+export declare function SetupWizard({ onComplete, className }: SetupWizardProps): JSX.Element;
+
+/**
+ * Setup Wizard Component
+ *
+ * Displayed during first-run when no admin user exists.
+ * Allows creating the first admin account.
+ *
+ * @example
+ * ```tsx
+ * function AdminApp() {
+ *   const { status, isLoading, checkStatus, createAdmin } = useSetup();
+ *
+ *   useEffect(() => {
+ *     checkStatus();
+ *   }, [checkStatus]);
+ *
+ *   if (isLoading) return <LoadingSpinner />;
+ *   if (status?.needsSetup) {
+ *     return <SetupWizard onComplete={() => window.location.reload()} />;
+ *   }
+ *   return <AdminRoute />;
+ * }
+ * ```
+ */
+export declare interface SetupWizardProps {
+    /** Callback when setup is complete */
+    onComplete?: () => void;
+    /** Additional CSS class */
+    className?: string;
+}
 
 /**
  * Solana configuration options
@@ -734,6 +851,15 @@ declare interface TotpConfig {
 }
 
 /**
+ * Update organization request
+ */
+declare interface UpdateOrgRequest {
+    name?: string;
+    slug?: string;
+    logoUrl?: string;
+}
+
+/**
  * Hook to access only auth state (user, authState, config, logout, refreshUser).
  *
  * Does NOT re-render on UI state changes (modal, error). Use this in components
@@ -757,6 +883,97 @@ export declare function useAuthUI(): AuthUIContextValue;
  * only need a subset of the context. This hook re-renders on any change.
  */
 export declare function useCedrosLogin(): CedrosLoginContextValue;
+
+/**
+ * Hook for managing organizations, memberships, and permissions.
+ *
+ * @example
+ * ```tsx
+ * function OrgSelector() {
+ *   const { orgs, activeOrg, switchOrg, hasPermission } = useOrgs();
+ *
+ *   return (
+ *     <select
+ *       value={activeOrg?.id}
+ *       onChange={(e) => switchOrg(e.target.value)}
+ *     >
+ *       {orgs.map(org => (
+ *         <option key={org.id} value={org.id}>{org.name}</option>
+ *       ))}
+ *     </select>
+ *   );
+ * }
+ * ```
+ */
+export declare function useOrgs(): UseOrgsReturn;
+
+export declare interface UseOrgsReturn {
+    /** All organizations the user belongs to */
+    orgs: OrgWithMembership[];
+    /** Currently active organization */
+    activeOrg: OrgWithMembership | null;
+    /** User's permissions in the active org */
+    permissions: Permission[];
+    /** User's role in the active org */
+    role: OrgRole | null;
+    /** Loading state */
+    isLoading: boolean;
+    /** Error state */
+    error: AuthError | null;
+    /** Fetch/refresh organizations list */
+    fetchOrgs: () => Promise<void>;
+    /** Switch to a different organization */
+    switchOrg: (orgId: string) => Promise<void>;
+    /** Create a new organization */
+    createOrg: (data: CreateOrgRequest) => Promise<Organization>;
+    /** Update an organization */
+    updateOrg: (orgId: string, data: UpdateOrgRequest) => Promise<Organization>;
+    /** Delete an organization */
+    deleteOrg: (orgId: string) => Promise<void>;
+    /** Check if user has a specific permission */
+    hasPermission: (permission: Permission) => boolean;
+}
+
+/**
+ * Hook for first-run setup operations.
+ *
+ * Checks if setup is needed (no admin exists) and provides
+ * ability to create the first admin user.
+ *
+ * @example
+ * ```tsx
+ * function SetupCheck() {
+ *   const { status, isLoading, checkStatus, createAdmin } = useSetup();
+ *
+ *   useEffect(() => {
+ *     checkStatus();
+ *   }, [checkStatus]);
+ *
+ *   if (isLoading) return <Loading />;
+ *   if (status?.needsSetup) {
+ *     return <SetupWizard onCreateAdmin={createAdmin} />;
+ *   }
+ *   return <AdminRoute />;
+ * }
+ * ```
+ */
+export declare function useSetup(): UseSetupReturn;
+
+/** Return type for useSetup hook */
+export declare interface UseSetupReturn {
+    /** Current setup status */
+    status: SetupStatusResponse | null;
+    /** Whether status is loading */
+    isLoading: boolean;
+    /** Whether admin creation is in progress */
+    isCreating: boolean;
+    /** Error if any */
+    error: Error | null;
+    /** Check setup status */
+    checkStatus: () => Promise<void>;
+    /** Create first admin */
+    createAdmin: (request: CreateFirstAdminRequest) => Promise<CreateFirstAdminResponse>;
+}
 
 /**
  * Password validation rules:

@@ -860,35 +860,6 @@ export declare interface CapabilityWarningProps {
 }
 
 /**
- * Unified Admin Dashboard
- *
- * Provides a complete admin interface with sidebar navigation.
- * Follows shadcn/ui dashboard patterns.
- */
-export declare function CedrosAdminDashboard({ title, sections, defaultSection, refreshInterval, pageSize, onSectionChange, onSettingsClick, onLogoutClick, className, }: CedrosAdminDashboardProps): JSX.Element;
-
-export declare interface CedrosAdminDashboardProps {
-    /** Dashboard title */
-    title?: string;
-    /** Sections to display (defaults to all) */
-    sections?: DashboardSection[];
-    /** Initial active section */
-    defaultSection?: DashboardSection;
-    /** Auto-refresh interval for stats in ms (0 to disable) */
-    refreshInterval?: number;
-    /** Items per page for lists */
-    pageSize?: number;
-    /** Callback when section changes */
-    onSectionChange?: (section: DashboardSection) => void;
-    /** Callback when user clicks Settings in profile dropdown */
-    onSettingsClick?: () => void;
-    /** Callback when user clicks Logout in profile dropdown (defaults to context logout) */
-    onLogoutClick?: () => void;
-    /** Additional CSS class */
-    className?: string;
-}
-
-/**
  * Full configuration for the authentication system.
  *
  * **Note:** When passing config to `<CedrosLoginProvider>`, use
@@ -1280,12 +1251,6 @@ declare interface CustomTokenDefinition {
     /** Optional logo URL */
     logoUrl?: string;
 }
-
-/**
- * Types and props interfaces for CedrosAdminDashboard
- */
-/** Available dashboard sections */
-export declare type DashboardSection = 'users' | 'team' | 'referrals' | 'deposits' | 'withdrawals' | 'compliance' | 'accreditation-queue' | 'sanctions' | 'signup-gating' | 'settings-wallet' | 'settings-auth' | 'settings-messaging' | 'settings-credits' | 'settings-compliance' | 'settings-referrals' | 'settings-signup' | 'settings-server' | 'settings-images';
 
 declare type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -3399,7 +3364,7 @@ export declare function SetupWizard({ onComplete, className }: SetupWizardProps)
  *   if (status?.needsSetup) {
  *     return <SetupWizard onComplete={() => window.location.reload()} />;
  *   }
- *   return <CedrosAdminDashboard />;
+ *   return <AdminRoute />;
  * }
  * ```
  */
@@ -5373,7 +5338,7 @@ export declare interface UseSetPasswordReturn {
  *   if (status?.needsSetup) {
  *     return <SetupWizard onCreateAdmin={createAdmin} />;
  *   }
- *   return <Dashboard />;
+ *   return <AdminRoute />;
  * }
  * ```
  */

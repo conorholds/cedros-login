@@ -226,12 +226,11 @@ function AuthStatus() {
 |-----------|-------------|
 | `RewardsPanel` | Self-contained rewards dashboard with summary cards, payout wallet editor, and paginated history |
 
-### Admin Dashboard
+### Admin
 
 | Component | Description |
 |-----------|-------------|
-| `CedrosAdminDashboard` | Complete standalone admin panel with sidebar navigation and all sections. **Auto-detects first run and shows SetupWizard.** |
-| `SetupWizard` | First-run setup wizard — creates the first admin account (email, password, name, org). Shown automatically by `CedrosAdminDashboard` when no admin exists. |
+| `SetupWizard` | First-run setup wizard — creates the first admin account (email, password, name, org). Render it on your admin route before loading `AdminShell` when `useSetup().status?.needsSetup` is true. |
 | `cedrosLoginPlugin` | Admin plugin for use with the shared `AdminShell` from `@cedros/admin-react` |
 | `AdminPanel` | Legacy admin dashboard with tabs for members, invites, sessions, system settings |
 | `SystemSettings` | System settings editor (privacy, withdrawal, rate limits) - system admin only |
@@ -1538,75 +1537,37 @@ function AdminStatsWidget() {
 }
 ```
 
-### Admin Dashboard
+### First-Run Admin Setup
 
-The `CedrosAdminDashboard` is a complete, ready-to-use admin panel with sidebar navigation.
+Cedros Login no longer ships a standalone admin shell. Build admin routes with `AdminShell` from `@cedros/admin-react` and `cedrosLoginPlugin` from `@cedros/login-react/admin-only`.
 
-**First-run setup is automatic** — when no admin user exists, the dashboard shows a WordPress-style setup wizard instead of the normal admin interface. The wizard prompts for email, password, name, and organization name to create the first admin account. Once created, it reloads into the full dashboard. No env vars or SQL needed.
-
-```tsx
-import { CedrosAdminDashboard } from '@cedros/login-react';
-
-function AdminPage() {
-  return (
-    <CedrosAdminDashboard
-      title="My App Admin"
-      sections={['users', 'team', 'deposits', 'withdrawals', 'settings-auth', 'settings-credits']}
-      defaultSection="users"
-      pageSize={20}
-      refreshInterval={30000}
-    />
-  );
-}
-```
-
-If you need custom setup flow control, use the `SetupWizard` component directly:
+When no admin user exists yet, gate that route with `useSetup()` and render `SetupWizard` until setup completes.
 
 ```tsx
-import { SetupWizard, useSetup, CedrosAdminDashboard } from '@cedros/login-react';
+import { useEffect } from 'react';
+import { SetupWizard, useSetup } from '@cedros/login-react/non-wallet';
 
-function AdminApp() {
+function AdminBootstrap() {
   const { status, isLoading, checkStatus } = useSetup();
 
   useEffect(() => { checkStatus(); }, [checkStatus]);
 
   if (isLoading) return <div>Loading...</div>;
   if (status?.needsSetup) {
-    return <SetupWizard onComplete={() => window.location.reload()} />;
+    return <SetupWizard onComplete={checkStatus} />;
   }
-  return <CedrosAdminDashboard />;
+  return <AdminRoute />;
 }
 ```
 
-**Available sections:**
-- `users` - User management with stats (system admin only)
-- `team` - Organization members and pending invites
-- `referrals` - Referral analytics and payout management
-- `deposits` - Browse all deposits with status filtering
-- `withdrawals` - Process company withdrawal queue
-- `compliance` - Token gate rule management
-- `accreditation-queue` - Review accredited investor submissions
-- `sanctions` - Sanctions screening stats and refresh
-- `signup-gating` - Access code management and signup stats
-- `settings-auth` - Authentication settings (OAuth, passkeys, etc.)
-- `settings-messaging` - Email/SMTP and webhook configuration
-- `settings-wallet` - User wallet settings
-- `settings-credits` - Credit system and treasury configuration
-- `settings-compliance` - KYC, accreditation, sanctions, token gating settings
-- `settings-referrals` - Referral reward configuration
-- `settings-signup` - Signup volume limits and access code settings
-- `settings-server` - Auth server settings
-- `settings-images` - Image storage (S3) settings
-
-### Unified Admin Dashboard (Plugin System)
+### Admin Shell Integration
 
 When using both `@cedros/login-react` and `@cedros/pay-react`, you can create a unified admin dashboard that combines sections from both packages using the plugin architecture:
 
 ```tsx
 import { AdminShell, HOST_SERVICE_IDS } from '@cedros/admin-react';
 import '@cedros/admin-react/styles.css';
-import { useCedrosLogin } from '@cedros/login-react';
-import { useOrgs } from '@cedros/login-react';
+import { useCedrosLogin, useOrgs } from '@cedros/login-react/non-wallet';
 import { cedrosLoginPlugin } from '@cedros/login-react/admin-only';
 import { cedrosPayPlugin } from '@cedros/pay-react';
 
@@ -1646,6 +1607,31 @@ function UnifiedAdminDashboard() {
   );
 }
 ```
+
+**Cedros Login plugin sections:**
+
+- `users`
+- `team`
+- `referrals`
+- `deposits`
+- `withdrawals`
+- `compliance`
+- `accreditation-queue`
+- `sanctions`
+- `signup-gating`
+- `settings-auth`
+- `settings-email`
+- `settings-webhooks`
+- `settings-wallet`
+- `settings-credits`
+- `settings-compliance`
+- `settings-referrals`
+- `settings-signup`
+- `settings-server`
+- `settings-images`
+
+`settings-messaging` from the old standalone dashboard is now represented by the
+separate `settings-email` and `settings-webhooks` plugin sections.
 
 **How it works:**
 

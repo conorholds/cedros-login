@@ -1,0 +1,1 @@
+"use strict";const a=require("./ErrorMessage-5kfGlp87.cjs");function i(){const{user:o,authState:e,error:t,logout:s,refreshUser:r,openModal:n,closeModal:u}=a.useCedrosLogin();return{user:o,authState:e,error:t,isAuthenticated:e==="authenticated"&&o!==null,isLoading:e==="loading",logout:s,refreshUser:r,openLoginModal:n,closeLoginModal:u}}exports.useAuth=i;
