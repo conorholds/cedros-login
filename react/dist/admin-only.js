@@ -156,7 +156,7 @@ const a = (r) => h(async () => {
       return /* @__PURE__ */ e(E, { pluginContext: c.pluginContext, children: /* @__PURE__ */ e(n, { ...c }) });
     }
   };
-}), T = a(() => import("./UsersSection-C699vBPU.js")), C = a(() => import("./TeamSection-DeOyZ_Si.js")), D = a(() => import("./DepositsSection-Ci7GG9-j.js")), H = a(() => import("./WithdrawalsSection-BK2SwxaY.js")), O = a(() => import("./AuthenticationSettings-DIc8hpXL.js")), R = a(() => import("./EmbeddedWalletSettings-676Hv6UE.js")), _ = a(() => import("./EmailSettings-Dv_6YRWm.js")), x = a(() => import("./WebhookSettings-zFnSjADf.js")), B = a(() => import("./CreditSystemSettings-C5iQjIdJ.js")), N = a(() => import("./ServerSettings-DY1f445f.js")), V = {
+}), T = a(() => import("./UsersSection-Wtwqib28.js")), C = a(() => import("./TeamSection-DGPl0YZd.js")), D = a(() => import("./DepositsSection-Psns9vfz.js")), H = a(() => import("./WithdrawalsSection-z7RHX7pW.js")), O = a(() => import("./AuthenticationSettings-BMwLTh1x.js")), R = a(() => import("./EmbeddedWalletSettings-C__5rbMh.js")), _ = a(() => import("./EmailSettings-ClqhWws_.js")), x = a(() => import("./WebhookSettings-CRABL5f5.js")), B = a(() => import("./CreditSystemSettings-DKdlzm85.js")), N = a(() => import("./ServerSettings-Dq33pHnx.js")), V = {
   "login:users:read": ["admin", "owner"],
   "login:users:write": ["admin", "owner"],
   "login:members:read": ["member:read", "admin", "owner"],

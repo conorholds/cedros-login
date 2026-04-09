@@ -2283,9 +2283,9 @@ export declare interface LoginButtonProps {
 }
 
 /**
- * Combined login form with all enabled auth methods
+ * Combined login form with all enabled auth methods.
  */
-export declare function LoginForm({ onSuccess, className, defaultTab }: LoginFormProps): JSX.Element;
+export declare function LoginForm(props: LoginFormProps): JSX.Element;
 
 export declare interface LoginFormProps {
     onSuccess?: () => void;

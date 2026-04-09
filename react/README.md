@@ -29,6 +29,22 @@ For Solana wallet authentication, install the wallet adapter packages:
 npm install @solana/wallet-adapter-base @solana/wallet-adapter-react @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets @solana/web3.js
 ```
 
+### Admin-Safe / Non-Wallet Entrypoint
+
+If your app does not use Solana login and should not bundle the wallet adapter packages,
+import the non-wallet subpath instead of the root package:
+
+```tsx
+import {
+  CedrosLoginProvider,
+  LoginForm,
+  useCedrosLogin,
+} from '@cedros/login-react/non-wallet';
+```
+
+This entrypoint omits the Solana login button and avoids the `@solana/wallet-adapter-*`
+bundle edge entirely.
+
 ## Quick Start
 
 ```tsx

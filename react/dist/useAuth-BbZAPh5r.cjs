@@ -1,0 +1,1 @@
+"use strict";const i=require("./useCedrosLogin-BiTKXVdK.cjs");function a(){const{user:o,authState:e,error:t,logout:s,refreshUser:n,openModal:u,closeModal:r}=i.useCedrosLogin();return{user:o,authState:e,error:t,isAuthenticated:e==="authenticated"&&o!==null,isLoading:e==="loading",logout:s,refreshUser:n,openLoginModal:u,closeLoginModal:r}}exports.useAuth=a;
