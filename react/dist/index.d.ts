@@ -3468,7 +3468,7 @@ export declare interface SolanaConfig {
     autoConnect?: boolean;
 }
 
-export declare function SolanaLoginButton(props: SolanaLoginButtonProps): JSX.Element | null;
+export declare function SolanaLoginButton(props: SolanaLoginButtonProps): JSX.Element;
 
 export declare interface SolanaLoginButtonProps {
     onSuccess?: () => void;
