@@ -29,6 +29,14 @@ For Solana wallet authentication, install the wallet adapter packages:
 npm install @solana/wallet-adapter-base @solana/wallet-adapter-react @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets @solana/web3.js
 ```
 
+### Choose The Right Entrypoint
+
+| Use case | Import path |
+|----------|-------------|
+| Full auth UI, including optional Solana login | `@cedros/login-react` |
+| Admin/host apps that should not bundle wallet adapter packages | `@cedros/login-react/non-wallet` |
+| Shared admin plugin only | `@cedros/login-react/admin-only` |
+
 ### Admin-Safe / Non-Wallet Entrypoint
 
 If your app does not use Solana login and should not bundle the wallet adapter packages,
@@ -46,6 +54,8 @@ This entrypoint omits the Solana login button and avoids the `@solana/wallet-ada
 bundle edge entirely.
 
 ## Quick Start
+
+### Full Auth App
 
 ```tsx
 import { CedrosLoginProvider, LoginButton, useCedrosLogin } from '@cedros/login-react';
@@ -1029,10 +1039,33 @@ function MyComponent() {
 
 ## Examples
 
+### Admin / Non-Wallet Login Page
+
+```tsx
+import { CedrosLoginProvider, LoginForm } from '@cedros/login-react/non-wallet';
+import '@cedros/login-react/style.css';
+
+export function AdminLoginPage() {
+  return (
+    <CedrosLoginProvider
+      config={{
+        serverUrl: '/api/auth',
+        features: { email: true, google: true, solana: false },
+      }}
+    >
+      <LoginForm />
+    </CedrosLoginProvider>
+  );
+}
+```
+
+Use this entrypoint for host/admin apps that only need `CedrosLoginProvider`,
+`LoginForm`, and `useCedrosLogin` without any wallet-adapter package requirement.
+
 ### Basic Login Page
 
 ```tsx
-import { CedrosLoginProvider, LoginForm } from '@cedros/login-react';
+import { CedrosLoginProvider, LoginForm } from '@cedros/login-react/non-wallet';
 import '@cedros/login-react/style.css';
 
 export function LoginPage() {
