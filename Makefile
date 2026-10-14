@@ -1,6 +1,6 @@
 # Cedros Login - Development Makefile
 .DEFAULT_GOAL := dev
-.PHONY: dev dev-ui dev-server build build-ui build-server build-react-native test test-ui test-server test-server-wasm test-react-native test-scripts test-contracts lint lint-ui lint-server lint-react-native security-audit security-audit-versions cedros-validate cedros-db-concurrency-reference cedros-package cedros-runtime cedros-package-copy fmt fmt-check db-up db-down db-migrate db-reset clean install publish-ui publish-server publish-react-native publish-all publish-source publish-packages test-publish-source help
+.PHONY: dev dev-ui dev-server build build-ui build-server build-react-native test test-ui test-server test-server-wasm test-react-native test-scripts test-contracts lint lint-ui lint-server lint-react-native security-audit security-audit-versions cedros-validate cedros-db-concurrency-reference cedros-package cedros-runtime cedros-package-copy fmt fmt-check db-up db-down db-migrate db-reset clean install publish-ui publish-server publish-react-native publish-all publish-source publish-packages test-publish-source test-dependency-security help
 
 SERVER_PORT ?= 57165
 
@@ -29,7 +29,7 @@ build-react-native:
 
 # Testing (quiet mode - only shows failures and summary)
 test:
-	@make test-ui test-server test-server-wasm test-react-native test-scripts test-contracts
+	@make test-ui test-server test-server-wasm test-react-native test-scripts test-contracts test-dependency-security
 
 test-ui:
 	cd ui && npm test -- --reporter=dot
@@ -183,6 +183,10 @@ publish-packages:
 test-publish-source:
 	node --test scripts/publish-source.test.mjs
 
+# Requires the locked UI and native dependencies; tests both security backports.
+test-dependency-security:
+	node --test scripts/dependency-security.test.mjs
+
 # Help
 help:
 	@echo "Cedros Login Development Commands:"
@@ -209,4 +213,5 @@ help:
 	@echo "  make publish-all   - Alias for publish-source"
 	@echo "  make publish-packages - Prepare standalone registry packages"
 	@echo "  make test-publish-source - Test source publication guards"
+	@echo "  make test-dependency-security - Test resolved security fixes"
 	@echo "  make install      - Install UI dependencies"

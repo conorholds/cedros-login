@@ -3,13 +3,13 @@
   "lifecycleStatus": "validating",
   "taskMode": "audit-repair-extension",
   "cedros": {
-    "skillVersion": "0.1.95",
+    "skillVersion": "0.1.96",
     "platformApiVersion": "1",
     "manifestSchemaVersion": 1,
     "witPackage": "cedros:extension",
     "witVersion": "0.1.0",
     "witSha256": "2bb16879743cfd2748b7deefefcb82204c16b55a1c1a70385f4e9707a83d48f9",
-    "sourceCommit": "d3d55ab8b261b9ad34daaf913194ddb97d110921"
+    "sourceCommit": "070bfc4d3dd2e7ef1ffdc41cf3c6c1040817b147"
   },
   "repository": {
     "root": ".",
@@ -356,6 +356,21 @@
       "source": ".context/login-usage-repair/dist/cedros-login-2.0.22.cedros-extension.zip",
       "sha256": "10468ea798a581997110417d3475eb80fc92827db4184547814296e394c8027c",
       "details": "Canonical package build, Wasm ABI, runtime exports, browser admin and immutable ZIP validation passed. No dependency changes."
+    },
+    {
+      "id": "login-source-dependency-security",
+      "kind": "test",
+      "status": "pass",
+      "source": "scripts/dependency-security.test.mjs",
+      "sha256": "9fe9be84991dcf6474804b7dc12eff65a4e478b5bb1b163a04cda0c4dc6c43ab",
+      "details": "10 Node security regressions passed after normal npm ci in both locked web/native dependency trees. Both typechecks and lints passed. Normal expansion/quoting preserved; deeply nested inputs/ASTs and comment-following line terminators rejected. Source publication only; extension ZIP rebuild and site release are outside this task."
+    },
+    {
+      "id": "login-source-production-audit",
+      "kind": "validator",
+      "status": "pass",
+      "source": "npm audit --omit=dev --audit-level=high",
+      "details": "Web and native audits report zero production advisories including peer dependencies. Web full-tree audit retains 26 inherited development-tool advisories (22 high, 4 moderate); no audit rules or peer omissions were added."
     }
   ],
   "unresolvedQuestions": [

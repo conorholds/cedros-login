@@ -22,6 +22,11 @@
 
 ## Unreleased
 
+- Pin `shell-quote` to 1.11.0 to reject line terminators after comment tokens.
+- Resolve transitive `braces` to the reviewed 3.0.3-pn.3 depth-guard backport,
+  preserving normal glob expansion while bounding deeply nested patterns and ASTs.
+- Apply the same security overrides to web and native development dependency trees.
+
 ## 1.0.21 — 2026-09-25
 
 ### Changed

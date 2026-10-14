@@ -156,6 +156,15 @@ make security-audit
 make cedros-validate
 ```
 
+The web and native dependency trees pin `shell-quote` 1.11.0 and use the
+MIT-licensed [`braces` depth-guard backport](https://github.com/dieub/braces-depth-guard)
+through an npm alias override. Upstream `braces` has no patched release for
+CVE-2026-93687; the backport bounds parsing and AST traversal without replacing
+the matching API. `make test-dependency-security` exercises normal expansion,
+deep-pattern/AST rejection, safe shell arguments, and the comment/newline
+injection case against each package's resolved dependency tree. Run it after
+installing both locked dependency trees.
+
 Security scans are point-in-time evidence. Refresh advisory databases and npm
 registry data for release decisions, then verify the exact built artifact and
 deployed host configuration. The repository's scoped RustSec ignore is valid
