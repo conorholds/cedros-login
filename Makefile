@@ -107,7 +107,7 @@ cedros-package:
 	node scripts/validate-cedros-package-archive.mjs
 
 # Build the React runtime tarball locally (dist/cedros-login-react-X.Y.Z.tgz)
-# so Cedros Data can consume it via file dependency, vendored workspace, or
+# so Cedros platform can consume it via file dependency, vendored workspace, or
 # any other trusted channel without `npm publish`.
 cedros-runtime:
 	node scripts/build-cedros-login-runtime-tarball.mjs

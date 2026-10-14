@@ -37,7 +37,7 @@ pub fn cedros_login_capabilities() -> Vec<CedrosExtensionCapabilityManifest> {
         capability(
             "cedros-login:admin-auth",
             "Login Admin Authorization",
-            "Publishes admin authorization context for Cedros Data Settings, Team, and CRM identity handoff flows.",
+            "Publishes admin authorization context for Cedros platform Settings, Team, and CRM identity handoff flows.",
             "admin",
             vec![
                 scope("read", "admin authorization context", "Read operator role and permission context supplied by the Cedros host."),

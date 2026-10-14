@@ -79,37 +79,37 @@
     },
     {
       "contractId": "cedros-data:database-concurrency-v2",
-      "owner": "Cedros Data and Cedros Login",
+      "owner": "Cedros platform and Cedros Login",
       "status": "host-coordinated",
       "requiredForRelease": true
     },
     {
       "contractId": "cedros-data:identity-atomic-v1",
-      "owner": "Cedros Data and Cedros Login",
+      "owner": "Cedros platform and Cedros Login",
       "status": "published",
       "requiredForRelease": true
     },
     {
       "contractId": "cedros-data:token-email-evidence-v1",
-      "owner": "Cedros Data and Cedros Login",
+      "owner": "Cedros platform and Cedros Login",
       "status": "host-coordinated",
       "requiredForRelease": true
     },
     {
       "contractId": "cedros-data:session-atomic-v1",
-      "owner": "Cedros Data and Cedros Login",
+      "owner": "Cedros platform and Cedros Login",
       "status": "published",
       "requiredForRelease": true
     },
     {
       "contractId": "cedros-data:signup-limit-atomic-v1",
-      "owner": "Cedros Data and Cedros Login",
+      "owner": "Cedros platform and Cedros Login",
       "status": "host-coordinated",
       "requiredForRelease": true
     },
     {
       "contractId": "cedros-data:abuse-budget-consume-v1",
-      "owner": "Cedros Data and Cedros Login",
+      "owner": "Cedros platform and Cedros Login",
       "status": "published",
       "requiredForRelease": true
     }
@@ -141,7 +141,7 @@
       "hostHookBound": true,
       "status": "ready",
       "smokeTest": "Manifest exposes official capabilities with requested scopes.",
-      "owner": "Cedros Login + Cedros Data"
+      "owner": "Cedros Login + Cedros platform"
     },
     {
       "surface": "Admin settings, dashboard, and onboarding",
@@ -155,7 +155,7 @@
       "hostHookBound": true,
       "status": "ready",
       "smokeTest": "Import compiled admin runtime and render Extension Settings > Login plus the dashboard card.",
-      "owner": "Cedros AdminShell + Cedros Data"
+      "owner": "Cedros AdminShell + Cedros platform"
     },
     {
       "surface": "Public page seeds",
@@ -602,7 +602,7 @@
       "hostHookBound": false,
       "status": "host-coordinated",
       "smokeTest": "Verify installed-host authorization/consent/PKCE, concurrent replay denial, live identity/org checks, exact Data issuance journal and restart/offline-source cleanup; no live validation performed by this source PR.",
-      "owner": "Cedros Login + Cedros Portal + Cedros Data"
+      "owner": "Cedros Login + Cedros Portal + Cedros platform"
     },
     {
       "surface": "Data membership service setup through MCP",
@@ -614,7 +614,7 @@
       "hostHookBound": true,
       "status": "ready",
       "smokeTest": "Read missing readiness, ensure the fixed membership-only relationship, repeat without token rotation, and reject unknown policy fields.",
-      "owner": "Cedros Login + Cedros Data operator"
+      "owner": "Cedros Login + Cedros platform operator"
     },
     {
       "surface": "Existing host OAuth consent authority and transaction access",
@@ -626,7 +626,7 @@
       "hostHookBound": true,
       "status": "host-coordinated",
       "smokeTest": "Host-only authority route rejects untrusted context and rechecks the current managed-site grant. Installed-host OAuth verification remains separate.",
-      "owner": "Cedros Login + Cedros Data"
+      "owner": "Cedros Login + Cedros platform"
     }
   ],
   "installSmokeChecklist": [
@@ -636,7 +636,7 @@
     "Run the identity-profile v1 installed-host current-user, administrator, expired-session, denial, and cross-tenant fixtures.",
     "Disable and re-enable extension without deleting owner-created pages/forms/docs or identity data.",
     "Confirm provider-disabled and missing credential-configuration paths fail closed with redacted errors.",
-    "Read the authenticated host capability registry and confirm Cedros Data 0.1.91+, WIT checksum 2bb16879743cfd2748b7deefefcb82204c16b55a1c1a70385f4e9707a83d48f9, cedros-data:database-concurrency-v2, cedros-data:token-email-evidence-v1, cedros-data:identity-atomic-v1, cedros-data:session-atomic-v1, cedros-data:signup-limit-atomic-v1, cedros-data:abuse-budget-consume-v1, cedros-data:extension-storage-cas-v1, identity.outbox.enqueue-token-email, registration.signup-limit.status, registration.account.create, registration.account.complete, /runtime/abuse-budget/consume-v1, and every additional retained guest operation id.",
+    "Read the authenticated host capability registry and confirm Cedros platform 0.1.91+, WIT checksum 2bb16879743cfd2748b7deefefcb82204c16b55a1c1a70385f4e9707a83d48f9, cedros-data:database-concurrency-v2, cedros-data:token-email-evidence-v1, cedros-data:identity-atomic-v1, cedros-data:session-atomic-v1, cedros-data:signup-limit-atomic-v1, cedros-data:abuse-budget-consume-v1, cedros-data:extension-storage-cas-v1, identity.outbox.enqueue-token-email, registration.signup-limit.status, registration.account.create, registration.account.complete, /runtime/abuse-budget/consume-v1, and every additional retained guest operation id.",
     "Exercise allowed, exhausted, and datastore-unavailable abuse-budget decisions and confirm bounded retry metadata plus fail-closed request handling.",
     "Run all 22 database-concurrency-v2 scenarios and 28 recovery vectors with at least 50 attempts against at least two staging host workers, including signup-limit status and last-slot enforcement, atomic registration completion rollback and response-loss replay, essential-email enqueue rollback/replay, lease-owner-bound outbox completion replay, proof/result composites, invite-gate release races, lifecycle tombstones, and replay cases.",
     "Run password registration with verification enabled through success, injected transaction failure, and retry; observe one account/verification/outbox/signup-limit commit or no write, never a partial account or consumed capacity.",
@@ -646,15 +646,15 @@
     "owner": "Cedros operator with extension author and host owners",
     "deadline": "Before production launch; during incident immediately disable extension then reinstall the previous package family.",
     "disableInstructions": "Disable the extension to hide surfaces and stop Wasm routes/jobs without deleting owner-created content or identity data.",
-    "rollbackInstructions": "Disable 2.0.22, verify no registration transaction is in flight, then reinstall the previous package family. No schema or content-model id was removed; preserve identity, audit, and owner-created content unless an approved deletion request exists. Cedros Data 0.1.91 remains backward-compatible with the immutable registration.account.create operation."
+    "rollbackInstructions": "Disable 2.0.22, verify no registration transaction is in flight, then reinstall the previous package family. No schema or content-model id was removed; preserve identity, audit, and owner-created content unless an approved deletion request exists. Cedros platform 0.1.91 remains backward-compatible with the immutable registration.account.create operation."
   },
   "knownRisks": [
     "React Native screen/provider loading remains host-coordinated.",
-    "The repository contract catalog publishes registration.signup-limit.status, registration.account.create, and registration.account.complete, and Cedros Data 0.1.91 publishes cedros-data:abuse-budget-consume-v1. Installed-host support still requires authenticated registry and live acceptance evidence before launch.",
+    "The repository contract catalog publishes registration.signup-limit.status, registration.account.create, and registration.account.complete, and Cedros platform 0.1.91 publishes cedros-data:abuse-budget-consume-v1. Installed-host support still requires authenticated registry and live acceptance evidence before launch.",
     "OIDC and federated-login behavior requires an operator-supplied exact HTTPS host allowlist; no site-specific hosts are embedded in the package.",
     "Supply-chain provenance, SBOM, artifact signatures, and rebuild verification are not provided for marketplace trust verification.",
     "OAuth requires cedros-data:mcp-connection-revoke-v1 and host-first rollout. Keep the explicit OAuth client registry disabled until installed-host consent, metadata alias, URL-encoded token transport and durable source-key cleanup pass staging verification. Never backfill cleanupProtocolVersion on historical grants without reconciling original site-key bindings.",
-    "Login 2.0.0 is a coordinated host-breaking release: rebuild/deploy Cedros Data 4c6a17691d0ba66ded13cdd1d7c021c430d1ad5b or a cleanup-capable descendant first, then activate Login and Portal. Older Data hosts cannot activate this Login package, including ordinary authentication."
+    "Login 2.0.0 is a coordinated host-breaking release: rebuild/deploy Cedros platform 4c6a17691d0ba66ded13cdd1d7c021c430d1ad5b or a cleanup-capable descendant first, then activate Login and Portal. Older Data hosts cannot activate this Login package, including ordinary authentication."
   ],
   "signOff": {
     "extensionAuthor": "pending",

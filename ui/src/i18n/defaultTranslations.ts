@@ -267,7 +267,7 @@ export const defaultTranslations: Translations = {
   extension: {
     defaultLocale: 'en',
     pageSeedDescription:
-      'Cedros Data page row for the {title} workflow; auto-created and published when the extension is enabled so the public URL is live immediately.',
+      'Cedros platform page row for the {title} workflow; auto-created and published when the extension is enabled so the public URL is live immediately.',
     nativeFallback: 'Display owner-authored content or omit this web-only builder template.',
     ownerCanEditCopy: 'Owners can edit this copy before publishing.',
     noPrivateCodes: 'Do not add private invite codes or credentials to this content.',

@@ -3,7 +3,7 @@ import { ensureCedrosLoginRuntimeStyles } from '../extension/runtimeStyles';
 /**
  * Runtime stylesheet injection for the compiled admin runtime.
  *
- * Cedros Data loads the admin surface by importing the compiled
+ * Cedros platform loads the admin surface by importing the compiled
  * `@cedros/login-react/admin/register` entry directly from the uploaded
  * `.cedros-extension.zip`. There is no HTML host that links the bundled
  * `login-react.css`, so the admin sections render with default browser styles

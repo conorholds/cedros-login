@@ -174,7 +174,7 @@ function validatePackageEntries(entries, currentManifest, options = {}) {
   requiredEntry(entryMap, 'workspace/react-native/src/register.ts');
   requiredEntry(entryMap, 'workspace/server/src/lib.rs');
   if (allowReactDist) {
-    // Intake archive: compiled admin runtime must be present so Cedros Data
+    // Intake archive: compiled admin runtime must be present so Cedros platform
     // can hydrate adminModules[] without fetching anything.
     requiredEntry(entryMap, 'workspace/react/dist/admin/register.js');
     assertEqual(

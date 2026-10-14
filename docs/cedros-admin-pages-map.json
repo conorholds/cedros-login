@@ -85,7 +85,7 @@
       "id": "cedros-login-team-directory",
       "runtimeExport": "@cedros/login-react/admin/register",
       "status": "registered-runtime",
-      "purpose": "Vault Team and Cedros Data Team can list redacted login metadata, send org-scoped team invites, and delegate password reset actions when cedros-login is active.",
+      "purpose": "Vault Team and Cedros platform Team can list redacted login metadata, send org-scoped team invites, and delegate password reset actions when cedros-login is active.",
       "methods": [
         "listTeamMembers",
         "searchTeamMembers",
@@ -100,7 +100,7 @@
   ],
   "crmIntegrationDecision": {
     "status": "settings-only-team-host-owned-crm-primary",
-    "summary": "Cedros Login registers a single Extension Settings-group login/account settings section. Cedros Data owns the Users-group Team, Permissions, and Invite surfaces and reads our roster through the cedros-login-team-directory host service; it remains the CRM surface for people, prospects, customers, and lifecycle records.",
+    "summary": "Cedros Login registers a single Extension Settings-group login/account settings section. Cedros platform owns the Users-group Team, Permissions, and Invite surfaces and reads our roster through the cedros-login-team-directory host service; it remains the CRM surface for people, prospects, customers, and lifecycle records.",
     "identityIntegration": [
       "login-backed identity records are exposed through cedros-login server/database contracts",
       "account status, auth provider, roles, and login metadata remain host-mediated CRM data",
@@ -112,29 +112,29 @@
     {
       "label": "CRM (integration)",
       "status": "host-coordinated",
-      "owner": "Cedros Data CRM",
+      "owner": "Cedros platform CRM",
       "purpose": "Render login-backed identity records, account status, roles, provider metadata, and profile handoff actions inside CRM profiles.",
       "shouldRegisterAdminModule": false
     },
     {
       "label": "Users > Team",
       "status": "host-owned",
-      "owner": "Cedros Data",
-      "purpose": "Cedros Data owns the Team workspace and reads our roster via the cedros-login-team-directory host service; the extension no longer registers a Team admin section.",
+      "owner": "Cedros platform",
+      "purpose": "Cedros platform owns the Team workspace and reads our roster via the cedros-login-team-directory host service; the extension no longer registers a Team admin section.",
       "shouldRegisterAdminModule": false
     },
     {
       "label": "Users > Invite Team Members",
       "status": "host-owned",
-      "owner": "Cedros Data",
-      "purpose": "Cedros Data owns the Invite Team Members action; the extension no longer registers an invite route.",
+      "owner": "Cedros platform",
+      "purpose": "Cedros platform owns the Invite Team Members action; the extension no longer registers an invite route.",
       "shouldRegisterAdminModule": false
     },
     {
       "label": "Extension Settings > Login",
       "status": "registered",
       "owner": "Cedros Login",
-      "purpose": "Single consolidated Login admin page; replaces Cedros Data Settings > Account through explicit section aliases."
+      "purpose": "Single consolidated Login admin page; replaces Cedros platform Settings > Account through explicit section aliases."
     }
   ],
   "durableRecordPlan": [],
@@ -144,7 +144,7 @@
     "adminModules[0].sectionIds is cedros-login:login only.",
     "adminModules[0].sectionIcons resolves every declared section to a host icon name so the sidebar renders with an icon when the host loads from manifest only.",
     "cedros-login-team-directory is exposed by the admin runtime bootstrap for Vault Team metadata and action delegation.",
-    "Cedros Data should not create a separate Customers sidebar/page from cedros-login metadata.",
+    "Cedros platform should not create a separate Customers sidebar/page from cedros-login metadata.",
     "adminModules[0].contributions.dashboardCards declares cedros-login:identity-health-card and the runtime bootstrap provides the component.",
     "The cedros-login:setup-login onboarding page targets the declared cedros-login:admin / cedros-login:login section."
   ]

@@ -29,6 +29,11 @@ version. The current source version is defined by `server/Cargo.toml`,
 `ui/package.json`, `react-native/package.json`, and
 `cedros-extension.manifest.json`.
 
+For Cedros sites, install the complete extension archive. For custom
+applications, build the libraries from source using the package guides below.
+Registry packages have their own release schedule; this repository's API and
+version do not imply that matching npm or crates.io packages have been published.
+
 ## Development
 
 Use Node `24.17.0` with npm `11.13.0` and Rust `1.97.0`; the checked-in

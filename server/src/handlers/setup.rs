@@ -64,11 +64,11 @@ pub struct CreateFirstAdminRequest {
     pub org_name: Option<String>,
 }
 
-/// Request to import the first admin from a Cedros Data owner/operator account.
+/// Request to import the first admin from a Cedros platform owner/operator account.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportFirstAdminRequest {
-    /// Admin email address from Cedros Data
+    /// Admin email address from Cedros platform
     pub email: String,
     /// Cedros-compatible Argon2id PHC password hash
     pub password_hash: String,

@@ -16,7 +16,7 @@ Login, create-account, forgot-password, reset-password, email verification, inst
 
 ## Docs Articles
 
-All docs starters are written for the end user reading them on the public site, not for the site admin who installs the extension. They are manifest-backed starter cards only. Cedros Data must create an owner-owned draft docs row only after an owner explicitly chooses Start Draft for a starter card.
+All docs starters are written for the end user reading them on the public site, not for the site admin who installs the extension. They are manifest-backed starter cards only. Cedros platform must create an owner-owned draft docs row only after an owner explicitly chooses Start Draft for a starter card.
 
 | Docs article id | Slug | End-user purpose |
 |---|---|---|

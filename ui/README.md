@@ -4,8 +4,17 @@ React component library for Cedros Login authentication, account management, org
 
 ## Installation
 
+This guide describes the current source. Cedros sites load the admin and web
+runtime from the extension archive. Published npm packages are released
+independently and may not contain the APIs shown here.
+
+For a custom application, build the current library from a source checkout:
+
 ```bash
-npm install @cedros/login-react
+npm --prefix ui ci
+npm --prefix ui run build
+# From your application directory, install the built source package:
+npm install /path/to/cedros-login/ui
 ```
 
 For Solana wallet authentication, install the optional wallet adapter packages used by your app:

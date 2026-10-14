@@ -1,3 +1,7 @@
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import test from 'node:test';
@@ -48,6 +52,77 @@ for (const directory of ['ui', 'react-native']) {
       assert.throws(() => shellQuote.quote([
         'echo', 'ok', { comment: 'x' }, `a${terminator}id;#`,
       ]), TypeError);
+    }
+  });
+}
+
+// API Extractor consumes the guarded formatter through its existing argparse chain.
+for (const directory of ['ui', 'react-native']) {
+  const require = createRequire(new URL('../' + directory + '/package.json', import.meta.url));
+  const formatter = createRequire(createRequire(require.resolve('@rushstack/ts-command-line')).resolve('argparse'))('sprintf-js');
+
+  test(`${directory}: formatter preserves ordinary positional and named formatting`, () => {
+    assert.equal(formatter.sprintf('%.2f %s', 1.25, 'ready'), '1.25 ready');
+    assert.equal(formatter.sprintf('%(prog)s: ready', { prog: 'api-extractor' }), 'api-extractor: ready');
+    assert.equal(formatter.vsprintf('%s %d', ['count', 3]), 'count 3');
+  });
+
+  test(`${directory}: extreme numeric precision cannot escape as an uncaught exception`, () => {
+    for (const type of ['e', 'f', 'g']) {
+      for (const precision of ['101', '999999999999999999999999999999999999999999']) {
+        const value = formatter.sprintf(`%.${precision}${type}`, 1.25);
+        assert.equal(typeof value, 'string');
+        assert.ok(value.length <= 110, value);
+      }
+    }
+    assert.equal(formatter.sprintf('%.0g', 1.25), '1');
+    assert.equal(formatter.sprintf('%.0f', 1.25), '1');
+    assert.equal(formatter.sprintf('%.100f', 1).length, 102);
+  });
+
+  const packagePath = require.resolve('@microsoft/api-extractor/package.json');
+  const metadata = JSON.parse(readFileSync(packagePath, 'utf8'));
+  const cli = resolve(dirname(packagePath), metadata.bin['api-extractor']);
+  const run = args => spawnSync(process.execPath, [cli, ...args], {
+    encoding: 'utf8', timeout: 15000,
+  });
+
+  test(`${directory}: declaration-tool help uses the guarded formatter`, () => {
+    const result = run(['--help']);
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /api-extractor|API Extractor/);
+  });
+
+  test(`${directory}: declaration-tool invalid arguments fail without an API compatibility crash`, () => {
+    const result = run(['run', '--not-an-option']);
+    assert.equal(result.error, undefined);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /[Uu]nrecognized arguments/);
+    assert.doesNotMatch(result.stderr, /TypeError|is not a function/);
+  });
+
+  test(`${directory}: declaration rollup still processes exported types`, () => {
+    const root = mkdtempSync(join(tmpdir(), 'cedros-declaration-test-'));
+    try {
+      writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'declaration-fixture', version: '1.0.0' }));
+      writeFileSync(join(root, 'index.d.ts'), 'export declare function greet(name: string): string;\n');
+      writeFileSync(join(root, 'tsconfig.json'), JSON.stringify({ compilerOptions: { types: [], skipLibCheck: true }, files: ['index.d.ts'] }));
+      const configPath = join(root, 'api-extractor.json');
+      writeFileSync(configPath, JSON.stringify({
+        projectFolder: root,
+        mainEntryPointFilePath: '<projectFolder>/index.d.ts',
+        compiler: { tsconfigFilePath: '<projectFolder>/tsconfig.json' },
+        apiReport: { enabled: false }, docModel: { enabled: false },
+        tsdocMetadata: { enabled: false },
+        dtsRollup: { enabled: true, untrimmedFilePath: '<projectFolder>/result.d.ts' },
+      }));
+      const result = run(['run', '--local', '--config', configPath]);
+      assert.equal(result.error, undefined);
+      assert.equal(result.status, 0, result.stderr + result.stdout);
+      assert.match(readFileSync(join(root, 'result.d.ts'), 'utf8'), /greet\(name: string\): string/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
     }
   });
 }

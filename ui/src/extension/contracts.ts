@@ -158,7 +158,7 @@ export interface CedrosExtensionCapabilityScopeManifest {
 /**
  * Host-resolvable admin sidebar icon names.
  *
- * The Cedros Data host owns the icon registry; these are the names announced
+ * The Cedros platform host owns the icon registry; these are the names announced
  * by the core team. Extensions reference one of these strings in
  * `adminModules[].sectionIcons[sectionId]` so the host can render an icon
  * next to the entry even when sections come from the manifest only and not
@@ -463,7 +463,7 @@ export interface CedrosRuntimeContentTemplateZone {
 
 /**
  * Runtime visual-builder template definition.
- * Cedros Data scaffolds page seeds from `label` and `zones`; `blocks` is
+ * Cedros platform scaffolds page seeds from `label` and `zones`; `blocks` is
  * extension-local starter metadata, not executable React source, HTML, scripts,
  * or styles.
  */

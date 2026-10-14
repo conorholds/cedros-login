@@ -45,7 +45,7 @@ export const cedrosLoginCapabilities: NonNullable<CedrosExtensionManifest['capab
     id: 'cedros-login:admin-auth',
     displayName: 'Login Admin Authorization',
     description:
-      'Publishes admin authorization context for Cedros Data Settings, Team, and CRM identity handoff flows.',
+      'Publishes admin authorization context for Cedros platform Settings, Team, and CRM identity handoff flows.',
     category: 'admin',
     requestedScopes: [
       {

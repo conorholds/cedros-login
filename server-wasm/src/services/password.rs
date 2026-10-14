@@ -188,7 +188,7 @@ impl PasswordService {
         Ok(trimmed.to_string())
     }
 
-    /// Owner setup in Cedros Data uses argon2's default profile. Accept that
+    /// Owner setup in Cedros platform uses argon2's default profile. Accept that
     /// exact profile only at the authenticated host-admin import boundary;
     /// successful password sign-in upgrades it through the existing rehash path.
     pub fn validate_host_admin_imported_hash(&self, hash: &str) -> Result<String, AuthError> {

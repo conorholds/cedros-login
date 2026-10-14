@@ -15,7 +15,7 @@ Local package intake readiness is distinct from installed-host launch evidence.
 |---|---|
 | Extension id | `cedros-login` |
 | Version | `<version>` |
-| Minimum Cedros Data host | `0.1.82` |
+| Minimum Cedros platform host | `0.1.82` |
 | Local intake archive | `dist/cedros-login-<version>.cedros-extension.zip` |
 | Source review archive | `dist/cedros-login-<version>.source-review.zip` |
 | Release packet | `dist/cedros-login-<version>.release.json` |
@@ -50,7 +50,7 @@ The complete machine-readable surface table is
 ## Host And Operator Handoffs
 
 1. On the authenticated staging host, read
-   `GET /admin/runtime/wasm-extensions/capabilities`. Confirm Cedros Data
+   `GET /admin/runtime/wasm-extensions/capabilities`. Confirm Cedros platform
    `>=0.1.82`, all six required capabilities
    (`cedros-data:database-concurrency-v2`,
    `cedros-data:token-email-evidence-v1`, `cedros-data:identity-atomic-v1`, and

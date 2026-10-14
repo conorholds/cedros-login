@@ -280,7 +280,7 @@
     "path": "dist/cedros-login-2.0.22.release.json",
     "archiveDigestLocation": "release packet only",
     "supplyChainVerificationStatus": "not-provided",
-    "runtimeCodeStatus": "compiled React admin runtime included under workspace/react/dist/** and compiled Wasm server backend included as cedros-extension.server.wasm; Cedros Data loads both directly from the ZIP without npm/tarball/workspace fetches",
+    "runtimeCodeStatus": "compiled React admin runtime included under workspace/react/dist/** and compiled Wasm server backend included as cedros-extension.server.wasm; Cedros platform loads both directly from the ZIP without npm/tarball/workspace fetches",
     "sourceReviewArchive": {
       "fileName": "cedros-login-2.0.22.source-review.zip",
       "path": "dist/cedros-login-2.0.22.source-review.zip",

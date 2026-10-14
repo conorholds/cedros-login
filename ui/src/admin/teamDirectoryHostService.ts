@@ -33,7 +33,7 @@ export interface CedrosLoginTeamDirectoryListResult {
   offset: number;
 }
 
-/** Delegated team-invite request from Cedros Data's Invite Team Members page. */
+/** Delegated team-invite request from Cedros platform's Invite Team Members page. */
 export interface CedrosLoginTeamInviteRequest {
   email: string;
   name?: string;
@@ -51,7 +51,7 @@ export interface CedrosLoginTeamInviteResult {
 export interface CedrosLoginTeamDirectoryService {
   id: typeof CEDROS_LOGIN_TEAM_DIRECTORY_HOST_SERVICE_ID;
   /**
-   * Cedros Data team roster + admin-page access pickers. Resolves a plain array
+   * Cedros platform team roster + admin-page access pickers. Resolves a plain array
    * to match the host's AdminPageAccessTeamDirectoryService contract
    * (`listTeamMembers?: () => AdminPageAccessUser[] | Promise<AdminPageAccessUser[]>`).
    */
@@ -62,7 +62,7 @@ export interface CedrosLoginTeamDirectoryService {
     params?: ListUsersParams
   ) => Promise<CedrosLoginTeamDirectoryEntry[]>;
   /**
-   * Delegated team invite for Cedros Data's Invite Team Members page; scoped to
+   * Delegated team invite for Cedros platform's Invite Team Members page; scoped to
    * the active organization from the host org service.
    */
   inviteTeamMember: (request: CedrosLoginTeamInviteRequest) => Promise<CedrosLoginTeamInviteResult>;
@@ -113,7 +113,7 @@ export function createCedrosLoginTeamDirectoryService(
     };
   }
 
-  // Cedros Data's AdminPageAccessTeamDirectoryService consumes these as plain
+  // Cedros platform's AdminPageAccessTeamDirectoryService consumes these as plain
   // arrays (`service.listTeamMembers()` / `service.searchTeamMembers(q)`), so
   // unwrap the paginated result here rather than returning the object.
   async function listTeamMembers(
@@ -210,7 +210,7 @@ export const cedrosLoginTeamDirectoryHostService: CedrosLoginTeamDirectoryHostSe
         name: 'listTeamMembers',
         requiredPermission: 'manage_users',
         description:
-          'List Cedros Login members for the Cedros Data team roster and access pickers.',
+          'List Cedros Login members for the Cedros platform team roster and access pickers.',
       },
       {
         name: 'searchTeamMembers',
@@ -220,7 +220,7 @@ export const cedrosLoginTeamDirectoryHostService: CedrosLoginTeamDirectoryHostSe
       {
         name: 'inviteTeamMember',
         requiredPermission: 'manage_users',
-        description: "Send a team invite for Cedros Data's Invite Team Members page (org-scoped).",
+        description: "Send a team invite for Cedros platform's Invite Team Members page (org-scoped).",
       },
       {
         name: 'listTeamMemberLogins',
@@ -339,7 +339,7 @@ function requireManageUsersOrgId(hostContext: HostContext): string {
 }
 
 function canManageUsers(org: OrgHostService): boolean {
-  // Match the host's role vocabulary (Cedros Data normalizes to lower-case
+  // Match the host's role vocabulary (Cedros platform normalizes to lower-case
   // "owner" / "administrator"); accept "admin" too and stay case-insensitive so
   // we don't fail closed on a user the host already treats as a top-level admin.
   const role = (typeof org.role === 'string' ? org.role : '').trim().toLowerCase();

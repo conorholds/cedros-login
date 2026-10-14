@@ -1,4 +1,4 @@
-//! Trusted Cedros Data handoff for a durably created invite-gated account.
+//! Trusted Cedros platform handoff for a durably created invite-gated account.
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

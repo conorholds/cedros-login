@@ -2,7 +2,7 @@
 /**
  * Build the cedros-login React runtime as a local tarball.
  *
- * Cedros Data separates extension inventory (the `.cedros-extension.zip`) from
+ * Cedros platform separates extension inventory (the `.cedros-extension.zip`) from
  * the executable runtime bootstrap. This script produces the runtime tarball
  * locally — no `npm publish` — so cedros-data deployments can consume it
  * through any trusted channel (file dependency, vendored workspace, private

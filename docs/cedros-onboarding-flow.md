@@ -15,7 +15,7 @@ launch.
 | Missing target fallback | hide broken onboarding steps instead of rendering dead links |
 | Site Brain | setup completion record uses category `setup` when emitted by runtime |
 
-Cedros Data may add CRM-owned setup tasks later. Those tasks should point to
+Cedros platform may add CRM-owned setup tasks later. Those tasks should point to
 CRM/settings surfaces and call Cedros Login through declared Login contracts
 rather than duplicating Login configuration.
 

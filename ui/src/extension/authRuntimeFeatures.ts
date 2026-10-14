@@ -34,7 +34,7 @@ const RUNTIME_FEATURES_TIMEOUT_MS = 5_000;
  * Filters authored auth-form providers through runtime auth features.
  *
  * Resolution order — the first authoritative source wins:
- *  1. `ssrFeatures`: the `/features` snapshot the host (Cedros Data) injects into
+ *  1. `ssrFeatures`: the `/features` snapshot the host (Cedros platform) injects into
  *     the block props when it server-renders the page. Authoritative AND
  *     synchronous, so the static `/login` HTML shows the operator's enabled
  *     providers with no client hydration required.
@@ -144,7 +144,7 @@ function runtimeFeaturesFromResponse(data: unknown): RuntimeAuthFeatures | null 
 
 /**
  * Reads host-supplied SSR auth features from auth-form block props. The host
- * (Cedros Data) injects the `/features` response object as `props.features` when
+ * (Cedros platform) injects the `/features` response object as `props.features` when
  * it server-renders the block, so static `/login` HTML reflects the operator's
  * enabled providers. Returns null when absent/malformed → the block falls back
  * to the client `/features` fetch (hydrated/standalone contexts).

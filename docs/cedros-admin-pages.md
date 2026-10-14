@@ -1,10 +1,10 @@
 # Cedros Admin Pages
 
 Cedros Login registers an executable packaged admin module for login/account
-configuration. Cedros Data still owns the
+configuration. Cedros platform still owns the
 operator-facing CRM for people, prospects, customers, and lifecycle records;
 Cedros Login supplies the identity/auth/account layer behind those CRM views,
-including the team-directory host service used by Cedros Data's Team UI.
+including the team-directory host service used by Cedros platform's Team UI.
 
 ## Manifest Metadata
 
@@ -22,7 +22,7 @@ direct module consumers. The Cedros
 extension admin bootstrap exports the executable `cedros-login:login` section
 plus the `LoginHealthDashboardCard` contribution and
 `cedros-login-team-directory` host service. Customers/CRM/Team pages stay with
-Cedros Data.
+Cedros platform.
 
 ## Settings Sections
 
@@ -36,15 +36,15 @@ registered as live admin sections.
 
 ## Team Ownership
 
-Cedros Data's Account settings alias can resolve to the Cedros Login account
+Cedros platform's Account settings alias can resolve to the Cedros Login account
 section because the runtime module advertises `extensionId: "cedros-login"` and
-the Login section publishes explicit replacement ids. Cedros Data Team remains a
+the Login section publishes explicit replacement ids. Cedros platform Team remains a
 host-owned UI and reads redacted team metadata through the
 `cedros-login-team-directory` host service when Cedros Login is active.
 
 ## CRM Integration Boundary
 
-Cedros Data should render identity/account information inside its CRM surfaces.
+Cedros platform should render identity/account information inside its CRM surfaces.
 Cedros Login exposes the backing contracts through server routes, database
 access declarations, provider access declarations, and account lifecycle event
 metadata.
@@ -69,14 +69,14 @@ using a Cedros Login Customers module id.
 - Admin registration returns the identity-health dashboard card contribution.
 - Admin registration returns the team-directory host service.
 - `surfaces.admin.moduleIds[]` and `adminModules[]` both declare `cedros-login:admin`.
-- Cedros Data does not create a cedros-login Customers sidebar/page.
+- Cedros platform does not create a cedros-login Customers sidebar/page.
 - Identity/account integration remains available through server, database,
   provider, event, Extension Settings, Users, and team-directory host-service metadata.
 
 ## Runtime Injection Path
 
 The `.cedros-extension.zip` is now the **complete admin runtime deliverable**.
-Cedros Data no longer fetches the React admin runtime from npm, tarballs,
+Cedros platform no longer fetches the React admin runtime from npm, tarballs,
 workspaces, registries, or crates — `make cedros-package` compiles it and
 embeds it in the ZIP under `workspace/react/dist/**`, including
 `./admin/register.js` and every relative chunk/module/style/json it imports.
@@ -108,7 +108,7 @@ Other runtime deps must be bundled into the compiled output by the Vite build.
 
 ### Hydration: version-exact match required
 
-After install, Cedros Data hydrates the inventoried extension by loading
+After install, Cedros platform hydrates the inventoried extension by loading
 `workspace/react/dist/admin/register.js` from the uploaded ZIP, calling
 `registerCedrosAdminSurface()` (or any of the four equivalent entries below),
 and verifying that the returned bootstrap's `manifest.extensionId` AND
@@ -147,14 +147,14 @@ The four-way contract is locked by `ui/src/extension/register.test.ts`.
 
 ## Host Responsibilities
 
-The `cedros-login:admin` runtime module exposes fields that Cedros Data's host
+The `cedros-login:admin` runtime module exposes fields that Cedros platform's host
 shell or sidebar adapter is responsible for honoring:
 
 - `section.replacesSectionIds` — `cedros-login:login` lists the legacy
   per-feature settings ids it subsumes (account-settings, settings-email,
-  settings-webhooks, settings-server, settings-images, activity). Cedros Data
+  settings-webhooks, settings-server, settings-images, activity). Cedros platform
   must dedupe these when merging sidebar entries from other modules.
-- Cedros Data's built-in Team sidebar item remains the visible entry point for
+- Cedros platform's built-in Team sidebar item remains the visible entry point for
   team workflows; it should use the `cedros-login-team-directory` host service
   for login-backed identity data rather than expecting packaged
   `cedros-login:team` or `cedros-login:team-invites` sections.

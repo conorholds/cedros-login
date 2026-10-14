@@ -1,4 +1,4 @@
-# Extension Data Architecture
+# Extension platform Architecture
 
 This document covers the packaged `server-wasm` backend and its React and React
 Native clients. The Axum crate in `server/` is a separate standalone deployment
@@ -21,7 +21,7 @@ capability, provider, or secret fails closed. Host errors become stable redacted
 responses; payloads, tokens, email bodies, and database diagnostics are not
 copied into logs or telemetry.
 
-## Authoritative Data
+## Authoritative platform
 
 Identity, session, proof, credential, organization, settings, audit, and outbox
 records are authoritative in the Cedros host. Browser/native state is display

@@ -353,7 +353,7 @@ describe('login.css admin theme safeguards', () => {
     expect(loginCss).not.toContain('--admin-bg: hsl(0, 0%, 100%);');
   });
 
-  it('maps admin links through the Cedros Data link token', () => {
+  it('maps admin links through the Cedros platform link token', () => {
     expect(adminWorkbenchCss).toContain(
       '--cedros-login-admin-link: var(--cd-link, var(--admin-link, var(--cedros-login-link)));'
     );

@@ -250,7 +250,7 @@ fn page_seed(
         title: title.to_string(),
         route_path: route_path.to_string(),
         description: Some(format!(
-            "Cedros Data page row for the {} workflow; auto-created and published when the extension is enabled so the public URL is live immediately.",
+            "Cedros platform page row for the {} workflow; auto-created and published when the extension is enabled so the public URL is live immediately.",
             title.to_lowercase()
         )),
         slug: Some(slug.to_string()),

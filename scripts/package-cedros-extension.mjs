@@ -244,7 +244,7 @@ function buildReleasePacket(currentManifest, archiveName, archiveSha256, archive
     rollback: releaseReadiness.rollback,
     knownRisks: releaseReadiness.knownRisks,
     signOff: releaseReadiness.signOff,
-    uploadInstructions: 'Upload only the .cedros-extension.zip through Cedros local package intake. It carries the compiled React admin runtime under workspace/react/dist/** so Cedros Data can hydrate adminModules[] without npm/tarball/workspace fetches. The .source-review.zip is separate human review evidence and is not the upload artifact.',
+    uploadInstructions: 'Upload only the .cedros-extension.zip through Cedros local package intake. It carries the compiled React admin runtime under workspace/react/dist/** so Cedros platform can hydrate adminModules[] without npm/tarball/workspace fetches. The .source-review.zip is separate human review evidence and is not the upload artifact.',
   };
 }
 
@@ -310,7 +310,7 @@ This archive is the complete intake artifact for Cedros Login. It carries:
   style, and JSON file it imports
 - a small Rust/TS source slice for human review
 
-Cedros Data does not fetch npm packages, tarballs, workspaces, registries, or
+Cedros platform does not fetch npm packages, tarballs, workspaces, registries, or
 crates at intake time. The compiled admin runtime is loaded from this ZIP.
 Only host-shim bare imports (\`react\` and \`react/jsx-runtime\`) remain
 unresolved at upload time.
@@ -449,7 +449,7 @@ function assertCompiledAdminRuntimeIncluded(entries) {
   const required = 'workspace/react/dist/admin/register.js';
   if (!entries[required]) {
     throw new Error(
-      `intake archive missing compiled admin runtime entry ${required}; Cedros Data treats adminModules[] as unbacked without it`,
+      `intake archive missing compiled admin runtime entry ${required}; Cedros platform treats adminModules[] as unbacked without it`,
     );
   }
 }
@@ -534,7 +534,7 @@ function writeArchiveMap(currentManifest, entries, archiveName, sourceReviewArch
       path: `dist/${currentManifest.extensionId}-${currentManifest.version}.release.json`,
       archiveDigestLocation: 'release packet only',
       supplyChainVerificationStatus: 'not-provided',
-      runtimeCodeStatus: 'compiled React admin runtime included under workspace/react/dist/** and compiled Wasm server backend included as cedros-extension.server.wasm; Cedros Data loads both directly from the ZIP without npm/tarball/workspace fetches',
+      runtimeCodeStatus: 'compiled React admin runtime included under workspace/react/dist/** and compiled Wasm server backend included as cedros-extension.server.wasm; Cedros platform loads both directly from the ZIP without npm/tarball/workspace fetches',
       sourceReviewArchive,
     },
   };

@@ -10,7 +10,7 @@
         "order": 10
       }
     ],
-    "provisioningBehavior": "Cedros Data scaffolds authored document zones from template.zones and seeds manifest starter blocks into new page rows."
+    "provisioningBehavior": "Cedros platform scaffolds authored document zones from template.zones and seeds manifest starter blocks into new page rows."
   },
   "blocks": [
     {

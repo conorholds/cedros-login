@@ -1,6 +1,6 @@
 # Cedros Invite-Gate Pending Handoff Contract v1
 
-Status: Login implementation complete; joint Cedros Data binding and staging
+Status: Login implementation complete; joint Cedros platform binding and staging
 verification required before automatic waitlist enrollment is release-ready.
 
 ## Trusted host seam
@@ -56,7 +56,7 @@ pending logins retry the same handoff using the same occurrence identity.
 
 `eventId` and `occurrenceId` are identical. They are a deterministic SHA-256
 identity over contract version, event type, site id, and Login user id. Cedros
-Data must use this value as the idempotency key. A retry may have a later
+The Cedros platform must use this value as the idempotency key. A retry may have a later
 `occurredAt`, but it represents the same occurrence.
 
 The payload must never contain email, name/profile data, a pending invite token,
@@ -64,7 +64,7 @@ session/auth tokens, cookies, credentials, or generic provider payloads.
 
 ## Acceptance response
 
-Cedros Data returns success only after its product-waitlist write is durably
+Cedros platform returns success only after its product-waitlist write is durably
 committed or an idempotent reread proves the same occurrence was already
 committed:
 
@@ -84,7 +84,7 @@ redemption and never produces waitlist-success copy.
 
 ## Trusted email resolution
 
-While processing the opaque handoff, before returning acceptance, Cedros Data
+While processing the opaque handoff, before returning acceptance, Cedros platform
 resolves the account email from:
 
 ```http
@@ -138,7 +138,7 @@ never sent through the handoff or relying-party route.
 
 ## Joint acceptance
 
-Before release, Cedros Data must grant/bind `cedros_login` +
+Before release, Cedros platform must grant/bind `cedros_login` +
 `invite_gate.pending`, populate site context on public auth requests, implement
 idempotent durable acceptance and receipt responses, provision the scoped
 relying-party policy, and pass created/replayed/failure staging cases. Until

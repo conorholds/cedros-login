@@ -1,6 +1,6 @@
 //! Public-auth route aliases bound under `/extensions/cedros-login/public-auth`.
 //!
-//! Cedros Data's public site proxy only forwards public login runtime requests
+//! Cedros platform's public site proxy only forwards public login runtime requests
 //! through this allowlisted prefix. The main route dispatcher strips the prefix
 //! and reuses the existing auth handlers.
 

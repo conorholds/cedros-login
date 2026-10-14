@@ -57,7 +57,7 @@ const cedrosLoginAdminManifest = {
   navigation: cedrosLoginAdminNavigation,
 };
 
-// Team / Team Invites are owned by the Cedros Data host (it reads our roster via
+// Team / Team Invites are owned by the Cedros platform host (it reads our roster via
 // the cedros-login-team-directory host service), so the extension only ships the
 // Login (auth settings) section. The standalone cedrosLoginAdminModule still
 // exposes the full set for non-host consumers.

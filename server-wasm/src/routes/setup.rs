@@ -130,7 +130,7 @@ fn create_first_admin_inner(request: &RouteRequest) -> Result<RouteResponse, Rou
     )
 }
 
-/// POST /setup/admin/import: import Cedros Data's owner/operator password hash.
+/// POST /setup/admin/import: import Cedros platform's owner/operator password hash.
 fn import_first_admin_inner(request: &RouteRequest) -> Result<RouteResponse, RouteError> {
     require_system_admin_write(request)?;
 

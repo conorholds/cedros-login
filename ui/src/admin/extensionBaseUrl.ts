@@ -1,5 +1,5 @@
 /**
- * Cedros Data mounts an installed extension's wasm backend under
+ * Cedros platform mounts an installed extension's wasm backend under
  * `/extensions/{extensionId}`, and hands the React admin module a `serverUrl`
  * pointing at the host origin. So the admin surface must address its own routes
  * at `{serverUrl}/extensions/cedros-login{path}` — e.g.
