@@ -1,11 +1,51 @@
 # Cedros Login
 
-[Wasm backend](server-wasm/README.md) · [Standalone server](server/README.md) · [React](ui/README.md) · [React Native](react-native/README.md) · [Security](SECURITY.md) · [License](LICENSE.md)
+**The identity foundation for the Cedros platform.**
 
-Cedros Login provides authentication and identity for the Cedros platform and
-custom applications. It supports email/password, Google, Apple, Solana,
-passkeys, instant links, TOTP MFA, sessions, organizations, API keys, and
-account administration.
+[Explore Cedros](https://cedros.ai/) · [Cedros Pay](https://github.com/conorholds/cedros-pay) · [React](ui/README.md) · [React Native](react-native/README.md) · [Security](SECURITY.md) · [License](LICENSE.md)
+
+## What is Cedros?
+
+Cedros is a self-hostable platform for building and running business websites.
+It brings visual page authoring, content, customer accounts, commerce, and site
+administration together, with extensions that add new features and workflows to
+the same site.
+
+Developers can build custom extensions, pages, and integrations around shared
+platform services. That gives a membership site, customer portal, or online
+store a common foundation for its accounts, payments, and administration.
+
+## Where Cedros Login fits
+
+Cedros Login is one of the platform's core extensions: the identity building
+block that other extensions and applications can build around. It provides
+accounts, sign-in, sessions, and organization management for experiences that
+need to know who a customer is and which resources they can access.
+
+- **Give customers a choice of sign-in methods:** email/password, Google, Apple,
+  Solana, passkeys, and instant links.
+- **Support the complete account journey:** profiles, recovery, session
+  management, and multi-factor authentication.
+- **Build for individuals and teams:** organizations, memberships, invitations,
+  and authorization contracts support customer portals and team workflows.
+- **Meet customers on web and mobile:** React and React Native clients connect
+  to the Cedros extension backend or the standalone Rust server.
+
+[Cedros Pay](https://github.com/conorholds/cedros-pay) adds checkout,
+subscriptions, credits, and payment-linked access. A custom learning or
+membership extension can use Login for accounts and Pay for subscription
+status, then build its own content, features, and access rules around them.
+
+## Start here
+
+- **New to the platform?** [Explore Cedros](https://cedros.ai/) to see the broader
+  platform and what you can build with it.
+- **Building a web or mobile app?** Follow the [React](ui/README.md) or
+  [React Native](react-native/README.md) source-installation guide.
+- **Integrating with a Cedros site?** Start with [admin embedding](docs/admin-shell-embedding.md)
+  and the [Wasm backend](server-wasm/README.md).
+- **Running authentication in your own application?** Use the
+  [standalone server guide](server/README.md).
 
 ## Components
 
