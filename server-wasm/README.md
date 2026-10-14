@@ -21,8 +21,8 @@ cargo build --manifest-path server-wasm/Cargo.toml --target wasm32-wasip2 --rele
 
 The component is written to
 `server-wasm/target/wasm32-wasip2/release/cedros_login_server_wasm.wasm`.
-`make cedros-package` includes it as `cedros-extension.server.wasm` in the
-extension archive alongside the manifest and client runtimes. The crate is not
+Cedros extension installations load it as `cedros-extension.server.wasm`
+alongside the manifest and client runtimes. The crate is not
 published separately to crates.io; its deployment version comes from the
 extension manifest.
 
@@ -44,12 +44,12 @@ cargo test --manifest-path server-wasm/Cargo.toml --locked
 make cedros-validate
 ```
 
-Native unit tests and metadata validation do not exercise an installed host's
-transaction, provider, or permission behavior. See the
-[runtime testing guide](../docs/RUNTIME-TESTING.md),
-[data architecture](../docs/extension-data-architecture.md), and
-[deployment checklist](../docs/cedros-release-readiness-handoff.md) for host
-integration requirements and smoke tests.
+Native unit tests and contract validation do not exercise an installed host's
+transaction, provider, or permission behavior. The host must implement the
+[database concurrency contract](../contracts/host/cedros-database-concurrency-contract.v2.json)
+and [session atomic contract](../contracts/host/cedros-session-atomic-contract.v1.json).
+Verify tenant isolation, provider access, and auth flows on the intended host
+before deployment.
 
 ## License
 
