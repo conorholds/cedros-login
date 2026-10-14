@@ -1,0 +1,72 @@
+.cedros-login-dashboard-card {
+  overflow: hidden;
+  color: var(--cedros-login-admin-fg);
+}
+
+.cedros-login-dashboard-card .cedros-data-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cedros-login-dashboard-card .cedros-data-card__body {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cedros-login-dashboard-card .cedros-data-card__body > p,
+.cedros-login-dashboard-card .cedros-data-status p,
+.cedros-login-dashboard-card .cedros-data-setup-notice p {
+  margin: 0;
+}
+
+.cedros-login-dashboard-card .cedros-data-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.25rem), 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.cedros-login-dashboard-card .cedros-data-metric {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  background: var(--cedros-login-admin-card-bg);
+}
+
+.cedros-login-dashboard-card .cedros-data-metric__label {
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cedros-login-dashboard-card .cedros-data-metric__value {
+  margin: 0.25rem 0 0;
+  color: var(--cedros-login-admin-fg);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.cedros-login-dashboard-card .cedros-data-metric__hint {
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.75rem;
+}
+
+.cedros-login-dashboard-card .cedros-data-setup-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  padding: 0.75rem;
+}
+
+.cedros-login-dashboard-card .cedros-data-setup-notice__body {
+  display: grid;
+  gap: 0.375rem;
+}

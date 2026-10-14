@@ -3,6 +3,7 @@ import { View, Text, ViewStyle, StyleProp } from "react-native";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import { Button } from "../shared/Button";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
@@ -65,7 +66,7 @@ export function TotpVerify({
       <View
         style={{
           backgroundColor: colors.white,
-          borderRadius: 12,
+          borderRadius: radii.card,
           padding: spacing.xl,
           borderWidth: 1,
           borderColor: colors.gray[200],

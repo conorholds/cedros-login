@@ -62,7 +62,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
     },
     ref,
   ): React.ReactElement => {
-    const { colors, spacing, typography } = useCedrosTheme();
+    const { colors, spacing, typography, radii } = useCedrosTheme();
     const [isVisible, setIsVisible] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
@@ -125,7 +125,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
               : isFocused
                 ? colors.primary[500]
                 : colors.gray[300],
-            borderRadius: 8,
+            borderRadius: radii.field,
           }}
         >
           <TextInput
@@ -153,9 +153,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
               isVisible ? "Password is visible" : "Password is hidden"
             }
           />
-          {renderToggle
-            ? renderToggle(isVisible, handleToggle)
-            : defaultToggle}
+          {renderToggle ? renderToggle(isVisible, handleToggle) : defaultToggle}
         </View>
         {error && (
           <Text

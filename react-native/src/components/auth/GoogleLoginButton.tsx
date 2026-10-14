@@ -9,36 +9,21 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
-import type { AuthError } from "../../types";
+import type { AuthError, MfaRequiredResponse } from "../../types";
 import {
   getGoogleSignInModule,
   requestNativeGoogleIdToken,
 } from "../../utils/nativeAuthModules";
 
-type NativeGoogleButtonProps = {
-  onPress: () => void;
-  disabled?: boolean;
-  size?: unknown;
-  color?: unknown;
-  style?: StyleProp<ViewStyle>;
-};
-
-type NativeGoogleButtonComponent = React.ComponentType<NativeGoogleButtonProps> & {
-  Size?: {
-    Wide?: unknown;
-  };
-  Color?: {
-    Light?: unknown;
-  };
-};
-
 export interface GoogleLoginButtonProps {
   /** Callback invoked on press; should trigger native Google Sign-In and return the ID token. */
   onRequestToken?: () => Promise<{ idToken: string }>;
   onSuccess?: () => void;
+  onMfaRequired?: (response: MfaRequiredResponse) => void;
   onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -54,21 +39,23 @@ export interface GoogleLoginButtonProps {
 export function GoogleLoginButton({
   onRequestToken,
   onSuccess,
+  onMfaRequired,
   onError,
   style,
   testID = "google-login-button",
 }: GoogleLoginButtonProps): React.ReactElement {
   const { signIn, isLoading, error } = useGoogleAuth();
   const googleModule = getGoogleSignInModule();
-  const NativeGoogleButton =
-    (googleModule?.GoogleSigninButton as NativeGoogleButtonComponent | undefined) ??
-    null;
+  const NativeGoogleButton = googleModule?.GoogleSigninButton ?? null;
 
   const handlePress = useCallback(async () => {
     try {
-      const { idToken } = await (onRequestToken ?? requestNativeGoogleIdToken)();
-      await signIn(idToken);
-      onSuccess?.();
+      const { idToken } = await (
+        onRequestToken ?? requestNativeGoogleIdToken
+      )();
+      const response = await signIn(idToken);
+      if ("mfaRequired" in response) onMfaRequired?.(response);
+      else onSuccess?.();
     } catch (e) {
       const authError: AuthError =
         e && typeof e === "object" && "code" in e
@@ -76,7 +63,7 @@ export function GoogleLoginButton({
           : { code: "UNKNOWN_ERROR", message: String(e) };
       onError?.(authError);
     }
-  }, [onRequestToken, signIn, onSuccess, onError]);
+  }, [onRequestToken, signIn, onSuccess, onMfaRequired, onError]);
 
   return (
     <View style={style}>
@@ -103,7 +90,7 @@ export function GoogleLoginButton({
             backgroundColor: colors.white,
             borderWidth: 1,
             borderColor: colors.gray[300],
-            borderRadius: 8,
+            borderRadius: radii.control,
             paddingVertical: spacing.md,
             paddingHorizontal: spacing.lg,
           }}

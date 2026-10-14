@@ -1,0 +1,216 @@
+{
+  "extensionId": "cedros-login",
+  "providerAccess": [
+    {
+      "id": "cedros-login:email-provider",
+      "provider": "email",
+      "hostServiceId": "site-email-provider",
+      "sdkConstant": "HOST_SERVICE_IDS.siteEmailProvider",
+      "displayName": "Login transactional email",
+      "description": "Send verification, reset, invitation, and instant-link emails through the site-owned email provider.",
+      "scopes": [
+        "email.send"
+      ],
+      "defaultTags": [
+        "identity",
+        "email"
+      ],
+      "classification": "self-serve declaration; runtime host-provider call",
+      "dataClassification": "Email recipients, subjects, bodies, token values, and provider headers are sensitive or PII and must not appear in tags, logs, analytics, site-brain records, manifests, or bootstrap files.",
+      "runtimeCalls": [
+        {
+          "feature": "email.verification",
+          "operation": "email.send",
+          "routeOrJobIds": [
+            "cedros-login:auth",
+            "cedros-login:outbox-dispatch"
+          ],
+          "purpose": "Send account verification emails through the site-owned email provider.",
+          "context": {
+            "extensionId": "cedros-login",
+            "accessId": "cedros-login:email-provider",
+            "feature": "email.verification",
+            "description": "Send a verification email through the site-owned provider.",
+            "tags": [
+              "identity",
+              "email",
+              "verification"
+            ]
+          },
+          "requestSchema": {
+            "type": "object",
+            "required": [
+              "to",
+              "subject"
+            ],
+            "optionalDeliveryContext": {
+              "contractVersion": "integer; current value 1",
+              "idempotencyKey": "stable cedros-login-outbox-{persisted-row-id}",
+              "attempt": "one-based integer",
+              "duplicateRisk": "boolean; true when an earlier attempt may have reached a provider"
+            },
+            "redactedFields": [
+              "to",
+              "subject",
+              "htmlBody",
+              "textBody"
+            ]
+          },
+          "responseSchema": {
+            "type": "object",
+            "properties": {
+              "providerMessageRef": {
+                "type": "string",
+                "required": false
+              },
+              "status": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              }
+            }
+          },
+          "idempotency": "at-least-once; stable outbox key is mandatory correlation input for new hosts and suppresses duplicates only when the selected provider explicitly supports idempotency",
+          "fallback": "fail closed with provider_unavailable or retryable_downstream_failed"
+        },
+        {
+          "feature": "email.password-reset",
+          "operation": "email.send",
+          "routeOrJobIds": [
+            "cedros-login:auth",
+            "cedros-login:outbox-dispatch"
+          ],
+          "purpose": "Send password reset emails through the site-owned email provider.",
+          "idempotency": "password reset token id or outbox event id",
+          "fallback": "fail closed with reset email unavailable state"
+        },
+        {
+          "feature": "email.invite",
+          "operation": "email.send",
+          "routeOrJobIds": [
+            "cedros-login:invites",
+            "cedros-login:outbox-dispatch"
+          ],
+          "purpose": "Send organization invite emails through the site-owned email provider.",
+          "idempotency": "invite id or outbox event id",
+          "fallback": "persist invite, mark email pending or failed"
+        },
+        {
+          "feature": "email.security-alert",
+          "operation": "email.send",
+          "routeOrJobIds": [
+            "cedros-login:auth",
+            "cedros-login:outbox-dispatch"
+          ],
+          "purpose": "Send redacted security alert emails through the site-owned email provider.",
+          "idempotency": "security event id or outbox event id",
+          "fallback": "record redacted failed alert state"
+        }
+      ],
+      "observability": [
+        "send count by feature",
+        "retry and failure count by redacted cause",
+        "provider-disabled incidents",
+        "outbox pending and failed counts"
+      ]
+    },
+    {
+      "id": "cedros-login:image-storage",
+      "provider": "storage",
+      "hostServiceId": "site-storage-provider",
+      "sdkConstant": "HOST_SERVICE_IDS.siteStorageProvider",
+      "displayName": "Login image storage",
+      "description": "Store and read user profile images through the site-owned storage provider when image uploads are enabled.",
+      "scopes": [
+        "storage.read",
+        "storage.write"
+      ],
+      "defaultTags": [
+        "identity",
+        "profile-images"
+      ],
+      "classification": "self-serve declaration; runtime host-provider call",
+      "dataClassification": "Profile images can be personal data; object names, filenames, user identifiers, and storage URLs must be redacted from logs and tags unless the host marks them safe.",
+      "pathPrefix": "cedros-login/profile-images/",
+      "runtimeCalls": [
+        {
+          "feature": "profile-image.upload",
+          "operation": "storage.write",
+          "routeOrJobIds": [
+            "cedros-login:auth",
+            "cedros-login:admin-users-settings-audit"
+          ],
+          "purpose": "Store user profile images through the site-owned storage provider.",
+          "context": {
+            "extensionId": "cedros-login",
+            "accessId": "cedros-login:image-storage",
+            "feature": "profile-image.upload",
+            "description": "Write a profile image to the site-owned storage provider.",
+            "tags": [
+              "identity",
+              "profile-images",
+              "upload"
+            ]
+          },
+          "requestSchema": {
+            "type": "object",
+            "required": [
+              "objectRef",
+              "pathPrefix",
+              "contentType",
+              "idempotencyKey"
+            ],
+            "redactedFields": [
+              "filename",
+              "userId",
+              "objectPath"
+            ]
+          },
+          "responseSchema": {
+            "type": "object",
+            "properties": {
+              "storageObjectRef": {
+                "type": "string"
+              },
+              "mediaRef": {
+                "type": "string"
+              }
+            }
+          },
+          "idempotency": "upload request id and target object reference",
+          "fallback": "fail closed with image upload disabled"
+        },
+        {
+          "feature": "profile-image.read",
+          "operation": "storage.read",
+          "routeOrJobIds": [
+            "cedros-login:auth",
+            "cedros-login:admin-users-settings-audit"
+          ],
+          "purpose": "Read profile image references through the site-owned storage provider.",
+          "idempotency": "read-only; host request correlation only",
+          "fallback": "show default avatar"
+        }
+      ],
+      "observability": [
+        "storage read and write count by feature",
+        "upload failures by redacted cause",
+        "provider-disabled incidents",
+        "storage object cleanup events"
+      ]
+    }
+  ],
+  "hostInternalOrHandoffOnly": [
+    "OAuth and OIDC providers remain settings/secrets/route handoff until Cedros publishes a provider family.",
+    "Discord and Telegram notifications remain downstream service handoff unless Cedros publishes a notification provider.",
+    "Privacy sidecar, wallet, balance, compliance, and affiliates calls remain host service or official extension handoff items."
+  ],
+  "hostHandoff": [
+    "Exact host email provider request/response schema, sender, reply-to, consent, template, timeout, and retry policy.",
+    "Email hosts must accept the additive contractVersion=1, idempotencyKey, attempt, and duplicateRisk fields on email.send while remaining compatible with requests that omit them.",
+    "Email hosts should return JSON with optional providerMessageRef. If they implement real idempotency, retries of one idempotencyKey must return the original acceptance without sending again; otherwise the key is correlation-only and duplicate delivery remains possible.",
+    "Exact host storage provider request/response schema, path prefix, media URL policy, timeout, retry, delete, and retention policy.",
+    "Provider usage/cost records filterable by extensionId, accessId, feature, and safe tags."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/access-token-v1.schema.json",
+  "title": "Cedros Login access token claims",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sub", "sid", "iat", "nbf", "exp", "iss", "aud"],
+  "properties": {
+    "sub": { "type": "string", "minLength": 1, "description": "Cedros Login user id." },
+    "sid": { "type": "string", "minLength": 1, "description": "Cedros Login session id." },
+    "org_id": { "type": "string", "minLength": 1 },
+    "role": { "enum": ["owner", "admin", "member"] },
+    "is_system_admin": { "type": "boolean" },
+    "email_verified": { "type": "boolean" },
+    "iat": { "type": "integer" },
+    "nbf": { "type": "integer" },
+    "exp": { "type": "integer" },
+    "iss": { "const": "cedros-login" },
+    "aud": { "const": "cedros" }
+  }
+}

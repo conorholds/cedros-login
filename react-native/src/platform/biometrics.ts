@@ -1,43 +1,110 @@
-/**
- * Biometric authentication utilities for React Native
- *
- * @requires react-native-biometrics - Install and configure this SDK for functionality
- * @platform React Native (iOS/Android)
- *
- * @example
- * ```bash
- * npm install react-native-biometrics
- * ```
- *
- * Then implement the methods below using the SDK
- */
+export interface BiometricsAvailability {
+  available: boolean;
+  biometryType?: string;
+  error?: string;
+}
+
+export interface BiometricsPromptOptions {
+  reason?: string;
+  fallbackPromptMessage?: string;
+  cancelButtonText?: string;
+}
+
+interface NativeBiometricsPromptResult {
+  success: boolean;
+  error?: string;
+}
+
+interface NativeBiometricsClient {
+  isSensorAvailable(): Promise<BiometricsAvailability>;
+  simplePrompt(options: {
+    promptMessage: string;
+    fallbackPromptMessage?: string;
+    cancelButtonText?: string;
+  }): Promise<NativeBiometricsPromptResult>;
+}
+
+type NativeBiometricsConstructor = new () => NativeBiometricsClient;
+
+let injectedClient: NativeBiometricsClient | null | undefined;
+let cachedClient: NativeBiometricsClient | null | undefined;
+
+function resolveNativeBiometrics(): NativeBiometricsClient | null {
+  if (injectedClient !== undefined) return injectedClient;
+  if (cachedClient !== undefined) return cachedClient;
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require("react-native-biometrics") as {
+      default?: NativeBiometricsConstructor;
+    } & NativeBiometricsConstructor;
+    const Client = mod.default ?? mod;
+    cachedClient = typeof Client === "function" ? new Client() : null;
+  } catch {
+    cachedClient = null;
+  }
+
+  return cachedClient;
+}
+
+export function _setBiometricsClientForTests(
+  client: NativeBiometricsClient | null,
+): void {
+  injectedClient = client;
+  cachedClient = undefined;
+}
+
+export function _resetBiometricsClientForTests(): void {
+  injectedClient = undefined;
+  cachedClient = undefined;
+}
+
 export const biometrics = {
-  /**
-   * Check if biometric authentication is available on the device
-   * @returns Promise<boolean> - true if biometrics available and enrolled
-   *
-   * @requires react-native-biometrics SDK
-   */
-  isAvailable: async (): Promise<boolean> => {
-    console.warn(
-      '[@cedros/login-react-native] Biometrics stub: install react-native-biometrics for real support'
-    );
-    return false;
+  async getAvailability(): Promise<BiometricsAvailability> {
+    const client = resolveNativeBiometrics();
+    if (!client) {
+      return {
+        available: false,
+        error: "react-native-biometrics is not installed or linked",
+      };
+    }
+
+    try {
+      return await client.isSensorAvailable();
+    } catch (error) {
+      return {
+        available: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Biometric availability check failed",
+      };
+    }
   },
 
-  /**
-   * Authenticate using device biometrics (fingerprint/face)
-   * @param reason - Message shown in biometric prompt
-   * @returns Promise<boolean> - true if authentication successful
-   *
-   * @requires react-native-biometrics SDK
-   */
-  authenticate: async (_reason?: string): Promise<boolean> => {
-    console.warn(
-      '[@cedros/login-react-native] Biometrics stub: install react-native-biometrics for real support'
-    );
-    return false;
+  async isAvailable(): Promise<boolean> {
+    const availability = await this.getAvailability();
+    return availability.available;
+  },
+
+  async authenticate(
+    options: BiometricsPromptOptions | string = {},
+  ): Promise<boolean> {
+    const client = resolveNativeBiometrics();
+    if (!client) return false;
+
+    const promptOptions =
+      typeof options === "string" ? { reason: options } : options;
+
+    try {
+      const result = await client.simplePrompt({
+        promptMessage: promptOptions.reason ?? "Confirm your identity",
+        fallbackPromptMessage: promptOptions.fallbackPromptMessage,
+        cancelButtonText: promptOptions.cancelButtonText ?? "Cancel",
+      });
+      return result.success;
+    } catch {
+      return false;
+    }
   },
 };
-
-export default biometrics;

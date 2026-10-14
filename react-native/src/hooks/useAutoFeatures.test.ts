@@ -1,9 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { clearAutoFeaturesCache, loadAutoFeatures } from "./useAutoFeatures";
+import { parseSignupAvailability } from "../utils/signupAvailability";
+
+vi.mock("react-native", () => ({
+  AppState: {
+    currentState: "active",
+    addEventListener: vi.fn(() => ({ remove: vi.fn() })),
+  },
+}));
 
 describe("useAutoFeatures", () => {
   const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
+    clearAutoFeaturesCache();
     globalThis.fetch = vi.fn();
   });
 
@@ -26,14 +36,7 @@ describe("useAutoFeatures", () => {
       }),
     });
 
-    // Direct fetch test — validates the endpoint and response parsing
-    // that useAutoFeatures relies on (hook itself requires React runtime).
-    const baseUrl = "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/features`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-    });
-    const data = await res.json();
+    const data = await loadAutoFeatures("http://localhost:3000");
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
       "http://localhost:3000/features",
@@ -58,13 +61,82 @@ describe("useAutoFeatures", () => {
       }),
     });
 
-    const res = await fetch("http://localhost:3000/features", {
-      method: "GET",
-      headers: { Accept: "application/json" },
-    });
-    const data = await res.json();
+    const data = await loadAutoFeatures("http://localhost:3000");
 
     expect(data.googleClientId).toBeUndefined();
     expect(data.appleClientId).toBeUndefined();
+  });
+
+  it("validates signup availability from the public boundary", () => {
+    expect(
+      parseSignupAvailability({
+        remaining: 12,
+        limit: 100,
+        period: "monthly",
+        resetsAt: "2099-10-01T00:00:00Z",
+      }),
+    ).toEqual({
+      remaining: 12,
+      limit: 100,
+      period: "monthly",
+      resetsAt: "2099-10-01T00:00:00Z",
+    });
+    expect(
+      parseSignupAvailability({
+        remaining: 101,
+        limit: 100,
+        period: "monthly",
+        resetsAt: "2099-10-01T00:00:00Z",
+      }),
+    ).toBeUndefined();
+    expect(
+      parseSignupAvailability({
+        remaining: 12,
+        limit: 100,
+        period: "monthly",
+        resetsAt: "2020-10-01T00:00:00Z",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("coalesces simultaneous feature reads and reuses the short-lived cache", async () => {
+    let resolve!: (value: unknown) => void;
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockImplementation(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+
+    const first = loadAutoFeatures("http://localhost:3000/");
+    const second = loadAutoFeatures("http://localhost:3000");
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    resolve({ ok: true, json: async () => ({ email: true }) });
+
+    await expect(Promise.all([first, second])).resolves.toEqual([
+      { email: true },
+      { email: true },
+    ]);
+    await loadAutoFeatures("http://localhost:3000");
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("bypasses a cached snapshot for an explicit refresh", async () => {
+    (globalThis.fetch as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ email: true }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ email: false }),
+      });
+
+    await expect(loadAutoFeatures("http://localhost:3000")).resolves.toEqual({
+      email: true,
+    });
+    await expect(
+      loadAutoFeatures("http://localhost:3000", 5_000, true),
+    ).resolves.toEqual({
+      email: false,
+    });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
   });
 });

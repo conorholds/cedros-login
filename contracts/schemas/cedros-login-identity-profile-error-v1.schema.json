@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/identity-profile-error-v1.schema.json",
+  "title": "cedros-login:identity-profile:error:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["error"],
+  "properties": {
+    "error": {
+      "enum": [
+        "unauthenticated",
+        "invalid_credentials",
+        "invalid_session",
+        "invalid_token",
+        "stale_user_context",
+        "account_suspended",
+        "email_not_verified",
+        "organization_unavailable",
+        "organization_membership_removed",
+        "organization_role_changed",
+        "key_rotation_in_progress",
+        "unauthorized",
+        "invalid_relying_party",
+        "relying_party_policy_required",
+        "invalid_relying_party_policy",
+        "insufficient_scope",
+        "org_required",
+        "unauthorized_org",
+        "subject_not_found",
+        "internal_error",
+        "db_error",
+        "resource_conflict",
+        "encoding_error",
+        "secrets_error",
+        "settings_error"
+      ]
+    }
+  }
+}

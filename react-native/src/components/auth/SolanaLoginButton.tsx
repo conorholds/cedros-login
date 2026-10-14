@@ -10,11 +10,12 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import { useSolanaAuth } from "../../hooks/useSolanaAuth";
 import { useMobileWalletAuth } from "../../hooks/useMobileWalletAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
-import type { AuthError } from "../../types";
+import type { AuthError, MfaRequiredResponse } from "../../types";
 
 export interface SolanaLoginButtonProps {
   /**
@@ -31,6 +32,7 @@ export interface SolanaLoginButtonProps {
     nonce: string;
   }>;
   onSuccess?: () => void;
+  onMfaRequired?: (response: MfaRequiredResponse) => void;
   onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -48,11 +50,16 @@ export interface SolanaLoginButtonProps {
 export function SolanaLoginButton({
   onRequestToken,
   onSuccess,
+  onMfaRequired,
   onError,
   style,
   testID = "solana-login-button",
 }: SolanaLoginButtonProps): React.ReactElement | null {
-  const { signIn, isLoading: signInLoading, error: signInError } = useSolanaAuth();
+  const {
+    signIn,
+    isLoading: signInLoading,
+    error: signInError,
+  } = useSolanaAuth();
   const mwa = useMobileWalletAuth();
 
   const isLoading = signInLoading || mwa.isLoading;
@@ -60,18 +67,20 @@ export function SolanaLoginButton({
 
   const handlePress = useCallback(async () => {
     try {
-      // If consumer provides a custom handler, use it (backwards compatible)
+      // If the consumer provides a custom handler, use it.
       if (onRequestToken) {
         const { walletAddress, signature, nonce } = await onRequestToken();
-        await signIn(walletAddress, signature, nonce);
-        onSuccess?.();
+        const response = await signIn(walletAddress, signature, nonce);
+        if ("mfaRequired" in response) onMfaRequired?.(response);
+        else onSuccess?.();
         return;
       }
 
       // Built-in MWA flow (Android only)
       const { walletAddress, signature, nonce } = await mwa.connect();
-      await signIn(walletAddress, signature, nonce);
-      onSuccess?.();
+      const response = await signIn(walletAddress, signature, nonce);
+      if ("mfaRequired" in response) onMfaRequired?.(response);
+      else onSuccess?.();
     } catch (e) {
       const authError: AuthError =
         e && typeof e === "object" && "code" in e
@@ -79,7 +88,7 @@ export function SolanaLoginButton({
           : { code: "UNKNOWN_ERROR", message: String(e) };
       onError?.(authError);
     }
-  }, [onRequestToken, signIn, mwa, onSuccess, onError]);
+  }, [onRequestToken, signIn, mwa, onSuccess, onMfaRequired, onError]);
 
   // On iOS without an override callback, don't render (MWA is Android-only)
   if (Platform.OS !== "android" && !onRequestToken) {
@@ -100,7 +109,7 @@ export function SolanaLoginButton({
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: colors.primary[600],
-          borderRadius: 8,
+          borderRadius: radii.control,
           paddingVertical: spacing.md,
           paddingHorizontal: spacing.lg,
         }}
@@ -117,7 +126,7 @@ export function SolanaLoginButton({
                 width: 20,
                 height: 20,
                 backgroundColor: colors.white,
-                borderRadius: 4,
+                borderRadius: radii.compact,
                 marginRight: spacing.md,
                 justifyContent: "center",
                 alignItems: "center",

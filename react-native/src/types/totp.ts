@@ -10,7 +10,11 @@ export interface TotpStatus {
   enabled: boolean;
   /** Number of unused recovery codes remaining */
   recoveryCodesRemaining: number;
+  /** Confirmations the server will accept when disabling TOTP. */
+  disableMethods?: TotpDisableMethod[];
 }
+
+export type TotpDisableMethod = 'password' | 'code' | 'recoveryCode';
 
 /**
  * Response from TOTP setup initiation
@@ -39,6 +43,17 @@ export interface TotpVerifyRequest {
   /** 6-digit code from authenticator app or recovery code */
   code: string;
 }
+
+/**
+ * Request to disable TOTP.
+ *
+ * Password-backed accounts use `password`. Passwordless accounts use exactly
+ * one of `code` or `recoveryCode`.
+ */
+export type TotpDisableRequest =
+  | { password: string; code?: never; recoveryCode?: never }
+  | { password?: never; code: string; recoveryCode?: never }
+  | { password?: never; code?: never; recoveryCode: string };
 
 /**
  * Response with new backup codes

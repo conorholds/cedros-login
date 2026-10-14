@@ -1,0 +1,802 @@
+{
+  "schemaVersion": 2,
+  "contractId": "cedros-data:database-concurrency-v2",
+  "minimumConcurrentAttempts": 50,
+  "minimumIndependentWorkers": 2,
+  "workerIds": ["worker-a", "worker-b"],
+  "referenceModelOnly": true,
+  "scenarios": [
+    {
+      "id": "concurrent-normalized-email-claim",
+      "operationId": "identity.users.normalized-email",
+      "kind": "unique-claim",
+      "initial": { "claimedKeys": [] },
+      "attempts": ["user-a:person@example.com", "user-b:person@example.com"],
+      "expected": { "committed": 1, "conflicts": 1, "finalCardinality": 1, "conflictMarker": "cedros.db.v1|unique|identity.users.normalized-email" }
+    },
+    {
+      "id": "concurrent-purpose-bound-token-consume",
+      "operationId": "identity.verifications.consume-live-purpose-bound",
+      "kind": "single-transition",
+      "initial": { "state": "live:password_reset" },
+      "attempts": [
+        "live:password_reset->consumed",
+        "live:password_reset->consumed"
+      ],
+      "expected": { "committed": 1, "conflicts": 1, "finalState": "consumed", "conflictMarker": "cedros.db.v1|precondition|identity.verifications.consume-live-purpose-bound" }
+    },
+    {
+      "id": "concurrent-first-admin-claim",
+      "operationId": "identity.setup.claim-first-admin",
+      "kind": "single-transition",
+      "initial": { "state": "unconfigured" },
+      "attempts": [
+        "unconfigured->configured:admin-a",
+        "unconfigured->configured:admin-b"
+      ],
+      "expected": {
+        "committed": 1,
+        "conflicts": 1,
+        "finalStatePrefix": "configured:",
+        "conflictMarker": "cedros.db.v1|precondition|identity.setup.claim-first-admin"
+      }
+    },
+    {
+      "id": "concurrent-last-admin-demotion",
+      "operationId": "identity.system-admin.demote",
+      "kind": "minimum-cardinality-removal",
+      "initial": { "members": ["admin-a", "admin-b"], "minimum": 1 },
+      "attempts": ["admin-a", "admin-b"],
+      "expected": { "committed": 1, "conflicts": 1, "finalCardinality": 1, "conflictMarker": "cedros.db.v1|precondition|identity.system-admin.demote" }
+    },
+    {
+      "id": "concurrent-owner-demotion",
+      "operationId": "organization.membership.change-role",
+      "kind": "minimum-cardinality-removal",
+      "initial": { "members": ["owner-a", "owner-b"], "minimum": 1 },
+      "attempts": ["owner-a", "owner-b"],
+      "expected": { "committed": 1, "conflicts": 1, "finalCardinality": 1, "conflictMarker": "cedros.db.v1|precondition|organization.membership.change-role" }
+    },
+    {
+      "id": "concurrent-outbox-claim",
+      "operationId": "identity.outbox.claim-delivery",
+      "kind": "single-transition",
+      "initial": { "state": "pending" },
+      "attempts": ["pending->sending:worker-a", "pending->sending:worker-b"],
+      "expected": {
+        "committed": 1,
+        "conflicts": 1,
+        "finalStatePrefix": "sending:",
+        "conflictMarker": "cedros.db.v1|lease|identity.outbox.claim-delivery"
+      },
+      "recoveryCases": [
+        {
+          "id": "expired-sending-lease",
+          "initial": {
+            "state": "sending:expired",
+            "leaseExpiresAt": "expired"
+          },
+          "attempts": [
+            "sending:expired->sending:worker-a",
+            "sending:expired->sending:worker-b"
+          ],
+          "expected": {
+            "committed": 1,
+            "conflicts": 1,
+            "finalStatePrefix": "sending:",
+            "conflictMarker": "cedros.db.v1|lease|identity.outbox.claim-delivery"
+          }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-token-email-enqueue",
+      "operationId": "identity.outbox.enqueue-token-email",
+      "kind": "token-email-enqueue",
+      "initial": {
+        "verificationIds": [],
+        "outboxIds": [],
+        "evidenceReferences": []
+      },
+      "attempts": [
+        {
+          "verificationId": "00000000-0000-4000-8000-000000000011",
+          "outboxId": "00000000-0000-4000-8000-000000000012",
+          "userId": "user-1",
+          "outboxUserId": "user-1",
+          "tokenPurpose": "password_reset",
+          "targetEmail": "User@example.com",
+          "recipient": "user@example.com",
+          "tokenState": "live",
+          "outboxState": "initial"
+        },
+        {
+          "verificationId": "00000000-0000-4000-8000-000000000011",
+          "outboxId": "00000000-0000-4000-8000-000000000012",
+          "userId": "user-1",
+          "outboxUserId": "user-1",
+          "tokenPurpose": "password_reset",
+          "targetEmail": "User@example.com",
+          "recipient": "user@example.com",
+          "tokenState": "live",
+          "outboxState": "initial"
+        }
+      ],
+      "expected": {
+        "committed": 1,
+        "conflicts": 1,
+        "finalVerificationCardinality": 1,
+        "finalOutboxCardinality": 1,
+        "finalEvidenceCardinality": 1,
+        "conflictMarker": "cedros.db.v1|precondition|identity.outbox.enqueue-token-email"
+      },
+      "recoveryCases": [
+        {
+          "id": "token-email-unknown-purpose-rollback",
+          "initial": {
+            "verificationIds": [],
+            "outboxIds": [],
+            "evidenceReferences": []
+          },
+          "attempts": [
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000021",
+              "outboxId": "00000000-0000-4000-8000-000000000022",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "unknown", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "live", "outboxState": "initial"
+            },
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000023",
+              "outboxId": "00000000-0000-4000-8000-000000000024",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "unknown", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "live", "outboxState": "initial"
+            }
+          ],
+          "expected": {
+            "committed": 0, "conflicts": 0, "invalidRequests": 2,
+            "minimumRun": { "committed": 0, "conflicts": 0, "invalidRequests": 50 },
+            "finalVerificationCardinality": 0,
+            "finalOutboxCardinality": 0,
+            "finalEvidenceCardinality": 0,
+            "invalidCode": "invalid_request"
+          }
+        },
+        {
+          "id": "token-email-recipient-mismatch-rollback",
+          "initial": {
+            "verificationIds": [],
+            "outboxIds": [],
+            "evidenceReferences": []
+          },
+          "attempts": [
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000031",
+              "outboxId": "00000000-0000-4000-8000-000000000032",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "instant_link", "targetEmail": "first@example.com",
+              "recipient": "second@example.com", "tokenState": "live", "outboxState": "initial"
+            },
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000033",
+              "outboxId": "00000000-0000-4000-8000-000000000034",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "instant_link", "targetEmail": "first@example.com",
+              "recipient": "second@example.com", "tokenState": "live", "outboxState": "initial"
+            }
+          ],
+          "expected": {
+            "committed": 0, "conflicts": 0, "invalidRequests": 2,
+            "minimumRun": { "committed": 0, "conflicts": 0, "invalidRequests": 50 },
+            "finalVerificationCardinality": 0,
+            "finalOutboxCardinality": 0,
+            "finalEvidenceCardinality": 0,
+            "invalidCode": "invalid_request"
+          }
+        },
+        {
+          "id": "token-email-non-live-token-rollback",
+          "initial": {
+            "verificationIds": [],
+            "outboxIds": [],
+            "evidenceReferences": []
+          },
+          "attempts": [
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000041",
+              "outboxId": "00000000-0000-4000-8000-000000000042",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "account_deletion", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "used", "outboxState": "initial"
+            },
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000043",
+              "outboxId": "00000000-0000-4000-8000-000000000044",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "account_deletion", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "expired", "outboxState": "initial"
+            }
+          ],
+          "expected": {
+            "committed": 0, "conflicts": 0, "invalidRequests": 2,
+            "minimumRun": { "committed": 0, "conflicts": 0, "invalidRequests": 50 },
+            "finalVerificationCardinality": 0,
+            "finalOutboxCardinality": 0,
+            "finalEvidenceCardinality": 0,
+            "invalidCode": "invalid_request"
+          }
+        },
+        {
+          "id": "token-email-duplicate-outbox-rollback",
+          "initial": {
+            "verificationIds": [],
+            "outboxIds": ["00000000-0000-4000-8000-000000000052"],
+            "evidenceReferences": []
+          },
+          "attempts": [
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000051",
+              "outboxId": "00000000-0000-4000-8000-000000000052",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "email_verification", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "live", "outboxState": "initial"
+            },
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000053",
+              "outboxId": "00000000-0000-4000-8000-000000000052",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "email_verification", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "live", "outboxState": "initial"
+            }
+          ],
+          "expected": {
+            "committed": 0, "conflicts": 2,
+            "minimumRun": { "committed": 0, "conflicts": 50 },
+            "finalVerificationCardinality": 0,
+            "finalOutboxCardinality": 1,
+            "finalEvidenceCardinality": 0,
+            "conflictMarker": "cedros.db.v1|precondition|identity.outbox.enqueue-token-email"
+          }
+        },
+        {
+          "id": "token-email-response-lost-replay",
+          "initial": {
+            "verificationIds": ["00000000-0000-4000-8000-000000000061"],
+            "outboxIds": ["00000000-0000-4000-8000-000000000062"],
+            "evidenceReferences": ["00000000-0000-4000-8000-000000000062"]
+          },
+          "attempts": [
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000061",
+              "outboxId": "00000000-0000-4000-8000-000000000062",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "account_email_verify", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "live", "outboxState": "initial"
+            },
+            {
+              "verificationId": "00000000-0000-4000-8000-000000000061",
+              "outboxId": "00000000-0000-4000-8000-000000000062",
+              "userId": "user-1", "outboxUserId": "user-1",
+              "tokenPurpose": "account_email_verify", "targetEmail": "user@example.com",
+              "recipient": "user@example.com", "tokenState": "live", "outboxState": "initial"
+            }
+          ],
+          "expected": {
+            "committed": 0, "conflicts": 2,
+            "minimumRun": { "committed": 0, "conflicts": 50 },
+            "finalVerificationCardinality": 1,
+            "finalOutboxCardinality": 1,
+            "finalEvidenceCardinality": 1,
+            "conflictMarker": "cedros.db.v1|precondition|identity.outbox.enqueue-token-email"
+          }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-invite-code-redemption",
+      "operationId": "registration.invite-code.redeem",
+      "kind": "exclusive-redemption",
+      "initial": { "state": "pending", "usesCount": 0 },
+      "attempts": ["redemption-a", "redemption-b"],
+      "expected": {
+        "committed": 1,
+        "conflicts": 1,
+        "finalState": "activated",
+        "finalUsesCount": 1,
+        "conflictMarker": "cedros.db.v1|precondition|registration.invite-code.redeem"
+      },
+      "recoveryCases": [
+        {
+          "id": "same-redemption-replay",
+          "kind": "idempotent-redemption",
+          "initial": { "state": "pending", "usesCount": 0, "redemptionId": null },
+          "attempts": ["redemption-a", "redemption-a"],
+          "expected": {
+            "committed": 2,
+            "conflicts": 0,
+            "finalState": "activated",
+            "finalUsesCount": 1,
+            "minimumRun": { "committed": 50, "conflicts": 0 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-account-deletion",
+      "operationId": "identity.account.delete",
+      "kind": "single-transition",
+      "initial": { "state": "attached:shared-org-with-owner" },
+      "attempts": [
+        "attached:shared-org-with-owner->deleted",
+        "attached:shared-org-with-owner->deleted"
+      ],
+      "expected": { "committed": 1, "conflicts": 1, "finalState": "deleted", "conflictMarker": "cedros.db.v1|precondition|identity.account.delete" },
+      "recoveryCases": [
+        {
+          "id": "account-delete-proof-rollback",
+          "kind": "always-conflict",
+          "initial": { "state": "user-present:proof-live" },
+          "attempts": ["delete-with-later-failure", "delete-with-later-failure"],
+          "expected": {
+            "committed": 0,
+            "conflicts": 2,
+            "finalState": "user-present:proof-live",
+            "minimumRun": { "committed": 0, "conflicts": 50 },
+            "conflictMarker": "cedros.db.v1|precondition|identity.account.delete"
+          }
+        },
+        {
+          "id": "account-delete-owner-transfer",
+          "kind": "single-transition",
+          "initial": { "state": "owner:other-owner-present" },
+          "attempts": [
+            "owner:other-owner-present->deleted:owner-transferred",
+            "owner:other-owner-present->deleted:owner-transferred"
+          ],
+          "expected": {
+            "committed": 1,
+            "conflicts": 1,
+            "finalState": "deleted:owner-transferred",
+            "minimumRun": { "committed": 1, "conflicts": 49 },
+            "conflictMarker": "cedros.db.v1|precondition|identity.account.delete"
+          }
+        },
+        {
+          "id": "account-delete-sole-member-cascade",
+          "kind": "cascade-transition",
+          "initial": {
+            "state": "owner:sole-member",
+            "dependents": ["membership", "invite-record", "custom-role", "policy", "sso-provider"],
+            "dependentCardinality": 5
+          },
+          "attempts": [
+            "owner:sole-member->deleted:organization-cascaded",
+            "owner:sole-member->deleted:organization-cascaded"
+          ],
+          "expected": {
+            "committed": 1,
+            "conflicts": 1,
+            "finalState": "deleted:organization-cascaded",
+            "finalDependentCardinality": 0,
+            "minimumRun": { "committed": 1, "conflicts": 49 },
+            "conflictMarker": "cedros.db.v1|precondition|identity.account.delete"
+          }
+        },
+        {
+          "id": "account-delete-shared-last-owner-rejected",
+          "kind": "always-conflict",
+          "initial": { "state": "owner:shared-last-owner" },
+          "attempts": ["delete", "delete"],
+          "expected": {
+            "committed": 0,
+            "conflicts": 2,
+            "finalState": "owner:shared-last-owner",
+            "minimumRun": { "committed": 0, "conflicts": 50 },
+            "conflictMarker": "cedros.db.v1|precondition|identity.account.delete"
+          }
+        },
+        {
+          "id": "account-delete-race-stale-root-write", "kind": "delete-guard-race",
+          "initial": { "state": "active" }, "attempts": ["delete", "stale-root-write"],
+          "expected": { "committed": 1, "conflicts": 1, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 1, "conflicts": 49 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        },
+        {
+          "id": "account-delete-race-stale-child-insert", "kind": "delete-guard-race",
+          "initial": { "state": "active" }, "attempts": ["delete", "stale-child-write"],
+          "expected": { "committed": 1, "conflicts": 1, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 1, "conflicts": 49 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        },
+        {
+          "id": "account-delete-postcommit-stale-root-write", "kind": "always-conflict",
+          "initial": { "state": "deleted:tombstoned" }, "attempts": ["stale-root-write", "stale-root-write"],
+          "expected": { "committed": 0, "conflicts": 2, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 0, "conflicts": 50 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        },
+        {
+          "id": "account-delete-postcommit-stale-child-insert", "kind": "always-conflict",
+          "initial": { "state": "deleted:tombstoned" }, "attempts": ["stale-child-write", "stale-child-write"],
+          "expected": { "committed": 0, "conflicts": 2, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 0, "conflicts": 50 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-organization-deletion",
+      "operationId": "organization.delete",
+      "kind": "cascade-transition",
+      "initial": {
+        "state": "active:non-personal:owner-authorized",
+        "dependents": [
+          "membership",
+          "invite-record",
+          "custom-role",
+          "policy",
+          "sso-provider"
+        ],
+        "dependentCardinality": 5
+      },
+      "attempts": [
+        "active:non-personal:owner-authorized->deleted",
+        "active:non-personal:owner-authorized->deleted"
+      ],
+      "expected": {
+        "committed": 1,
+        "conflicts": 1,
+        "finalState": "deleted",
+        "finalDependentCardinality": 0,
+        "conflictMarker": "cedros.db.v1|precondition|organization.delete"
+      },
+      "recoveryCases": [
+        {
+          "id": "organization-delete-full-cascade",
+          "kind": "cascade-transition",
+          "initial": {
+            "state": "active:non-personal:owner-authorized",
+            "dependentCardinality": 5
+          },
+          "attempts": [
+            "active:non-personal:owner-authorized->deleted",
+            "active:non-personal:owner-authorized->deleted"
+          ],
+          "expected": {
+            "committed": 1,
+            "conflicts": 1,
+            "finalState": "deleted",
+            "finalDependentCardinality": 0,
+            "minimumRun": {
+              "committed": 1,
+              "conflicts": 49
+            },
+            "conflictMarker": "cedros.db.v1|precondition|organization.delete"
+          }
+        },
+        {
+          "id": "organization-delete-rollback",
+          "kind": "always-conflict",
+          "initial": {
+            "state": "active:unchanged"
+          },
+          "attempts": [
+            "delete-with-stale-actor-revision",
+            "delete-with-stale-actor-revision"
+          ],
+          "expected": {
+            "committed": 0,
+            "conflicts": 2,
+            "finalState": "active:unchanged",
+            "minimumRun": {
+              "committed": 0,
+              "conflicts": 50
+            },
+            "conflictMarker": "cedros.db.v1|precondition|organization.delete"
+          }
+        },
+        {
+          "id": "organization-delete-race-stale-root-write", "kind": "delete-guard-race",
+          "initial": { "state": "active" }, "attempts": ["delete", "stale-root-write"],
+          "expected": { "committed": 1, "conflicts": 1, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 1, "conflicts": 49 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        },
+        {
+          "id": "organization-delete-race-stale-child-insert", "kind": "delete-guard-race",
+          "initial": { "state": "active" }, "attempts": ["delete", "stale-child-write"],
+          "expected": { "committed": 1, "conflicts": 1, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 1, "conflicts": 49 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        },
+        {
+          "id": "organization-delete-postcommit-stale-root-write", "kind": "always-conflict",
+          "initial": { "state": "deleted:tombstoned" }, "attempts": ["stale-root-write", "stale-root-write"],
+          "expected": { "committed": 0, "conflicts": 2, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 0, "conflicts": 50 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        },
+        {
+          "id": "organization-delete-postcommit-stale-child-insert", "kind": "always-conflict",
+          "initial": { "state": "deleted:tombstoned" }, "attempts": ["stale-child-write", "stale-child-write"],
+          "expected": { "committed": 0, "conflicts": 2, "finalState": "deleted:tombstoned", "minimumRun": { "committed": 0, "conflicts": 50 }, "conflictMarker": "cedros.db.v1|precondition|lifecycle.tombstone-guard" }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-outbox-completion",
+      "operationId": "identity.outbox.complete-delivery",
+      "kind": "single-transition",
+      "initial": { "state": "sending:worker-b:rev2" },
+      "attempts": [
+        "sending:worker-a:rev1->completed",
+        "sending:worker-b:rev2->completed"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1, "finalState": "completed",
+        "conflictMarker": "cedros.db.v1|lease|identity.outbox.complete-delivery"
+      },
+      "recoveryCases": [
+        {
+          "id": "completed-response-lost-replay", "kind": "idempotent-transition",
+          "initial": { "state": "sending:worker-a:rev1", "receiptId": null, "sideEffectCount": 0 },
+          "attempts": ["delivery-1", "delivery-1"],
+          "expected": { "committed": 2, "conflicts": 0, "finalState": "completed", "finalSideEffectCount": 1, "minimumRun": { "committed": 50, "conflicts": 0 } }
+        },
+        {
+          "id": "stale-worker-cannot-complete-successor-lease", "kind": "single-transition",
+          "initial": { "state": "sending:worker-b:rev2" },
+          "attempts": ["sending:worker-a:rev1->completed", "sending:worker-b:rev2->completed"],
+          "expected": { "committed": 1, "conflicts": 1, "finalState": "completed", "minimumRun": { "committed": 1, "conflicts": 49 }, "conflictMarker": "cedros.db.v1|lease|identity.outbox.complete-delivery" }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-outbox-release",
+      "operationId": "identity.outbox.release-delivery",
+      "kind": "single-transition",
+      "initial": { "state": "sending:worker-b:rev2" },
+      "attempts": [
+        "sending:worker-a:rev1->pending",
+        "sending:worker-b:rev2->pending"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1, "finalState": "pending",
+        "conflictMarker": "cedros.db.v1|lease|identity.outbox.release-delivery"
+      }
+    },
+    {
+      "id": "concurrent-password-reset-completion",
+      "operationId": "identity.password-reset.complete", "kind": "single-transition",
+      "initial": { "state": "proof-live:user-rev1:sessions-live" },
+      "attempts": [
+        "proof-live:user-rev1:sessions-live->proof-consumed:user-rev2:sessions-revoked",
+        "proof-live:user-rev1:sessions-live->proof-consumed:user-rev2:sessions-revoked"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "proof-consumed:user-rev2:sessions-revoked",
+        "conflictMarker": "cedros.db.v1|precondition|identity.password-reset.complete"
+      }
+    },
+    {
+      "id": "concurrent-instant-link-completion",
+      "operationId": "identity.instant-link.complete", "kind": "single-transition",
+      "initial": { "state": "proof-live:user-rev1:email-rev1:no-result" },
+      "attempts": [
+        "proof-live:user-rev1:email-rev1:no-result->proof-consumed:user-rev2:email-rev2:session-created",
+        "proof-live:user-rev1:email-rev1:no-result->proof-consumed:user-rev2:email-rev2:session-created"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "proof-consumed:user-rev2:email-rev2:session-created",
+        "conflictMarker": "cedros.db.v1|precondition|identity.instant-link.complete"
+      }
+    },
+    {
+      "id": "concurrent-sso-auth-completion",
+      "operationId": "identity.sso-auth.complete", "kind": "single-transition",
+      "initial": { "state": "state-live:user-rev1:no-session" },
+      "attempts": [
+        "state-live:user-rev1:no-session->state-consumed:user-rev2:session-created",
+        "state-live:user-rev1:no-session->state-consumed:user-rev2:session-created"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "state-consumed:user-rev2:session-created",
+        "conflictMarker": "cedros.db.v1|precondition|identity.sso-auth.complete"
+      }
+    },
+    {
+      "id": "concurrent-solana-proof-completion",
+      "operationId": "identity.solana-proof.complete", "kind": "single-transition",
+      "initial": { "state": "nonce-live:user-rev1:no-session" },
+      "attempts": [
+        "nonce-live:user-rev1:no-session->nonce-consumed:user-rev2:session-created",
+        "nonce-live:user-rev1:no-session->nonce-consumed:user-rev2:session-created"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "nonce-consumed:user-rev2:session-created",
+        "conflictMarker": "cedros.db.v1|precondition|identity.solana-proof.complete"
+      }
+    },
+    {
+      "id": "concurrent-webauthn-auth-completion",
+      "operationId": "identity.webauthn-auth.complete", "kind": "single-transition",
+      "initial": { "state": "challenge-live:credential-rev1:count1:user-rev1" },
+      "attempts": [
+        "challenge-live:credential-rev1:count1:user-rev1->challenge-consumed:credential-rev2:count2:user-rev2",
+        "challenge-live:credential-rev1:count1:user-rev1->challenge-consumed:credential-rev2:count2:user-rev2"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "challenge-consumed:credential-rev2:count2:user-rev2",
+        "conflictMarker": "cedros.db.v1|precondition|identity.webauthn-auth.complete"
+      }
+    },
+    {
+      "id": "concurrent-webauthn-registration-completion",
+      "operationId": "identity.webauthn-registration.complete", "kind": "single-transition",
+      "initial": { "state": "challenge-live:credential-absent" },
+      "attempts": [
+        "challenge-live:credential-absent->challenge-consumed:credential-created",
+        "challenge-live:credential-absent->challenge-consumed:credential-created"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "challenge-consumed:credential-created",
+        "conflictMarker": "cedros.db.v1|precondition|identity.webauthn-registration.complete"
+      }
+    },
+    {
+      "id": "concurrent-signup-limit-status",
+      "operationId": "registration.signup-limit.status", "kind": "signup-limit-status",
+      "initial": {
+        "state": "signup-limit-used-88",
+        "used": 88, "limit": 100,
+        "periodStart": "2026-07-01T00:00:00Z",
+        "resetsAt": "2026-08-01T00:00:00Z"
+      },
+      "attempts": ["read-status", "read-status"],
+      "expected": {
+        "committed": 2, "conflicts": 0,
+        "minimumRun": { "committed": 50, "conflicts": 0 },
+        "finalState": "signup-limit-used-88"
+      }
+    },
+    {
+      "id": "concurrent-registration-account-creation",
+      "operationId": "registration.account.create", "kind": "single-transition",
+      "initial": { "state": "proof-live:account-absent:org-live" },
+      "attempts": [
+        "proof-live:account-absent:org-live->proof-consumed:account-complete",
+        "proof-live:account-absent:org-live->proof-consumed:account-complete"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "proof-consumed:account-complete",
+        "conflictMarker": "cedros.db.v1|precondition|registration.account.create"
+      },
+      "recoveryCases": [
+        {
+          "id": "signup-limit-last-slot-atomic",
+          "kind": "signup-limit-last-slot",
+          "initial": {
+            "state": "accounts-absent:signup-limit-enabled:monthly",
+            "used": 99, "limit": 100,
+            "created": 0, "limitReached": 0,
+            "periodStart": "2026-07-01T00:00:00Z",
+            "resetsAt": "2026-08-01T00:00:00Z"
+          },
+          "attempts": ["create:user-a", "create:user-b"],
+          "expected": {
+            "committed": 2, "conflicts": 0,
+            "minimumRun": {
+              "committed": 50, "conflicts": 0,
+              "created": 1, "limitReached": 49
+            },
+            "created": 1, "limitReached": 1,
+            "finalState": "one-account-created:signup-limit-used-100",
+            "resetsAt": "2026-08-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-registration-account-completion",
+      "operationId": "registration.account.complete", "kind": "single-transition",
+      "initial": { "state": "account-absent:email-verification-absent:outbox-absent:signup-limit-used-98" },
+      "attempts": [
+        "account-absent:email-verification-absent:outbox-absent:signup-limit-used-98->account-complete:email-verification-created:outbox-created:signup-limit-used-99",
+        "account-absent:email-verification-absent:outbox-absent:signup-limit-used-98->account-complete:email-verification-created:outbox-created:signup-limit-used-99"
+      ],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "account-complete:email-verification-created:outbox-created:signup-limit-used-99",
+        "conflictMarker": "cedros.db.v1|precondition|registration.account.complete"
+      },
+      "recoveryCases": [
+        {
+          "id": "registration-completion-rollback",
+          "kind": "always-conflict",
+          "initial": {
+            "state": "account-absent:email-verification-absent:outbox-absent:signup-limit-used-98",
+            "userIds": [], "verificationIds": [], "outboxIds": [],
+            "used": 98
+          },
+          "attempts": ["complete-with-outbox-failure", "complete-with-outbox-failure"],
+          "expected": {
+            "committed": 0, "conflicts": 2,
+            "minimumRun": { "committed": 0, "conflicts": 50 },
+            "finalState": "account-absent:email-verification-absent:outbox-absent:signup-limit-used-98",
+            "finalUserCardinality": 0,
+            "finalVerificationCardinality": 0,
+            "finalOutboxCardinality": 0,
+            "finalSignupLimitUsed": 98,
+            "conflictMarker": "cedros.db.v1|precondition|registration.account.complete"
+          }
+        },
+        {
+          "id": "registration-completion-response-lost-replay",
+          "kind": "idempotent-transition",
+          "initial": {
+            "state": "account-complete:email-verification-created:outbox-created:signup-limit-used-99",
+            "receiptId": "registration-1", "sideEffectCount": 1,
+            "userIds": ["user-1"],
+            "verificationIds": ["verification-1"],
+            "outboxIds": ["outbox-1"],
+            "used": 99
+          },
+          "attempts": ["registration-1", "registration-1"],
+          "expected": {
+            "committed": 2, "conflicts": 0,
+            "minimumRun": { "committed": 50, "conflicts": 0 },
+            "finalState": "account-complete:email-verification-created:outbox-created:signup-limit-used-99",
+            "finalSideEffectCount": 1,
+            "finalUserCardinality": 1,
+            "finalVerificationCardinality": 1,
+            "finalOutboxCardinality": 1,
+            "finalSignupLimitUsed": 99
+          }
+        }
+      ]
+    },
+    {
+      "id": "concurrent-invite-gate-release",
+      "operationId": "registration.invite-gate.release", "kind": "competing-gate-activation",
+      "initial": { "state": "pending", "revision": 1, "redemptionId": null, "inviteCodeId": null },
+      "attempts": ["redeem", "release"],
+      "expected": {
+        "committed": 1, "conflicts": 1,
+        "finalState": "activated:redeemed",
+        "finalRedemptionId": "redemption-1",
+        "finalInviteCodeId": "invite-1",
+        "conflictMarker": "cedros.db.v1|precondition|registration.invite-gate.release"
+      },
+      "recoveryCases": [
+        {
+          "id": "invite-gate-release-idempotent",
+          "kind": "idempotent-gate-release",
+          "initial": {
+            "state": "activated:released", "revision": 2,
+            "redemptionId": "receipt-1", "inviteCodeId": "invite-1"
+          },
+          "attempts": ["release", "release"],
+          "expected": {
+            "committed": 2, "conflicts": 0,
+            "minimumRun": { "committed": 50, "conflicts": 0 },
+            "finalState": "activated:released",
+            "finalRedemptionId": "receipt-1",
+            "finalInviteCodeId": "invite-1"
+          }
+        },
+        {
+          "id": "invite-gate-release-stale-after-redemption",
+          "kind": "always-conflict",
+          "initial": {
+            "state": "activated:redeemed", "revision": 2,
+            "redemptionId": "redemption-1", "inviteCodeId": "invite-1"
+          },
+          "attempts": ["release:revision-1", "release:revision-1"],
+          "expected": {
+            "committed": 0, "conflicts": 2,
+            "minimumRun": { "committed": 0, "conflicts": 50 },
+            "finalState": "activated:redeemed",
+            "finalRedemptionId": "redemption-1",
+            "finalInviteCodeId": "invite-1",
+            "conflictMarker": "cedros.db.v1|precondition|registration.invite-gate.release"
+          }
+        }
+      ]
+    }
+  ]
+}

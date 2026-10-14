@@ -15,7 +15,8 @@ import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { useCedrosTheme } from "../../context/ThemeContext";
 import { useEmailAuth } from "../../hooks/useEmailAuth";
-import { validateEmail, validatePassword } from "../../utils/validation";
+import { validateEmail } from "../../utils/validation";
+import { TotpVerify } from "../totp/TotpVerify";
 
 export interface EmailLoginFormStrings {
   /** Form title. Default: "Sign In" */
@@ -38,6 +39,11 @@ export interface EmailLoginFormStrings {
   noAccount?: string;
   /** Sign-up link text. Default: "Sign Up" */
   signUpLink?: string;
+  verificationTitle?: string;
+  verificationBody?: string;
+  resendVerification?: string;
+  verificationSent?: string;
+  backToSignIn?: string;
 }
 
 export interface EmailLoginFormStyleProps {
@@ -72,6 +78,13 @@ const DEFAULT_STRINGS: Required<EmailLoginFormStrings> = {
   forgotPassword: "Forgot Password?",
   noAccount: "Don't have an account?",
   signUpLink: "Sign Up",
+  verificationTitle: "Check your email",
+  verificationBody:
+    "Your account for {email} is ready, but you are not signed in yet. Open the verification link we emailed you, then return to sign in.",
+  resendVerification: "Send verification email",
+  verificationSent:
+    "If the account still needs verification, a new email is on its way.",
+  backToSignIn: "Back to sign in",
 };
 
 export function EmailLoginForm({
@@ -90,8 +103,14 @@ export function EmailLoginForm({
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>();
   const [passwordError, setPasswordError] = useState<string | undefined>();
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<
+    string | null
+  >(null);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
 
-  const { login, isLoading, error } = useEmailAuth();
+  const { login, completeMfa, resendVerificationEmail, isLoading, error } =
+    useEmailAuth();
 
   const validateForm = useCallback((): boolean => {
     let isValid = true;
@@ -110,14 +129,9 @@ export function EmailLoginForm({
       setPasswordError("Password is required");
       isValid = false;
     } else {
-      const passwordValidation = validatePassword(password);
-      if (!passwordValidation.isValid) {
-        const firstError = Object.values(passwordValidation.errors)[0];
-        setPasswordError(firstError ?? "Invalid password");
-        isValid = false;
-      } else {
-        setPasswordError(undefined);
-      }
+      // Login must continue to accept credentials created under older policy.
+      // Strength rules apply only when choosing a new password.
+      setPasswordError(undefined);
     }
 
     return isValid;
@@ -129,14 +143,93 @@ export function EmailLoginForm({
     }
 
     try {
-      await login(email.trim(), password);
-      onSuccess?.();
-    } catch {
+      const response = await login(email.trim(), password);
+      if ("mfaRequired" in response) setMfaToken(response.mfaToken);
+      else onSuccess?.();
+    } catch (cause) {
+      if (
+        typeof cause === "object" &&
+        cause !== null &&
+        "code" in cause &&
+        String(cause.code).toUpperCase() === "EMAIL_NOT_VERIFIED"
+      ) {
+        setPendingVerificationEmail(email.trim());
+      }
       // Error is handled by useEmailAuth hook
     } finally {
       setPassword("");
     }
   }, [email, password, login, onSuccess, validateForm]);
+
+  const handleResendVerification = useCallback(async () => {
+    if (!pendingVerificationEmail) return;
+    try {
+      await resendVerificationEmail(pendingVerificationEmail);
+      setVerificationSent(true);
+    } catch {
+      // Error is rendered from the hook.
+    }
+  }, [pendingVerificationEmail, resendVerificationEmail]);
+
+  if (mfaToken) {
+    return (
+      <TotpVerify
+        onVerify={async (code) => {
+          await completeMfa(mfaToken, code);
+          setMfaToken(null);
+          onSuccess?.();
+        }}
+      />
+    );
+  }
+
+  if (pendingVerificationEmail) {
+    return (
+      <View
+        style={[
+          { flex: 1, padding: spacing.lg, gap: spacing.md },
+          containerStyle,
+        ]}
+        testID="email-verification-pending"
+      >
+        <Text
+          style={{
+            fontSize: typography.sizes["3xl"],
+            fontWeight: typography.weights.bold,
+            color: colors.gray[900],
+          }}
+        >
+          {copy.verificationTitle}
+        </Text>
+        <Text
+          style={{ fontSize: typography.sizes.base, color: colors.gray[600] }}
+        >
+          {copy.verificationBody.replace("{email}", pendingVerificationEmail)}
+        </Text>
+        {verificationSent && (
+          <Text
+            style={{ fontSize: typography.sizes.sm, color: colors.gray[700] }}
+          >
+            {copy.verificationSent}
+          </Text>
+        )}
+        {error && <ErrorMessage error={error} />}
+        <Button
+          title={copy.resendVerification}
+          onPress={() => void handleResendVerification()}
+          loading={isLoading}
+          variant="secondary"
+          testID="resend-verification-button"
+        />
+        <Button
+          title={copy.backToSignIn}
+          onPress={() => setPendingVerificationEmail(null)}
+          variant="ghost"
+          testID="verification-back-button"
+        />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -149,11 +242,11 @@ export function EmailLoginForm({
           padding: spacing.lg,
         }}
         keyboardShouldPersistTaps="handled"
+        bounces
+        overScrollMode="always"
         testID={testID}
       >
-        <View
-          style={[{ marginBottom: spacing.xl }, styleSlots?.headerStyle]}
-        >
+        <View style={[{ marginBottom: spacing.xl }, styleSlots?.headerStyle]}>
           <Text
             style={[
               {
@@ -184,9 +277,7 @@ export function EmailLoginForm({
           <ErrorMessage error={error} style={{ marginBottom: spacing.md }} />
         )}
 
-        <View
-          style={[{ gap: spacing.md }, styleSlots?.fieldContainerStyle]}
-        >
+        <View style={[{ gap: spacing.md }, styleSlots?.fieldContainerStyle]}>
           <Input
             label={copy.emailLabel}
             placeholder={copy.emailPlaceholder}

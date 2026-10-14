@@ -35,7 +35,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     },
     ref,
   ): React.ReactElement => {
-    const { colors, spacing, typography } = useCedrosTheme();
+    const { colors, spacing, typography, radii } = useCedrosTheme();
     const [isFocused, setIsFocused] = useState(false);
 
     return (
@@ -66,7 +66,7 @@ export const Input = forwardRef<TextInput, InputProps>(
                 : isFocused
                   ? colors.primary[500]
                   : colors.gray[300],
-              borderRadius: 8,
+              borderRadius: radii.field,
               paddingVertical: spacing.md,
               paddingHorizontal: spacing.md,
               fontSize: typography.sizes.base,

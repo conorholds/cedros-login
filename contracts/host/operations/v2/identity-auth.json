@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 2,
+  "operations": {
+    "identity.instant-link.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["verification", "user", "primaryEmail"],
+        "properties": {
+          "verification": { "$ref": "#/$defs/verification" },
+          "user": { "$ref": "#/$defs/versionedWrite" },
+          "primaryEmail": {
+            "type": "object", "additionalProperties": false,
+            "required": ["entryKey", "data"],
+            "properties": {
+              "entryKey": { "type": "string", "minLength": 1 },
+              "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+              "data": { "type": "object" }
+            }
+          },
+          "session": { "$ref": "#/$defs/newRow" },
+          "mfaVerification": { "$ref": "#/$defs/newRow" }
+        },
+        "oneOf": [
+          { "required": ["session"], "not": { "required": ["mfaVerification"] } },
+          { "required": ["mfaVerification"], "not": { "required": ["session"] } }
+        ]
+      },
+      "outputSchema": { "$ref": "#/$defs/proofOutput" }
+    },
+    "identity.password-reset.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["verification", "user"],
+        "properties": {
+          "verification": { "$ref": "#/$defs/verification" },
+          "user": { "$ref": "#/$defs/versionedWrite" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["payload", "revokedSessions"],
+        "properties": {
+          "payload": { "type": "object" },
+          "revokedSessions": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "identity.sso-auth.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["verification", "user", "session"],
+        "properties": {
+          "verification": { "$ref": "#/$defs/verification" },
+          "user": { "$ref": "#/$defs/versionedWrite" },
+          "session": { "$ref": "#/$defs/newRow" }
+        }
+      },
+      "outputSchema": { "$ref": "#/$defs/proofOutput" }
+    },
+    "identity.solana-proof.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["nonce", "user"],
+        "properties": {
+          "nonce": { "$ref": "#/$defs/nonce" },
+          "user": { "$ref": "#/$defs/versionedWrite" },
+          "session": { "$ref": "#/$defs/newRow" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["walletAddress", "status"],
+        "properties": {
+          "walletAddress": { "type": "string", "minLength": 1 },
+          "status": { "const": "completed" }
+        }
+      }
+    },
+    "identity.webauthn-auth.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["verification", "credential", "user", "session"],
+        "properties": {
+          "verification": { "$ref": "#/$defs/verification" },
+          "credential": { "$ref": "#/$defs/versionedWrite" },
+          "user": { "$ref": "#/$defs/versionedWrite" },
+          "session": { "$ref": "#/$defs/newRow" }
+        }
+      },
+      "outputSchema": { "$ref": "#/$defs/proofOutput" }
+    },
+    "identity.webauthn-registration.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["verification", "credential", "expectedUserId"],
+        "properties": {
+          "verification": { "$ref": "#/$defs/verification" },
+          "credential": { "$ref": "#/$defs/newRow" },
+          "expectedUserId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["payload", "status", "alreadyApplied"],
+        "properties": {
+          "payload": { "type": "object" },
+          "status": { "const": "registered" },
+          "alreadyApplied": { "type": "boolean" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "tokenHash", "allowedTokenTypes"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "tokenHash": { "type": "string", "minLength": 1 },
+        "allowedTokenTypes": {
+          "type": "array", "minItems": 1, "maxItems": 1,
+          "items": { "enum": ["instant_link", "password_reset", "sso_state", "webauthn_auth", "webauthn_register"] }
+        }
+      }
+    },
+    "nonce": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "publicKey", "message"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "publicKey": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    },
+    "newRow": {
+      "type": "object", "additionalProperties": false, "required": ["entryKey", "data"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "data": { "type": "object" }
+      }
+    },
+    "versionedWrite": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "expectedUpdatedAt", "data"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+        "data": { "type": "object" }
+      }
+    },
+    "proofOutput": {
+      "type": "object", "additionalProperties": false,
+      "required": ["payload", "status"],
+      "properties": {
+        "payload": { "type": "object" },
+        "status": { "const": "completed" }
+      }
+    }
+  }
+}

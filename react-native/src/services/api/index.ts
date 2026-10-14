@@ -1,19 +1,14 @@
-import ApiClient, { ApiClientOptions, ApiResponse, ApiError } from "./client";
+import ApiClient, { ApiClientOptions } from "./client";
 import AuthApi from "./auth";
 import OrgsApi from "./orgs";
-import WalletApi from "./wallet";
-import DepositApi from "./deposit";
 import { TokenManager } from "../../utils/tokenManager";
 
-export { ApiClient, AuthApi, OrgsApi, WalletApi, DepositApi, TokenManager };
-export type { ApiClientOptions, ApiResponse, ApiError };
+export type { ApiClientOptions };
 
 export interface ApiServices {
   client: ApiClient;
   auth: AuthApi;
   orgs: OrgsApi;
-  wallet: WalletApi;
-  deposit: DepositApi;
   tokenManager: TokenManager;
 }
 
@@ -21,8 +16,6 @@ export function createApiServices(options: ApiClientOptions): ApiServices {
   const client = new ApiClient(options);
   const auth = new AuthApi(client);
   const orgs = new OrgsApi(client);
-  const wallet = new WalletApi(client);
-  const deposit = new DepositApi(client);
 
   client.getTokenManager().setRefreshCallback(async () => {
     await auth.refreshToken();
@@ -32,40 +25,20 @@ export function createApiServices(options: ApiClientOptions): ApiServices {
     client,
     auth,
     orgs,
-    wallet,
-    deposit,
     tokenManager: client.getTokenManager(),
   };
 }
 
-// Singleton instances - initialized lazily
-let apiClient: ApiClient | null = null;
+// Legacy direct-client accessors are mutated only by explicit initialization.
+// CedrosLoginProvider uses isolated createApiServices bundles instead.
 let authAPI: AuthApi | null = null;
 let orgsAPI: OrgsApi | null = null;
-let walletAPI: WalletApi | null = null;
-let depositAPI: DepositApi | null = null;
 
 export function initializeApiServices(options: ApiClientOptions): ApiServices {
-  apiClient = new ApiClient(options);
-  authAPI = new AuthApi(apiClient);
-  orgsAPI = new OrgsApi(apiClient);
-  walletAPI = new WalletApi(apiClient);
-  depositAPI = new DepositApi(apiClient);
-
-  apiClient.getTokenManager().setRefreshCallback(async () => {
-    if (authAPI) {
-      await authAPI.refreshToken();
-    }
-  });
-
-  return {
-    client: apiClient,
-    auth: authAPI,
-    orgs: orgsAPI,
-    wallet: walletAPI,
-    deposit: depositAPI,
-    tokenManager: apiClient.getTokenManager(),
-  };
+  const services = createApiServices(options);
+  authAPI = services.auth;
+  orgsAPI = services.orgs;
+  return services;
 }
 
 export function getAuthApi(): AuthApi {
@@ -85,23 +58,3 @@ export function getOrgsApi(): OrgsApi {
   }
   return orgsAPI;
 }
-
-export function getWalletApi(): WalletApi {
-  if (!walletAPI) {
-    throw new Error(
-      "API services not initialized. Call initializeApiServices first.",
-    );
-  }
-  return walletAPI;
-}
-
-export function getDepositApi(): DepositApi {
-  if (!depositAPI) {
-    throw new Error(
-      "API services not initialized. Call initializeApiServices first.",
-    );
-  }
-  return depositAPI;
-}
-
-export default createApiServices;

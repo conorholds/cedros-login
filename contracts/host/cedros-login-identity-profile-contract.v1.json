@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "contractId": "cedros-login:identity-profile:v1",
+  "owner": "cedros-login",
+  "releaseVersion": "2.0.22",
+  "minimumLoginVersion": "1.0.15",
+  "capabilityId": "cedros-login:identity-profile",
+  "responseSchema": "contracts/schemas/cedros-login-identity-profile-v1.schema.json",
+  "errorSchema": "contracts/schemas/cedros-login-identity-profile-error-v1.schema.json",
+  "fixture": "contracts/fixtures/cedros-login-identity-profile-v1.json",
+  "installedHostTest": "scripts/test-cedros-login-identity-profile-installed-host.mjs",
+  "currentUser": {
+    "routeId": "cedros-login:identity-profile-current",
+    "method": "GET",
+    "path": "/v1/identity/profile",
+    "requestBody": null,
+    "authentication": "Login bearer token or Login access cookie backed by a current, unrevoked session",
+    "subjectBinding": "subjectId is derived only from the validated Login access-token sub claim; no caller-supplied subject is accepted"
+  },
+  "privileged": {
+    "routeId": "cedros-login:identity-profile-admin-get",
+    "method": "GET",
+    "path": "/v1/identity/users/{subjectId}/profile",
+    "query": {
+      "orgId": "required Login organization identifier"
+    },
+    "authentication": "per-relying-party bearer service token and x-cedros-relying-party header",
+    "requiredScope": "identity-profile:read",
+    "tenantBoundary": "orgId must be in the relying-party policy and the subject must have a current membership in that organization; absent and cross-tenant subjects share the same 404",
+    "auditEvent": "admin.identity_profile_read",
+    "auditFields": {
+      "relyingPartyId": "authenticated machine caller",
+      "orgId": "authorized Login organization",
+      "targetType": "identity_profile",
+      "targetId": "requested stable Login subject"
+    }
+  },
+  "freshness": {
+    "source": "synchronous Login-owned user and membership records",
+    "cacheControl": "private, no-store",
+    "updatedAt": "Login user record revision timestamp",
+    "consumerRule": "do not persist or reuse the projection after a request or session boundary"
+  },
+  "excludedSignals": {
+    "ledgerTransactionProof": {
+      "identityOwner": "cedros-login",
+      "proofContract": "not-published",
+      "boundary": "requires a dedicated nonce-bound Solana transaction-proof contract; it is not inferred from solanaWalletLinked"
+    },
+    "botVerification": {
+      "verdictOwner": "assigned identity-verification provider",
+      "enforcementOwner": "cedros-login",
+      "verdictContract": "not-published",
+      "boundary": "a transient, purpose-bound verification verdict must be consumed during the Login action; it is not profile state or generic user metadata"
+    }
+  }
+}

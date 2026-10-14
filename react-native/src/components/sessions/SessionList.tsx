@@ -10,8 +10,11 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import type { Session } from "../../types";
+import { formatLocaleDate } from "../../utils/dateFormatting";
 import { Button } from "../shared/Button";
+import { StaggeredListItem } from "../shared/StaggeredListItem";
 
 export interface SessionListProps {
   sessions: Session[];
@@ -31,8 +34,7 @@ export function SessionList({
   testID = "session-list",
 }: SessionListProps): React.ReactElement {
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+    return formatLocaleDate(dateString, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -52,115 +54,117 @@ export function SessionList({
     return "&#128187;";
   };
 
-  const renderSession = ({ item }: { item: Session }) => (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        paddingVertical: spacing.md,
-        paddingHorizontal: spacing.lg,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.gray[100],
-        backgroundColor: item.isCurrent
-          ? colors.primary[50]
-          : colors.transparent,
-      }}
-    >
+  const renderSession = ({ item, index }: { item: Session; index: number }) => (
+    <StaggeredListItem index={index}>
       <View
         style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: item.isCurrent
-            ? colors.primary[100]
-            : colors.gray[100],
-          justifyContent: "center",
+          flexDirection: "row",
           alignItems: "center",
-          marginRight: spacing.md,
+          paddingVertical: spacing.md,
+          paddingHorizontal: spacing.lg,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.gray[100],
+          backgroundColor: item.isCurrent
+            ? colors.primary[50]
+            : colors.transparent,
         }}
       >
-        <Text
-          style={{
-            fontSize: 20,
-          }}
-        >
-          {getDeviceIcon(item.userAgent)}
-        </Text>
-      </View>
-
-      <View style={{ flex: 1 }}>
         <View
           style={{
-            flexDirection: "row",
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: item.isCurrent
+              ? colors.primary[100]
+              : colors.gray[100],
+            justifyContent: "center",
             alignItems: "center",
-            gap: spacing.sm,
+            marginRight: spacing.md,
           }}
         >
           <Text
             style={{
-              fontSize: typography.sizes.base,
-              fontWeight: typography.weights.medium,
-              color: colors.gray[900],
+              fontSize: 20,
             }}
           >
-            {item.isCurrent ? "Current Session" : "Active Session"}
+            {getDeviceIcon(item.userAgent)}
           </Text>
-          {item.isCurrent && (
-            <View
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: spacing.sm,
+            }}
+          >
+            <Text
               style={{
-                backgroundColor: colors.success,
-                paddingHorizontal: spacing.xs,
-                paddingVertical: 2,
-                borderRadius: 4,
+                fontSize: typography.sizes.base,
+                fontWeight: typography.weights.medium,
+                color: colors.gray[900],
               }}
             >
-              <Text
+              {item.isCurrent ? "Current Session" : "Active Session"}
+            </Text>
+            {item.isCurrent && (
+              <View
                 style={{
-                  fontSize: 10,
-                  color: colors.white,
-                  fontWeight: typography.weights.bold,
+                  backgroundColor: colors.success,
+                  paddingHorizontal: spacing.xs,
+                  paddingVertical: 2,
+                  borderRadius: radii.compact,
                 }}
               >
-                Active
-              </Text>
-            </View>
-          )}
-        </View>
-        <Text
-          style={{
-            fontSize: typography.sizes.sm,
-            color: colors.gray[500],
-            marginTop: spacing.xs,
-          }}
-        >
-          Expires {formatDate(item.expiresAt)}
-        </Text>
-        {item.ipAddress && (
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: colors.white,
+                    fontWeight: typography.weights.bold,
+                  }}
+                >
+                  Active
+                </Text>
+              </View>
+            )}
+          </View>
           <Text
             style={{
-              fontSize: typography.sizes.xs,
-              color: colors.gray[400],
+              fontSize: typography.sizes.sm,
+              color: colors.gray[500],
               marginTop: spacing.xs,
             }}
           >
-            IP: {item.ipAddress}
+            Expires {formatDate(item.expiresAt)}
           </Text>
+          {item.ipAddress && (
+            <Text
+              style={{
+                fontSize: typography.sizes.xs,
+                color: colors.gray[400],
+                marginTop: spacing.xs,
+              }}
+            >
+              IP: {item.ipAddress}
+            </Text>
+          )}
+        </View>
+
+        {!item.isCurrent && onRevoke && (
+          <TouchableOpacity
+            onPress={() => onRevoke(item.id)}
+            style={{
+              padding: spacing.sm,
+              backgroundColor: colors.error + "20",
+              borderRadius: radii.compact,
+            }}
+          >
+            <Text style={{ fontSize: 12, color: colors.error }}>&#10005;</Text>
+          </TouchableOpacity>
         )}
       </View>
-
-      {!item.isCurrent && onRevoke && (
-        <TouchableOpacity
-          onPress={() => onRevoke(item.id)}
-          style={{
-            padding: spacing.sm,
-            backgroundColor: colors.error + "20",
-            borderRadius: 4,
-          }}
-        >
-          <Text style={{ fontSize: 12, color: colors.error }}>&#10005;</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+    </StaggeredListItem>
   );
 
   return (
@@ -199,6 +203,9 @@ export function SessionList({
         data={sessions}
         renderItem={renderSession}
         keyExtractor={(item) => item.id}
+        bounces
+        alwaysBounceVertical={sessions.length > 0}
+        overScrollMode="always"
         contentContainerStyle={{
           paddingBottom: spacing.lg,
         }}

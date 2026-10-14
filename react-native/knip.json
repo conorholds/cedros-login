@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "eslint.config.js",
+    "src/index.ts",
+    "src/register.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "project": ["*.config.{js,ts}", "src/**/*.{ts,tsx}", "!dist/**"],
+  "ignoreDependencies": ["@types/react-native", "@vitest/coverage-v8"],
+  "ignoreIssues": {
+    "src/extension/contracts.ts": ["types"],
+    "src/services/api/auth.ts": ["duplicates"],
+    "src/theme/index.ts": ["types"],
+    "src/types/auth.ts": ["types"],
+    "src/utils/nativeAuthModules.ts": ["types"]
+  },
+  "rules": {
+    "duplicates": "warn",
+    "exports": "warn",
+    "optionalPeerDependencies": "off",
+    "types": "warn"
+  }
+}

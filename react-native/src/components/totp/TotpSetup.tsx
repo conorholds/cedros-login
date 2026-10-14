@@ -10,7 +10,9 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import { Button } from "../shared/Button";
+import { DirectionalTransition } from "../shared/DirectionalTransition";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { OtpInput } from "./OtpInput";
@@ -26,6 +28,7 @@ export interface TotpSetupProps {
 }
 
 type SetupStep = "qr" | "backup" | "verify";
+const SETUP_STEPS: readonly SetupStep[] = ["qr", "backup", "verify"];
 
 export function TotpSetup({
   qrCodeUri,
@@ -91,7 +94,7 @@ export function TotpSetup({
         style={{
           backgroundColor: colors.white,
           padding: spacing.lg,
-          borderRadius: 12,
+          borderRadius: radii.card,
           alignItems: "center",
           marginBottom: spacing.lg,
           borderWidth: 1,
@@ -129,7 +132,7 @@ export function TotpSetup({
         style={{
           backgroundColor: colors.gray[100],
           padding: spacing.md,
-          borderRadius: 8,
+          borderRadius: radii.field,
           marginBottom: spacing.lg,
         }}
       >
@@ -183,7 +186,7 @@ export function TotpSetup({
           backgroundColor: colors.warning + "10",
           borderWidth: 1,
           borderColor: colors.warning,
-          borderRadius: 8,
+          borderRadius: radii.field,
           padding: spacing.md,
           marginBottom: spacing.lg,
         }}
@@ -203,7 +206,7 @@ export function TotpSetup({
         style={{
           backgroundColor: colors.gray[900],
           padding: spacing.lg,
-          borderRadius: 12,
+          borderRadius: radii.card,
           marginBottom: spacing.lg,
         }}
       >
@@ -244,7 +247,7 @@ export function TotpSetup({
           style={{
             width: 24,
             height: 24,
-            borderRadius: 4,
+            borderRadius: radii.compact,
             borderWidth: 2,
             borderColor: backupCodesSaved
               ? colors.primary[600]
@@ -330,6 +333,8 @@ export function TotpSetup({
       style={[{ flex: 1 }, containerStyle]}
       contentContainerStyle={{ padding: spacing.lg }}
       testID={testID}
+      bounces
+      overScrollMode="always"
     >
       <View style={{ marginBottom: spacing.xl }}>
         <Text
@@ -359,7 +364,7 @@ export function TotpSetup({
             style={{
               paddingVertical: spacing.xs,
               paddingHorizontal: spacing.sm,
-              borderRadius: 4,
+              borderRadius: radii.compact,
               backgroundColor:
                 currentStep === step.key
                   ? colors.primary[100]
@@ -385,9 +390,11 @@ export function TotpSetup({
         ))}
       </View>
 
-      {currentStep === "qr" && renderQrStep()}
-      {currentStep === "backup" && renderBackupStep()}
-      {currentStep === "verify" && renderVerifyStep()}
+      <DirectionalTransition stateKey={currentStep} order={SETUP_STEPS}>
+        {currentStep === "qr" && renderQrStep()}
+        {currentStep === "backup" && renderBackupStep()}
+        {currentStep === "verify" && renderVerifyStep()}
+      </DirectionalTransition>
     </ScrollView>
   );
 }

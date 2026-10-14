@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/user-context-v1.schema.json",
+  "title": "cedros-login:user-context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["authenticated", "user", "session", "organization", "restrictions"],
+  "properties": {
+    "authenticated": { "const": true },
+    "user": { "$ref": "#/$defs/user" },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "valid", "expiresAt", "tokenExpiresAt"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "valid": { "const": true },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "tokenExpiresAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "organization": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "slug", "role"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "name": { "type": "string", "minLength": 1 },
+            "slug": { "type": "string", "minLength": 1 },
+            "role": { "enum": ["owner", "admin", "member"] }
+          }
+        }
+      ]
+    },
+    "restrictions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "user": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "emails", "authMethods", "emailVerified", "createdAt", "updatedAt"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "email": { "type": ["string", "null"], "format": "email" },
+        "emails": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["email", "verified", "primary"],
+            "properties": {
+              "email": { "type": "string", "format": "email" },
+              "verified": { "type": "boolean" },
+              "primary": { "type": "boolean" }
+            }
+          }
+        },
+        "name": { "type": ["string", "null"] },
+        "username": { "type": ["string", "null"] },
+        "picture": { "type": ["string", "null"], "format": "uri" },
+        "avatarContentType": { "type": ["string", "null"] },
+        "walletAddress": { "type": ["string", "null"] },
+        "authMethods": {
+          "type": "array",
+          "items": { "enum": ["email", "password", "google", "apple", "solana", "webauthn", "sso"] },
+          "uniqueItems": true
+        },
+        "emailVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

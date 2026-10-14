@@ -1,20 +1,14 @@
 import { useCallback, useState } from "react";
-import { getAuthApi } from "../services/api";
-import type { AuthError, AuthResponse } from "../types";
+import { useProviderAuthApi } from "../context/ApiServicesContext";
+import type { AuthError, LoginAttemptResponse } from "../types";
 import { useCedrosLogin } from "../context/CedrosLoginProvider";
+import type { AppleSignInPayload } from "../utils/nativeAuthModules";
 
-export interface AppleSignInPayload {
-  idToken: string;
-  authorizationCode?: string;
-  nonce?: string;
-  fullName?: {
-    givenName?: string;
-    familyName?: string;
-  };
-}
+export type { AppleSignInPayload } from "../utils/nativeAuthModules";
 
 export interface UseAppleAuthReturn {
-  signIn: (request: string | AppleSignInPayload) => Promise<AuthResponse>;
+  signIn: (request: AppleSignInPayload) => Promise<LoginAttemptResponse>;
+  requestNonce: () => Promise<string>;
   isLoading: boolean;
   error: AuthError | null;
   clearError: () => void;
@@ -24,28 +18,27 @@ export function useAppleAuth(): UseAppleAuthReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
   const { login: contextLogin } = useCedrosLogin();
+  const authApi = useProviderAuthApi();
 
   const signIn = useCallback(
-    async (request: string | AppleSignInPayload): Promise<AuthResponse> => {
+    async (request: AppleSignInPayload): Promise<LoginAttemptResponse> => {
       setIsLoading(true);
       setError(null);
       try {
-        const payload =
-          typeof request === "string" ? { idToken: request } : request;
-        const fullName = payload.fullName;
+        const fullName = request.fullName;
         const name = fullName
           ? [fullName.givenName, fullName.familyName]
               .filter(Boolean)
               .join(" ")
               .trim() || undefined
           : undefined;
-        const response = await getAuthApi().appleSignIn({
-          idToken: payload.idToken,
-          authorizationCode: payload.authorizationCode,
-          nonce: payload.nonce,
+        const response = await authApi.appleSignIn({
+          idToken: request.idToken,
+          authorizationCode: request.authorizationCode,
+          nonce: request.nonce,
           name,
         });
-        if (response.tokens && response.user) {
+        if (!("mfaRequired" in response) && response.tokens && response.user) {
           contextLogin(response.user, response.tokens);
         }
         return response;
@@ -63,15 +56,18 @@ export function useAppleAuth(): UseAppleAuthReturn {
         setIsLoading(false);
       }
     },
-    [contextLogin],
+    [authApi, contextLogin],
   );
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
+  const requestNonce = useCallback(() => authApi.getAppleNonce(), [authApi]);
+
   return {
     signIn,
+    requestNonce,
     isLoading,
     error,
     clearError,

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "contractId": "cedros-login:relying-party-identity:v1",
+  "owner": "cedros-login",
+  "releaseVersion": "2.0.22",
+  "minimumLoginVersion": "1.0.18",
+  "fixture": "contracts/fixtures/cedros-login-relying-party-identity-v1.json",
+  "schemas": {
+    "introspection": "contracts/schemas/cedros-login-session-introspection-v1.schema.json",
+    "directoryUser": "contracts/schemas/cedros-login-user-directory-v1.schema.json",
+    "directoryCount": "contracts/schemas/cedros-login-user-count-v1.schema.json"
+  },
+  "authentication": {
+    "caller": "per-relying-party bearer service token and x-cedros-relying-party header",
+    "policy": "rp_policy:{relyingPartyId} in the Login host secret seam",
+    "rule": "caller identity, scopes, audiences, and org allowlists fail closed and never come from request JSON"
+  },
+  "routes": {
+    "introspection": {
+      "routeId": "cedros-login:relying-party-session-introspect",
+      "method": "POST",
+      "path": "/v1/session/introspect",
+      "requiredScope": "session:introspect",
+      "tenantBoundary": "token audience and current token organization must both be allowlisted",
+      "freshness": "JWT signature plus current Login session, user, email-verification policy and claim, organization, and membership state",
+      "inactiveSemantics": "invalid, expired, revoked, suspended, deleted, removed, or authorization-drifted identities return exactly {active:false}; host seam failures remain errors"
+    },
+    "directoryUser": {
+      "routeId": "cedros-login:relying-party-user-get",
+      "method": "GET",
+      "path": "/v1/users/{userId}",
+      "requiredScope": "users:read",
+      "emailScope": "users:email:read",
+      "tenantBoundary": "required orgId must be allowlisted and the subject must have a current membership; absent and cross-tenant subjects share 404",
+      "minimumFields": ["userId", "id", "status", "createdAt"],
+      "privateFields": [
+        "emailVerified",
+        "authMethods",
+        "isSystemAdmin",
+        "updatedAt",
+        "lastLoginAt",
+        "profile"
+      ]
+    },
+    "directoryCount": {
+      "routeId": "cedros-login:relying-party-users-count",
+      "method": "GET",
+      "path": "/v1/users/count",
+      "requiredScope": "users:count",
+      "tenantBoundary": "required orgId must be allowlisted; counts are membership-scoped and status uses current Login user state"
+    }
+  }
+}

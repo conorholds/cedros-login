@@ -1,15 +1,15 @@
 import type { OrgRole } from './org';
 
 /**
- * Pending invite to an organization
+ * Pending invite to an organization.
  *
- * TYPE-05: invitedByName removed - backend doesn't populate it.
- * To show inviter name, would need to join users table in backend.
+ * Exactly one of email or walletAddress is present.
  */
 export interface Invite {
   id: string;
   orgId: string;
-  email: string;
+  email?: string;
+  walletAddress?: string;
   role: Exclude<OrgRole, 'owner'>; // owner role cannot be invited
   invitedBy: string;
   createdAt: string;
@@ -17,12 +17,13 @@ export interface Invite {
 }
 
 /**
- * Invite response shape returned by the API
+ * Invite response shape returned by the API.
  */
 export interface InviteApiResponse {
   id: string;
   orgId: string;
-  email: string;
+  email?: string;
+  walletAddress?: string;
   role: Exclude<OrgRole, 'owner'>;
   invitedBy: string;
   createdAt: string;
@@ -31,22 +32,25 @@ export interface InviteApiResponse {
 }
 
 /**
- * Request to create a new invite
+ * Request to create a new invite.
+ *
+ * Exactly one of email or walletAddress must be provided.
  */
 export interface CreateInviteRequest {
-  email: string;
+  email?: string;
+  walletAddress?: string;
   role?: Exclude<OrgRole, 'owner'>;
 }
 
 /**
- * Request to accept an invite
+ * Request to accept an invite.
  */
 export interface AcceptInviteRequest {
   token: string;
 }
 
 /**
- * Response from listing invites
+ * Response from listing invites.
  */
 export interface ListInvitesResponse {
   invites: InviteApiResponse[];
@@ -54,12 +58,13 @@ export interface ListInvitesResponse {
 }
 
 /**
- * Response from creating an invite
+ * Response from creating an invite.
  */
 export interface CreateInviteResponse {
   id: string;
   orgId: string;
-  email: string;
+  email?: string;
+  walletAddress?: string;
   role: Exclude<OrgRole, 'owner'>;
   invitedBy: string;
   createdAt: string;
@@ -69,7 +74,7 @@ export interface CreateInviteResponse {
 }
 
 /**
- * Response from accepting an invite
+ * Response from accepting an invite.
  */
 export interface AcceptInviteResponse {
   orgId: string;

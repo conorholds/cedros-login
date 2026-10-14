@@ -1,0 +1,364 @@
+.cedros-login-admin-root.cedros-data .cedros-auth-method-card {
+  transition:
+    border-color var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root.cedros-data .cedros-auth-method-card-header {
+  border-bottom: 0;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-auth-method-card-body {
+  margin-top: 0;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid var(--cedros-login-admin-border);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-row {
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 2fr);
+  gap: 1.5rem;
+  padding: 1rem;
+  border-color: var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  background: var(--cedros-login-admin-card-bg);
+  transition:
+    background-color var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root.cedros-data .cedros-auth-method-card-body .cedros-setting-row {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-row-changed {
+  border-color: var(--cedros-login-admin-primary);
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-primary) 5%,
+    var(--cedros-login-admin-card-bg)
+  );
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-row-warning {
+  border-color: var(--cedros-login-admin-warning);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-row-toggle {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-label {
+  gap: 0.25rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-name {
+  color: var(--cedros-login-admin-fg);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-description {
+  color: var(--cedros-login-admin-muted);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-description a,
+.cedros-login-admin-root.cedros-data .cedros-auth-method-card-description a {
+  color: var(--cedros-login-admin-link);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-control-toggle {
+  align-items: flex-end;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-warning {
+  border-radius: calc(var(--cedros-login-admin-radius) - 2px);
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-warning) 12%,
+    var(--cedros-login-admin-bg)
+  );
+  color: var(--cedros-login-admin-warning-fg);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-data-input,
+.cedros-login-admin-root.cedros-data .cedros-setting-input {
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-data-input::placeholder {
+  color: var(--cedros-login-admin-muted);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-data-input:focus:not(:focus-visible) {
+  border-color: var(--cedros-login-admin-border);
+  box-shadow: none;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-input[type='number'] {
+  -moz-appearance: auto;
+  appearance: auto;
+  text-align: left;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-setting-input::-webkit-outer-spin-button,
+.cedros-login-admin-root.cedros-data .cedros-setting-input::-webkit-inner-spin-button {
+  -webkit-appearance: auto;
+  margin: 0;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-card {
+  padding: 1rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-settings {
+  margin-top: 0.5rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-overall-status {
+  padding: 0.4rem 0.625rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-summary {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-summary div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-summary dt {
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.75rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-summary dd {
+  margin: 0;
+  color: var(--cedros-login-admin-fg);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-card .cedros-data-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-rp-policy-input {
+  min-height: 4rem;
+  resize: vertical;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle {
+  flex: 0 0 auto;
+  gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cedros-login-admin-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle-track {
+  position: relative;
+  width: 2.35rem;
+  height: 1.3rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: 9999px;
+  background: var(--cedros-login-admin-muted-bg);
+  box-shadow: none;
+  transition:
+    background-color var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle-thumb {
+  position: absolute;
+  top: 0.0875rem;
+  left: 0.0875rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--cedros-login-admin-card-bg);
+  box-shadow: var(--cedros-login-admin-shadow);
+  transition:
+    transform var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1)),
+    width var(--motion-duration-fast, 160ms)
+      var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle-on .cedros-toggle-track {
+  border-color: var(--cedros-login-admin-primary);
+  background: var(--cedros-login-admin-primary);
+  box-shadow: none;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle-on .cedros-toggle-thumb,
+.cedros-login-admin-root.cedros-data .cedros-toggle-on:active:not(:disabled) .cedros-toggle-thumb {
+  width: 1rem;
+  transform: translateX(1.02rem);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle:active:not(:disabled) .cedros-toggle-thumb {
+  width: 1rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle:focus-visible {
+  outline: none;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle:focus-visible .cedros-toggle-track {
+  outline: none;
+  border-color: var(--cedros-login-admin-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cedros-login-admin-ring) 14%, transparent);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-toggle-label {
+  color: var(--cedros-login-admin-fg);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-data-checkbox-row input {
+  accent-color: var(--cedros-login-admin-primary);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-data-checkbox-row input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cedros-login-admin-ring) 14%, transparent);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-autosave-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--cedros-login-admin-radius);
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.75rem;
+  transition: opacity var(--motion-duration-fast, 160ms)
+    var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root.cedros-data .cedros-autosave-dot {
+  background: var(--cedros-login-admin-warning);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-autosave-spinner {
+  border-color: var(--cedros-login-admin-muted);
+  border-top-color: transparent;
+  animation: cedros-spin var(--motion-duration-slow, 800ms) var(--motion-ease-linear, linear)
+    infinite;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-autosave-error-icon {
+  background: var(--cedros-login-admin-error);
+  color: var(--cedros-login-admin-error-fg);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-autosave-status--saved {
+  color: var(--cedros-login-admin-success);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-autosave-status--error,
+.cedros-login-admin-root.cedros-data .cedros-autosave-status--failed,
+.cedros-login-admin-root.cedros-data .cedros-autosave-status--conflict {
+  color: var(--cedros-login-admin-error);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-list {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  background: var(--cedros-login-admin-card-bg);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card {
+  padding: 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--cedros-login-admin-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card:last-child {
+  border-bottom: 0;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card--disabled {
+  opacity: 0.6;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card-name,
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card-detail-value {
+  color: var(--cedros-login-admin-fg);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card-issuer,
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card-detail-label {
+  color: var(--cedros-login-admin-muted);
+}
+
+.cedros-login-admin-root.cedros-data code.cedros-sso-provider-card-detail-value {
+  font-family: var(
+    --cd-font-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace
+  );
+  font-size: 0.8125rem;
+}
+
+.cedros-login-admin-root.cedros-data .cedros-sso-provider-card-details {
+  border-color: var(--cedros-login-admin-border);
+}
+
+.cedros-login-admin-root.cedros-data .cedros-data-table__empty-cell {
+  padding: 0;
+  border-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .cedros-login-admin-root.cedros-data .cedros-setting-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .cedros-login-admin-root.cedros-data .cedros-setting-row-toggle {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .cedros-login-admin-root.cedros-data .cedros-sso-provider-card-header {
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cedros-login-admin-root.cedros-data .cedros-autosave-spinner {
+    animation: none;
+  }
+}

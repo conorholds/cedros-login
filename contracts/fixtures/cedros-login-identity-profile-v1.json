@@ -1,0 +1,154 @@
+{
+  "contractId": "cedros-login:identity-profile:v1",
+  "projections": {
+    "complete": {
+      "contractVersion": "cedros-login:identity-profile:v1",
+      "subjectId": "login-subject-complete",
+      "tenantId": "org-casino",
+      "state": {
+        "emailLinked": true,
+        "emailVerified": true,
+        "passwordConfigured": true,
+        "solanaWalletLinked": true,
+        "evmWalletLinked": true
+      },
+      "updatedAt": "2026-08-18T12:00:00Z"
+    },
+    "legacyWithoutEvm": {
+      "contractVersion": "cedros-login:identity-profile:v1",
+      "subjectId": "login-subject-legacy",
+      "tenantId": null,
+      "state": {
+        "emailLinked": true,
+        "emailVerified": true,
+        "passwordConfigured": true,
+        "solanaWalletLinked": true,
+        "evmWalletLinked": false
+      },
+      "updatedAt": "2026-08-18T12:00:00Z"
+    }
+  },
+  "installedHostSetup": {
+    "isolation": "dedicated non-production site with no concurrent identity-profile audit traffic",
+    "organizations": ["org-casino", "org-other"],
+    "users": {
+      "login-subject-complete": {
+        "organizationIds": ["org-casino"],
+        "sourceState": {
+          "emailLinked": true,
+          "emailVerified": true,
+          "passwordConfigured": true,
+          "solanaWalletLinked": true,
+          "evmWalletLinked": true
+        },
+        "updatedAt": "2026-08-18T12:00:00Z"
+      },
+      "login-subject-other-tenant": {
+        "organizationIds": ["org-other"],
+        "sourceState": {
+          "emailLinked": true,
+          "emailVerified": true,
+          "passwordConfigured": true,
+          "solanaWalletLinked": true,
+          "evmWalletLinked": false
+        },
+        "updatedAt": "2026-08-18T12:00:00Z"
+      }
+    },
+    "sessions": {
+      "currentUser": {
+        "environmentVariable": "CEDROS_LOGIN_CURRENT_USER_TOKEN",
+        "subjectId": "login-subject-complete",
+        "tenantId": "org-casino",
+        "jwtState": "valid",
+        "databaseSessionState": "active"
+      },
+      "expiredSession": {
+        "environmentVariable": "CEDROS_LOGIN_EXPIRED_SESSION_TOKEN",
+        "subjectId": "login-subject-complete",
+        "tenantId": "org-casino",
+        "jwtState": "valid",
+        "databaseSessionState": "expired"
+      }
+    },
+    "relyingParties": {
+      "profileAdmin": {
+        "environmentVariable": "CEDROS_LOGIN_PROFILE_ADMIN_TOKEN",
+        "relyingPartyId": "cedros-casino",
+        "scopes": ["identity-profile:read"],
+        "audiences": ["cedros-customer"],
+        "organizationIds": ["org-casino"]
+      },
+      "profileDenied": {
+        "environmentVariable": "CEDROS_LOGIN_PROFILE_DENIED_TOKEN",
+        "relyingPartyId": "cedros-portal",
+        "scopes": ["session:introspect"],
+        "audiences": ["cedros-customer"],
+        "organizationIds": ["org-casino"]
+      }
+    },
+    "auditReaderEnvironmentVariable": "CEDROS_LOGIN_SYSTEM_ADMIN_TOKEN"
+  },
+  "installedHostCases": [
+    {
+      "id": "current-user",
+      "routeId": "cedros-login:identity-profile-current",
+      "authentication": "valid-current-user-session-for-login-subject-complete",
+      "request": { "method": "GET", "path": "/v1/identity/profile" },
+      "expectedStatus": 200,
+      "expectedProjection": "complete",
+      "expectedCacheControl": "private, no-store"
+    },
+    {
+      "id": "administrator",
+      "routeId": "cedros-login:identity-profile-admin-get",
+      "authentication": "cedros-casino-service-token-with-identity-profile-read-and-org-casino",
+      "request": {
+        "method": "GET",
+        "path": "/v1/identity/users/login-subject-complete/profile",
+        "query": { "orgId": "org-casino" }
+      },
+      "expectedStatus": 200,
+      "expectedProjection": "complete",
+      "expectedAuditEvent": "admin.identity_profile_read",
+      "expectedCacheControl": "private, no-store"
+    },
+    {
+      "id": "expired-session",
+      "routeId": "cedros-login:identity-profile-current",
+      "authentication": "expired-or-revoked-current-user-session",
+      "request": { "method": "GET", "path": "/v1/identity/profile" },
+      "expectedStatus": 401,
+      "expectedError": "invalid_session",
+      "expectedCacheControl": "private, no-store"
+    },
+    {
+      "id": "denial",
+      "routeId": "cedros-login:identity-profile-admin-get",
+      "authentication": "cedros-portal-service-token-without-identity-profile-read",
+      "request": {
+        "method": "GET",
+        "path": "/v1/identity/users/login-subject-complete/profile",
+        "query": { "orgId": "org-casino" }
+      },
+      "expectedStatus": 403,
+      "expectedError": "insufficient_scope",
+      "expectedAuditEvents": 0,
+      "expectedCacheControl": "private, no-store"
+    },
+    {
+      "id": "cross-tenant",
+      "routeId": "cedros-login:identity-profile-admin-get",
+      "authentication": "cedros-casino-service-token-with-identity-profile-read-and-org-casino",
+      "request": {
+        "method": "GET",
+        "path": "/v1/identity/users/login-subject-other-tenant/profile",
+        "query": { "orgId": "org-casino" }
+      },
+      "expectedStatus": 404,
+      "expectedError": "subject_not_found",
+      "expectedAuditEvents": 0,
+      "expectedCacheControl": "private, no-store"
+    }
+  ]
+}

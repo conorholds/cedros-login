@@ -1,0 +1,56 @@
+# cedros-login server backend compiled to a Cedros extension wasm component
+# (the `cedros-login` world over cedros:extension). Standalone crate (empty
+# [workspace]) so it is never pulled into the standalone `../server` build.
+#
+# Build:  rustup target add wasm32-wasip2   # once
+#         cargo build --target wasm32-wasip2 --release
+# Output: target/wasm32-wasip2/release/cedros_login_server_wasm.wasm
+#         -> ship in the package archive at cedros-extension.server.wasm
+[package]
+name = "cedros-login-server-wasm"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "cedros-login server backend as a Cedros extension wasm component."
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wit-bindgen = "0.57"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+# `now` (not `clock`) + no default features => Utc::now() via the host wasi clock,
+# avoiding chrono's `wasmbind` (JS Date) path that is wrong for wasip2.
+chrono = { version = "0.4", default-features = false, features = ["now", "std"] }
+# Auth crypto (all verified to compile to wasm32-wasip2; jsonwebtoken pins the
+# RustCrypto backend, never `ring`).
+argon2 = "0.5"
+jsonwebtoken = { version = "10", default-features = false, features = ["rust_crypto", "use_pem"] }
+uuid = { version = "1", features = ["v4"] }
+rsa = "0.9"            # RS256 signing key load + JWKS modulus/exponent
+base64 = "0.22"        # JWKS base64url
+rand = "0.8"           # opaque refresh-token entropy (OsRng)
+sha2 = "0.10"          # JWT kid fingerprint + refresh-token HMAC key derivation
+hex = "0.4"
+hmac = "0.12"                    # refresh-token HMAC-SHA256
+unicode-normalization = "0.1"    # NFKC email normalization (homograph defense)
+ed25519-dalek = "2"              # Solana wallet signature verification
+bs58 = "0.5"                     # Solana base58 pubkey/signature decoding
+aes-gcm = "0.10"                 # AES-256-GCM secret-at-rest encryption (TOTP secrets)
+zeroize = "1"                    # wipe derived key material
+totp-rs = { version = "=5.6.0", features = ["gen_secret", "otpauth"] }  # TOTP MFA; 5.7+ imports a newer WASI ABI than the Cedros host
+p256 = { version = "0.13", default-features = false, features = ["ecdsa"] }  # WebAuthn ES256 assertion verify
+ciborium = "0.2"                 # CBOR: WebAuthn attestationObject + COSE key
+image = { version = "0.25", default-features = false, features = ["webp", "jpeg", "png", "gif"] }
+
+# Optimize the shipped component for size — it travels in a 4 MiB-capped archive.
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

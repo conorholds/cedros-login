@@ -9,7 +9,7 @@ function isDevelopment(): boolean {
   return typeof __DEV__ !== "undefined" ? __DEV__ : false;
 }
 
-export function getComplianceMode(
+function getComplianceMode(
   config: CedrosLoginConfig,
 ): "strict" | "warn" | "off" {
   return config.compliance?.mode ?? (isDevelopment() ? "warn" : "strict");

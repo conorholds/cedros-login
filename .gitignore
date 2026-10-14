@@ -1,14 +1,22 @@
 # Dependencies
 node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+/cedros-extension.server.wasm
+*.cedros-extension.zip
+*.source-review.zip
+*.tgz
 target/
+*.rlib
+*.rmeta
 
-# Build artifacts
-*.log
-
-# Environment
+# Environment files
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # IDE
 .idea/
@@ -17,6 +25,30 @@ target/
 *.swo
 .DS_Store
 
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
 # Rust
-Cargo.lock
-!server-rust/Cargo.lock
+**/*.rs.bk
+
+# TypeScript
+*.tsbuildinfo
+
+# Agent/MCP configs (contain absolute paths)
+.mcp.json
+opencode.json
+.gemini/
+.claude/settings.local.json
+
+# Misc
+.context/
+.cache/
+tmp/
+temp/

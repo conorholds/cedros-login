@@ -1,0 +1,19 @@
+package cedros:extension@0.1.0;
+
+/// cedros-login's tailored world: exactly the cedros:extension capabilities this
+/// extension uses. Omits customer-tags because this extension does not consume
+/// that contract. `http` is always linked, inert until
+/// the operator grants exact HTTPS hosts, and used for OIDC/JWKS federated login.
+world cedros-login {
+    import logging;
+    import secrets;
+    import database;
+    import settings;
+    import telemetry;
+    import providers;
+    import crm-source-events;
+    import http;
+    import extension-services;
+    export routes;
+    export jobs;
+}

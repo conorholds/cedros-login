@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "contractId": "cedros-data:database-concurrency-v1",
+  "scenarios": [
+    {
+      "id": "concurrent-normalized-email-claim",
+      "operationId": "identity.users.normalized-email",
+      "kind": "unique-claim",
+      "initial": { "claimedKeys": [] },
+      "attempts": ["user-a:person@example.com", "user-b:person@example.com"],
+      "expected": { "committed": 1, "conflicts": 1, "finalCardinality": 1 }
+    },
+    {
+      "id": "concurrent-purpose-bound-token-consume",
+      "operationId": "identity.verifications.consume-live-purpose-bound",
+      "kind": "single-transition",
+      "initial": { "state": "live:password_reset" },
+      "attempts": ["live:password_reset->consumed", "live:password_reset->consumed"],
+      "expected": { "committed": 1, "conflicts": 1, "finalState": "consumed" }
+    },
+    {
+      "id": "concurrent-first-admin-claim",
+      "operationId": "identity.setup.claim-first-admin",
+      "kind": "single-transition",
+      "initial": { "state": "unconfigured" },
+      "attempts": ["unconfigured->configured:admin-a", "unconfigured->configured:admin-b"],
+      "expected": { "committed": 1, "conflicts": 1, "finalStatePrefix": "configured:" }
+    },
+    {
+      "id": "concurrent-last-admin-demotion",
+      "operationId": "identity.system-admin.demote",
+      "kind": "minimum-cardinality-removal",
+      "initial": { "members": ["admin-a", "admin-b"], "minimum": 1 },
+      "attempts": ["admin-a", "admin-b"],
+      "expected": { "committed": 1, "conflicts": 1, "finalCardinality": 1 }
+    },
+    {
+      "id": "concurrent-owner-demotion",
+      "operationId": "organization.membership.change-role",
+      "kind": "minimum-cardinality-removal",
+      "initial": { "members": ["owner-a", "owner-b"], "minimum": 1 },
+      "attempts": ["owner-a", "owner-b"],
+      "expected": { "committed": 1, "conflicts": 1, "finalCardinality": 1 }
+    },
+    {
+      "id": "concurrent-outbox-claim",
+      "operationId": "identity.outbox.claim-delivery",
+      "kind": "single-transition",
+      "initial": { "state": "pending" },
+      "attempts": ["pending->sending:worker-a", "pending->sending:worker-b"],
+      "expected": { "committed": 1, "conflicts": 1, "finalStatePrefix": "sending:" }
+    }
+  ]
+}

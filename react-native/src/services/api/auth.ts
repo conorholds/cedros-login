@@ -1,9 +1,14 @@
 import type {
   AuthResponse,
+  LoginAttemptResponse,
+  ChallengeResponse,
   TokenPair,
   MfaLoginRequest,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
 } from "../../types";
 import type ApiClient from "./client";
+import type { ApiReadOptions } from "./client";
 import type { ApiResponse } from "./client";
 
 export interface LoginRequest {
@@ -25,7 +30,7 @@ export interface AppleSignInRequest {
   idToken: string;
   authorizationCode?: string;
   name?: string;
-  nonce?: string;
+  nonce: string;
   referral?: string;
   accessCode?: string;
 }
@@ -44,13 +49,13 @@ export class AuthApi {
     this.client = client;
   }
 
-  async login(request: LoginRequest): Promise<AuthResponse> {
-    const response = await this.client.post<AuthResponse>(
+  async login(request: LoginRequest): Promise<LoginAttemptResponse> {
+    const response = await this.client.post<LoginAttemptResponse>(
       "/auth/login",
       request,
     );
 
-    if (response.data.tokens) {
+    if (!("mfaRequired" in response.data) && response.data.tokens) {
       await this.client.getTokenManager().setTokens(response.data.tokens);
     }
 
@@ -83,68 +88,73 @@ export class AuthApi {
     return response.data;
   }
 
-  async googleSignIn(request: GoogleSignInRequest): Promise<AuthResponse> {
-    const response = await this.client.post<AuthResponse>(
+  async googleSignIn(
+    request: GoogleSignInRequest,
+  ): Promise<LoginAttemptResponse> {
+    const response = await this.client.post<LoginAttemptResponse>(
       "/auth/google",
       request,
     );
 
-    if (response.data.tokens) {
+    if (!("mfaRequired" in response.data) && response.data.tokens) {
       await this.client.getTokenManager().setTokens(response.data.tokens);
     }
 
     return response.data;
   }
 
-  async appleSignIn(request: AppleSignInRequest): Promise<AuthResponse> {
-    const response = await this.client.post<AuthResponse>(
+  async appleSignIn(
+    request: AppleSignInRequest,
+  ): Promise<LoginAttemptResponse> {
+    const response = await this.client.post<LoginAttemptResponse>(
       "/auth/apple",
       request,
     );
 
-    if (response.data.tokens) {
+    if (!("mfaRequired" in response.data) && response.data.tokens) {
       await this.client.getTokenManager().setTokens(response.data.tokens);
     }
 
     return response.data;
   }
 
-  async solanaSignIn(request: SolanaSignInRequest): Promise<AuthResponse> {
-    const response = await this.client.post<AuthResponse>(
+  async getAppleNonce(): Promise<string> {
+    const response = await this.client.post<{ nonce: string }>(
+      "/auth/apple/nonce",
+      {},
+    );
+    return response.data.nonce;
+  }
+
+  async solanaSignIn(
+    request: SolanaSignInRequest,
+  ): Promise<LoginAttemptResponse> {
+    const response = await this.client.post<LoginAttemptResponse>(
       "/auth/solana",
       request,
     );
 
-    if (response.data.tokens) {
+    if (!("mfaRequired" in response.data) && response.data.tokens) {
       await this.client.getTokenManager().setTokens(response.data.tokens);
     }
 
     return response.data;
   }
 
-  async getSolanaChallenge(
-    walletAddress: string,
-  ): Promise<{ nonce: string; message: string; expiresAt: string }> {
-    const response = await this.client.post<{
-      nonce: string;
-      message: string;
-      expiresAt: string;
-    }>("/auth/solana/challenge", { publicKey: walletAddress });
+  async getSolanaChallenge(walletAddress: string): Promise<ChallengeResponse> {
+    const response = await this.client.post<ChallengeResponse>(
+      "/auth/solana/challenge",
+      { publicKey: walletAddress },
+    );
     return response.data;
   }
 
   async logout(): Promise<void> {
-    const refreshToken = this.client.getTokenManager().getRefreshToken();
-
-    try {
-      if (refreshToken) {
-        await this.client.post("/auth/logout", { refreshToken });
-      }
-    } catch {
-      // Ignore logout errors
-    } finally {
-      await this.client.getTokenManager().clear();
-    }
+    const manager = this.client.getTokenManager();
+    const refreshToken = manager.getRefreshToken();
+    // Clear before network IO so an in-flight refresh cannot restore this login.
+    await manager.clear();
+    if (refreshToken) await this.client.post("/auth/logout", { refreshToken });
   }
 
   async refreshToken(): Promise<TokenPair> {
@@ -163,7 +173,7 @@ export class AuthApi {
     const response = await this.client.post<{ tokens?: TokenPair }>(
       "/auth/refresh",
       {
-      refreshToken,
+        refreshToken,
       },
     );
     const tokens = response.data.tokens;
@@ -176,7 +186,7 @@ export class AuthApi {
       error.status = 401;
       throw error;
     }
-    await this.client.getTokenManager().setTokens(tokens);
+    await this.client.getTokenManager().setTokens(tokens, refreshToken);
 
     return tokens;
   }
@@ -197,6 +207,16 @@ export class AuthApi {
     await this.client.post("/auth/verify-email", { token });
   }
 
+  async updateProfile(
+    request: UpdateProfileRequest,
+  ): Promise<UpdateProfileResponse> {
+    const response = await this.client.patch<UpdateProfileResponse>(
+      "/auth/me",
+      request,
+    );
+    return response.data;
+  }
+
   async requestAccountDeletion(email: string): Promise<void> {
     await this.client.post("/auth/account-deletion/request", { email });
   }
@@ -211,8 +231,11 @@ export class AuthApi {
   }
 
   /** Public accessor for GET requests (avoids private bracket access) */
-  async getRequest<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.client.get<T>(endpoint);
+  async getRequest<T>(
+    endpoint: string,
+    options?: ApiReadOptions,
+  ): Promise<ApiResponse<T>> {
+    return this.client.get<T>(endpoint, undefined, options);
   }
 }
 

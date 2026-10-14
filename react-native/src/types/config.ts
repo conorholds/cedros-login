@@ -1,9 +1,9 @@
-import type { AuthUser, AuthMethod, AuthError } from './auth';
+import type { AuthUser, AuthMethod, AuthError } from "./auth";
 
 /**
  * Solana network configuration
  */
-export type SolanaNetwork = 'mainnet-beta' | 'devnet';
+export type SolanaNetwork = "mainnet-beta" | "devnet";
 
 /**
  * Session storage mode
@@ -15,12 +15,26 @@ export type SolanaNetwork = 'mainnet-beta' | 'devnet';
  *   on the page, making them vulnerable to XSS attacks. Only use when cookie-based
  *   auth is not possible (e.g., cross-origin scenarios without proper CORS).
  */
-export type SessionStorage = 'cookie' | 'memory' | 'localStorage' | 'sessionStorage';
+export type SessionStorage =
+  | "cookie"
+  | "memory"
+  | "localStorage"
+  | "sessionStorage";
 
 /**
  * Theme mode
  */
-export type ThemeMode = 'light' | 'dark' | 'auto';
+export type ThemeMode = "light" | "dark" | "auto";
+
+export type SignupLimitPeriod = "daily" | "weekly" | "monthly";
+
+/** Public, informational snapshot of the current signup quota. */
+export interface SignupAvailability {
+  remaining: number;
+  limit: number;
+  period: SignupLimitPeriod;
+  resetsAt: string;
+}
 
 /**
  * Solana configuration options
@@ -87,6 +101,13 @@ export interface SessionConfig {
 
 /**
  * Token storage adapter contract for React Native session persistence.
+ *
+ * Every operation must return a Promise that settles after its native work has
+ * finished. Cedros deliberately does not time out adapter mutations: a native
+ * write may continue after a JavaScript timeout and overwrite newer state.
+ * Ordering covers one loaded package instance in one JavaScript runtime only;
+ * other runtimes, processes, package copies, and native writers must coordinate
+ * access to the same underlying store themselves.
  */
 export interface TokenStorageAdapter {
   getItem: (key: string) => Promise<string | null>;
@@ -115,6 +136,13 @@ export interface SecureStorageConfig {
    * @default false
    */
   allowInsecureStorage?: boolean;
+  /**
+   * Import the pre-namespaced `auth_tokens` session into this provider scope.
+   * Enable temporarily on exactly one provider during an upgrade, then remove.
+   * Multiple opted-in provider scopes fail closed without importing the token.
+   * @default false
+   */
+  importLegacyTokens?: boolean;
 }
 
 /**
@@ -149,7 +177,7 @@ export interface AuthCallbacks {
   onLoginSuccess?: (user: AuthUser, method: AuthMethod) => void;
   /** Called when login fails */
   onLoginError?: (error: AuthError) => void;
-  /** Called after logout */
+  /** Called once after a manual logout completes successfully. */
   onLogout?: () => void;
   /** Called when session expires */
   onSessionExpired?: () => void;
@@ -159,18 +187,23 @@ export interface AuthCallbacks {
  * CSS variable theme overrides
  */
 export interface ThemeOverrides {
-  '--cedros-primary'?: string;
-  '--cedros-primary-foreground'?: string;
-  '--cedros-background'?: string;
-  '--cedros-foreground'?: string;
-  '--cedros-muted'?: string;
-  '--cedros-muted-foreground'?: string;
-  '--cedros-border'?: string;
-  '--cedros-input'?: string;
-  '--cedros-ring'?: string;
-  '--cedros-radius'?: string;
-  '--cedros-destructive'?: string;
-  '--cedros-destructive-foreground'?: string;
+  "--cedros-primary"?: string;
+  "--cedros-primary-foreground"?: string;
+  "--cedros-background"?: string;
+  "--cedros-foreground"?: string;
+  "--cedros-muted"?: string;
+  "--cedros-muted-foreground"?: string;
+  "--cedros-border"?: string;
+  "--cedros-input"?: string;
+  "--cedros-ring"?: string;
+  "--cedros-radius"?: string;
+  "--cedros-radius-xs"?: string;
+  "--cedros-radius-sm"?: string;
+  "--cedros-radius-md"?: string;
+  "--cedros-radius-lg"?: string;
+  "--cedros-radius-xl"?: string;
+  "--cedros-destructive"?: string;
+  "--cedros-destructive-foreground"?: string;
   [key: string]: string | undefined;
 }
 
@@ -184,7 +217,7 @@ export interface ForgotPasswordConfig {
    * - 'instantLink': Sends an instant link for passwordless sign-in
    * @default 'reset'
    */
-  mode?: 'reset' | 'instantLink';
+  mode?: "reset" | "instantLink";
 }
 
 /**
@@ -230,8 +263,8 @@ export interface FormConfig {
 /**
  * Embedded wallet configuration
  *
- * Controls whether the embedded wallet is advertised to other Cedros modules
- * (like cedros-pay) running in the same application.
+ * Controls whether the embedded wallet is advertised to other modules running
+ * in the same application.
  */
 export interface WalletConfig {
   /**
@@ -241,7 +274,7 @@ export interface WalletConfig {
    * - `available`: boolean - whether user has enrolled SSS wallet
    * - `publicKey`: string | null - Solana public key if available
    *
-   * This allows other modules (e.g., cedros-pay) to detect embedded wallet
+   * This allows other modules to detect embedded wallet
    * and offer crypto payment options to users without browser wallet extensions.
    *
    * @security The signing function is NOT exposed on window. Signing must go
@@ -265,7 +298,7 @@ export interface WalletConfig {
   exposePublicKey?: boolean;
 
   /**
-   * SEC-004: Allowed domains for WebAuthn RP ID validation.
+   * Allowed domains for WebAuthn RP ID validation.
    *
    * In production, passkey operations will be rejected if the current hostname
    * is not in this list. This prevents passkey registration on malicious domains
@@ -325,6 +358,9 @@ export interface CedrosLoginConfig {
   // Apple Sign In
   /** Apple Sign In client ID (Services ID). Required if Apple auth enabled */
   appleClientId?: string;
+
+  /** Public signup-capacity snapshot when the site owner enables disclosure. */
+  signupAvailability?: SignupAvailability;
 
   // Solana
   /** Solana configuration options */

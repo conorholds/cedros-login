@@ -1,0 +1,22 @@
+# Source files (dist only published via package.json files field)
+src/
+
+# Test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+
+# Config files
+vite.config.ts
+vitest.config.ts
+tsconfig*.json
+postcss.config.js
+tailwind.config.js
+eslint.config.js
+.prettierrc
+
+# Development files
+.gitignore
+
+# Sourcemaps (reduce package size ~500KB)
+*.map

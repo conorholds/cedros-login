@@ -1,0 +1,83 @@
+{
+  "extensionId": "cedros-login",
+  "version": "2.0.22",
+  "forms": [
+    {
+      "id": "cedros-login:account-support-form",
+      "displayName": "Login Account Support Form",
+      "scope": "contact",
+      "status": "active",
+      "defaultKey": "account-access-support",
+      "fields": [
+        {
+          "key": "email",
+          "type": "email",
+          "required": true
+        },
+        {
+          "key": "issue_type",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "details",
+          "type": "textarea",
+          "required": true
+        },
+        {
+          "key": "consent_to_contact",
+          "type": "checkbox",
+          "required": true
+        }
+      ],
+      "ownerGuidance": [
+        "Review copy before publishing.",
+        "Do not ask users for passwords, MFA codes, recovery codes, tokens, private keys, or payment details.",
+        "Route submissions through host-owned Forms storage and support workflows."
+      ]
+    }
+  ],
+  "docsArticles": [
+    {
+      "id": "cedros-login:getting-started",
+      "displayName": "Sign in and create your account",
+      "slug": "cedros-login-sign-in-and-create-account",
+      "routePath": "/docs/cedros-login/sign-in-and-create-account",
+      "category": "identity",
+      "tags": [
+        "login",
+        "identity",
+        "sign-in",
+        "profile",
+        "invite"
+      ],
+      "productSlug": "cedros-login",
+      "sectionKey": "account-access",
+      "order": 10
+    },
+    {
+      "id": "cedros-login:account-security-checklist",
+      "displayName": "Keep your account secure",
+      "slug": "cedros-login-account-security",
+      "routePath": "/docs/cedros-login/account-security",
+      "category": "identity",
+      "tags": [
+        "login",
+        "security",
+        "account-recovery",
+        "email-verification"
+      ],
+      "productSlug": "cedros-login",
+      "sectionKey": "security",
+      "order": 20
+    }
+  ],
+  "runtimeBehavior": {
+    "classification": "starter cards only",
+    "install": "Starter metadata becomes available as Forms and Docs starter cards without creating owner-owned docs rows.",
+    "authFlowPlacement": "Login, create-account, forgot-password, reset-password, email verification, instant-link verification, and invite acceptance starters are content templates with cedros-login:auth-form, not generic Forms templates.",
+    "startDraft": "Docs article starter cards become actual owner-owned draft docs rows only after an owner chooses Start Draft.",
+    "disable": "Starters are hidden for new creation; existing owner-created content is preserved.",
+    "remove": "Starter metadata is removed; existing owner-created forms/docs remain unless the owner deletes them."
+  }
+}

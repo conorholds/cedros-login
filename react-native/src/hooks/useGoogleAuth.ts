@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
-import { getAuthApi } from "../services/api";
-import type { AuthError, AuthResponse } from "../types";
+import { useProviderAuthApi } from "../context/ApiServicesContext";
+import type { AuthError, LoginAttemptResponse } from "../types";
 import { useCedrosLogin } from "../context/CedrosLoginProvider";
 
 export interface UseGoogleAuthReturn {
-  signIn: (idToken: string) => Promise<AuthResponse>;
+  signIn: (idToken: string) => Promise<LoginAttemptResponse>;
   isLoading: boolean;
   error: AuthError | null;
   clearError: () => void;
@@ -14,14 +14,15 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
   const { login: contextLogin } = useCedrosLogin();
+  const authApi = useProviderAuthApi();
 
   const signIn = useCallback(
-    async (idToken: string): Promise<AuthResponse> => {
+    async (idToken: string): Promise<LoginAttemptResponse> => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await getAuthApi().googleSignIn({ idToken });
-        if (response.tokens && response.user) {
+        const response = await authApi.googleSignIn({ idToken });
+        if (!("mfaRequired" in response) && response.tokens && response.user) {
           contextLogin(response.user, response.tokens);
         }
         return response;
@@ -39,7 +40,7 @@ export function useGoogleAuth(): UseGoogleAuthReturn {
         setIsLoading(false);
       }
     },
-    [contextLogin],
+    [authApi, contextLogin],
   );
 
   const clearError = useCallback(() => {

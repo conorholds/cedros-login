@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockForgotPassword = vi.fn();
 
-vi.mock("../services/api", () => ({
-  getAuthApi: () => ({
+vi.mock("../context/ApiServicesContext", () => ({
+  useProviderAuthApi: () => ({
     forgotPassword: mockForgotPassword,
   }),
 }));

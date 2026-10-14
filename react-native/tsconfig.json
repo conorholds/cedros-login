@@ -15,5 +15,5 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "example", "src/crypto/webauthnPrf.ts"]
+  "exclude": ["node_modules", "dist", "example"]
 }

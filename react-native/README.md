@@ -1,479 +1,118 @@
 # @cedros/login-react-native
 
-React Native authentication library for Cedros with email/password, Google Sign-In, Apple Sign-In, Solana wallet authentication, and embedded SSS wallets.
+React Native authentication library for Cedros Login with email/password, Google Sign-In, Apple Sign-In, Solana wallet authentication, sessions, organizations, and account utilities.
 
 ## Installation
 
-### 1. Install the library
-
 ```bash
 npm install @cedros/login-react-native
-# or
-yarn add @cedros/login-react-native
 ```
 
-### 2. Install required peer dependencies
+Install AsyncStorage and the default secure token store:
 
 ```bash
 npm install @react-native-async-storage/async-storage react-native-keychain
-# or
-yarn add @react-native-async-storage/async-storage react-native-keychain
 ```
 
-### 3. Platform-specific setup (optional, for social auth)
+`react-native-keychain` is the default production token store. You may instead
+provide `config.secureStorage.adapter`. AsyncStorage token fallback is intended
+for development and requires an explicit `secureStorage.allowInsecureStorage`
+opt-in outside development.
 
-#### Google Sign-In
+Optional social and wallet dependencies:
 
 ```bash
 npm install @react-native-google-signin/google-signin
-```
-
-Configure in your app:
-
-- iOS: Add URL scheme to Info.plist
-- Android: Add to build.gradle
-
-See: https://github.com/react-native-google-signin/google-signin
-
-#### Apple Sign-In
-
-```bash
 npm install @invertase/react-native-apple-authentication
-```
-
-Configure in your app:
-
-- iOS: Enable "Sign in with Apple" capability in Xcode
-- Return the Apple `authorizationCode` and `nonce` to Cedros so the server can store a revocable refresh token
-- Android: Requires iOS app in App Store first
-
-See: https://github.com/invertase/react-native-apple-authentication
-
-#### Solana Mobile Wallet (Android only)
-
-The built-in `useMobileWalletAuth` hook handles the full MWA challenge-sign flow automatically. Install one of the supported MWA packages:
-
-```bash
-# Recommended (newer API):
 npm install @wallet-ui/react-native-web3js
-
-# Or the legacy package:
-npm install @solana-mobile/mobile-wallet-adapter-protocol-web3js
 ```
 
-Both are optional peer dependencies — if neither is installed, the Solana button simply won't appear on Android.
+`@wallet-ui/react-native-web3js` is the canonical Solana Mobile Wallet adapter for Android. If it is not installed, the built-in Solana button stays hidden on Android. On iOS, provide a custom Solana token callback if your app supports wallet auth.
 
-**Platform constraints:**
-- **Android**: MWA uses Android Intents to communicate with installed wallet apps (Phantom, Solflare, etc.). Works on physical devices and emulators with a wallet app installed.
-- **iOS**: MWA is not available. The Solana button is hidden unless you provide a custom `onRequestToken` callback.
+## Cedros Extension Registration
 
-See: https://docs.solanamobile.com
+```ts
+import registerCedrosLoginNativeSurface from "@cedros/login-react-native/register";
+```
 
-## Usage
+The register module returns the canonical Cedros Login native manifest surface.
 
-### Basic Setup
+## Basic Usage
 
 ```tsx
 import React from "react";
-import { CedrosLoginProvider } from "@cedros/login-react-native";
 import { SafeAreaView } from "react-native";
+import { CedrosLoginProvider, LoginScreen } from "@cedros/login-react-native";
 
 function App() {
   return (
     <CedrosLoginProvider
       config={{
-        serverUrl: "https://api.yourserver.com",
-        // Optional: Add your app-specific config
+        serverUrl: "https://api.example.com",
       }}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        {/* Your app components */}
+        <LoginScreen />
       </SafeAreaView>
     </CedrosLoginProvider>
   );
 }
-
-export default App;
 ```
 
-### Email/Password Authentication
+Set `serverUrl` to the server origin, without `/auth`: the native API client
+adds `/auth` to its request paths. For a physical device, use a server address
+reachable from that device. Native dependencies also require the platform
+configuration supplied by their packages.
 
-```tsx
-import { EmailLoginForm, useEmailAuth } from "@cedros/login-react-native";
+## Session restoration
 
-function LoginScreen() {
-  const { login, isLoading, error } = useEmailAuth();
+`CedrosLoginProvider` starts with `isLoading: true` while it reads the configured secure token storage. A valid persisted access token is used to fetch `/auth/user`; if only the access token has expired, the provider uses the retained refresh token first. Terminal refresh failures and retried authentication failures clear the persisted session and invoke `config.callbacks.onSessionExpired` once. A successfully completed manual logout clears tokens and invokes `config.callbacks.onLogout` once without reporting an expiry. Failed logout, restoration failure, configuration replacement, and unmount do not invoke `onLogout`.
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      const response = await login(email, password);
-      console.log("Logged in:", response.user);
-    } catch (err) {
-      console.error("Login failed:", err);
-    }
-  };
+Authenticated `GET` requests that receive `401` share a single refresh attempt and are retried at most once. A network or server error from that retry is returned without discarding newly refreshed tokens. Login, registration, refresh, and other non-idempotent requests are never replayed automatically.
 
-  return (
-    <EmailLoginForm
-      onSubmit={handleLogin}
-      isLoading={isLoading}
-      error={error?.message}
-    />
-  );
-}
-```
+The provider owns one API client and `TokenManager` per canonical auth-server and secure-storage service identity. Persisted token keys contain a SHA-256 scope digest rather than a server URL or credential, so providers sharing one native backing store cannot hydrate, clear, or refresh one another's sessions. Reconfiguration assigns a new in-process storage generation; queued writes re-check ownership, and an already-running superseded write is fenced before replacement hydration.
 
-### Fully Custom Auth Screens
+Legacy sessions are not imported by default. During an upgrade from a pre-namespaced release, set `secureStorage.importLegacyTokens: true` temporarily on exactly one provider: the provider that used the old `auth_tokens` entry. Never enable it on multiple server scopes. Cedros detects concurrent opted-in scopes before migration and fails closed.
 
-For a fully app-owned theme, use `CedrosLoginProvider` plus the auth hooks and
-render your own React Native components. The exported `Button`, `Input`, and
-other Cedros UI primitives are optional conveniences, not required.
+The authorized migration validates the legacy payload, durably records its destination in `auth_tokens.legacy_claim.v1`, copies it to that scope, and removes the legacy value. Claim, copy, and cleanup failures are surfaced separately. If cleanup fails after the copy, the next authorized hydration verifies the matching claim, retries cleanup, and then restores the scoped session. Unauthorized providers never read, copy, remove, or transmit the legacy entry. Remove `importLegacyTokens` after the migration window. The legacy singleton API intentionally continues to use `auth_tokens` and should not be mixed with provider-owned persistence.
 
-```tsx
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import {
-  CedrosLoginProvider,
-  useForgotPassword,
-} from "@cedros/login-react-native";
+Mutations are ordered across managers and distinct adapter instances within one loaded package instance in one JavaScript runtime. Each adapter operation must settle only after its native work finishes. Cedros intentionally does not add a queue timeout because an underlying native write could continue after timeout and later overwrite newer state; a never-settling adapter therefore blocks subsequent mutations. Native writers in another JavaScript runtime or process, and independently loaded copies of this package, must coordinate access to the same store separately.
 
-function ForgotPasswordScreen() {
-  const [email, setEmail] = useState("");
-  const { forgotPassword, isLoading, isSuccess, error } = useForgotPassword();
+## Apple Sign-In
 
-  if (isSuccess) {
-    return <Text>Check your email for reset instructions.</Text>;
-  }
+The native Apple auth module must return a nonce with the identity token. Cedros sends the nonce to the server so the server can validate the Apple token hash.
 
-  return (
-    <View>
-      <TextInput value={email} onChangeText={setEmail} />
-      {error && <Text>{error.message}</Text>}
-      <Pressable onPress={() => forgotPassword(email)} disabled={isLoading}>
-        <Text>{isLoading ? "Sending..." : "Send reset link"}</Text>
-      </Pressable>
-    </View>
-  );
-}
-```
+## Solana Mobile Wallet
 
-### Google Sign-In
+The built-in `useMobileWalletAuth` hook performs the Mobile Wallet Adapter challenge-sign flow through `@wallet-ui/react-native-web3js`.
 
-```tsx
-import { GoogleLoginButton } from "@cedros/login-react-native";
-
-function GoogleAuthScreen() {
-  return <GoogleLoginButton />;
-}
-```
-
-`GoogleLoginButton` uses the native `GoogleSigninButton` automatically when
-`@react-native-google-signin/google-signin` is installed. You can still pass
-`onRequestToken` for a custom Google SDK flow if needed.
-
-### Apple Sign-In
-
-```tsx
-import { AppleLoginButton } from "@cedros/login-react-native";
-
-function AppleAuthScreen() {
-  return <AppleLoginButton />;
-}
-```
-
-On iOS, `AppleLoginButton` uses the native Apple sign-in control automatically
-when `@invertase/react-native-apple-authentication` is installed. You can still
-pass `onRequestToken` for a custom Apple SDK flow.
-
-### Solana Wallet Authentication
-
-#### Built-in MWA flow (recommended, Android only)
-
-On Android, `SolanaLoginButton` handles the entire wallet interaction automatically via the built-in `useMobileWalletAuth` hook. No custom callback needed:
-
-```tsx
-import { SolanaLoginButton } from "@cedros/login-react-native";
-
-function SolanaAuthScreen() {
-  // No onRequestToken needed — built-in MWA flow handles everything
-  return <SolanaLoginButton />;
-}
-```
-
-The button renders as "Use Installed Wallet" and triggers the three-step challenge flow:
-
-1. **Authorize** — Opens the user's installed Solana wallet app via Android Intent, requests authorization, and receives the wallet address.
-2. **Challenge** — Calls `POST {serverUrl}/auth/solana/challenge` with `{ publicKey }`. Server returns `{ nonce, message, expiresAt }`.
-3. **Sign** — The wallet signs the challenge `message`. The base58-encoded signature + wallet address + nonce are passed to `useSolanaAuth().signIn()` to complete authentication.
-
-All three steps happen inside a single MWA `transact()` session (one wallet popup).
-
-#### Custom flow (cross-platform)
-
-For custom wallet integrations or iOS, provide an `onRequestToken` callback:
-
-```tsx
-import { SolanaLoginButton } from "@cedros/login-react-native";
-
-function SolanaAuthScreen() {
-  const handleRequestToken = async () => {
-    // Your custom wallet interaction logic here.
-    // Must return { walletAddress, signature, nonce }.
-    const walletAddress = "..."; // From wallet
-    const signature = "..."; // Base58-encoded Ed25519 signature
-    const nonce = "..."; // From POST /auth/solana/challenge
-
-    return { walletAddress, signature, nonce };
-  };
-
-  return <SolanaLoginButton onRequestToken={handleRequestToken} />;
-}
-```
-
-#### Solana auth challenge flow
-
-The three-step challenge flow used by both the built-in MWA hook and custom implementations:
-
-```
-┌─────────┐     ┌──────────┐     ┌──────────┐
-│  Client  │     │  Wallet  │     │  Server  │
-└────┬─────┘     └────┬─────┘     └────┬─────┘
-     │ 1. authorize()  │               │
-     │────────────────>│               │
-     │  walletAddress  │               │
-     │<────────────────│               │
-     │                 │               │
-     │ 2. POST /auth/solana/challenge  │
-     │ { publicKey: walletAddress }    │
-     │────────────────────────────────>│
-     │ { nonce, message, expiresAt }   │
-     │<────────────────────────────────│
-     │                 │               │
-     │ 3. signMessages │               │
-     │   (message)     │               │
-     │────────────────>│               │
-     │   signature     │               │
-     │<────────────────│               │
-     │                 │               │
-     │ 4. POST /auth/solana/sign-in    │
-     │ { walletAddress, signature,     │
-     │   nonce }                       │
-     │────────────────────────────────>│
-     │ { user, tokens }                │
-     │<────────────────────────────────│
-```
-
-## Architecture
-
-```
-UI Components → Hooks → API Services → Backend
-     ↓              ↓            ↓
-   Theme        Context    TokenManager
-  (styled)    (state)    (AsyncStorage)
-```
-
-### Components
-
-| Category         | Components                                                                                                                   |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| **Auth**         | EmailLoginForm, EmailRegisterForm, PasswordInput, GoogleLoginButton, AppleLoginButton, SolanaLoginButton, ForgotPasswordForm |
-| **Organization** | OrgSelector, OrgSwitcher                                                                                                     |
-| **Members**      | MemberList                                                                                                                   |
-| **Invites**      | InviteForm, InviteList                                                                                                       |
-| **Sessions**     | SessionList                                                                                                                  |
-| **Wallet**       | WalletStatus, WalletUnlock, RecoveryPhraseDisplay                                                                            |
-| **TOTP**         | TotpSetup, TotpVerify, OtpInput                                                                                              |
-| **Deposit**      | DepositForm, CreditBalance, CreditHistory                                                                                    |
-| **Shared**       | Button, Input, LoadingSpinner, ErrorMessage                                                                                  |
-
-### Hooks
-
-| Hook                    | Purpose                                          |
-| ----------------------- | ------------------------------------------------ |
-| `useAuth()`             | Session management (logout, refresh)             |
-| `useEmailAuth()`        | Email/password authentication                    |
-| `useForgotPassword()`   | Forgot-password email request flow               |
-| `useGoogleAuth()`       | Google Sign-In                                   |
-| `useAppleAuth()`        | Apple Sign-In                                    |
-| `useAccountDeletion()`  | In-app deletion + hosted deletion URL            |
-| `useSolanaAuth()`       | Solana wallet authentication (sign-in call)      |
-| `useMobileWalletAuth()` | MWA challenge-sign flow (Android, built-in)      |
-| `useOrgs()`             | Organization management                          |
-| `useWallet()`           | Wallet operations                                |
-
-### Context
-
-```tsx
-import { useCedrosLogin } from "@cedros/login-react-native";
-
-function MyComponent() {
-  const {
-    user, // Current user object
-    isAuthenticated, // Boolean auth state
-    isLoading, // Loading state
-    error, // Current error
-    login, // Manual login with user/tokens
-    logout, // Logout function
-    getAccessToken, // Get JWT token for API calls
-  } = useCedrosLogin();
-
-  // ...
-}
-```
-
-## Configuration
-
-### CedrosLoginProvider Props
-
-```tsx
-interface CedrosLoginConfig {
-  serverUrl: string; // Required: Your Cedros backend URL
-  timeout?: number; // Optional: API timeout in ms (default: 30000)
-  retries?: number; // Optional: Retry attempts (default: 3)
-}
-```
-
-### Example: Complete Auth Flow
-
-```tsx
-import React from "react";
-import {
-  CedrosLoginProvider,
-  LoginScreen,
-  useCedrosLogin,
-} from "@cedros/login-react-native";
-import { View, Text } from "react-native";
-
-function App() {
-  return (
-    <CedrosLoginProvider config={{ serverUrl: "https://api.example.com" }}>
-      <AuthGate />
-    </CedrosLoginProvider>
-  );
-}
-
-function AuthGate() {
-  const { isAuthenticated, isLoading, user } = useCedrosLogin();
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  if (!isAuthenticated) {
-    return <LoginScreen />;
-  }
-
-  return (
-    <View>
-      <Text>Welcome, {user?.name}!</Text>
-      {/* Your authenticated app content */}
-    </View>
-  );
-}
-
-export default App;
-```
+Android supports MWA through wallet-app intents. iOS does not expose MWA; use `onRequestToken` for a custom iOS wallet flow.
 
 ## Features
 
-### Authentication
+- Email/password auth and password recovery
+- Google and Apple auth
+- Solana Mobile Wallet auth
+- Sessions and organization context
+- Login screen/provider extension registration
 
-- ✅ Email/password login and registration
-- ✅ Google Sign-In (requires @react-native-google-signin)
-- ✅ Apple Sign-In (requires @invertase/react-native-apple-authentication)
-- ✅ Solana wallet authentication (requires @solana-mobile)
-- ✅ Token auto-refresh
-- ✅ Session management
+## Development
 
-### Organization
+Use Node `24.17.0` and npm `11.13.0`, matching the repository and package
+metadata. From `react-native/`:
 
-- ✅ Multi-tenant organization support
-- ✅ Organization switching
-- ✅ Member management
-- ✅ Role-based access control
-
-### Security
-
-- ✅ Two-factor authentication (TOTP)
-- ✅ Biometric wallet unlock
-- ✅ Secure token storage (Keychain / Keystore by default)
-- ✅ Session revocation
-- ✅ Crypto utilities (AES-GCM, Argon2, Shamir Secret Sharing)
-
-### Wallet
-
-- ✅ Embedded SSS wallet enrollment
-- ✅ Recovery phrase display
-- ✅ Passkey/biometric unlock
-- ✅ Transaction signing
-
-### Credits/Deposits
-
-- ✅ Credit balance display
-- ✅ Deposit creation
-- ✅ Transaction history
-- ✅ Tiered deposit amounts
-
-## Differences from Web Library
-
-| Feature         | Web (@cedros/login-react) | Mobile (@cedros/login-react-native)          |
-| --------------- | ------------------------- | -------------------------------------------- |
-| **Storage**     | localStorage/cookies      | Keychain / Keystore (AsyncStorage only by opt-in fallback) |
-| **Google Auth** | Google Identity Services  | @react-native-google-signin                  |
-| **Apple Auth**  | Sign in with Apple JS     | @invertase/react-native-apple-authentication |
-| **Solana**      | Browser wallet adapters   | Mobile Wallet Adapter                        |
-| **Biometrics**  | WebAuthn                  | Platform APIs (via dependencies)             |
-| **UI**          | React DOM                 | React Native                                 |
-| **Admin**       | Included                  | **Excluded**                                 |
-
-## Publishing Compliance
-
-- Install `react-native-keychain` or provide `config.secureStorage.adapter` before shipping. Production compliance checks reject insecure token persistence.
-- If Google Sign-In is enabled on iOS, also enable Sign in with Apple unless you have an App Store exemption and set `config.compliance.appleSignInExemptionReason`.
-- The hosted public deletion URL defaults to `${serverUrl}/auth/account-deletion`, or you can override it with `config.compliance.accountDeletionUrl`.
-- Use `useAccountDeletion()` or `DeleteAccountSection` to satisfy the in-app account deletion requirement while also reusing the hosted external deletion portal for Google Play.
-
-## API Reference
-
-All components, hooks, types, and utilities are exported from the main entry point:
-
-```tsx
-// Components
-export { EmailLoginForm, GoogleLoginButton, WalletStatus, ... };
-
-// Hooks
-export { useAuth, useEmailAuth, useForgotPassword, useGoogleAuth, ... };
-
-// Context
-export { CedrosLoginProvider, useCedrosLogin };
-
-// Types
-export type { AuthUser, TokenPair, OrgWithMembership, ... };
-
-// Crypto (advanced)
-export { deriveKeypairFromSeed, splitSecret, combineShares, ... };
+```bash
+npm ci
+npm run typecheck
+npm run lint
+npm test
+npm run build
 ```
-
-## Server (Rust crate)
-
-The authentication server is published as `cedros-login-server` on crates.io.
-Due to Rust naming conventions, the import name uses underscores:
-
-```toml
-# Cargo.toml
-[dependencies]
-cedros-login-server = "0.0.18"
-```
-
-```rust
-// Import uses underscores (Rust convention)
-use cedros_login::prelude::*;
-```
-
-## Contributing
-
-This library is part of the Cedros authentication system. For issues or contributions, please refer to the main repository.
 
 ## License
 
-MIT
+This project is source-available, not open source: its redistribution restrictions do not meet the Open Source Definition.
+
+Licensed under PILL-1.0.0 — the Personal and Internal Limited License. Free for personal and internal business use. Private modifications and limited repository forks are permitted. Redistribution, resale and offering the software as a service require separate permission. See [LICENSE](LICENSE).
+
+For SPDX-style source-file headers, use `SPDX-License-Identifier: LicenseRef-PILL-1.0.0`. The `LicenseRef-` prefix identifies a custom license rather than claiming an official SPDX-listed identifier.

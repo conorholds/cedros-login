@@ -1,0 +1,11 @@
+[net]
+git-fetch-with-cli = true
+
+[resolver]
+incompatible-rust-versions = "fallback"
+
+[env]
+# Auth flows share a process-wide two-slot CPU admission budget. Run independent
+# test cases serially so their fixtures cannot overload one another. Explicit
+# concurrent requests within a test (MFA, token consumption, admission) still run.
+RUST_TEST_THREADS = "1"
