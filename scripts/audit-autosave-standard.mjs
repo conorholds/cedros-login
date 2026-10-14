@@ -3,14 +3,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const repoRoot = new URL("..", import.meta.url).pathname;
-const sourceRoots = [
-  "ui/src",
-  "extensions",
-  "packages",
-  "../cedros-providers-manager",
-  "../cedros-domains-manager",
-]
-  .map((root) => join(repoRoot, root))
+const sourceRoots = [join(repoRoot, "ui/src")]
   .filter((root) => safeStat(root)?.isDirectory());
 
 const allowedPaths = new Set([

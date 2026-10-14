@@ -1,144 +1,78 @@
 # Cedros Login
 
-[Wasm backend](server-wasm/README.md) · [Standalone server](server/README.md) ·
-[Web client](ui/README.md) · [Native client](react-native/README.md) ·
-[Security](SECURITY.md) · [License](LICENSE.md)
+[Wasm backend](server-wasm/README.md) · [Standalone server](server/README.md) · [React](ui/README.md) · [React Native](react-native/README.md) · [Security](SECURITY.md) · [License](LICENSE.md)
 
-Cedros Login provides authentication and identity for Cedros sites and custom
-applications. This source-available repository includes:
+Cedros Login provides authentication and identity for the Cedros platform and
+custom applications. It supports email/password, Google, Apple, Solana,
+passkeys, instant links, TOTP MFA, sessions, organizations, API keys, and
+account administration.
 
-- a Cedros `wasm32-wasip2` extension backend;
-- React and React Native clients with Cedros registration entrypoints;
-- a standalone Rust/Axum server and embeddable crate.
+## Components
 
-It supports email/password, Google, Apple, Solana, passkeys, instant links,
-TOTP MFA, sessions, organizations, API keys, account administration, and
-relying-party identity APIs.
+| Component | Source | Purpose |
+| --- | --- | --- |
+| Wasm backend | `server-wasm/` | Host-embedded Cedros extension routes and jobs |
+| Rust server | `server/` | Standalone Axum service and embeddable crate |
+| React client | `ui/` | Authentication UI and admin/web registration modules |
+| React Native client | `react-native/` | Native authentication components |
+| Shared contracts | `contracts/` | Client types, schemas, and host protocol fixtures |
 
-## Packages
-
-| Component | Path | Distribution | Registration entrypoint |
-| --- | --- | --- | --- |
-| `cedros-login` | `server/` | Rust crate / standalone service | `cedros_login::register_extension_family` |
-| Cedros Wasm backend | `server-wasm/` | Cedros extension archive | `cedros-extension.server.wasm` |
-| `@cedros/login-react` | `ui/` | React library / extension UI | `@cedros/login-react/admin/register`, `@cedros/login-react/web/register` |
-| `@cedros/login-react-native` | `react-native/` | React Native library / extension UI | `@cedros/login-react-native/register` |
-
-The package metadata and generated extension manifests are kept at the same
-version. The current source version is defined by `server/Cargo.toml`,
-`ui/package.json`, `react-native/package.json`, and
-`cedros-extension.manifest.json`.
-
-For Cedros sites, install the complete extension archive. For custom
-applications, build the libraries from source using the package guides below.
-Registry packages have their own release schedule; this repository's API and
-version do not imply that matching npm or crates.io packages have been published.
+[cedros-extension.manifest.json](cedros-extension.manifest.json) defines the
+extension family and its current source version. Registry packages follow a
+separate release schedule; the source version does not imply that matching npm
+or crates.io packages have been published. Follow the package guides to build
+and consume the current libraries from source.
 
 ## Development
 
-Use Node `24.17.0` with npm `11.13.0` and Rust `1.97.0`; the checked-in
-`.nvmrc`, `.node-version`, package metadata, and `rust-toolchain.toml` pin those
-versions.
+Use Node.js `24.17.0`, npm `11.13.0`, and Rust `1.97.0`; the repository's toolchain
+files pin these versions.
 
-For Cedros sites, start with the [Wasm backend guide](server-wasm/README.md)
-and the [extension deployment checklist](docs/cedros-release-readiness-handoff.md).
-For custom applications, use the [standalone server quick start](server/README.md#quick-start)
-and the React or React Native package guides. The client directories contain
-libraries, not standalone demo applications.
-
-From the repository root:
-
-```bash
-make install       # install React and React Native dependencies
-make test          # run package tests and Cedros validators
-make lint          # run JS linters and Rust clippy
-make fmt-check     # check UI and Rust formatting
-make build         # build all publishable packages
+```sh
+make install       # install locked React and React Native dependencies
+make build         # build client libraries and the standalone server
+make test          # run component tests and shared contract checks
+make lint          # run client linters and Rust Clippy
+make fmt-check     # check client and Rust formatting
+make cedros-validate # validate shared types, versions, and manifest contracts
 ```
 
-`make dev-server` requires `JWT_SECRET` and uses in-memory storage when
-`DATABASE_URL` is unset. See the server guide for provider configuration and
-PostgreSQL setup. Run the aggregate checks above sequentially; use
-[the command reference](docs/command-map.md) for focused package checks.
+Run builds and tests sequentially. `make help` lists focused commands.
+`make dev-server` requires `JWT_SECRET`; it uses in-memory storage when
+`DATABASE_URL` is unset. The [server guide](server/README.md) covers provider
+configuration, PostgreSQL, first-admin setup, and embedding.
 
-For the standalone server's default routes, React's `config.serverUrl` is the
-auth base URL (for example, `http://localhost:57165/auth`). React Native's
-`config.serverUrl` is the origin (`http://localhost:57165`); its client adds
-`/auth` to requests.
+React's `config.serverUrl` is the standalone auth base URL, for example
+`http://localhost:57165/auth`. React Native expects the server origin, for example
+`http://localhost:57165`, and adds `/auth` to its requests.
 
-## Cedros Extension
+## Cedros extension integration
 
-The generated `cedros-extension.manifest.json` and
-`cedros-extension.bootstrap.json` describe the extension family. Do not edit
-them by hand; regenerate and validate them through the repository scripts.
+The [Wasm guide](server-wasm/README.md) covers the component build and host
+boundary. The Cedros host supplies storage, settings, secrets, providers,
+permissions, and scheduled jobs through the checked-in WIT interfaces. Local
+unit tests do not verify an installed host or its provider configuration.
 
-```bash
-make cedros-validate   # validate manifests, contracts, and machine-readable maps
-make cedros-package    # build and validate the ignored archive under dist/
-```
+- [Admin embedding](docs/admin-shell-embedding.md): registration and host services.
+- [Authorization matrix](docs/authorization-permission-matrix.md): principal,
+  organization, ABAC, and relying-party boundaries.
+- [Server settings](server/docs/settings-reference.md): configuration reference.
+- [Canonical email](server/docs/canonical-email-invariant.md) and
+  [outbox delivery](server/docs/outbox-delivery-contract.md): durable server contracts.
 
-The archive contains the compiled React admin runtime and Wasm backend. Cedros
-host capabilities, provider grants, mobile loading, and staging checks remain
-separate deployment responsibilities; see the
-[deployment checklist](docs/cedros-release-readiness-handoff.md).
+## Google sign-in
 
-## Documentation
+Create a Web application OAuth client in Google Cloud Console. Add browser
+origins under **Authorized JavaScript origins** for the Google Identity Services
+ID-token flow. Set `GOOGLE_CLIENT_ID` on the standalone server, or configure the
+`auth_google_client_id` setting in the Cedros host. The React provider discovers
+enabled methods and public client IDs through `GET /features`.
 
-- [Repository map](docs/repo-map.md): code layout and ownership boundaries.
-- [Command reference](docs/command-map.md): setup, validation, packaging, and
-  performance commands.
-- [Standalone server](server/README.md): quick start, API groups,
-  configuration, embedding, and database lifecycle.
-- [Wasm backend](server-wasm/README.md): component build, host boundaries,
-  and verification.
-- [React package](ui/README.md) and
-  [React Native package](react-native/README.md): installation and client usage.
-- [Runtime testing](docs/RUNTIME-TESTING.md): installed Cedros Wasm smoke tests.
-- [Extension data architecture](docs/extension-data-architecture.md): host data,
-  provider, cache, and async-delivery boundaries.
-- [Admin embedding](docs/admin-shell-embedding.md): host-owned admin shell
-  integration.
-- [Relying-party setup](docs/relying-party-setup.md): scoped service access.
-- [Server settings](server/docs/settings-reference.md),
-  [canonical email](server/docs/canonical-email-invariant.md), and
-  [outbox delivery](server/docs/outbox-delivery-contract.md): durable server
-  contracts.
-- [Security guide](SECURITY.md): production configuration and integration
-  requirements.
-- [Publishing](PUBLISHING.md): public source snapshots and separate registry package releases.
+## Security and license
 
-Source publication is a reference snapshot, not installed-host acceptance. The
-[release-readiness record](docs/cedros-release-readiness-map.json) identifies
-remaining provider, host, and release gates. Build archives and verify the exact
-host deployment before relying on them in production.
+Read the [security guide](SECURITY.md) before deploying authentication services.
+Report vulnerabilities using GitHub private vulnerability reporting linked there.
 
-Keep source changes aligned with the documented contracts and affected tests.
-Generated contracts, package manifests, and migrations are part of the reference
-implementation; agent instructions, build archives, dependency directories, local
-environment files, and workspace notes are excluded from public source snapshots.
-
-Machine-readable `docs/cedros-*-map.json` files are validation inputs and
-release metadata, not generated build output. Their corresponding validators
-run through `make cedros-validate`.
-
-## Google OAuth Setup
-
-Create a Web application OAuth client in Google Cloud Console. Add each browser
-origin under **Authorized JavaScript origins**. Do not add a redirect URI for
-the Google Identity Services ID-token flow used by the client package.
-
-Set `GOOGLE_CLIENT_ID` for the standalone server, or configure the
-`auth_google_client_id` runtime setting in Cedros. The React provider normally
-discovers enabled methods and public client IDs from `GET /features`; pass a
-client ID directly only when the host intentionally pins frontend
-configuration.
-
-## License
-
-This project is source-available, not open source. It is licensed under
-PILL-1.0.0 for personal and internal business use; redistribution, resale, and
-offering the software as a service require separate permission. See
-[LICENSE.md](LICENSE.md).
-
-Earlier public snapshots retain their original license notices in Git history.
-Use `SPDX-License-Identifier: LicenseRef-PILL-1.0.0` in source-file headers.
+This repository is source-available under [PILL-1.0.0](LICENSE.md), the Personal
+and Internal Limited License. See the license for permitted uses and restrictions.
+Historical releases retain their original license notices in Git history.
