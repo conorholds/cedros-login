@@ -6,12 +6,14 @@
  *
  * ## Subpath imports
  *
- * The root entry exports only auth-safe components and hooks that do NOT
- * depend on Node crypto or Web Crypto APIs.
+ * The root entry exports auth components, hooks, and optional mobile wallet
+ * auth helpers without requiring Node crypto or Web Crypto APIs.
  *
- * - `@cedros/login-react-native` — Auth hooks, login components, orgs, sessions, deposits
- * - `@cedros/login-react-native/wallet` — Wallet hooks + components (requires crypto backend)
- * - `@cedros/login-react-native/crypto` — Shamir, AES-GCM, Argon2, BIP-39 (requires crypto backend)
+ * - `@cedros/login-react-native` — Auth hooks, login components, orgs, sessions
+ * - `@cedros/login-react-native/register` — Cedros extension registration
+ *
+ * Solana mobile wallet support uses the optional `@wallet-ui/react-native-web3js`
+ * peer dependency; Cedros Login does not export wallet package subpaths.
  *
  * @example
  * ```tsx
@@ -19,7 +21,7 @@
  *
  * function App() {
  *   return (
- *     <CedrosLoginProvider config={{ serverUrl: 'https://api.example.com' }}>
+ *     <CedrosLoginProvider config={{ serverUrl: 'https://login.yourdomain.com' }}>
  *       <LoginScreen />
  *     </CedrosLoginProvider>
  *   );
@@ -62,10 +64,28 @@ export {
   type UseAccountDeletionReturn,
 } from "./hooks/useAccountDeletion";
 export { useSolanaAuth, type UseSolanaAuthReturn } from "./hooks/useSolanaAuth";
-export { useMobileWalletAuth, type UseMobileWalletAuthReturn, type MobileWalletCredentials } from "./hooks/useMobileWalletAuth";
+export {
+  useMobileWalletAuth,
+  type UseMobileWalletAuthReturn,
+  type MobileWalletCredentials,
+} from "./hooks/useMobileWalletAuth";
 export { useOrgs, type UseOrgsReturn } from "./hooks/useOrgs";
-export { useDeposit } from "./hooks/useDeposit";
-export { useCredits } from "./hooks/useCredits";
+export {
+  authUserToShopCustomerAccount,
+  authUserToShopCustomerInfo,
+  authUserToShopCustomerProfile,
+  createLoginOwnedShopProfileUpdate,
+  useCedrosShopCustomerBindings,
+} from "./shopCustomerAccount";
+export type {
+  CedrosShopCustomerAccount,
+  CedrosShopCustomerAdapter,
+  CedrosShopCustomerAddress,
+  CedrosShopCustomerBindings,
+  CedrosShopCustomerInfo,
+  CedrosShopCustomerProfile,
+  CedrosShopCustomerProfileUpdate,
+} from "./shopCustomerAccount";
 
 // Components - Shared
 export {
@@ -143,48 +163,6 @@ export type {
   OtpInputProps,
 } from "./components/totp";
 
-// Components - Deposit (NO crypto dependencies)
-export {
-  DepositForm,
-  CreditBalance,
-  CreditHistory,
-  DepositFlow,
-  FeeConfigDisplay,
-  TokenSelector,
-  TieredAmountSlider,
-  History,
-  DepositExplainerStep,
-  DepositReceiveStep,
-  WaitingStep,
-  SuccessStep,
-  ErrorStep,
-  SUPPORTED_TOKENS,
-  SOL_TOKEN,
-  getTierForAmount,
-} from "./components/deposit";
-export type {
-  DepositFormProps,
-  CreditBalanceProps,
-  CreditHistoryProps,
-  DepositFlowProps,
-  DepositFlowResult,
-  DepositFlowStep,
-  CurrencyMode,
-  DepositMethod,
-  ExplainerConfig,
-  FeeConfigDisplayProps,
-  TokenSelectorProps,
-  TieredAmountSliderProps,
-  HistoryProps,
-  HistoryCategory,
-  DepositExplainerStepProps,
-  DepositReceiveStepProps,
-  WaitingStepProps,
-  SuccessStepProps,
-  ErrorStepProps,
-  Token,
-} from "./components/deposit";
-
 // Utilities (NO crypto dependencies)
 export {
   storage,
@@ -199,7 +177,7 @@ export {
 } from "./utils";
 
 // Theme
-export { theme, colors, spacing, typography } from "./theme";
+export { theme, colors, spacing, typography, radii, motion } from "./theme";
 export type { Theme, Colors, Spacing, Typography } from "./theme";
 
 // Platform

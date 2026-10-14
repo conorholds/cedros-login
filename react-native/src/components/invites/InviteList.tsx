@@ -10,8 +10,11 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import type { InviteApiResponse, OrgRole } from "../../types";
 import { Button } from "../shared/Button";
+import { getInviteTargetLabel } from "./inviteLabels";
+import { StaggeredListItem } from "../shared/StaggeredListItem";
 
 export interface InviteListProps {
   invites: InviteApiResponse[];
@@ -65,100 +68,110 @@ export function InviteList({
     }
   };
 
-  const renderInvite = ({ item }: { item: InviteApiResponse }) => (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        paddingVertical: spacing.md,
-        paddingHorizontal: spacing.lg,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.gray[100],
-      }}
-    >
-      <View
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: colors.primary[100],
-          justifyContent: "center",
-          alignItems: "center",
-          marginRight: spacing.md,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: typography.sizes.base,
-            fontWeight: typography.weights.bold,
-            color: colors.primary[600],
-          }}
-        >
-          {item.email[0].toUpperCase()}
-        </Text>
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <Text
-          style={{
-            fontSize: typography.sizes.base,
-            fontWeight: typography.weights.medium,
-            color: colors.gray[900],
-          }}
-        >
-          {item.email}
-        </Text>
-        <Text
-          style={{
-            fontSize: typography.sizes.xs,
-            color: colors.gray[500],
-            marginTop: spacing.xs,
-          }}
-        >
-          {formatDate(item.expiresAt)}
-        </Text>
-      </View>
-
+  const renderInvite = ({
+    item,
+    index,
+  }: {
+    item: InviteApiResponse;
+    index: number;
+  }) => (
+    <StaggeredListItem index={index}>
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
-          gap: spacing.md,
+          paddingVertical: spacing.md,
+          paddingHorizontal: spacing.lg,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.gray[100],
         }}
       >
         <View
           style={{
-            backgroundColor: getRoleColor(item.role) + "20",
-            paddingHorizontal: spacing.sm,
-            paddingVertical: spacing.xs,
-            borderRadius: 4,
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: colors.primary[100],
+            justifyContent: "center",
+            alignItems: "center",
+            marginRight: spacing.md,
           }}
         >
           <Text
             style={{
-              fontSize: typography.sizes.xs,
-              color: getRoleColor(item.role),
-              fontWeight: typography.weights.medium,
+              fontSize: typography.sizes.base,
+              fontWeight: typography.weights.bold,
+              color: colors.primary[600],
             }}
           >
-            {getRoleLabel(item.role)}
+            {getInviteTargetLabel(item)[0]?.toUpperCase() ?? "?"}
           </Text>
         </View>
 
-        {onCancel && (
-          <TouchableOpacity
-            onPress={() => onCancel(item.id)}
+        <View style={{ flex: 1 }}>
+          <Text
             style={{
-              padding: spacing.sm,
-              backgroundColor: colors.error + "20",
-              borderRadius: 4,
+              fontSize: typography.sizes.base,
+              fontWeight: typography.weights.medium,
+              color: colors.gray[900],
             }}
           >
-            <Text style={{ fontSize: 12, color: colors.error }}>&#10005;</Text>
-          </TouchableOpacity>
-        )}
+            {getInviteTargetLabel(item)}
+          </Text>
+          <Text
+            style={{
+              fontSize: typography.sizes.xs,
+              color: colors.gray[500],
+              marginTop: spacing.xs,
+            }}
+          >
+            {formatDate(item.expiresAt)}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing.md,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: getRoleColor(item.role) + "20",
+              paddingHorizontal: spacing.sm,
+              paddingVertical: spacing.xs,
+              borderRadius: radii.compact,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: typography.sizes.xs,
+                color: getRoleColor(item.role),
+                fontWeight: typography.weights.medium,
+              }}
+            >
+              {getRoleLabel(item.role)}
+            </Text>
+          </View>
+
+          {onCancel && (
+            <TouchableOpacity
+              onPress={() => onCancel(item.id)}
+              style={{
+                padding: spacing.sm,
+                backgroundColor: colors.error + "20",
+                borderRadius: radii.compact,
+              }}
+            >
+              <Text style={{ fontSize: 12, color: colors.error }}>
+                &#10005;
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
+    </StaggeredListItem>
   );
 
   return (
@@ -197,6 +210,9 @@ export function InviteList({
         data={invites}
         renderItem={renderInvite}
         keyExtractor={(item) => item.id}
+        bounces
+        alwaysBounceVertical={invites.length > 0}
+        overScrollMode="always"
         contentContainerStyle={{
           paddingBottom: spacing.lg,
         }}

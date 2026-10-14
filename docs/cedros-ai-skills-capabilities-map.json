@@ -1,0 +1,160 @@
+{
+  "extensionId": "cedros-login",
+  "version": "2.0.22",
+  "runtimeStatus": {
+    "skillDiscovery": "self-serve metadata",
+    "capabilityExecution": "wasm-route-live",
+    "packageRef": "server",
+    "notes": "Skills are discoverable metadata. Capabilities invoke extension-owned Wasm routes declared in surfaces.server.routes."
+  },
+  "skills": [
+    {
+      "id": "cedros-login:auth-and-onboarding",
+      "name": "Authentication And Onboarding",
+      "visibility": "public",
+      "category": "identity",
+      "status": "skill-only",
+      "operatorValue": "Helps agents discover account creation, login, verification, and password recovery flows."
+    },
+    {
+      "id": "cedros-login:account-security",
+      "name": "Account Security",
+      "visibility": "authenticated",
+      "category": "security",
+      "status": "skill-only",
+      "operatorValue": "Helps authenticated agents discover session, MFA, password, and account security workflows."
+    },
+    {
+      "id": "cedros-login:identity-admin",
+      "name": "Identity Admin Operations",
+      "visibility": "admin",
+      "category": "identity",
+      "status": "skill-only",
+      "operatorValue": "Helps admin agents discover user, org, settings, and audit workflows."
+    }
+  ],
+  "capabilityRouteMappings": [
+    {
+      "capabilityId": "cedros-login:send-verification-email",
+      "endpointPath": "/extensions/cedros-login/send-verification",
+      "method": "POST",
+      "ownedByExtension": true,
+      "serverRouteId": "cedros-login:send-verification",
+      "hostHandoffManifestId": "cedros-login:send-verification-email",
+      "status": "wasm-ready",
+      "authRequirement": "public with Wasm route rate limits and duplicate-send guards",
+      "safety": {
+        "sideEffects": [
+          "email.send"
+        ],
+        "approval": "not required for normal verification resend; host rate limits and anti-abuse checks required",
+        "idempotency": "hash normalized email, purpose, and active verification window; never log the email value",
+        "siteBrainSubject": "cedros-login:ai-capability-failed"
+      },
+      "redactionRules": [
+        "do not log email",
+        "do not log provider payload",
+        "do not log tokens"
+      ]
+    },
+    {
+      "capabilityId": "cedros-login:verify-email-token",
+      "endpointPath": "/extensions/cedros-login/verify-email",
+      "method": "POST",
+      "ownedByExtension": true,
+      "serverRouteId": "cedros-login:verify-email",
+      "hostHandoffManifestId": "cedros-login:verify-email-token",
+      "status": "wasm-ready",
+      "authRequirement": "public token flow with replay protection",
+      "safety": {
+        "sideEffects": [
+          "identity.write"
+        ],
+        "approval": "not required for valid verification token redemption",
+        "idempotency": "token hash and verification purpose; replay returns redacted success or validation failure",
+        "siteBrainSubject": "cedros-login:ai-capability-failed"
+      },
+      "redactionRules": [
+        "do not log token",
+        "do not log email",
+        "do not log raw request body"
+      ]
+    },
+    {
+      "capabilityId": "cedros-login:logout-all-sessions",
+      "endpointPath": "/extensions/cedros-login/logout-all",
+      "method": "POST",
+      "ownedByExtension": true,
+      "serverRouteId": "cedros-login:logout-all",
+      "hostHandoffManifestId": "cedros-login:logout-all-sessions",
+      "status": "wasm-ready",
+      "authRequirement": "bearer-token",
+      "safety": {
+        "sideEffects": [
+          "session.revoke-all"
+        ],
+        "approval": "agent should confirm user intent before revoking all sessions",
+        "idempotency": "authenticated account and host request id; repeated calls remain safe when no active sessions remain",
+        "siteBrainSubject": "cedros-login:ai-capability-failed"
+      },
+      "redactionRules": [
+        "do not log bearer token",
+        "do not log session ids",
+        "do not log user id"
+      ]
+    },
+    {
+      "capabilityId": "cedros-login:disable-mfa",
+      "endpointPath": "/extensions/cedros-login/mfa/disable",
+      "method": "POST",
+      "ownedByExtension": true,
+      "serverRouteId": "cedros-login:mfa-disable",
+      "hostHandoffManifestId": "cedros-login:disable-mfa",
+      "status": "wasm-ready",
+      "authRequirement": "bearer-token plus exactly one currently enrolled factor: TOTP code or unused recoveryCode",
+      "safety": {
+        "sideEffects": [
+          "mfa.disable"
+        ],
+        "approval": "agent must confirm explicit user intent before disabling MFA",
+        "idempotency": "authenticated account and MFA state; repeated disable requests return redacted status",
+        "siteBrainSubject": "cedros-login:ai-capability-failed"
+      },
+      "redactionRules": [
+        "do not log bearer token",
+        "do not log password",
+        "do not log TOTP codes",
+        "do not log recovery codes"
+      ]
+    },
+    {
+      "capabilityId": "cedros-login:data-membership-relationship",
+      "endpointPath": "/extensions/cedros-login/admin/relying-parties/data-membership",
+      "method": "POST",
+      "ownedByExtension": true,
+      "serverRouteId": "cedros-login:admin-data-membership-relationship",
+      "hostHandoffManifestId": "cedros-login:data-membership-relationship",
+      "status": "wasm-ready",
+      "authRequirement": "system-admin write or exact host-attested bearer capability",
+      "safety": {
+        "sideEffects": [
+          "encrypted service relationship setup"
+        ],
+        "approval": "explicit operator setup intent",
+        "idempotency": "atomic first-use token initialization; matching relationships are preserved; incompatible configuration fails closed",
+        "siteBrainSubject": "cedros-login:ai-capability-failed"
+      },
+      "redactionRules": [
+        "never return or log service tokens",
+        "only return readiness and bounded probe status"
+      ]
+    }
+  ],
+  "hostHandoffRows": [],
+  "stagingVerification": [
+    "Import the server manifest and confirm surfaces.ai.packageRef is server.",
+    "Render all three skill docs in AI discovery without private setup details.",
+    "Execute one happy-path request and one validation failure per capability through its mapped Wasm route.",
+    "Confirm logs and site-brain failure records contain only redacted cause codes, capability ids, route ids, and safe references."
+  ]
+}

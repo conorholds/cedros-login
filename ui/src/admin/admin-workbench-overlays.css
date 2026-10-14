@@ -1,0 +1,429 @@
+.cedros-login-admin-root .cedros-data-pill,
+.cedros-login-dashboard-card .cedros-data-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  background: var(--cedros-login-admin-muted-bg);
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cedros-login-admin-root .cedros-data-pill--success,
+.cedros-login-dashboard-card .cedros-data-pill--success {
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-success) 14%,
+    var(--cedros-login-admin-bg)
+  );
+  color: var(--cedros-login-admin-success);
+}
+
+.cedros-login-admin-root .cedros-data-pill--warning,
+.cedros-login-dashboard-card .cedros-data-pill--warning {
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-warning) 18%,
+    var(--cedros-login-admin-bg)
+  );
+  color: var(--cedros-login-admin-warning-fg);
+}
+
+.cedros-login-admin-root .cedros-data-pill--error,
+.cedros-login-dashboard-card .cedros-data-pill--error {
+  background: color-mix(in srgb, var(--cedros-login-admin-error) 12%, var(--cedros-login-admin-bg));
+  color: var(--cedros-login-admin-error);
+}
+
+.cedros-login-admin-root .cedros-data-pill--info,
+.cedros-login-dashboard-card .cedros-data-pill--info {
+  background: color-mix(in srgb, var(--cedros-login-admin-info) 12%, var(--cedros-login-admin-bg));
+  color: var(--cedros-login-admin-info);
+}
+
+.cedros-login-admin-root .cedros-data-status,
+.cedros-login-dashboard-card .cedros-data-status {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  padding: 0.75rem;
+}
+
+.cedros-login-admin-root .cedros-data-status p,
+.cedros-login-dashboard-card .cedros-data-status p {
+  margin: 0;
+}
+
+.cedros-login-admin-root .cedros-data-status--info,
+.cedros-login-dashboard-card .cedros-data-status--info {
+  border-color: color-mix(in srgb, var(--cedros-login-admin-info) 32%, transparent);
+  background: color-mix(in srgb, var(--cedros-login-admin-info) 12%, var(--cedros-login-admin-bg));
+}
+
+.cedros-login-admin-root .cedros-data-status--error,
+.cedros-login-dashboard-card .cedros-data-status--error {
+  border-color: color-mix(in srgb, var(--cedros-login-admin-error) 32%, transparent);
+  background: color-mix(in srgb, var(--cedros-login-admin-error) 12%, var(--cedros-login-admin-bg));
+  color: var(--cedros-login-admin-fg);
+}
+
+.cedros-login-admin-root .cedros-data-status--success,
+.cedros-login-dashboard-card .cedros-data-status--success {
+  border-color: color-mix(in srgb, var(--cedros-login-admin-success) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-success) 12%,
+    var(--cedros-login-admin-bg)
+  );
+}
+
+.cedros-login-admin-root .cedros-data-status--warning,
+.cedros-login-dashboard-card .cedros-data-status--warning {
+  border-color: color-mix(in srgb, var(--cedros-login-admin-warning) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-warning) 12%,
+    var(--cedros-login-admin-bg)
+  );
+}
+
+.cedros-login-admin-root .cedros-data-status__actions,
+.cedros-login-dashboard-card .cedros-data-status__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cedros-login-admin-root .cedros-data-empty-state,
+.cedros-login-admin-root .cedros-data-empty,
+.cedros-login-dashboard-card .cedros-data-empty {
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.875rem;
+}
+
+.cedros-login-admin-root .cedros-data-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  min-height: 9rem;
+  border: 1px dashed var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  padding: 1rem;
+  text-align: center;
+}
+
+.cedros-login-admin-root .cedros-data-empty-state__illustration {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  background: var(--cedros-login-admin-muted-bg);
+  color: var(--cedros-login-admin-muted);
+}
+
+.cedros-login-admin-root .cedros-data-empty-state__illustration svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.cedros-login-admin-root .cedros-data-empty-state__copy {
+  max-width: 42ch;
+  margin: 0;
+}
+
+.cedros-login-admin-root .cedros-data-empty-state__action {
+  margin-top: 0.75rem;
+}
+
+.cedros-login-admin-root .cedros-data-empty-state--in-table {
+  border: 0;
+  border-radius: 0;
+}
+
+.cedros-login-admin-root .cedros-data-table-wrap {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: calc(var(--cedros-login-admin-radius) - 1px);
+  background: var(--cedros-login-admin-card-bg);
+}
+
+.cedros-login-admin-root .cedros-data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cedros-login-admin-root .cedros-data-table th,
+.cedros-login-admin-root .cedros-data-table td {
+  border-bottom: 1px solid var(--cedros-login-admin-border);
+  padding: 0.55rem 0.75rem;
+  color: var(--cedros-login-admin-fg);
+  font-size: 0.8125rem;
+  text-align: left;
+}
+
+.cedros-login-admin-root .cedros-data-table th {
+  background: color-mix(
+    in srgb,
+    var(--cedros-login-admin-bg) 90%,
+    var(--cedros-login-admin-accent)
+  );
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cedros-login-admin-root .cedros-data-table td:nth-child(3),
+.cedros-login-admin-root .cedros-data-table td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cedros-login-admin-root .cedros-data-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+}
+
+.cedros-login-admin-root .cedros-dropdown-menu {
+  display: inline-flex;
+}
+
+.cedros-login-admin-root .cedros-data-row-actions__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: calc(var(--cedros-login-admin-radius) - 1px);
+  background: transparent;
+  color: var(--cedros-login-admin-muted);
+  cursor: pointer;
+}
+
+.cedros-login-admin-root .cedros-data-row-actions__icon:hover {
+  background: var(--cedros-login-admin-accent);
+  color: var(--cedros-login-admin-fg);
+}
+
+.cedros-login-admin-root .cedros-data-row-actions__icon svg,
+.cedros-login-admin-root .cedros-data-dialog__close svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cedros-login-admin-root .cedros-dropdown-menu__content {
+  position: fixed;
+  z-index: var(--z-dropdown, 50);
+  min-width: 11rem;
+  max-width: 20rem;
+  max-height: 20rem;
+  margin-top: 0.25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.25rem;
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--cedros-login-admin-radius);
+  background: var(--cedros-login-admin-card-bg);
+  box-shadow: var(--cedros-login-admin-shadow);
+}
+
+.cedros-login-admin-root .cedros-dropdown-menu__content[data-side='top'] {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
+.cedros-login-admin-root .cedros-dropdown-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: calc(var(--cedros-login-admin-radius) - 4px);
+  background: transparent;
+  color: var(--cedros-login-admin-fg);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cedros-login-admin-root .cedros-dropdown-menu__item:hover,
+.cedros-login-admin-root .cedros-dropdown-menu__item:focus-visible {
+  outline: none;
+  background: var(--cedros-login-admin-accent);
+}
+
+.cedros-login-admin-root .cedros-dropdown-menu__item--danger {
+  color: var(--cedros-login-admin-error);
+}
+
+.cedros-login-admin-root .cedros-data-dialog__overlay {
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 1000);
+  background: color-mix(in srgb, var(--cedros-login-admin-fg) 45%, transparent);
+  backdrop-filter: none;
+  animation: cedros-fade-in var(--motion-duration-normal, 200ms)
+    var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root .cedros-data-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 35rem);
+  border: 1px solid var(--cedros-login-admin-border);
+  border-radius: var(--admin-radius, 0.75rem);
+  background: var(--cedros-login-admin-card-bg);
+  box-shadow: var(--cedros-login-admin-shadow);
+  animation: cedros-modal-in var(--motion-duration-normal, 200ms)
+    var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cedros-login-admin-root .cedros-confirm-dialog.cedros-data-dialog {
+  gap: 0;
+  max-width: 26rem;
+  padding: 0;
+}
+
+.cedros-login-admin-root .cedros-confirm-dialog .cedros-data-dialog__heading,
+.cedros-login-admin-root .cedros-confirm-dialog .cedros-data-dialog__body {
+  padding: 1rem 1.25rem;
+}
+
+.cedros-login-admin-root .cedros-confirm-dialog .cedros-confirm-dialog__actions {
+  margin-top: 0;
+}
+
+.cedros-login-admin-root .cedros-data-dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+.cedros-login-admin-root .cedros-data-dialog__heading {
+  position: relative;
+  border-bottom: 1px solid var(--cedros-login-admin-border);
+}
+
+.cedros-login-admin-root .cedros-data-dialog__title {
+  margin: 0;
+  padding-right: 2.5rem;
+  color: var(--cedros-login-admin-fg);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.cedros-login-admin-root .cedros-data-dialog__description {
+  max-width: var(--cd-container-prose, 60ch);
+  margin: 0.25rem 2.5rem 0 0;
+  color: var(--cedros-login-admin-muted);
+  font-size: 0.8125rem;
+}
+
+.cedros-login-admin-root .cedros-data-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cedros-login-admin-root .cedros-data-checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cedros-login-admin-fg);
+  font-size: 0.8125rem;
+}
+
+.cedros-login-admin-root .cedros-login-admin-skeleton,
+.cedros-login-dashboard-card .cedros-login-dashboard-card__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cedros-login-admin-root .cedros-login-admin-skeleton__line,
+.cedros-login-dashboard-card .cedros-login-dashboard-card__skeleton-line {
+  display: block;
+  width: 100%;
+  height: 0.875rem;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--cedros-login-admin-muted-bg),
+    color-mix(in srgb, var(--cedros-login-admin-border) 55%, var(--cedros-login-admin-muted-bg)),
+    var(--cedros-login-admin-muted-bg)
+  );
+  background-size: 200% 100%;
+  animation: cedros-shimmer var(--motion-duration-slow, 1.4s)
+    var(--motion-ease-standard, cubic-bezier(0.16, 1, 0.3, 1)) infinite;
+}
+
+.cedros-login-admin-root .cedros-login-admin-skeleton__line--short,
+.cedros-login-dashboard-card .cedros-login-dashboard-card__skeleton-line--short {
+  width: 62%;
+}
+
+@media (max-width: 767px) {
+  .cedros-login-admin-root .cedros-data__header,
+  .cedros-login-admin-root .cedros-data-status,
+  .cedros-login-dashboard-card .cedros-data-status {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cedros-login-admin-root .cedros-data-tabs__list {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .cedros-login-admin-root .cedros-invite-code-manager__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cedros-login-admin-root .cedros-data-dialog__overlay,
+  .cedros-login-admin-root .cedros-data-dialog,
+  .cedros-login-admin-root .cedros-login-admin-skeleton__line,
+  .cedros-login-dashboard-card .cedros-login-dashboard-card__skeleton-line {
+    animation: none;
+  }
+}

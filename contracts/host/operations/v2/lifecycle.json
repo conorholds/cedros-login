@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 2,
+  "operations": {
+    "organization.membership.change-role": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["entryKey", "expectedUpdatedAt", "action"],
+        "properties": {
+          "entryKey": { "type": "string", "minLength": 1 },
+          "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+          "action": { "enum": ["update", "remove"] },
+          "data": { "type": "object" }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "action": { "const": "update" } } },
+            "then": { "required": ["data"] }
+          }
+        ]
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["status"],
+        "properties": { "status": { "enum": ["updated", "removed"] } }
+      }
+    },
+    "identity.account.delete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["userId", "expectedUpdatedAt"],
+        "properties": {
+          "userId": { "type": "string", "minLength": 1 },
+          "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+          "verification": {
+            "type": "object", "additionalProperties": false,
+            "required": ["entryKey", "tokenHash"],
+            "properties": {
+              "entryKey": { "type": "string", "minLength": 1 },
+              "tokenHash": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "status", "detachedMemberships", "transferredOrganizations",
+          "deletedOrganizations", "tombstoneGeneration"
+        ],
+        "properties": {
+          "status": { "const": "deleted" },
+          "detachedMemberships": { "type": "integer", "minimum": 0 },
+          "transferredOrganizations": { "type": "integer", "minimum": 0 },
+          "deletedOrganizations": { "type": "integer", "minimum": 0 },
+          "tombstoneGeneration": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "organization.delete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["orgId", "expectedUpdatedAt", "actor"],
+        "properties": {
+          "orgId": { "type": "string", "minLength": 1 },
+          "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+          "actor": {
+            "type": "object", "additionalProperties": false,
+            "required": ["userId", "membershipEntryKey", "expectedUpdatedAt"],
+            "properties": {
+              "userId": { "type": "string", "minLength": 1 },
+              "membershipEntryKey": { "type": "string", "minLength": 1 },
+              "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" }
+            }
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "status", "deletedMemberships", "deletedInvites", "deletedCustomRoles",
+          "deletedPolicies", "deletedSsoProviders", "tombstoneGeneration"
+        ],
+        "properties": {
+          "status": { "const": "deleted" },
+          "deletedMemberships": { "type": "integer", "minimum": 0 },
+          "deletedInvites": { "type": "integer", "minimum": 0 },
+          "deletedCustomRoles": { "type": "integer", "minimum": 0 },
+          "deletedPolicies": { "type": "integer", "minimum": 0 },
+          "deletedSsoProviders": { "type": "integer", "minimum": 0 },
+          "tombstoneGeneration": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" }
+  }
+}

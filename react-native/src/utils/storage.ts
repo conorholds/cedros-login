@@ -82,5 +82,3 @@ export const storage = {
   removeItem,
   clearAll,
 };
-
-export default storage;

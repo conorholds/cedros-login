@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "contractId": "cedros-data:session-atomic-v1",
+  "semantics": {
+    "serialization": "A per-user transaction lock, acquired after the account lifecycle guard, serializes session rotation and revocation.",
+    "rotation": "Checks live owner, expiry, unused refresh hash, unchanged strong-auth time, and replacement ownership. Consumption and insertion commit together. The predecessor stores replacedBySessionId.",
+    "revocation": "Revokes all active matching sessions in one transaction. Single-session revocation follows replacement links. Keeping a session requires that it is still live and owned by the user. An optional versioned user update is accepted only for password_change with a live current session to keep and rolls back with revocation.",
+    "compatibility": "Required capability: no non-atomic fallback on older hosts."
+  },
+  "operations": [
+    {
+      "operationId": "identity.sessions.rotate",
+      "capability": "cedros-data:session-atomic-v1",
+      "accessId": "cedros-login:identity-db",
+      "scopes": [
+        "write"
+      ],
+      "contentModels": [
+        "cedros-login:users",
+        "cedros-login:sessions"
+      ],
+      "parameterSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "userId",
+          "sessionId",
+          "refreshTokenHash",
+          "reason",
+          "replacement"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "refreshTokenHash": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "enum": [
+              "rotated",
+              "org_switch"
+            ]
+          },
+          "replacement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "entryKey",
+              "data"
+            ],
+            "properties": {
+              "entryKey": {
+                "type": "string",
+                "minLength": 1
+              },
+              "data": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "resultSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "const": "rotated"
+          }
+        }
+      },
+      "compatibilityStatus": "published"
+    },
+    {
+      "operationId": "identity.sessions.revoke",
+      "capability": "cedros-data:session-atomic-v1",
+      "accessId": "cedros-login:identity-db",
+      "scopes": [
+        "write"
+      ],
+      "contentModels": [
+        "cedros-login:users",
+        "cedros-login:sessions"
+      ],
+      "parameterSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "userId",
+          "reason"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sessionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exceptSessionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "entryKey",
+              "data",
+              "expectedUpdatedAt"
+            ],
+            "properties": {
+              "entryKey": {
+                "type": "string",
+                "minLength": 1
+              },
+              "data": {
+                "type": "object"
+              },
+              "expectedUpdatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "user"
+              ]
+            },
+            "then": {
+              "required": [
+                "exceptSessionId"
+              ],
+              "not": {
+                "required": [
+                  "sessionId"
+                ]
+              },
+              "properties": {
+                "exceptSessionId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reason": {
+                  "const": "password_change"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "resultSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "revokedCount"
+        ],
+        "properties": {
+          "revokedCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "compatibilityStatus": "published"
+    }
+  ]
+}

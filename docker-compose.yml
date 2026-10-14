@@ -1,0 +1,42 @@
+# Development-only docker-compose configuration.
+# DO NOT use these credentials in production - they are for local development only.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      # Development credentials - use environment variables in production
+      POSTGRES_USER: cedros
+      POSTGRES_PASSWORD: cedros
+      POSTGRES_DB: cedros_login
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cedros -d cedros_login"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Auth server (optional - can also run with cargo run)
+  server:
+    build: ./server
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      # Keep JWT secret fail-closed: set this in local .env before enabling server profile.
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env before running `docker compose --profile full up`}
+      SETUP_TOKEN: ${SETUP_TOKEN:?set SETUP_TOKEN in .env before running `docker compose --profile full up`}
+      DATABASE_URL: ${DATABASE_URL:-postgres://cedros:cedros@postgres:5432/cedros_login}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      RUST_LOG: cedros_login=debug,tower_http=debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - full
+
+volumes:
+  pgdata:

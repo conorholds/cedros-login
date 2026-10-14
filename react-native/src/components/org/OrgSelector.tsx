@@ -11,7 +11,9 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import type { Organization, OrgRole } from "../../types";
+import { formatOrgRoleLabel } from "./roleLabels";
 
 export interface OrgSelectorProps {
   orgs: Array<Organization & { role: OrgRole }>;
@@ -35,15 +37,6 @@ export function OrgSelector({
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedOrg = orgs.find((org) => org.id === selectedOrgId);
-
-  const getRoleLabel = (role: OrgRole): string => {
-    const labels: Record<OrgRole, string> = {
-      owner: "Owner",
-      admin: "Admin",
-      member: "Member",
-    };
-    return labels[role];
-  };
 
   const renderOrgItem = ({
     item,
@@ -94,7 +87,7 @@ export function OrgSelector({
           backgroundColor: colors.primary[100],
           paddingHorizontal: spacing.sm,
           paddingVertical: spacing.xs,
-          borderRadius: 4,
+          borderRadius: radii.compact,
         }}
       >
         <Text
@@ -104,7 +97,7 @@ export function OrgSelector({
             fontWeight: typography.weights.medium,
           }}
         >
-          {getRoleLabel(item.role)}
+          {formatOrgRoleLabel(item.role)}
         </Text>
       </View>
     </TouchableOpacity>
@@ -119,7 +112,7 @@ export function OrgSelector({
           backgroundColor: disabled ? colors.gray[100] : colors.white,
           borderWidth: 1,
           borderColor: colors.gray[300],
-          borderRadius: 8,
+          borderRadius: radii.control,
           paddingVertical: spacing.md,
           paddingHorizontal: spacing.md,
           flexDirection: "row",
@@ -202,6 +195,9 @@ export function OrgSelector({
               data={orgs}
               renderItem={renderOrgItem}
               keyExtractor={(item) => item.id}
+              bounces
+              alwaysBounceVertical={orgs.length > 0}
+              overScrollMode="always"
               contentContainerStyle={{
                 paddingBottom: spacing.lg,
               }}

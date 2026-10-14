@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/user-count-v1.schema.json",
+  "title": "cedros-login:user-count:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["count", "total"],
+  "properties": {
+    "count": { "type": "integer", "minimum": 0 },
+    "total": { "type": "integer", "minimum": 0 }
+  }
+}

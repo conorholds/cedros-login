@@ -1,7 +1,7 @@
 import type { OrgRole } from './org';
 
 /**
- * Member of an organization
+ * Member of an organization.
  */
 export interface Member {
   id: string;
@@ -13,7 +13,7 @@ export interface Member {
 }
 
 /**
- * Member response shape returned by the API
+ * Member response shape returned by the API.
  */
 export interface MemberApiResponse {
   id: string;
@@ -25,7 +25,7 @@ export interface MemberApiResponse {
 }
 
 /**
- * User info within a membership context
+ * User info within a membership context.
  */
 export interface MemberUser {
   id: string;
@@ -35,14 +35,14 @@ export interface MemberUser {
 }
 
 /**
- * Request to update a member's role
+ * Request to update a member's role.
  */
 export interface UpdateMemberRoleRequest {
   role: OrgRole;
 }
 
 /**
- * Response from listing members
+ * Response from listing members.
  */
 export interface ListMembersResponse {
   members: MemberApiResponse[];

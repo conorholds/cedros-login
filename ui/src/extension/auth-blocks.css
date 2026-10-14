@@ -1,0 +1,616 @@
+:where(.cedros-auth-page-copy, .cedros-auth-form) {
+  --cedros-auth-radius: 0.5rem;
+  box-sizing: border-box;
+  width: min(100%, 24rem);
+  margin-inline: auto;
+  justify-self: center;
+  color: var(--cedros-runtime-text, #020817);
+  font-family: var(--cedros-runtime-font-family, inherit);
+}
+
+:where(
+  .cedros-auth-page-copy *,
+  .cedros-auth-page-copy *::before,
+  .cedros-auth-form *,
+  .cedros-auth-form *::before
+) {
+  box-sizing: border-box;
+}
+
+:where(.cedros-auth-page-copy) {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.1rem 0.25rem 0.5rem;
+}
+
+:where(.cedros-auth-page-copy__brand) {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+:where(.cedros-auth-page-copy__logo) {
+  display: block;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--cedros-runtime-border, #e2e8f0);
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+:where(.cedros-auth-page-copy__brand-text) {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+:where(.cedros-auth-page-copy__eyebrow) {
+  margin: 0;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+:where(.cedros-auth-page-copy__title) {
+  max-width: none;
+  margin: 0;
+  color: var(--cedros-runtime-text, #020817);
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+:where(.cedros-auth-page-copy__body) {
+  order: 3;
+  max-width: 40ch;
+  margin: 0.35rem 0 0;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+:where(.cedros-auth-page-copy--auth .cedros-auth-page-copy__secondary),
+:where(.cedros-auth-page-copy--auth .cedros-auth-page-copy__body),
+:where(.cedros-auth-page-copy--auth .cedros-auth-page-copy__link) {
+  display: none;
+}
+
+:where(.cedros-auth-page-copy--profile) {
+  max-width: 44rem;
+}
+
+:where(.cedros-auth-page-copy__link:empty) {
+  display: none;
+}
+
+:where(.cedros-auth-form) {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--cedros-runtime-border, #e2e8f0);
+  border-radius: 0.75rem;
+  background: var(--cedros-runtime-panel, #ffffff);
+  /* Prefer the host's elevation recipe so the card matches nearby blocks. */
+  box-shadow: var(
+    --cedros-shadow-sm,
+    0 1px 2px 0 rgb(0 0 0 / 0.05),
+    0 4px 12px -4px rgb(0 0 0 / 0.08)
+  );
+}
+
+:where(.cedros-auth-form--inline) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:where(.cedros-auth-form--compact) {
+  gap: 0.75rem;
+  max-width: 20rem;
+  padding: 1.125rem;
+}
+
+:where(.cedros-auth-form--card) {
+  max-width: 24rem;
+}
+
+/*
+ * Canvas page shells hand the whole page height to the authored document and
+ * zero the host's page padding, which suits self-contained raw-code pages but
+ * leaves an auth card pressed against the header and footer. Restore a page
+ * rhythm for the first and last auth block only under those shells; default
+ * shells keep the host's own padding.
+ */
+:where(.cedros-auth-page-copy, .cedros-auth-form--card):first-child:is(
+    .cedros-theme-shell-page--canvas-content *,
+    .cedros-theme-shell-page--canvas-wide *,
+    .cedros-theme-shell-page--canvas-full *
+  ) {
+  margin-block-start: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+:where(.cedros-auth-page-copy, .cedros-auth-form--card):last-child:is(
+    .cedros-theme-shell-page--canvas-content *,
+    .cedros-theme-shell-page--canvas-wide *,
+    .cedros-theme-shell-page--canvas-full *
+  ) {
+  margin-block-end: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+:where(.cedros-auth-form__title) {
+  margin: 0;
+  color: var(--cedros-runtime-text, #020817);
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+:where(.cedros-auth-form[data-auth-mode='sign-in'] .cedros-auth-form__title),
+:where(.cedros-auth-form[data-auth-mode='create-account'] .cedros-auth-form__title) {
+  display: none;
+}
+
+:where(.cedros-auth-form__panel) {
+  display: grid;
+  gap: 1.25rem;
+}
+
+:where(.cedros-auth-form .cedros-auth-form__provider-svg) {
+  display: block;
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+:where(.cedros-auth-form__tabs) {
+  display: flex;
+  border-bottom: 1px solid var(--cedros-runtime-border, #e2e8f0);
+  margin-bottom: 1.5rem;
+}
+
+:where(.cedros-auth-form__password-toggle-icon) {
+  display: block;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+:where(.cedros-auth-form__success) {
+  margin: 0.1rem 0 0;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ============================================================
+   Static-render parity for the login.css interior classes
+   ============================================================
+   The host web render links this file WITHOUT login.css: login.css arrives
+   only when a runtime entry executes on the client. Until then (or if the
+   entry never runs) these rules are the only styling the form interior has,
+   so they mirror the login.css box model and type scale on the host runtime
+   theme tokens. The `:where(.cedros-auth-form)` prefix keeps standalone
+   consumers (which never load this file) untouched while the trailing class
+   holds (0,1,0) specificity so host element-level resets cannot restyle the
+   controls. Runtime entries inject this file BEFORE login.css, so login.css
+   stays authoritative for every property both files declare once hydrated. */
+:where(.cedros-auth-form) .cedros-login-form {
+  width: 100%;
+}
+
+:where(.cedros-auth-form) .cedros-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+:where(.cedros-auth-form) .cedros-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+:where(.cedros-auth-form) .cedros-signup-availability {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--cedros-runtime-accent, #3b82f6) 24%,
+      var(--cedros-runtime-border, #e2e8f0)
+    );
+  border-radius: var(--cedros-radius-md, 0.75rem);
+  background: color-mix(in srgb, var(--cedros-runtime-accent, #3b82f6) 7%, transparent);
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+:where(.cedros-auth-form) .cedros-signup-availability strong {
+  color: var(--cedros-runtime-text, #020817);
+  font-weight: 600;
+}
+
+:where(.cedros-auth-form) .cedros-signup-availability-dot {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.3125rem;
+  border-radius: 9999px;
+  background: var(--cedros-runtime-accent, #3b82f6);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cedros-runtime-accent, #3b82f6) 14%, transparent);
+}
+
+:where(.cedros-auth-form) .cedros-signup-availability[data-full='true'] {
+  border-color: color-mix(
+    in srgb,
+    var(--cedros-runtime-warning, #f59e0b) 28%,
+    var(--cedros-runtime-border, #e2e8f0)
+  );
+  background: color-mix(in srgb, var(--cedros-runtime-warning, #f59e0b) 14%, transparent);
+}
+
+:where(.cedros-auth-form)
+  .cedros-signup-availability[data-full='true']
+  .cedros-signup-availability-dot {
+  background: var(--cedros-runtime-warning, #f59e0b);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cedros-runtime-warning, #f59e0b) 14%, transparent);
+}
+
+:where(.cedros-auth-form) .cedros-label {
+  color: var(--cedros-runtime-text, #020817);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+:where(.cedros-auth-form) .cedros-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+:where(.cedros-auth-form) .cedros-input {
+  display: flex;
+  height: 2.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--cedros-runtime-border, #e2e8f0);
+  border-radius: var(--cedros-radius-field, var(--cedros-auth-radius));
+  background-color: var(--cedros-runtime-bg, #ffffff);
+  color: var(--cedros-runtime-text, #020817);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+:where(.cedros-auth-form) .cedros-input::placeholder {
+  color: var(--cedros-runtime-muted, #64748b);
+}
+
+:where(.cedros-auth-form) .cedros-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--cedros-runtime-accent, #3b82f6) 34%, transparent);
+  outline-offset: 2px;
+}
+
+:where(.cedros-auth-form) .cedros-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+:where(.cedros-auth-form) .cedros-password-wrapper .cedros-input {
+  padding-right: 2.5rem;
+}
+
+:where(.cedros-auth-form) .cedros-password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  color: var(--cedros-runtime-muted, #64748b);
+  cursor: pointer;
+}
+
+:where(.cedros-auth-form) .cedros-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--cedros-runtime-text, #020817);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+:where(.cedros-auth-form) .cedros-link:focus-visible {
+  outline: 2px solid var(--cedros-runtime-accent, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+:where(.cedros-auth-form) .cedros-link-muted {
+  color: var(--cedros-runtime-muted, #64748b);
+}
+
+:where(.cedros-auth-form) .cedros-link-sm {
+  font-size: 0.875rem;
+}
+
+:where(.cedros-auth-form) .cedros-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--cedros-radius-control, var(--cedros-auth-radius));
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  cursor: pointer;
+}
+
+:where(.cedros-auth-form) .cedros-button:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+:where(.cedros-auth-form) .cedros-button:focus-visible {
+  outline: 2px solid var(--cedros-runtime-accent, #3b82f6);
+  outline-offset: 2px;
+}
+
+:where(.cedros-auth-form) .cedros-button-full {
+  width: 100%;
+}
+
+:where(.cedros-auth-form) .cedros-button-primary {
+  background-color: var(--cedros-runtime-action-bg, #0f172a);
+  color: var(--cedros-runtime-action-fg, #ffffff);
+  /* Machined edge + soft drop shadow, matching the standalone primary button */
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.1),
+    var(--cedros-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+}
+
+:where(.cedros-auth-form) .cedros-button-social {
+  background-color: var(--cedros-runtime-panel, #ffffff);
+  color: var(--cedros-runtime-text, #020817);
+  border-color: var(--cedros-runtime-border, #e2e8f0);
+  box-shadow: var(--cedros-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+}
+
+:where(.cedros-auth-form) .cedros-button-social:hover:not(:disabled) {
+  background-color: var(--cedros-runtime-accent-soft, #f1f5f9);
+}
+
+:where(.cedros-auth-form) .cedros-social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+:where(.cedros-auth-form) .cedros-social-buttons .cedros-button {
+  width: 100%;
+}
+
+:where(.cedros-auth-form) .cedros-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: currentColor;
+  line-height: 1;
+}
+
+:where(.cedros-auth-form) .cedros-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+/* Hairlines fade toward the outer edges, matching the standalone divider */
+:where(.cedros-auth-form) .cedros-divider::before,
+:where(.cedros-auth-form) .cedros-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+}
+
+:where(.cedros-auth-form) .cedros-divider::before {
+  background: linear-gradient(to right, transparent, var(--cedros-runtime-border, #e2e8f0));
+}
+
+:where(.cedros-auth-form) .cedros-divider::after {
+  background: linear-gradient(to left, transparent, var(--cedros-runtime-border, #e2e8f0));
+}
+
+:where(.cedros-auth-form) .cedros-divider span {
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:where(.cedros-auth-form) .cedros-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--cedros-runtime-border, #e2e8f0);
+  margin-bottom: 1.5rem;
+}
+
+:where(.cedros-auth-form) .cedros-tab {
+  position: relative;
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+:where(.cedros-auth-form) .cedros-tab::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 999px;
+  background-color: var(--cedros-runtime-accent, #3b82f6);
+  transform: scaleX(0);
+}
+
+:where(.cedros-auth-form) .cedros-tab-active {
+  color: var(--cedros-runtime-text, #020817);
+}
+
+:where(.cedros-auth-form) .cedros-tab-active::after {
+  transform: scaleX(1);
+}
+
+:where(.cedros-auth-form) .cedros-form-footer {
+  margin: 1rem 0 0;
+  text-align: center;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.875rem;
+}
+
+:where(.cedros-account-workspace-block) {
+  display: grid;
+  gap: 1.25rem;
+  width: min(100%, 44rem);
+  margin: 0 auto;
+  color: var(--cedros-runtime-text, #020817);
+}
+
+:where(.cedros-account-workspace-block--loading),
+:where(.cedros-account-workspace-block--signed-out) {
+  justify-items: center;
+  text-align: center;
+}
+
+:where(.cedros-account-workspace-block--interactive) {
+  justify-items: stretch;
+  text-align: initial;
+}
+
+:where(.cedros-account-workspace-block__header) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+:where(.cedros-account-workspace-block__heading) {
+  min-width: 0;
+}
+
+:where(.cedros-account-workspace-block__title) {
+  margin: 0;
+  color: var(--cedros-runtime-text, #020817);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+:where(.cedros-account-workspace-block__body) {
+  margin: 0.35rem 0 0;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+:where(.cedros-account-workspace-block__status) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cedros-runtime-muted, #64748b);
+  font-size: 0.875rem;
+}
+
+:where(.cedros-account-workspace-block__link) {
+  justify-self: start;
+  color: var(--cedros-runtime-accent, #3b82f6);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+:where(.cedros-account-workspace-block__settings.cedros-account),
+:where(.cedros-account-workspace-block .cedros-account) {
+  width: 100%;
+  max-width: none;
+}
+
+/* ============================================================
+   Dark mode is NOT declared here, by contract.
+
+   The host defines the `--cedros-runtime-*` block tokens on its
+   `.cedros-runtime` wrapper and flips them under `.cedros-dark` /
+   `.cedros-admin--dark`, rebinding them to the live site theme (`--cds-*`) on
+   public pages. Every color above reads those tokens, so both modes — and any
+   site theme — arrive for free. Extension block CSS must not hardcode a dark
+   palette or key off `prefers-color-scheme`; the previous `--cedros-*: initial`
+   re-pin did the former by discarding host tokens and repainting the card from
+   this package's own shadcn dark values, which is why the card disagreed with
+   the page around it. login.css bridges its `--cedros-login-*` aliases to the
+   same runtime tokens so the live form interior follows too.
+   ============================================================ */
+
+/* auth-blocks.css loads without login.css on public web renders, so it
+   carries its own reduced-motion guard for the motion declared above. */
+@media (prefers-reduced-motion: reduce) {
+  :where(.cedros-auth-page-copy),
+  :where(.cedros-auth-form),
+  :where(.cedros-auth-form *),
+  :where(.cedros-auth-form *)::before,
+  :where(.cedros-auth-form *)::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 520px) {
+  :where(.cedros-auth-page-copy) {
+    padding: 0.1rem 0.25rem 0.4rem;
+  }
+
+  :where(.cedros-auth-form) {
+    padding: 1.25rem;
+  }
+
+  :where(.cedros-account-workspace-block__header) {
+    flex-direction: column;
+  }
+
+  :where(.cedros-account-workspace-block__header .cedros-button) {
+    width: 100%;
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "extensionId": "cedros-login",
+  "version": "2.0.22",
+  "adminModules": [
+    {
+      "moduleId": "cedros-login:admin",
+      "displayName": "Cedros Login",
+      "packageName": "@cedros/login-react",
+      "runtimeExport": "@cedros/login-react/admin/register",
+      "sections": [
+        {
+          "id": "cedros-login:login",
+          "label": "Login",
+          "group": "Extension Settings",
+          "requiredPermission": "manage_settings",
+          "component": "LoginAdminSection",
+          "states": [
+            "loading",
+            "empty",
+            "error",
+            "disabled",
+            "ready"
+          ],
+          "replacesSectionIds": [
+            "cedros-data:account-settings",
+            "account-settings",
+            "cedros-login:account-settings",
+            "cedros-login:settings-email",
+            "cedros-login:settings-webhooks",
+            "cedros-login:settings-server",
+            "cedros-login:settings-images",
+            "cedros-login:activity"
+          ],
+          "purpose": "Single Login sidebar entry for extension-owned authentication setup, settings, policy, and credential references. Replaces the prior per-feature config pages so the dashboard sidebar surfaces broad work areas, not every sub-feature.",
+          "tabs": [
+            {
+              "id": "methods",
+              "label": "Methods",
+              "requiredPermission": "login:settings:read",
+              "component": "AuthenticationSettings"
+            },
+            {
+              "id": "behavior",
+              "label": "Behavior",
+              "requiredPermission": "login:settings:read",
+              "component": "AuthenticationSettings"
+            },
+            {
+              "id": "advanced",
+              "label": "Advanced",
+              "requiredPermission": "login:settings:read",
+              "component": "AuthenticationSettings"
+            }
+          ]
+        }
+      ],
+      "dashboardCards": [
+        {
+          "id": "cedros-login:identity-health-card",
+          "displayName": "User Growth",
+          "description": "Shows login-backed account growth, verification, active login, invite, and provider-mix health.",
+          "order": 20,
+          "runtimeComponent": "LoginHealthDashboardCard",
+          "states": [
+            "loading",
+            "empty",
+            "error",
+            "disabled",
+            "happy"
+          ],
+          "purpose": "Compact identity health card for repeated admin dashboard review."
+        }
+      ],
+      "onboardingPages": [
+        {
+          "id": "cedros-login:setup-login"
+        }
+      ],
+      "contentEditorPanels": [],
+      "slots": []
+    }
+  ],
+  "hostServices": [
+    {
+      "id": "cedros-login-team-directory",
+      "runtimeExport": "@cedros/login-react/admin/register",
+      "status": "registered-runtime",
+      "purpose": "Vault Team and Cedros Data Team can list redacted login metadata, send org-scoped team invites, and delegate password reset actions when cedros-login is active.",
+      "methods": [
+        "listTeamMembers",
+        "searchTeamMembers",
+        "inviteTeamMember",
+        "listTeamMemberLogins",
+        "listLoginMetadata",
+        "delegatePasswordReset",
+        "delegateTemporaryPassword"
+      ],
+      "temporaryPasswordBehavior": "fail-closed; Cedros Login does not issue temporary passwords"
+    }
+  ],
+  "crmIntegrationDecision": {
+    "status": "settings-only-team-host-owned-crm-primary",
+    "summary": "Cedros Login registers a single Extension Settings-group login/account settings section. Cedros Data owns the Users-group Team, Permissions, and Invite surfaces and reads our roster through the cedros-login-team-directory host service; it remains the CRM surface for people, prospects, customers, and lifecycle records.",
+    "identityIntegration": [
+      "login-backed identity records are exposed through cedros-login server/database contracts",
+      "account status, auth provider, roles, and login metadata remain host-mediated CRM data",
+      "permission-gated account actions use cedros-login routes and CRM/Team integration points instead of duplicate Customers pages",
+      "account creation, login activity, and lifecycle event metadata remains declared in analytics/server events"
+    ]
+  },
+  "hostIntegrationSurfaces": [
+    {
+      "label": "CRM (integration)",
+      "status": "host-coordinated",
+      "owner": "Cedros Data CRM",
+      "purpose": "Render login-backed identity records, account status, roles, provider metadata, and profile handoff actions inside CRM profiles.",
+      "shouldRegisterAdminModule": false
+    },
+    {
+      "label": "Users > Team",
+      "status": "host-owned",
+      "owner": "Cedros Data",
+      "purpose": "Cedros Data owns the Team workspace and reads our roster via the cedros-login-team-directory host service; the extension no longer registers a Team admin section.",
+      "shouldRegisterAdminModule": false
+    },
+    {
+      "label": "Users > Invite Team Members",
+      "status": "host-owned",
+      "owner": "Cedros Data",
+      "purpose": "Cedros Data owns the Invite Team Members action; the extension no longer registers an invite route.",
+      "shouldRegisterAdminModule": false
+    },
+    {
+      "label": "Extension Settings > Login",
+      "status": "registered",
+      "owner": "Cedros Login",
+      "purpose": "Single consolidated Login admin page; replaces Cedros Data Settings > Account through explicit section aliases."
+    }
+  ],
+  "durableRecordPlan": [],
+  "acceptanceChecks": [
+    "Admin registration returns the executable Login section; Team and Invite Team Members are host-owned.",
+    "surfaces.admin.moduleIds declares cedros-login:admin.",
+    "adminModules[0].sectionIds is cedros-login:login only.",
+    "adminModules[0].sectionIcons resolves every declared section to a host icon name so the sidebar renders with an icon when the host loads from manifest only.",
+    "cedros-login-team-directory is exposed by the admin runtime bootstrap for Vault Team metadata and action delegation.",
+    "Cedros Data should not create a separate Customers sidebar/page from cedros-login metadata.",
+    "adminModules[0].contributions.dashboardCards declares cedros-login:identity-health-card and the runtime bootstrap provides the component.",
+    "The cedros-login:setup-login onboarding page targets the declared cedros-login:admin / cedros-login:login section."
+  ]
+}

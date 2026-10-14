@@ -19,7 +19,7 @@ export function DeleteAccountSection({
   style,
   testID = "delete-account-section",
 }: DeleteAccountSectionProps): React.ReactElement {
-  const { colors, spacing, typography } = useCedrosTheme();
+  const { colors, spacing, typography, radii } = useCedrosTheme();
   const { deleteAccount, accountDeletionUrl, isLoading, error, clearError } =
     useAccountDeletion();
   const [confirmText, setConfirmText] = useState("");
@@ -35,7 +35,7 @@ export function DeleteAccountSection({
         {
           borderWidth: 1,
           borderColor: colors.gray[300],
-          borderRadius: 12,
+          borderRadius: radii.card,
           padding: spacing.lg,
           gap: spacing.md,
           backgroundColor: colors.white,
@@ -61,15 +61,15 @@ export function DeleteAccountSection({
             lineHeight: 20,
           }}
         >
-          This removes the login profile, revokes active sessions and credentials,
-          and signs the user out. Some regulated records may remain retained in
-          anonymized form.
+          This removes the login profile, revokes active sessions and
+          credentials, and signs the user out. Some regulated records may remain
+          retained in anonymized form.
         </Text>
       </View>
 
       <View
         style={{
-          borderRadius: 10,
+          borderRadius: radii.field,
           borderWidth: 1,
           borderColor: colors.error,
           backgroundColor: `${colors.error}12`,

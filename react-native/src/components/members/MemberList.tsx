@@ -10,8 +10,11 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import type { MemberApiResponse, OrgRole } from "../../types";
+import { formatLocaleDate } from "../../utils/dateFormatting";
 import { Button } from "../shared/Button";
+import { StaggeredListItem } from "../shared/StaggeredListItem";
 
 export interface MemberListProps {
   members: MemberApiResponse[];
@@ -74,144 +77,151 @@ export function MemberList({
   };
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+    return formatLocaleDate(dateString, {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   };
 
-  const renderMember = ({ item }: { item: MemberApiResponse }) => {
+  const renderMember = ({
+    item,
+    index,
+  }: {
+    item: MemberApiResponse;
+    index: number;
+  }) => {
     const showActions = canManageRoles && item.role !== "owner";
 
     return (
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          paddingVertical: spacing.md,
-          paddingHorizontal: spacing.lg,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.gray[100],
-        }}
-      >
-        <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: colors.primary[100],
-            justifyContent: "center",
-            alignItems: "center",
-            marginRight: spacing.md,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: typography.sizes.sm,
-              fontWeight: typography.weights.bold,
-              color: colors.primary[600],
-            }}
-          >
-            {getInitials(item.name, item.email)}
-          </Text>
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: typography.sizes.base,
-              fontWeight: typography.weights.medium,
-              color: colors.gray[900],
-            }}
-          >
-            {item.name || item.email || "Unknown"}
-          </Text>
-          {item.name && item.email && (
-            <Text
-              style={{
-                fontSize: typography.sizes.sm,
-                color: colors.gray[500],
-              }}
-            >
-              {item.email}
-            </Text>
-          )}
-          <Text
-            style={{
-              fontSize: typography.sizes.xs,
-              color: colors.gray[400],
-              marginTop: spacing.xs,
-            }}
-          >
-            Joined {formatDate(item.joinedAt)}
-          </Text>
-        </View>
-
+      <StaggeredListItem index={index}>
         <View
           style={{
             flexDirection: "row",
             alignItems: "center",
-            gap: spacing.sm,
+            paddingVertical: spacing.md,
+            paddingHorizontal: spacing.lg,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray[100],
           }}
         >
           <View
             style={{
-              backgroundColor: getRoleColor(item.role) + "20",
-              paddingHorizontal: spacing.sm,
-              paddingVertical: spacing.xs,
-              borderRadius: 4,
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: colors.primary[100],
+              justifyContent: "center",
+              alignItems: "center",
+              marginRight: spacing.md,
             }}
           >
             <Text
               style={{
-                fontSize: typography.sizes.xs,
-                color: getRoleColor(item.role),
-                fontWeight: typography.weights.medium,
+                fontSize: typography.sizes.sm,
+                fontWeight: typography.weights.bold,
+                color: colors.primary[600],
               }}
             >
-              {getRoleLabel(item.role)}
+              {getInitials(item.name, item.email)}
             </Text>
           </View>
 
-          {showActions && (
-            <View style={{ flexDirection: "row", gap: spacing.xs }}>
-              {onRoleChange && currentUserRole === "owner" && (
-                <TouchableOpacity
-                  onPress={() =>
-                    onRoleChange(
-                      item.id,
-                      item.role === "admin" ? "member" : "admin",
-                    )
-                  }
-                  style={{
-                    padding: spacing.sm,
-                    backgroundColor: colors.gray[100],
-                    borderRadius: 4,
-                  }}
-                >
-                  <Text style={{ fontSize: 12 }}>&#9998;</Text>
-                </TouchableOpacity>
-              )}
-              {canRemove && onRemove && (
-                <TouchableOpacity
-                  onPress={() => onRemove(item.id)}
-                  style={{
-                    padding: spacing.sm,
-                    backgroundColor: colors.error + "20",
-                    borderRadius: 4,
-                  }}
-                >
-                  <Text style={{ fontSize: 12, color: colors.error }}>
-                    &#10005;
-                  </Text>
-                </TouchableOpacity>
-              )}
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: typography.sizes.base,
+                fontWeight: typography.weights.medium,
+                color: colors.gray[900],
+              }}
+            >
+              {item.name || item.email || "Unknown"}
+            </Text>
+            {item.name && item.email && (
+              <Text
+                style={{
+                  fontSize: typography.sizes.sm,
+                  color: colors.gray[500],
+                }}
+              >
+                {item.email}
+              </Text>
+            )}
+            <Text
+              style={{
+                fontSize: typography.sizes.xs,
+                color: colors.gray[400],
+                marginTop: spacing.xs,
+              }}
+            >
+              Joined {formatDate(item.joinedAt)}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: spacing.sm,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: getRoleColor(item.role) + "20",
+                paddingHorizontal: spacing.sm,
+                paddingVertical: spacing.xs,
+                borderRadius: radii.compact,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: typography.sizes.xs,
+                  color: getRoleColor(item.role),
+                  fontWeight: typography.weights.medium,
+                }}
+              >
+                {getRoleLabel(item.role)}
+              </Text>
             </View>
-          )}
+
+            {showActions && (
+              <View style={{ flexDirection: "row", gap: spacing.xs }}>
+                {onRoleChange && currentUserRole === "owner" && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      onRoleChange(
+                        item.id,
+                        item.role === "admin" ? "member" : "admin",
+                      )
+                    }
+                    style={{
+                      padding: spacing.sm,
+                      backgroundColor: colors.gray[100],
+                      borderRadius: radii.compact,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12 }}>&#9998;</Text>
+                  </TouchableOpacity>
+                )}
+                {canRemove && onRemove && (
+                  <TouchableOpacity
+                    onPress={() => onRemove(item.id)}
+                    style={{
+                      padding: spacing.sm,
+                      backgroundColor: colors.error + "20",
+                      borderRadius: radii.compact,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, color: colors.error }}>
+                      &#10005;
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
         </View>
-      </View>
+      </StaggeredListItem>
     );
   };
 
@@ -251,6 +261,9 @@ export function MemberList({
         data={members}
         renderItem={renderMember}
         keyExtractor={(item) => item.id}
+        bounces
+        alwaysBounceVertical={members.length > 0}
+        overScrollMode="always"
         contentContainerStyle={{
           paddingBottom: spacing.lg,
         }}

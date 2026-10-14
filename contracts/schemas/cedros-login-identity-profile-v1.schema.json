@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/identity-profile-v1.schema.json",
+  "title": "cedros-login:identity-profile:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "subjectId", "tenantId", "state", "updatedAt"],
+  "properties": {
+    "contractVersion": { "const": "cedros-login:identity-profile:v1" },
+    "subjectId": { "type": "string", "minLength": 1 },
+    "tenantId": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "minLength": 1 }
+      ]
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "emailLinked",
+        "emailVerified",
+        "passwordConfigured",
+        "solanaWalletLinked",
+        "evmWalletLinked"
+      ],
+      "properties": {
+        "emailLinked": { "type": "boolean" },
+        "emailVerified": { "type": "boolean" },
+        "passwordConfigured": { "type": "boolean" },
+        "solanaWalletLinked": { "type": "boolean" },
+        "evmWalletLinked": { "type": "boolean" }
+      }
+    },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}

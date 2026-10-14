@@ -1,0 +1,807 @@
+{
+  "extensionId": "cedros-login",
+  "version": "2.0.22",
+  "runtimeStatus": {
+    "manifestDeclaration": "self-serve today",
+    "browserReporting": "not used for declared server-side events",
+    "serverReporting": "wasm-telemetry-live",
+    "notes": "Cedros Login emits declared server events through the Wasm telemetry emit-event seam with redacted metadata."
+  },
+  "events": [
+    {
+      "id": "cedros-login:authenticated",
+      "displayName": "Authenticated",
+      "description": "A user successfully authenticated through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a successful login, OAuth, wallet, WebAuthn, SSO, instant-link, or MFA-completed authentication flow returns an authenticated session.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review authentication health and conversion by method without exposing direct identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm routes call host::telemetry::emit_event after successful auth/session transitions.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "password",
+              "google",
+              "apple",
+              "solana",
+              "webauthn",
+              "sso",
+              "instant-link",
+              "unknown"
+            ]
+          },
+          "mfaRequired": {
+            "type": "boolean"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no tokens",
+        "no cookies",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:registered",
+      "displayName": "Registered",
+      "description": "A user account was created through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a new account is successfully committed through register, OAuth first-login, wallet first-login, WebAuthn signup, SSO first-login, or instant-link account creation.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review registration volume and method mix without storing visitor identifiers in analytics.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm routes call host::telemetry::emit_event after successful auth/session transitions.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "password",
+              "google",
+              "apple",
+              "solana",
+              "webauthn",
+              "sso",
+              "instant-link",
+              "unknown"
+            ]
+          },
+          "verificationRequired": {
+            "type": "boolean"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no tokens",
+        "no cookies",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:logout",
+      "displayName": "Logged out",
+      "description": "A user session was ended through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after logout or logout-all successfully revokes a current session or all sessions and returns safe logout cookies.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review logout volume and session security activity without exposing session identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm routes call host::telemetry::emit_event after successful auth/session transitions.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "current-session",
+              "all-sessions",
+              "unknown"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no session ids",
+        "no user ids",
+        "no tokens",
+        "no cookies",
+        "no raw request headers"
+      ]
+    },
+    {
+      "id": "cedros-login:registration-created",
+      "displayName": "Registration created",
+      "description": "A registration notification seed was created through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after registration completes and the team notification seed is queued with redacted metadata.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review registration notification activity without exposing recipient or account identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm routes call host::telemetry::emit_event after successful registration notification setup.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "password",
+              "google",
+              "apple",
+              "solana",
+              "webauthn",
+              "sso",
+              "instant-link",
+              "unknown"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no session ids",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:user-login",
+      "displayName": "User login",
+      "description": "A login notification seed was created through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after login completes and the team notification seed is queued with redacted metadata.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review login notification activity without exposing session or account identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm routes call host::telemetry::emit_event after successful login notification setup.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "password",
+              "google",
+              "apple",
+              "solana",
+              "webauthn",
+              "sso",
+              "instant-link",
+              "unknown"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no session ids",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:identifier-linked",
+      "displayName": "Identifier linked",
+      "description": "An additional sign-in method was linked to an existing account through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after an authenticated user links an additional sign-in method (passkey, Google/Apple OAuth, password, Solana wallet) or changes the account email.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review method-link adoption and account-security posture without exposing direct identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm link routes call host::telemetry::emit_event after the linked method is persisted (link-oauth, webauthn-register-verify, set-password, change-email, solana-link).",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifierType": {
+            "type": "string",
+            "enum": [
+              "password",
+              "google",
+              "apple",
+              "wallet",
+              "webauthn",
+              "email"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifierType",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:identifier-unlinked",
+      "displayName": "Identifier unlinked",
+      "description": "An additional identifier was removed from an existing account through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after an authenticated user removes a non-primary email identifier.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Review identifier removals without exposing direct identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm account email routes call host::telemetry::emit_event after the email row is removed.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifierType": {
+            "type": "string",
+            "enum": [
+              "email"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifierType",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:login-failed",
+      "displayName": "Login failed",
+      "description": "A sign-in attempt was rejected before a session was issued through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record when an email/password sign-in attempt is rejected before a session is issued (unknown account, missing password, or wrong password — all reported as invalid-credentials for enumeration resistance).",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Monitor failed sign-in volume and credential-stuffing spikes by method without exposing identifiers.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm login route calls host::telemetry::emit_event from record_failure when a password sign-in attempt is rejected.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "password"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "invalid-credentials"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "reason",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no passwords",
+        "no tokens",
+        "no ip addresses"
+      ]
+    },
+    {
+      "id": "cedros-login:account-locked",
+      "displayName": "Account locked",
+      "description": "An account was temporarily locked after repeated failed sign-in attempts through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record when a login is rejected because recent failed attempts for the email reached the lockout threshold within the lockout window.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "See brute-force throttling engage and spot targeted or mass-lockout incidents.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm login route calls host::telemetry::emit_event when recent failures reach the lockout threshold (429 account_locked).",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "password"
+            ]
+          },
+          "threshold": {
+            "type": "integer"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no ip addresses",
+        "no tokens",
+        "no raw request headers"
+      ]
+    },
+    {
+      "id": "cedros-login:token-reuse-detected",
+      "displayName": "Token reuse detected",
+      "description": "A rotated refresh token was replayed, signalling possible session theft, through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record when refresh detects reuse of an already-rotated refresh token, which revokes all of the user's sessions and alerts them.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Surface possible session-theft / account-takeover spikes that are otherwise buried in operational logs.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm refresh route calls host::telemetry::emit_event when an already-rotated refresh token is replayed.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string",
+            "enum": [
+              "rotated-token-replayed"
+            ]
+          },
+          "alertEmailQueued": {
+            "type": "boolean"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no user ids",
+        "no session ids",
+        "no tokens",
+        "no cookies",
+        "no raw request headers"
+      ]
+    },
+    {
+      "id": "cedros-login:mfa-enabled",
+      "displayName": "MFA enabled",
+      "description": "A user turned on multi-factor authentication through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a user verifies a TOTP code and MFA (TOTP) is enabled on the account.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Track MFA adoption and account-security posture across the user base.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm mfa enable route calls host::telemetry::emit_event after the TOTP secret is enabled.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "totp"
+            ]
+          },
+          "recoveryCodesGenerated": {
+            "type": "boolean"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:mfa-disabled",
+      "displayName": "MFA disabled",
+      "description": "A user turned off multi-factor authentication through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a user re-verifies their password and MFA (TOTP) is removed from the account.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Watch for drops in MFA coverage that can indicate takeover attempts or a UX problem.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm mfa disable route calls host::telemetry::emit_event after the TOTP secret is removed.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "totp"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:password-reset-requested",
+      "displayName": "Password reset requested",
+      "description": "A user requested a password-reset email through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record when forgot-password queues a reset email for an existing account; never fires for unknown accounts, preserving enumeration resistance.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Monitor password-recovery demand and takeover-probe spikes without leaking account existence.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm forgot-password route calls host::telemetry::emit_event after a reset email is queued for an existing account.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "email"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:password-reset-completed",
+      "displayName": "Password reset completed",
+      "description": "A user completed a password reset through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after reset-password validates and stores the new password hash and revokes all of the user's sessions.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Close the recovery funnel and review the forced session revocation that follows a reset.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm reset-password route calls host::telemetry::emit_event after the new hash is persisted and all sessions are revoked.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "all-sessions"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no user ids",
+        "no session ids",
+        "no tokens",
+        "no cookies",
+        "no raw request headers"
+      ]
+    },
+    {
+      "id": "cedros-login:email-verified",
+      "displayName": "Email verified",
+      "description": "A user verified an email address through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a user proves control of an email address: signup verification, email change, additional-email verification, or a magic-link click.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Track the email-verification / activation funnel without exposing addresses.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm verify-email, account-emails-verify, and instant-link-verify routes call host::telemetry::emit_event after an email is proven verified.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "string",
+            "enum": [
+              "signup-verify",
+              "email-change",
+              "additional-email",
+              "magic-link"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "context",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:account-deleted",
+      "displayName": "Account deleted",
+      "description": "A user account was deleted through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after an account is purged via the email-confirmed or typed-confirmation self-service deletion path.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Track deletion volume and path as the churn counterpart to registrations.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm account-deletion routes call host::telemetry::emit_event after the account is purged.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "confirmationMethod": {
+            "type": "string",
+            "enum": [
+              "email-link",
+              "typed-confirm"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirmationMethod",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no tokens",
+        "no cookies",
+        "no raw request headers"
+      ]
+    },
+    {
+      "id": "cedros-login:invite-sent",
+      "displayName": "Team invite sent",
+      "description": "A team invitation was sent through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a team invite is committed (create or resend), carrying the recipient KIND and role but never the address.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "See team-growth invite volume and the email-vs-wallet recipient mix.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm invite create and resend routes call host::telemetry::emit_event after the invite row is committed.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifierType": {
+            "type": "string",
+            "enum": [
+              "email",
+              "wallet"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "admin",
+              "member"
+            ]
+          },
+          "resent": {
+            "type": "boolean"
+          },
+          "emailQueued": {
+            "type": "boolean"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifierType",
+          "role",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    },
+    {
+      "id": "cedros-login:invite-accepted",
+      "displayName": "Team invite accepted",
+      "description": "A team invitation was accepted through Cedros Login.",
+      "category": "identity",
+      "visibility": "authenticated",
+      "trigger": "Record after a team invite is accepted and the membership is created in one atomic batch.",
+      "triggerSurface": "Cedros Login Wasm route",
+      "ownerAction": "Complete the invite-acceptance funnel surfaced by the identity-health dashboard card.",
+      "runtimeStatus": "manifest-self-serve-runtime-wasm-telemetry-live",
+      "browserReportingPath": "No browser emission for this server-side event.",
+      "serverReportingPath": "server-wasm invite accept route calls host::telemetry::emit_event after the membership batch commits.",
+      "safeProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifierType": {
+            "type": "string",
+            "enum": [
+              "email",
+              "wallet"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "admin",
+              "member"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifierType",
+          "role",
+          "routeId"
+        ]
+      },
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no wallet addresses",
+        "no tokens",
+        "no raw provider payloads"
+      ]
+    }
+  ],
+  "hostHandoffRows": [],
+  "stagingVerification": [
+    "Build the Wasm component and run one login, one registration, one notification-seed, and one logout path in staging.",
+    "Confirm Cedros analytics joins each event id to the manifest displayName/category.",
+    "Inspect logs and analytics properties for absence of email, token, cookie, raw header, IP address, and raw provider payload values."
+  ]
+}

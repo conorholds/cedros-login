@@ -11,7 +11,9 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import type { Organization, OrgRole } from "../../types";
+import { formatOrgRoleLabel } from "./roleLabels";
 
 export interface OrgSwitcherProps {
   orgs: Array<Organization & { role: OrgRole }>;
@@ -37,15 +39,6 @@ export function OrgSwitcher({
   const [selectedId, setSelectedId] = useState<string | undefined>(activeOrgId);
 
   const activeOrg = orgs.find((org) => org.id === activeOrgId);
-
-  const getRoleLabel = (role: OrgRole): string => {
-    const labels: Record<OrgRole, string> = {
-      owner: "Owner",
-      admin: "Admin",
-      member: "Member",
-    };
-    return labels[role];
-  };
 
   const handleSelect = (orgId: string) => {
     setSelectedId(orgId);
@@ -103,7 +96,7 @@ export function OrgSwitcher({
                   backgroundColor: colors.success,
                   paddingHorizontal: spacing.xs,
                   paddingVertical: 2,
-                  borderRadius: 4,
+                  borderRadius: radii.compact,
                 }}
               >
                 <Text
@@ -142,7 +135,7 @@ export function OrgSwitcher({
               backgroundColor: colors.primary[100],
               paddingHorizontal: spacing.sm,
               paddingVertical: spacing.xs,
-              borderRadius: 4,
+              borderRadius: radii.compact,
             }}
           >
             <Text
@@ -152,14 +145,14 @@ export function OrgSwitcher({
                 fontWeight: typography.weights.medium,
               }}
             >
-              {getRoleLabel(item.role)}
+              {formatOrgRoleLabel(item.role)}
             </Text>
           </View>
           <View
             style={{
               width: 20,
               height: 20,
-              borderRadius: 10,
+              borderRadius: radii.field,
               borderWidth: 2,
               borderColor: isSelected ? colors.primary[600] : colors.gray[300],
               backgroundColor: isSelected
@@ -254,6 +247,9 @@ export function OrgSwitcher({
             data={orgs}
             renderItem={renderOrgItem}
             keyExtractor={(item) => item.id}
+            bounces
+            alwaysBounceVertical={orgs.length > 0}
+            overScrollMode="always"
             contentContainerStyle={{
               paddingBottom: spacing.md,
             }}
@@ -298,7 +294,7 @@ export function OrgSwitcher({
               style={{
                 backgroundColor: colors.primary[600],
                 paddingVertical: spacing.md,
-                borderRadius: 8,
+                borderRadius: radii.control,
                 alignItems: "center",
               }}
             >

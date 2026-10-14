@@ -9,38 +9,22 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import { useAppleAuth } from "../../hooks/useAppleAuth";
 import type { AppleSignInPayload } from "../../hooks/useAppleAuth";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { ErrorMessage } from "../shared/ErrorMessage";
-import type { AuthError } from "../../types";
+import type { AuthError, MfaRequiredResponse } from "../../types";
 import {
   getAppleAuthModule,
   requestNativeAppleCredential,
 } from "../../utils/nativeAuthModules";
 
-type NativeAppleButtonProps = {
-  buttonStyle?: unknown;
-  buttonType?: unknown;
-  cornerRadius?: number;
-  onPress: () => void;
-  disabled?: boolean;
-  style?: StyleProp<ViewStyle>;
-};
-
-type NativeAppleButtonComponent = React.ComponentType<NativeAppleButtonProps> & {
-  Style?: {
-    BLACK?: unknown;
-  };
-  Type?: {
-    SIGN_IN?: unknown;
-  };
-};
-
 export interface AppleLoginButtonProps {
   /** Callback invoked on press; should trigger native Apple Sign-In and return the auth payload. */
-  onRequestToken?: () => Promise<AppleSignInPayload>;
+  onRequestToken?: (nonce: string) => Promise<AppleSignInPayload>;
   onSuccess?: () => void;
+  onMfaRequired?: (response: MfaRequiredResponse) => void;
   onError?: (error: AuthError) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -56,20 +40,24 @@ export interface AppleLoginButtonProps {
 export function AppleLoginButton({
   onRequestToken,
   onSuccess,
+  onMfaRequired,
   onError,
   style,
   testID = "apple-login-button",
 }: AppleLoginButtonProps): React.ReactElement {
-  const { signIn, isLoading, error } = useAppleAuth();
+  const { signIn, requestNonce, isLoading, error } = useAppleAuth();
   const appleModule = getAppleAuthModule();
-  const NativeAppleButton =
-    (appleModule?.AppleButton as NativeAppleButtonComponent | undefined) ?? null;
+  const NativeAppleButton = appleModule?.AppleButton ?? null;
 
   const handlePress = useCallback(async () => {
     try {
-      const applePayload = await (onRequestToken ?? requestNativeAppleCredential)();
-      await signIn(applePayload);
-      onSuccess?.();
+      const nonce = await requestNonce();
+      const applePayload = await (
+        onRequestToken ?? requestNativeAppleCredential
+      )(nonce);
+      const response = await signIn({ ...applePayload, nonce });
+      if ("mfaRequired" in response) onMfaRequired?.(response);
+      else onSuccess?.();
     } catch (e) {
       const authError: AuthError =
         e && typeof e === "object" && "code" in e
@@ -77,7 +65,7 @@ export function AppleLoginButton({
           : { code: "UNKNOWN_ERROR", message: String(e) };
       onError?.(authError);
     }
-  }, [onRequestToken, signIn, onSuccess, onError]);
+  }, [onRequestToken, requestNonce, signIn, onSuccess, onMfaRequired, onError]);
 
   return (
     <View style={style}>
@@ -105,7 +93,7 @@ export function AppleLoginButton({
             backgroundColor: colors.black,
             borderWidth: 1,
             borderColor: colors.black,
-            borderRadius: 8,
+            borderRadius: radii.control,
             paddingVertical: spacing.md,
             paddingHorizontal: spacing.lg,
           }}

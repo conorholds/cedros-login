@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/v1-jwks.schema.json",
+  "title": "cedros-login:v1-jwks",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["keys"],
+  "properties": {
+    "keys": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kty", "alg", "kid", "use", "n", "e"],
+        "properties": {
+          "kty": { "const": "RSA" },
+          "alg": { "const": "RS256" },
+          "kid": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+          "use": { "const": "sig" },
+          "n": { "type": "string", "minLength": 1 },
+          "e": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

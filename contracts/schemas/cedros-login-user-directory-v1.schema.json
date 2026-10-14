@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/user-directory-v1.schema.json",
+  "title": "cedros-login:user-directory:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["userId", "id", "status", "createdAt"],
+  "properties": {
+    "userId": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["active", "suspended"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "email": { "type": "string", "minLength": 1 }
+  }
+}

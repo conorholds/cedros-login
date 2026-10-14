@@ -1,123 +1,96 @@
-import type { PasswordValidation } from '../types';
+import type { PasswordRequirement, PasswordValidation } from "../types";
+
+export interface PasswordValidationMessages {
+  minLength: string;
+  uppercase: string;
+  lowercase: string;
+  number: string;
+  special: string;
+}
+
+const DEFAULT_PASSWORD_VALIDATION_MESSAGES: PasswordValidationMessages = {
+  minLength: "At least 8 characters",
+  uppercase: "At least 1 uppercase letter",
+  lowercase: "At least 1 lowercase letter",
+  number: "At least 1 number",
+  special: "At least 1 special character (@$!%*?&#^())",
+};
 
 /**
- * Allowed special characters for password validation (F-07)
+ * Allowed special characters for password validation
  *
  * This explicit list prevents spaces, tabs, and non-printable characters
- * from counting as "special" (H-06 fix). Characters included:
+ * from counting as "special". Characters included:
  * - Punctuation: ! @ # $ % ^ & * ( ) _ + - = [ ] { } | ; ' : " , . / < > ? ` ~
  * - Escape character: backslash
  */
-const SPECIAL_CHARS_PATTERN = /[!@#$%^&*()_+\-=[\]{}|;':",./<>?`~\\]/;
+/** Length at which a fully-valid password is rated `strong` rather than `good`. */
+const STRONG_PASSWORD_LENGTH = 20;
 
 /**
  * Password validation rules:
- * - Minimum 10 characters
- * - At least 1 uppercase letter (A-Z)
- * - At least 1 lowercase letter (a-z)
- * - At least 1 number (0-9)
- * - At least 1 special character (@$!%*?&#^())
+ * - Minimum 8 characters
+ * - No composition rules; passphrases and Unicode are accepted
+ *
+ * Returns every rule in display order for checklist rendering. Strength never
+ * reports `good` or `strong` until all requirements are met.
  *
  * Note: All checks are performed regardless of early failures to prevent
  * timing attacks that could reveal which requirements are met.
  */
-export function validatePassword(password: string): PasswordValidation {
-  const errors: PasswordValidation['errors'] = {};
-
+export function validatePassword(
+  password: string,
+  messages: PasswordValidationMessages = DEFAULT_PASSWORD_VALIDATION_MESSAGES,
+): PasswordValidation {
   // Perform ALL checks first (constant-time approach to prevent timing attacks)
-  const hasLength = password.length >= 10;
-  const hasUppercase = /[A-Z]/.test(password);
-  const hasLowercase = /[a-z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  // H-06: Use explicit special character list (see SPECIAL_CHARS_PATTERN)
-  const hasSpecial = SPECIAL_CHARS_PATTERN.test(password);
+  const hasLength = Array.from(password).length >= 8;
 
-  // Count criteria met
-  let criteriaMetCount = 0;
+  const requirements: PasswordRequirement[] = [
+    { key: "minLength", label: messages.minLength, met: hasLength },
+  ];
 
-  // Then assign errors based on results
-  if (hasLength) {
-    criteriaMetCount++;
-  } else {
-    errors.length = 'At least 10 characters';
-  }
-
-  if (hasUppercase) {
-    criteriaMetCount++;
-  } else {
-    errors.uppercase = 'At least 1 uppercase letter';
-  }
-
-  if (hasLowercase) {
-    criteriaMetCount++;
-  } else {
-    errors.lowercase = 'At least 1 lowercase letter';
-  }
-
-  if (hasNumber) {
-    criteriaMetCount++;
-  } else {
-    errors.number = 'At least 1 number';
-  }
-
-  if (hasSpecial) {
-    criteriaMetCount++;
-  } else {
-    errors.special = 'At least 1 special character (@$!%*?&#^())';
-  }
+  const metCount = requirements.reduce(
+    (count, req) => count + (req.met ? 1 : 0),
+    0,
+  );
+  const isValid = metCount === requirements.length;
 
   // Calculate strength
-  let strength: PasswordValidation['strength'];
-  if (criteriaMetCount <= 2) {
-    strength = 'weak';
-  } else if (criteriaMetCount === 3) {
-    strength = 'fair';
-  } else if (criteriaMetCount === 4) {
-    strength = 'good';
+  let strength: PasswordValidation["strength"];
+  if (!isValid) {
+    strength = password.length < 8 ? "weak" : "fair";
   } else {
-    strength = 'strong';
+    strength = password.length >= STRONG_PASSWORD_LENGTH ? "strong" : "good";
   }
 
   return {
-    isValid: Object.keys(errors).length === 0,
-    errors,
+    isValid,
+    requirements,
+    metCount,
     strength,
   };
 }
 
 const TYPO_TLDS = new Set([
-  'con',
-  'cmo',
-  'ocm',
-  'cm',
-  'vom',
-  'xom',
-  'cpm',
-  'clm',
-  'ney',
-  'met',
-  'bet',
-  'nrt',
-  'ogr',
-  'rog',
-  'prg',
-  'irg',
-  'edi',
-  'rdu',
+  "con",
+  "cmo",
+  "ocm",
+  "cm",
+  "vom",
+  "xom",
+  "cpm",
+  "clm",
+  "ney",
+  "met",
+  "bet",
+  "nrt",
+  "ogr",
+  "rog",
+  "prg",
+  "irg",
+  "edi",
+  "rdu",
 ]);
-
-/**
- * Normalize an email address by trimming whitespace and lowercasing.
- *
- * Must be called before API calls and storage to ensure consistent
- * identity matching (RN-04).
- *
- * @param email - The raw email input from the user
- * @returns The normalized email string
- */
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
 
 /**
  * Validate email format with robust validation.
@@ -128,7 +101,7 @@ export function normalizeEmail(email: string): string {
  * - Domain must have at least one dot (TLD required)
  * - Maximum length per RFC 5321
  *
- * UI-13: Note on case normalization - This function validates format only,
+ * Note on case normalization - This function validates format only,
  * it does NOT normalize case. Per RFC 5321, local-part is technically
  * case-sensitive (though most providers ignore case). Callers should
  * normalize emails (e.g., toLowerCase) before API calls and storage.
@@ -138,7 +111,7 @@ export function normalizeEmail(email: string): string {
  */
 export function validateEmail(email: string): boolean {
   // Check basic constraints
-  if (!email || typeof email !== 'string') {
+  if (!email || typeof email !== "string") {
     return false;
   }
 
@@ -146,11 +119,11 @@ export function validateEmail(email: string): boolean {
     return false;
   }
 
-  if (email.includes(' ')) {
+  if (email.includes(" ")) {
     return false;
   }
 
-  const parts = email.split('@');
+  const parts = email.split("@");
   if (parts.length !== 2) {
     return false;
   }
@@ -160,7 +133,7 @@ export function validateEmail(email: string): boolean {
     return false;
   }
 
-  if (local.startsWith('.') || local.endsWith('.')) {
+  if (local.startsWith(".") || local.endsWith(".")) {
     return false;
   }
 
@@ -168,26 +141,26 @@ export function validateEmail(email: string): boolean {
     return false;
   }
 
-  if (!domain.includes('.')) {
+  if (!domain.includes(".")) {
     return false;
   }
 
   if (
-    domain.startsWith('.') ||
-    domain.endsWith('.') ||
-    domain.startsWith('-') ||
-    domain.endsWith('-')
+    domain.startsWith(".") ||
+    domain.endsWith(".") ||
+    domain.startsWith("-") ||
+    domain.endsWith("-")
   ) {
     return false;
   }
 
-  for (const label of domain.split('.')) {
-    if (label.startsWith('-') || label.endsWith('-')) {
+  for (const label of domain.split(".")) {
+    if (label.startsWith("-") || label.endsWith("-")) {
       return false;
     }
   }
 
-  const tld = domain.split('.').pop();
+  const tld = domain.split(".").pop();
   if (!tld || tld.length < 2) {
     return false;
   }
@@ -214,7 +187,8 @@ export function validateEmail(email: string): boolean {
 /**
  * Valid Base58 characters (excludes 0, O, I, l to avoid ambiguity)
  */
-const BASE58_ALPHABET = /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/;
+const BASE58_ALPHABET =
+  /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/;
 
 /**
  * Validate Solana public key format.

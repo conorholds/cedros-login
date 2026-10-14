@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 2,
+  "operations": {
+    "identity.outbox.claim-delivery": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["entryKey", "leaseOwner"],
+        "properties": {
+          "entryKey": { "type": "string", "minLength": 1 },
+          "leaseOwner": { "type": "string", "minLength": 1 },
+          "leaseSeconds": { "type": "integer", "minimum": 1, "maximum": 3600, "default": 300 }
+        }
+      },
+      "outputSchema": { "$ref": "#/$defs/versionedPayload" }
+    },
+    "identity.outbox.enqueue-token-email": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["verification", "outbox"],
+        "properties": {
+          "verification": { "$ref": "#/$defs/tokenEmailVerificationRow" },
+          "outbox": { "$ref": "#/$defs/tokenEmailOutboxRow" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["status"],
+        "properties": { "status": { "const": "enqueued" } }
+      }
+    },
+    "identity.outbox.complete-delivery": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "entryKey", "leaseOwner", "expectedUpdatedAt", "deliveryId", "providerAcceptedAt"
+        ],
+        "properties": {
+          "entryKey": { "type": "string", "minLength": 1 },
+          "leaseOwner": { "type": "string", "minLength": 1 },
+          "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+          "deliveryId": { "type": "string", "pattern": "^cedros-login-outbox-[A-Za-z0-9._:-]+$" },
+          "providerAcceptedAt": { "$ref": "#/$defs/timestamp" },
+          "providerMessageRef": { "type": ["string", "null"], "maxLength": 512 }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["status", "alreadyApplied"],
+        "properties": {
+          "status": { "const": "completed" },
+          "alreadyApplied": { "type": "boolean" }
+        }
+      }
+    },
+    "identity.outbox.release-delivery": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "entryKey", "leaseOwner", "expectedUpdatedAt", "status", "nextAttemptAt", "lastErrorCode"
+        ],
+        "properties": {
+          "entryKey": { "type": "string", "minLength": 1 },
+          "leaseOwner": { "type": "string", "minLength": 1 },
+          "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+          "status": { "enum": ["pending", "failed"] },
+          "nextAttemptAt": { "$ref": "#/$defs/timestamp" },
+          "lastErrorCode": { "type": "string", "pattern": "^[a-z0-9_.:-]+$", "maxLength": 128 }
+        }
+      },
+      "outputSchema": { "$ref": "#/$defs/versionedPayload" }
+    }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "tokenEmailVerificationRow": {
+      "type": "object", "additionalProperties": false, "required": ["entryKey", "data"],
+      "properties": {
+        "entryKey": { "$ref": "#/$defs/uuid" },
+        "data": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "id", "userId", "tokenHash", "tokenType", "targetEmail", "subjectId",
+            "createdAt", "expiresAt", "usedAt"
+          ],
+          "properties": {
+            "id": { "$ref": "#/$defs/uuid" },
+            "userId": { "type": "string", "minLength": 1 },
+            "tokenHash": { "type": "string", "minLength": 1 },
+            "tokenType": {
+              "enum": [
+                "email_verification", "account_email_verify", "password_reset",
+                "instant_link", "account_deletion"
+              ]
+            },
+            "targetEmail": { "type": "string", "format": "email" },
+            "subjectId": { "type": ["string", "null"], "minLength": 1 },
+            "createdAt": { "$ref": "#/$defs/timestamp" },
+            "expiresAt": { "$ref": "#/$defs/timestamp" },
+            "usedAt": { "const": null }
+          }
+        }
+      }
+    },
+    "tokenEmailOutboxRow": {
+      "type": "object", "additionalProperties": false, "required": ["entryKey", "data"],
+      "properties": {
+        "entryKey": { "$ref": "#/$defs/uuid" },
+        "data": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "id", "userId", "to", "subject", "htmlBody", "textBody", "status",
+            "attempts", "maxAttempts", "createdAt", "nextAttemptAt", "lastError",
+            "providerAcceptedAt", "providerMessageRef", "leaseOwner", "leaseExpiresAt"
+          ],
+          "properties": {
+            "id": { "$ref": "#/$defs/uuid" },
+            "userId": { "type": "string", "minLength": 1 },
+            "to": { "type": "string", "format": "email" },
+            "subject": { "type": "string", "minLength": 1 },
+            "htmlBody": { "type": "string", "minLength": 1 },
+            "textBody": { "type": "string", "minLength": 1 },
+            "status": { "const": "pending" },
+            "attempts": { "const": 0 },
+            "maxAttempts": { "type": "integer", "minimum": 1 },
+            "createdAt": { "$ref": "#/$defs/timestamp" },
+            "nextAttemptAt": { "$ref": "#/$defs/timestamp" },
+            "lastError": { "const": null },
+            "providerAcceptedAt": { "const": null },
+            "providerMessageRef": { "const": null },
+            "leaseOwner": { "const": null },
+            "leaseExpiresAt": { "const": null }
+          }
+        }
+      }
+    },
+    "versionedPayload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["payload", "updatedAt"],
+      "properties": {
+        "payload": { "type": "object" },
+        "updatedAt": { "$ref": "#/$defs/timestamp" }
+      }
+    }
+  }
+}

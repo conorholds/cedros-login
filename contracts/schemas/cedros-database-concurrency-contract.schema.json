@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.dev/contracts/database-concurrency/v1/schema.json",
+  "title": "Cedros database concurrency contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "capability",
+    "compatibility",
+    "conflictTransport",
+    "uniqueConstraints",
+    "conditionalMutations",
+    "acceptanceFixture"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "contractId": { "const": "cedros-data:database-concurrency-v1" },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "requiredForProduction", "detectionPhase", "missingBehavior"],
+      "properties": {
+        "id": { "const": "cedros-data:database-concurrency-v1" },
+        "requiredForProduction": { "const": true },
+        "detectionPhase": { "const": "install-or-readiness" },
+        "missingBehavior": { "const": "block-production-activation" }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentWitPackage", "currentGuestBehavior", "hostUpgradeBehavior"],
+      "properties": {
+        "currentWitPackage": { "const": "cedros:extension@0.1.0" },
+        "currentGuestBehavior": { "const": "legacy-observe-only" },
+        "hostUpgradeBehavior": { "const": "enforce-before-advertise" }
+      }
+    },
+    "conflictTransport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["legacyMessageFormat", "categories", "httpStatus", "clientCode", "piiAllowed"],
+      "properties": {
+        "legacyMessageFormat": {
+          "const": "cedros.db.v1|<unique|precondition|lease>|<operation-id>"
+        },
+        "categories": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["unique", "precondition", "lease"] }
+        },
+        "httpStatus": { "const": 409 },
+        "clientCode": { "const": "resource_conflict" },
+        "piiAllowed": { "const": false }
+      }
+    },
+    "uniqueConstraints": {
+      "type": "array",
+      "minItems": 10,
+      "items": { "$ref": "#/$defs/uniqueConstraint" }
+    },
+    "conditionalMutations": {
+      "type": "array",
+      "minItems": 5,
+      "items": { "$ref": "#/$defs/conditionalMutation" }
+    },
+    "acceptanceFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "requiredScenarioIds"],
+      "properties": {
+        "path": {
+          "const": "contracts/fixtures/cedros-database-concurrency-v1.json"
+        },
+        "requiredScenarioIds": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "uniqueConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "accessId",
+        "contentModelId",
+        "fields",
+        "normalization",
+        "predicate",
+        "conflictCategory"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]+$" },
+        "accessId": { "type": "string", "pattern": "^cedros-login:" },
+        "contentModelId": { "type": "string", "pattern": "^cedros-login:" },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "normalization": { "enum": ["none", "lowercase", "trim-lowercase"] },
+        "predicate": { "type": ["string", "null"] },
+        "conflictCategory": { "const": "unique" }
+      }
+    },
+    "conditionalMutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "accessId",
+        "contentModelIds",
+        "atomicity",
+        "preconditions",
+        "mutations",
+        "conflictCategory"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]+$" },
+        "accessId": { "type": "string", "pattern": "^cedros-login:" },
+        "contentModelIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^cedros-login:" }
+        },
+        "atomicity": { "const": "single-host-transaction" },
+        "preconditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "mutations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "conflictCategory": { "enum": ["precondition", "lease"] }
+      }
+    }
+  }
+}

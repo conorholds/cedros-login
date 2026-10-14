@@ -1,0 +1,39 @@
+{
+  "extensionId": "cedros-login",
+  "version": "2.0.22",
+  "cards": [
+    {
+      "id": "cedros-login:identity-health-card",
+      "moduleId": "cedros-login:admin",
+      "displayName": "User Growth",
+      "description": "Shows login-backed account growth, verification, active login, invite, and provider-mix health.",
+      "order": 20,
+      "runtimeComponent": "ui/src/admin/dashboard/LoginHealthDashboardCard.tsx",
+      "actionTarget": {
+        "moduleId": "cedros-login:admin",
+        "sectionId": "cedros-login:login"
+      },
+      "states": [
+        "loading",
+        "empty",
+        "error",
+        "disabled",
+        "happy"
+      ],
+      "requiredPermissions": [
+        "manage_settings",
+        "manage_users"
+      ],
+      "redactionRules": [
+        "no email addresses",
+        "no user ids",
+        "no session ids",
+        "aggregate counts only"
+      ]
+    }
+  ],
+  "crmIntegrationDecision": {
+    "status": "extension-dashboard-card-live",
+    "summary": "Cedros Login contributes a compact identity health dashboard card backed by the compiled React admin runtime and manifest metadata."
+  }
+}

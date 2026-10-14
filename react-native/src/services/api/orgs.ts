@@ -7,35 +7,28 @@ import type {
   AuthorizeRequest,
   AuthorizeResponse,
   PermissionsResponse,
+  TokenPair,
 } from "../../types";
 import type ApiClient from "./client";
 
-export interface SwitchOrgRequest {
+interface SwitchOrgRequest {
   orgId: string;
 }
 
-export interface SwitchOrgResponse {
-  tokens?: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-  };
+interface SwitchOrgResponse {
+  tokens?: TokenPair;
   org: OrgWithMembership;
 }
 
 interface ServerSwitchOrgResponse {
   orgId: string;
   role: OrgWithMembership["membership"]["role"];
-  tokens?: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-  };
+  tokens?: TokenPair;
   /** Full org object returned by server on switch (avoids a second GET request) */
   org?: Organization;
 }
 
-export class OrgsApi {
+class OrgsApi {
   private client: ApiClient;
 
   constructor(client: ApiClient) {
@@ -53,7 +46,10 @@ export class OrgsApi {
   }
 
   async createOrg(request: CreateOrgRequest): Promise<Organization> {
-    const response = await this.client.post<Organization>("/auth/orgs", request);
+    const response = await this.client.post<Organization>(
+      "/auth/orgs",
+      request,
+    );
     return response.data;
   }
 
@@ -125,7 +121,6 @@ export class OrgsApi {
     );
     return response.data;
   }
-
 }
 
 export default OrgsApi;

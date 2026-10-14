@@ -15,6 +15,8 @@ import { ForgotPasswordForm } from "../auth/ForgotPasswordForm";
 import { GoogleLoginButton } from "../auth/GoogleLoginButton";
 import { AppleLoginButton } from "../auth/AppleLoginButton";
 import { SolanaLoginButton } from "../auth/SolanaLoginButton";
+import { TotpVerify } from "../totp/TotpVerify";
+import { useEmailAuth } from "../../hooks/useEmailAuth";
 import { useCedrosTheme } from "../../context/ThemeContext";
 import type {
   EmailLoginFormStrings,
@@ -28,8 +30,14 @@ import type {
   ForgotPasswordFormStrings,
   ForgotPasswordFormStyleProps,
 } from "../auth/ForgotPasswordForm";
+import { DirectionalTransition } from "../shared/DirectionalTransition";
 
 type AuthMode = "login" | "register" | "forgot-password";
+const AUTH_MODE_ORDER: readonly AuthMode[] = [
+  "login",
+  "register",
+  "forgot-password",
+];
 
 export interface LoginScreenStrings {
   /** Header title. Default: "Welcome" */
@@ -69,8 +77,12 @@ export interface LoginScreenProps {
   enableSolana?: boolean;
   /** Callback to trigger native Google Sign-In and return the ID token. */
   onRequestGoogleToken?: () => Promise<{ idToken: string }>;
-  /** Callback to trigger native Apple Sign-In and return the ID token. */
-  onRequestAppleToken?: () => Promise<{ idToken: string }>;
+  /** Callback to trigger native Apple Sign-In and return the auth payload. */
+  onRequestAppleToken?: (nonce: string) => Promise<{
+    idToken: string;
+    nonce: string;
+    authorizationCode?: string;
+  }>;
   /**
    * Optional callback to trigger Solana wallet adapter and return credentials.
    *
@@ -85,10 +97,6 @@ export interface LoginScreenProps {
   onLoginSuccess?: () => void;
   onRegisterSuccess?: () => void;
   onForgotPasswordSubmit?: (email: string) => Promise<void>;
-  /** @deprecated Use strings.headerTitle instead. Still supported for backwards compatibility. */
-  headerTitle?: string;
-  /** @deprecated Use strings.headerSubtitle instead. Still supported for backwards compatibility. */
-  headerSubtitle?: string;
   containerStyle?: StyleProp<ViewStyle>;
   /** Override any subset of user-facing strings for this screen and its forms. */
   strings?: LoginScreenStrings;
@@ -108,21 +116,19 @@ export function LoginScreen({
   onLoginSuccess,
   onRegisterSuccess,
   onForgotPasswordSubmit,
-  headerTitle,
-  headerSubtitle,
   containerStyle,
   strings,
   styles: styleSlots,
   testID = "login-screen",
 }: LoginScreenProps): React.ReactElement {
-  const { colors, spacing, typography } = useCedrosTheme();
+  const { colors, spacing, typography, radii } = useCedrosTheme();
   const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const { completeMfa } = useEmailAuth();
 
-  // Backwards-compat: legacy props win over strings object
-  const resolvedHeaderTitle =
-    headerTitle ?? strings?.headerTitle ?? "Welcome";
+  const resolvedHeaderTitle = strings?.headerTitle ?? "Welcome";
   const resolvedHeaderSubtitle =
-    headerSubtitle ?? strings?.headerSubtitle ?? "Sign in to continue";
+    strings?.headerSubtitle ?? "Sign in to continue";
   const socialDividerText = strings?.socialDivider ?? "or continue with";
 
   const showGoogle = enableGoogle && !!onRequestGoogleToken;
@@ -130,12 +136,22 @@ export function LoginScreen({
   // On Android, show Solana button even without onRequestSolanaToken (uses built-in MWA).
   // On iOS, require the callback since MWA is Android-only.
   const showSolana =
-    enableSolana &&
-    (Platform.OS === "android" || !!onRequestSolanaToken);
+    enableSolana && (Platform.OS === "android" || !!onRequestSolanaToken);
   const showSocialDivider =
     (showGoogle || showApple || showSolana) && enableEmail;
 
   const renderContent = () => {
+    if (mfaToken) {
+      return (
+        <TotpVerify
+          onVerify={async (code) => {
+            await completeMfa(mfaToken, code);
+            setMfaToken(null);
+            onLoginSuccess?.();
+          }}
+        />
+      );
+    }
     switch (authMode) {
       case "login":
         return (
@@ -189,18 +205,21 @@ export function LoginScreen({
                 <GoogleLoginButton
                   onRequestToken={onRequestGoogleToken}
                   onSuccess={onLoginSuccess}
+                  onMfaRequired={(response) => setMfaToken(response.mfaToken)}
                 />
               )}
               {showApple && (
                 <AppleLoginButton
                   onRequestToken={onRequestAppleToken}
                   onSuccess={onLoginSuccess}
+                  onMfaRequired={(response) => setMfaToken(response.mfaToken)}
                 />
               )}
               {showSolana && (
                 <SolanaLoginButton
                   onRequestToken={onRequestSolanaToken}
                   onSuccess={onLoginSuccess}
+                  onMfaRequired={(response) => setMfaToken(response.mfaToken)}
                 />
               )}
             </View>
@@ -243,6 +262,8 @@ export function LoginScreen({
           flexGrow: 1,
         }}
         keyboardShouldPersistTaps="handled"
+        bounces
+        overScrollMode="always"
       >
         <View
           style={[
@@ -259,7 +280,7 @@ export function LoginScreen({
               {
                 width: 80,
                 height: 80,
-                borderRadius: 20,
+                borderRadius: radii.card,
                 backgroundColor: colors.primary[600],
                 justifyContent: "center",
                 alignItems: "center",
@@ -312,15 +333,17 @@ export function LoginScreen({
             {
               flex: 1,
               backgroundColor: colors.white,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
+              borderTopLeftRadius: radii.overlay,
+              borderTopRightRadius: radii.overlay,
               padding: spacing.lg,
               minHeight: 400,
             },
             styleSlots?.cardStyle,
           ]}
         >
-          {renderContent()}
+          <DirectionalTransition stateKey={authMode} order={AUTH_MODE_ORDER}>
+            {renderContent()}
+          </DirectionalTransition>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -1,6 +1,7 @@
 import React from "react";
 import {
-  TouchableOpacity,
+  Pressable,
+  Animated,
   Text,
   ViewStyle,
   TextStyle,
@@ -21,6 +22,8 @@ export interface ButtonProps {
   testID?: string;
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export function Button({
   title,
   onPress,
@@ -32,7 +35,16 @@ export function Button({
   textStyle,
   testID = "button",
 }: ButtonProps): React.ReactElement {
-  const { colors, spacing, typography } = useCedrosTheme();
+  const { colors, spacing, typography, radii, motion } = useCedrosTheme();
+  const [scale] = React.useState(() => new Animated.Value(1));
+
+  const animateScale = (toValue: number) => {
+    Animated.spring(scale, {
+      toValue,
+      ...motion.springs.responsive,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const getBackgroundColor = (): string => {
     if (disabled || loading) {
@@ -98,14 +110,15 @@ export function Button({
   const padding = getPadding();
 
   return (
-    <TouchableOpacity
+    <AnimatedPressable
       onPress={onPress}
+      onPressIn={() => animateScale(0.975)}
+      onPressOut={() => animateScale(1)}
       disabled={disabled || loading}
-      activeOpacity={0.8}
       style={[
         {
           backgroundColor: getBackgroundColor(),
-          borderRadius: 8,
+          borderRadius: radii.control,
           borderWidth: variant === "outline" ? 2 : 0,
           borderColor:
             variant === "outline" ? colors.primary[600] : colors.transparent,
@@ -115,6 +128,7 @@ export function Button({
           ...padding,
         },
         style,
+        { transform: [{ scale }] },
       ]}
       testID={testID}
       accessibilityRole="button"
@@ -140,6 +154,6 @@ export function Button({
       >
         {title}
       </Text>
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 }

@@ -1,8 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type {
-  SecureStorageConfig,
-  TokenStorageAdapter,
-} from "../types";
+import type { SecureStorageConfig, TokenStorageAdapter } from "../types";
 
 const TOKEN_STORAGE_PREFIX = "cedros_secure_";
 const DEFAULT_SERVICE = "cedros.login";
@@ -59,7 +56,7 @@ export function createAsyncStorageTokenStorage(): TokenStorageAdapter {
   };
 }
 
-export function createKeychainTokenStorage(
+function createKeychainTokenStorage(
   service = DEFAULT_SERVICE,
 ): TokenStorageAdapter | null {
   const keychain = getKeychainModule();

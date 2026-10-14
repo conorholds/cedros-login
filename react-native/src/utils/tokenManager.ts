@@ -1,96 +1,134 @@
 import type { TokenPair, TokenStorageAdapter } from "../types";
 import {
-  createAsyncStorageTokenStorage,
-} from "./tokenStorage";
+  TOKEN_STORAGE_KEY,
+  readStoredTokens,
+  serializeStoredTokens,
+} from "./tokenPersistence";
+import {
+  activateTokenStorageOwner,
+  createTokenStorageOwner,
+  enqueueOwnedTokenMutation,
+  isTokenStorageOwner,
+  LegacyTokenImporterLease,
+  type TokenStorageOwner,
+} from "./tokenMutationQueue";
+import { createAsyncStorageTokenStorage } from "./tokenStorage";
+import { TokenRefreshScheduler } from "./tokenRefreshScheduler";
 
-const TOKEN_KEY = "auth_tokens";
-const REFRESH_BUFFER_MS = 60_000; // Refresh 1 minute before expiry
-
-interface StoredTokenData {
-  tokens: TokenPair;
-  expiresAt: number;
+interface TokenManagerOptions {
+  deferHydration?: boolean;
+  migrateLegacy?: boolean;
+  storageKey?: string;
+  storageOwner?: TokenStorageOwner;
 }
 
-/**
- * Token manager for React Native token storage adapters.
- */
 export class TokenManager {
-  private storage: TokenStorageAdapter;
   private tokens: TokenPair | null = null;
-  private expiresAt: number = 0;
-  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
-  private onRefreshNeeded: (() => Promise<void>) | null = null;
+  private expiresAt = 0;
+  private mutationVersion = 0;
+  private hydrationPromise: Promise<void> | null;
   private onSessionExpired: (() => void) | null = null;
-  private isDestroyed: boolean = false;
-  /** RN-03: Deduplicates concurrent refresh calls. */
-  private refreshInFlight: Promise<void> | null = null;
+  private isDestroyed = false;
+  private readonly refreshScheduler = new TokenRefreshScheduler();
+  private readonly storageKey: string;
+  private readonly legacyImporter: LegacyTokenImporterLease;
+  private readonly storageOwner: TokenStorageOwner | null;
+  private activationPromise: Promise<void> | null = null;
 
-  constructor(storage: TokenStorageAdapter = createAsyncStorageTokenStorage()) {
-    this.storage = storage;
-    this.loadFromStorage();
+  constructor(
+    private readonly storage: TokenStorageAdapter = createAsyncStorageTokenStorage(),
+    options: TokenManagerOptions = {},
+  ) {
+    this.storageKey = options.storageKey ?? TOKEN_STORAGE_KEY;
+    this.legacyImporter = new LegacyTokenImporterLease(
+      this.storageKey,
+      options.migrateLegacy ?? false,
+    );
+    this.storageOwner = options.storageOwner ?? null;
+    this.hydrationPromise = options.deferHydration
+      ? null
+      : this.loadFromStorage(this.mutationVersion);
   }
-
-  /**
-   * Load tokens from AsyncStorage on initialization
-   */
-  private async loadFromStorage(): Promise<void> {
-    try {
-      const data = await this.storage.getItem(TOKEN_KEY);
-      if (data) {
-        const parsed = JSON.parse(data) as StoredTokenData;
-        // Only load if not expired
-        if (parsed.expiresAt > Date.now()) {
-          this.tokens = parsed.tokens;
-          this.expiresAt = parsed.expiresAt;
-          this.scheduleRefresh();
-        } else {
-          // Clear expired tokens
-          await this.storage.removeItem(TOKEN_KEY);
-        }
-      }
-    } catch (err) {
-      console.warn('[TokenManager] Failed to parse stored tokens; clearing corrupted data.', err instanceof Error ? err.message : String(err));
-      await this.storage.removeItem(TOKEN_KEY).catch(() => undefined);
-    }
+  static providerScoped(
+    storage: TokenStorageAdapter,
+    storageKey: string,
+    importLegacyTokens = false,
+  ): TokenManager {
+    return new TokenManager(storage, {
+      deferHydration: true,
+      migrateLegacy: importLegacyTokens,
+      storageKey,
+      storageOwner: createTokenStorageOwner(),
+    });
   }
-
-  /**
-   * Set the callback for when tokens need to be refreshed
-   */
-  setRefreshCallback(callback: () => Promise<void>): void {
-    this.onRefreshNeeded = callback;
+  hydrate(): Promise<void> {
+    this.hydrationPromise ??= this.loadFromStorage(this.mutationVersion);
+    return this.hydrationPromise;
+  }
+  private isCurrent(version: number): boolean {
+    const ownsStorage =
+      !this.storageOwner ||
+      isTokenStorageOwner(this.storageKey, this.storageOwner);
+    return !this.isDestroyed && version === this.mutationVersion && ownsStorage;
+  }
+  private activateStorage(): Promise<void> {
+    if (!this.storageOwner) return Promise.resolve();
+    this.activationPromise ??= activateTokenStorageOwner(
+      this.storage,
+      this.storageKey,
+      this.storageOwner,
+      () => !this.isDestroyed,
+    );
+    return this.activationPromise;
+  }
+  private async loadFromStorage(version: number): Promise<void> {
+    await this.legacyImporter.activate(() => this.activateStorage());
+    const parsed = await readStoredTokens(
+      this.storage,
+      this.storageKey,
+      () => this.isCurrent(version),
+      this.legacyImporter.enabled,
+    );
+    if (!parsed || !this.isCurrent(version)) return;
+    this.tokens = parsed.tokens;
+    this.expiresAt = parsed.expiresAt;
     this.scheduleRefresh();
   }
-
-  /**
-   * Set the callback for when session expires
-   */
+  setRefreshCallback(callback: () => Promise<void>): void {
+    this.refreshScheduler.setCallback(callback);
+    this.scheduleRefresh();
+  }
   setSessionExpiredCallback(callback: () => void): void {
     this.onSessionExpired = callback;
   }
 
-  /**
-   * Store tokens and schedule auto-refresh
-   */
-  async setTokens(tokens: TokenPair): Promise<void> {
+  async setTokens(
+    tokens: TokenPair,
+    expectedRefreshToken?: string,
+  ): Promise<void> {
     if (this.isDestroyed) return;
+    await this.activateStorage();
+    if (
+      this.isDestroyed ||
+      (expectedRefreshToken !== undefined &&
+        this.getRefreshToken() !== expectedRefreshToken) ||
+      (this.storageOwner &&
+        !isTokenStorageOwner(this.storageKey, this.storageOwner))
+    )
+      return;
 
+    this.mutationVersion += 1;
     this.tokens = tokens;
     this.expiresAt = Date.now() + tokens.expiresIn * 1000;
 
-    // Persist to AsyncStorage
-    const data: StoredTokenData = {
-      tokens,
-      expiresAt: this.expiresAt,
-    };
-    await this.storage.setItem(TOKEN_KEY, JSON.stringify(data));
+    const data = serializeStoredTokens(tokens, this.expiresAt);
+    await enqueueOwnedTokenMutation(this.storageKey, this.storageOwner, () =>
+      this.storage.setItem(this.storageKey, data),
+    );
 
     this.scheduleRefresh();
   }
 
-  /**
-   * Get the current access token
-   */
   getAccessToken(): string | null {
     if (this.isDestroyed) return null;
     if (!this.tokens) return null;
@@ -98,17 +136,11 @@ export class TokenManager {
     return this.tokens.accessToken;
   }
 
-  /**
-   * Get the current refresh token
-   */
   getRefreshToken(): string | null {
     if (this.isDestroyed) return null;
     return this.tokens?.refreshToken ?? null;
   }
 
-  /**
-   * Get token pair if available and not expired
-   */
   getTokens(): TokenPair | null {
     if (this.isDestroyed) return null;
     if (!this.tokens) return null;
@@ -116,79 +148,59 @@ export class TokenManager {
     return this.tokens;
   }
 
-  /**
-   * Check if tokens exist and are not expired
-   */
   hasValidTokens(): boolean {
     return this.getAccessToken() !== null;
   }
 
-  /**
-   * Clear tokens from memory and storage
-   */
   async clear(): Promise<void> {
+    if (this.isDestroyed) return;
+    this.clearSessionState();
+    await this.activateStorage();
+    if (this.isDestroyed) return;
+    await enqueueOwnedTokenMutation(this.storageKey, this.storageOwner, () =>
+      this.storage.removeItem(this.storageKey),
+    );
+  }
+
+  async expireSession(): Promise<void> {
+    if (this.isDestroyed || !this.tokens) return;
+    const callback = this.onSessionExpired;
+    this.clearSessionState();
+    if (!this.isDestroyed) callback?.();
+    await this.activateStorage();
+    if (this.isDestroyed) return;
+    const removal = enqueueOwnedTokenMutation(
+      this.storageKey,
+      this.storageOwner,
+      () => this.storage.removeItem(this.storageKey),
+    );
+    await removal;
+  }
+
+  private clearSessionState(): void {
+    this.mutationVersion += 1;
     this.tokens = null;
     this.expiresAt = 0;
-    this.clearRefreshTimer();
-    await this.storage.removeItem(TOKEN_KEY);
+    this.refreshScheduler.clearTimer();
   }
 
-  /**
-   * Execute refresh with deduplication. Concurrent callers share one in-flight request.
-   */
-  private doRefresh(): void {
-    if (this.refreshInFlight || !this.onRefreshNeeded) return;
-
-    this.refreshInFlight = this.onRefreshNeeded()
-      .catch(() => {
-        this.onSessionExpired?.();
-      })
-      .finally(() => {
-        this.refreshInFlight = null;
-      });
+  async refreshTokens(): Promise<void> {
+    return this.refreshScheduler.refresh();
   }
 
-  /**
-   * Schedule automatic token refresh
-   */
   private scheduleRefresh(): void {
-    this.clearRefreshTimer();
-
-    if (!this.tokens || !this.onRefreshNeeded) return;
-
-    const refreshAt = this.expiresAt - REFRESH_BUFFER_MS;
-    const delay = refreshAt - Date.now();
-
-    if (delay <= 0) {
-      this.doRefresh();
-    } else {
-      this.refreshTimer = setTimeout(() => {
-        if (!this.isDestroyed) {
-          this.doRefresh();
-        }
-      }, delay);
-    }
+    const version = this.mutationVersion;
+    this.refreshScheduler.schedule(this.expiresAt, !!this.tokens, () => {
+      if (this.isCurrent(version))
+        void this.expireSession().catch(() => undefined);
+    });
   }
 
-  /**
-   * Clear the refresh timer
-   */
-  private clearRefreshTimer(): void {
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-      this.refreshTimer = null;
-    }
-  }
-
-  /**
-   * Destroy the token manager and cleanup
-   */
   destroy(): void {
     this.isDestroyed = true;
-    this.clearRefreshTimer();
-    this.onRefreshNeeded = null;
+    this.mutationVersion += 1;
+    this.refreshScheduler.destroy();
     this.onSessionExpired = null;
+    this.legacyImporter.destroy();
   }
 }
-
-export default TokenManager;

@@ -8,19 +8,17 @@
  * 4. Sign the challenge message with the wallet
  * 5. Return { walletAddress, signature, nonce } for useSolanaAuth.signIn()
  *
- * Requires one of these optional peer deps to be installed:
- * - @wallet-ui/react-native-web3js (recommended)
- * - @solana-mobile/mobile-wallet-adapter-protocol-web3js (legacy)
+ * Requires @wallet-ui/react-native-web3js to be installed.
  *
  * MWA is Android-only. On iOS, isAvailable is always false.
  */
 
-import { useState, useCallback } from 'react';
-import { Platform } from 'react-native';
-import { useCedrosLogin } from '../context/CedrosLoginProvider';
-import { getAuthApi } from '../services/api';
-import { base58Encode } from '../crypto/solanaKeypair';
-import type { AuthError } from '../types';
+import { useState, useCallback } from "react";
+import { Platform } from "react-native";
+import { useCedrosLogin } from "../context/CedrosLoginProvider";
+import { useProviderAuthApi } from "../context/ApiServicesContext";
+import { base58Encode } from "../utils/base58";
+import type { AuthError } from "../types";
 
 /** Credentials returned by the MWA sign-in flow */
 export interface MobileWalletCredentials {
@@ -67,9 +65,8 @@ let cachedTransact: TransactFn | null = null;
 let resolutionAttempted = false;
 
 /**
- * Attempt to load the MWA transact function from installed packages.
- * Tries @wallet-ui/react-native-web3js first, falls back to the legacy package.
- * Returns null if neither is installed.
+ * Attempt to load the MWA transact function from the installed package.
+ * Returns null if it is not installed.
  */
 function resolveTransact(): TransactFn | null {
   if (cachedTransact) return cachedTransact;
@@ -80,16 +77,7 @@ function resolveTransact(): TransactFn | null {
   // In test environments, mock the module with vi.mock().
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = require('@wallet-ui/react-native-web3js');
-    cachedTransact = mod.transact as TransactFn;
-    return cachedTransact;
-  } catch {
-    // Not installed, try fallback
-  }
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = require('@solana-mobile/mobile-wallet-adapter-protocol-web3js');
+    const mod = require("@wallet-ui/react-native-web3js");
     cachedTransact = mod.transact as TransactFn;
     return cachedTransact;
   } catch {
@@ -113,19 +101,20 @@ export function _setTransact(fn: TransactFn | null): void {
 
 export function useMobileWalletAuth(): UseMobileWalletAuthReturn {
   const { config } = useCedrosLogin();
+  const authApi = useProviderAuthApi();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
-  const isAndroid = Platform.OS === 'android';
+  const isAndroid = Platform.OS === "android";
   const transact = isAndroid ? resolveTransact() : null;
   const isAvailable = transact !== null;
 
   const connect = useCallback(async (): Promise<MobileWalletCredentials> => {
     if (!transact) {
       const msg =
-        Platform.OS !== 'android'
-          ? 'Solana Mobile Wallet Adapter is only available on Android'
-          : 'Install @wallet-ui/react-native-web3js to use MWA';
+        Platform.OS !== "android"
+          ? "Solana Mobile Wallet Adapter is only available on Android"
+          : "Install @wallet-ui/react-native-web3js to use MWA";
       throw new Error(msg);
     }
 
@@ -134,12 +123,12 @@ export function useMobileWalletAuth(): UseMobileWalletAuthReturn {
 
     try {
       const cluster =
-        config.solana?.network === 'devnet'
-          ? 'solana:devnet'
-          : 'solana:mainnet';
+        config.solana?.network === "devnet"
+          ? "solana:devnet"
+          : "solana:mainnet";
 
       const identity = {
-        name: config.appName ?? 'Cedros',
+        name: config.appName ?? "Cedros",
         uri: config.solana?.appUri ?? config.serverUrl,
         icon: config.solana?.appIcon,
       };
@@ -150,9 +139,8 @@ export function useMobileWalletAuth(): UseMobileWalletAuthReturn {
         const walletAddress = authResult.accounts[0].address;
 
         // 2. Fetch challenge from our server
-        const { nonce, message } = await getAuthApi().getSolanaChallenge(
-          walletAddress,
-        );
+        const { nonce, message } =
+          await authApi.getSolanaChallenge(walletAddress);
 
         // 3. Sign the challenge message
         const messageBytes = new TextEncoder().encode(message);
@@ -172,14 +160,14 @@ export function useMobileWalletAuth(): UseMobileWalletAuthReturn {
     } catch (err) {
       const authError: AuthError =
         err instanceof Error
-          ? { code: 'WALLET_ERROR', message: err.message }
-          : { code: 'WALLET_ERROR', message: 'Wallet connection failed' };
+          ? { code: "WALLET_ERROR", message: err.message }
+          : { code: "WALLET_ERROR", message: "Wallet connection failed" };
       setError(authError);
       throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [config, transact]);
+  }, [authApi, config, transact]);
 
   const clearError = useCallback(() => setError(null), []);
 

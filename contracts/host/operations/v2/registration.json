@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 2,
+  "operations": {
+    "registration.signup-limit.status": {
+      "requestSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "signupLimit"
+        ],
+        "properties": {
+          "signupLimit": {
+            "$ref": "#/$defs/signupLimit"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "used",
+          "remaining",
+          "limit",
+          "period",
+          "resetsAt"
+        ],
+        "properties": {
+          "status": {
+            "const": "available"
+          },
+          "used": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "period": {
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ]
+          },
+          "resetsAt": {
+            "$ref": "#/$defs/timestamp"
+          }
+        }
+      }
+    },
+    "registration.account.create": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["user", "membership", "signupLimit"],
+        "properties": {
+          "user": { "$ref": "#/$defs/newRow" },
+          "primaryEmail": { "$ref": "#/$defs/newRow" },
+          "credential": { "$ref": "#/$defs/newRow" },
+          "membership": { "$ref": "#/$defs/newRow" },
+          "session": { "$ref": "#/$defs/newRow" },
+          "mfaVerification": { "$ref": "#/$defs/newRow" },
+          "inviteCodeAccount": { "$ref": "#/$defs/newRow" },
+          "verification": { "$ref": "#/$defs/verification" },
+          "nonce": { "$ref": "#/$defs/nonce" }
+          ,"signupLimit": { "$ref": "#/$defs/signupLimit" }
+        },
+        "allOf": [
+          { "not": { "required": ["verification", "nonce"] } },
+          { "not": { "required": ["session", "mfaVerification"] } }
+        ]
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["userId", "status", "proofPayload"],
+        "properties": {
+          "userId": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["created", "already-created", "limit-reached"] },
+          "proofPayload": { "type": ["object", "null"] },
+          "resetsAt": { "$ref": "#/$defs/timestamp" }
+        },
+        "oneOf": [
+          {
+            "properties": { "status": { "enum": ["created", "already-created"] } },
+            "not": { "required": ["resetsAt"] }
+          },
+          {
+            "required": ["resetsAt"],
+            "properties": {
+              "status": { "const": "limit-reached" },
+              "proofPayload": { "type": "null" }
+            }
+          }
+        ]
+      }
+    },
+    "registration.account.complete": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "user",
+          "membership",
+          "emailVerification",
+          "emailOutbox",
+          "signupLimit"
+        ],
+        "properties": {
+          "user": { "$ref": "#/$defs/newRow" },
+          "primaryEmail": { "$ref": "#/$defs/newRow" },
+          "credential": { "$ref": "#/$defs/newRow" },
+          "membership": { "$ref": "#/$defs/newRow" },
+          "session": { "$ref": "#/$defs/newRow" },
+          "mfaVerification": { "$ref": "#/$defs/newRow" },
+          "inviteCodeAccount": { "$ref": "#/$defs/newRow" },
+          "verification": { "$ref": "#/$defs/verification" },
+          "nonce": { "$ref": "#/$defs/nonce" },
+          "emailVerification": { "$ref": "#/$defs/newRow" },
+          "emailOutbox": { "$ref": "#/$defs/newRow" },
+          "signupLimit": { "$ref": "#/$defs/signupLimit" }
+        },
+        "allOf": [
+          { "not": { "required": ["verification", "nonce"] } },
+          { "not": { "required": ["session", "mfaVerification"] } }
+        ]
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["userId", "status", "proofPayload"],
+        "properties": {
+          "userId": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["created", "already-created", "limit-reached"] },
+          "proofPayload": { "type": ["object", "null"] },
+          "resetsAt": { "$ref": "#/$defs/timestamp" }
+        },
+        "oneOf": [
+          {
+            "properties": { "status": { "enum": ["created", "already-created"] } },
+            "not": { "required": ["resetsAt"] }
+          },
+          {
+            "required": ["resetsAt"],
+            "properties": {
+              "status": { "const": "limit-reached" },
+              "proofPayload": { "type": "null" }
+            }
+          }
+        ]
+      }
+    },
+    "registration.invite-code.redeem": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["redemptionId", "verification", "inviteCode", "account"],
+        "properties": {
+          "redemptionId": { "type": "string", "minLength": 1 },
+          "verification": { "$ref": "#/$defs/verification" },
+          "inviteCode": { "$ref": "#/$defs/versionedRow" },
+          "account": { "$ref": "#/$defs/versionedRow" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["userId", "alreadyApplied"],
+        "properties": {
+          "userId": { "type": "string", "minLength": 1 },
+          "alreadyApplied": { "type": "boolean" }
+        }
+      }
+    },
+    "registration.invite-gate.release": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["account"],
+        "properties": {
+          "account": { "$ref": "#/$defs/versionedRow" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["userId", "status", "activatedAt", "redemptionId", "inviteCodeId"],
+        "properties": {
+          "userId": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["released", "already-activated"] },
+          "activatedAt": { "$ref": "#/$defs/timestamp" },
+          "redemptionId": { "type": ["string", "null"], "minLength": 1 },
+          "inviteCodeId": { "type": ["string", "null"], "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "newRow": {
+      "type": "object", "additionalProperties": false, "required": ["entryKey", "data"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "data": { "type": "object" }
+      }
+    },
+    "signupLimit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["enabled", "period", "limit", "periodStart", "resetsAt"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "period": { "enum": ["daily", "weekly", "monthly"] },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "periodStart": { "$ref": "#/$defs/timestamp" },
+        "resetsAt": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "versionedRow": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "expectedUpdatedAt"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "tokenHash", "allowedTokenTypes"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "tokenHash": { "type": "string", "minLength": 1 },
+        "allowedTokenTypes": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "nonce": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "publicKey", "message"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "publicKey": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

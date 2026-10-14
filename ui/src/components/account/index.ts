@@ -1,0 +1,12 @@
+export { AccountSettings } from './AccountSettings';
+export type { AccountSettingsProps } from './AccountSettings';
+export { ProfileTab } from './ProfileTab';
+export type { ProfileTabProps } from './ProfileTab';
+export { EmailManagement } from './EmailManagement';
+export type { EmailManagementProps } from './EmailManagement';
+export { LinkedAccounts } from './LinkedAccounts';
+export type { LinkedAccountsProps } from './LinkedAccounts';
+export { MfaSetupPrompt } from './MfaSetupPrompt';
+export type { MfaSetupPromptProps } from './MfaSetupPrompt';
+export { DeleteAccountSection } from './DeleteAccountSection';
+export type { DeleteAccountSectionProps } from './DeleteAccountSection';

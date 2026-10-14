@@ -1,0 +1,371 @@
+{
+  "$schema": "../schemas/cedros-database-concurrency-contract.v2.schema.json",
+  "schemaVersion": 2,
+  "contractId": "cedros-data:database-concurrency-v2",
+  "capability": {
+    "id": "cedros-data:database-concurrency-v2",
+    "requiredForProduction": true,
+    "detectionPhase": "install-or-readiness",
+    "missingBehavior": "block-install-and-activation"
+  },
+  "compatibility": {
+    "currentWitPackage": "cedros:extension@0.1.0",
+    "currentGuestBehavior": "conditional-batch-v2",
+    "hostUpgradeBehavior": "enforce-before-advertise"
+  },
+  "supersedes": {
+    "contractId": "cedros-data:database-concurrency-v1",
+    "immutableOperationIds": [
+      "identity.verifications.consume-live-purpose-bound",
+      "identity.setup.claim-first-admin",
+      "identity.system-admin.demote",
+      "organization.membership.change-role",
+      "identity.canonical-email.transition",
+      "identity.outbox.claim-delivery"
+    ]
+  },
+  "operationSchemaCatalogs": [
+    "contracts/host/operations/v2/identity-core.json",
+    "contracts/host/operations/v2/identity-auth.json",
+    "contracts/host/operations/v2/outbox.json",
+    "contracts/host/operations/v2/registration.json",
+    "contracts/host/operations/v2/lifecycle.json"
+  ],
+  "conflictTransport": {
+    "legacyMessageFormat": "cedros.db.v1|<unique|precondition|lease>|<operation-id>",
+    "categories": ["unique", "precondition", "lease"],
+    "httpStatus": 409,
+    "clientCode": "resource_conflict",
+    "piiAllowed": false
+  },
+  "uniqueConstraints": [
+    {
+      "id": "identity.users.normalized-email",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["email"],
+      "normalization": "trim-lowercase",
+      "predicate": "email is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.username",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["username"],
+      "normalization": "trim-lowercase",
+      "predicate": "username is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.google-id",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["googleId"],
+      "normalization": "none",
+      "predicate": "googleId is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.apple-id",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["appleId"],
+      "normalization": "none",
+      "predicate": "appleId is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.wallet-address",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["walletAddress"],
+      "normalization": "none",
+      "predicate": "walletAddress is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.user-emails.normalized-email",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:user-emails",
+      "fields": ["email"],
+      "normalization": "trim-lowercase",
+      "predicate": null,
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.user-emails.one-primary",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:user-emails",
+      "fields": ["userId"],
+      "normalization": "none",
+      "predicate": "isPrimary is true",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.orgs.slug",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:orgs",
+      "fields": ["slug"],
+      "normalization": "trim-lowercase",
+      "predicate": null,
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.memberships.user-org",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:memberships",
+      "fields": ["userId", "orgId"],
+      "normalization": "none",
+      "predicate": null,
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.invites.pending-email",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:invite-records",
+      "fields": ["orgId", "email"],
+      "normalization": "trim-lowercase",
+      "predicate": "acceptedAt is null and email is non-null",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.invites.pending-wallet",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:invite-records",
+      "fields": ["orgId", "walletAddress"],
+      "normalization": "none",
+      "predicate": "acceptedAt is null and walletAddress is non-null",
+      "conflictCategory": "unique"
+    }
+  ],
+  "conditionalMutations": [
+    {
+      "id": "identity.verifications.consume-live-purpose-bound", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications"], "atomicity": "single-host-transaction",
+      "preconditions": ["live, unused, hash-matching token has an allowed purpose"],
+      "mutations": ["consume once and return the pre-mutation payload"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.setup.claim-first-admin", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:users", "cedros-login:user-emails"], "atomicity": "single-host-transaction",
+      "preconditions": ["no system administrator exists and normalized email is unclaimed"],
+      "mutations": ["create the administrator and canonical email"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.system-admin.demote", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:users"], "atomicity": "single-host-transaction",
+      "preconditions": ["revision matches and another administrator remains"],
+      "mutations": ["demote and update payload plus host revision transaction time"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "organization.membership.change-role", "accessId": "cedros-login:org-db",
+      "contentModelIds": ["cedros-login:memberships"], "atomicity": "single-host-transaction",
+      "preconditions": ["revision matches and another owner remains when required"],
+      "mutations": ["update or remove membership"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.canonical-email.transition", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:users", "cedros-login:user-emails"], "atomicity": "single-host-transaction",
+      "preconditions": ["all revisions match and normalized target is unclaimed"],
+      "mutations": ["transition compatibility and canonical email rows"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.outbox.claim-delivery", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:outbox"], "atomicity": "single-host-transaction",
+      "preconditions": ["pending due row or sending row with expired lease"],
+      "mutations": ["lease, increment attempts, return payload and host revision"], "conflictCategory": "lease"
+    },
+    {
+      "id": "identity.outbox.enqueue-token-email", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:outbox"], "atomicity": "single-host-transaction",
+      "requiredCapabilityId": "cedros-data:token-email-evidence-v1",
+      "preconditions": [
+        "verification and outbox ids equal their entry keys and neither row nor the outbox-id receipt exists",
+        "verification purpose is one of email_verification, account_email_verify, password_reset, instant_link or account_deletion; token hash is present; createdAt is not in the future; expiresAt is after host transaction time; usedAt is null",
+        "verification and outbox user ids match; targetEmail and recipient match case-insensitively",
+        "outbox id is a UUID and the row is pending with zero attempts, no provider acceptance, no lease and no preexisting essentialEmailEvidence"
+      ],
+      "mutations": [
+        "atomically create the verification row, create the outbox row with host-issued essentialEmailEvidence, and create one immutable PII-free receipt keyed by the outbox UUID; any conflict rolls back all three"
+      ], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.outbox.complete-delivery", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:outbox"], "atomicity": "single-host-transaction",
+      "preconditions": ["active lease owner and exact host revision match, or exact receipt for the same deliveryId and leaseOwner already exists"],
+      "mutations": ["persist idempotent acceptance receipt bound to leaseOwner and delete row"], "conflictCategory": "lease"
+    },
+    {
+      "id": "identity.outbox.release-delivery", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:outbox"], "atomicity": "single-host-transaction",
+      "preconditions": ["unexpired lease owner and exact host revision match"],
+      "mutations": ["release to pending or failed and return versioned payload"], "conflictCategory": "lease"
+    },
+    {
+      "id": "identity.password-reset.complete", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:users", "cedros-login:sessions"], "atomicity": "single-host-transaction",
+      "preconditions": ["password-reset proof and user revision match under per-user lock"],
+      "mutations": ["consume proof, write password, revoke every session"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.instant-link.complete", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:users", "cedros-login:user-emails", "cedros-login:sessions"], "atomicity": "single-host-transaction",
+      "preconditions": ["instant-link proof plus user and existing primary-email revisions match"],
+      "mutations": ["consume proof, update user/email and create exactly one session or MFA proof"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.sso-auth.complete", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:users", "cedros-login:sessions"], "atomicity": "single-host-transaction",
+      "preconditions": ["SSO-state proof and user revision match"],
+      "mutations": ["consume state, update user, create session"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.solana-proof.complete", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:nonces", "cedros-login:users", "cedros-login:sessions"], "atomicity": "single-host-transaction",
+      "preconditions": ["live nonce wallet/message and user revision match"],
+      "mutations": ["delete nonce, update user, optionally create session"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.webauthn-auth.complete", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:credentials", "cedros-login:users", "cedros-login:sessions"], "atomicity": "single-host-transaction",
+      "preconditions": ["challenge and revisions match; credential owner is immutable and signCount increases"],
+      "mutations": ["consume challenge, update credential and user, create session"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.webauthn-registration.complete", "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:credentials"], "atomicity": "single-host-transaction",
+      "preconditions": ["registration challenge binds user and credential id is absent or exact replay"],
+      "mutations": ["consume challenge and insert credential with durable replay receipt"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "registration.signup-limit.status", "accessId": "cedros-login:registration-db",
+      "requiredCapabilityId": "cedros-data:signup-limit-atomic-v1",
+      "contentModelIds": ["cedros-login:users"], "atomicity": "single-host-serializable-transaction",
+      "preconditions": ["supplied signup-limit policy identifies a valid UTC calendar period"],
+      "mutations": ["initialize the durable period ledger from non-admin accounts if absent, preserving usage after account deletion", "return the authoritative used and remaining capacity without reserving a slot"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "registration.account.create", "accessId": "cedros-login:registration-db",
+      "requiredCapabilityId": "cedros-data:signup-limit-atomic-v1",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:nonces", "cedros-login:users", "cedros-login:user-emails", "cedros-login:credentials", "cedros-login:sessions", "cedros-login:orgs", "cedros-login:memberships", "cedros-login:invite-code-accounts"],
+      "atomicity": "single-host-serializable-transaction", "preconditions": ["proof is live when supplied, identifiers are unclaimed, default organization is live", "enabled signup limit has remaining capacity in the supplied UTC calendar period"],
+      "mutations": ["consume proof when supplied and create the requested account, session or MFA proof, membership, and invite-gate graph idempotently", "count every created account against the enabled signup limit without an access-code bypass"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "registration.account.complete", "accessId": "cedros-login:registration-db",
+      "requiredCapabilityId": "cedros-data:identity-atomic-v1",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:nonces", "cedros-login:users", "cedros-login:user-emails", "cedros-login:credentials", "cedros-login:sessions", "cedros-login:orgs", "cedros-login:memberships", "cedros-login:invite-code-accounts", "cedros-login:outbox"],
+      "atomicity": "single-host-serializable-transaction", "preconditions": ["proof is live when supplied, identifiers are unclaimed, default organization is live", "email verification and outbox rows bind the same account and recipient", "enabled signup limit has remaining capacity in the supplied UTC calendar period"],
+      "mutations": ["consume proof when supplied and create the requested account, session or MFA proof, membership, invite-gate graph, email verification, and outbox row idempotently", "commit all registration and required email rows or roll back every write", "count every created account against the enabled signup limit without an access-code bypass"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "registration.invite-code.redeem", "accessId": "cedros-login:registration-db",
+      "contentModelIds": ["cedros-login:verifications", "cedros-login:invite-codes", "cedros-login:invite-code-accounts"], "atomicity": "single-host-transaction",
+      "preconditions": ["proof, invite-code revision/capacity, account and redemption receipt match"],
+      "mutations": ["consume proof, increment once and activate account idempotently"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "registration.invite-gate.release", "accessId": "cedros-login:registration-db",
+      "contentModelIds": ["cedros-login:invite-code-accounts"], "atomicity": "single-host-transaction",
+      "preconditions": ["account exists and revision matches; already-activated state is an exact idempotent replay"],
+      "mutations": ["activate pending account at transaction time while preserving redemptionId and inviteCodeId"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.account.delete", "accessId": "cedros-login:account-lifecycle-db",
+      "contentModelIds": ["cedros-login:users", "cedros-login:sessions", "cedros-login:user-emails", "cedros-login:verifications", "cedros-login:login-attempts", "cedros-login:totp", "cedros-login:api-key-records", "cedros-login:outbox", "cedros-login:credentials", "cedros-login:sso-providers", "cedros-login:orgs", "cedros-login:memberships", "cedros-login:invite-records", "cedros-login:invite-codes", "cedros-login:invite-code-accounts", "cedros-login:custom-roles", "cedros-login:policies"],
+      "atomicity": "single-host-serializable-transaction", "preconditions": ["proof/revision/admin/owner invariants hold under phantom-safe predicate locking equivalent to serializable isolation"],
+      "mutations": ["remove non-owner memberships counted as detachedMemberships; remove owner memberships from shared organizations with surviving co-owners counted as transferredOrganizations; cascade sole-member organizations counted as deletedOrganizations; create durable user and deleted-org tombstones; delete account graph"], "conflictCategory": "precondition"
+    },
+    {
+      "id": "organization.delete", "accessId": "cedros-login:organization-lifecycle-db",
+      "contentModelIds": ["cedros-login:orgs", "cedros-login:memberships", "cedros-login:invite-records", "cedros-login:custom-roles", "cedros-login:policies", "cedros-login:sso-providers"],
+      "atomicity": "single-host-serializable-transaction", "preconditions": ["org/owner revisions and non-personal ownership match under phantom-safe predicate locking equivalent to serializable isolation"],
+      "mutations": ["create durable org tombstone and delete complete graph"], "conflictCategory": "precondition"
+    }
+  ],
+  "lifecycleWriteGuards": {
+    "storage": "host-owned-durable-tombstones",
+    "identityRoot": { "contentModelId": "cedros-login:users", "entryKeyField": "entryKey" },
+    "identityChildren": [
+      "cedros-login:sessions", "cedros-login:user-emails", "cedros-login:verifications",
+      "cedros-login:login-attempts", "cedros-login:totp", "cedros-login:api-key-records",
+      "cedros-login:outbox", "cedros-login:credentials", "cedros-login:invite-codes",
+      "cedros-login:invite-code-accounts"
+    ],
+    "organizationRoot": { "contentModelId": "cedros-login:orgs", "entryKeyField": "entryKey" },
+    "organizationChildren": [
+      "cedros-login:memberships", "cedros-login:invite-records", "cedros-login:custom-roles",
+      "cedros-login:policies", "cedros-login:sso-providers"
+    ],
+    "rules": [
+      "account and organization delete create tombstones in the same serializable-or-equivalent transaction as deletion",
+      "every ordinary write and batch write to a guarded root rejects a tombstoned entry key",
+      "every ordinary write and batch write to a guarded child locks and requires its userId or orgId parent to exist and not be tombstoned",
+      "account-owned child payloads must carry userId; organization-owned child payloads must carry orgId",
+      "UUID root identifiers are never reused; new accounts and organizations use fresh identifiers",
+      "violations return cedros.db.v1|precondition|lifecycle.tombstone-guard without PII"
+    ]
+  },
+  "acceptanceFixture": {
+    "path": "contracts/fixtures/cedros-database-concurrency-v2.json",
+    "requiredScenarioIds": [
+      "concurrent-normalized-email-claim",
+      "concurrent-purpose-bound-token-consume",
+      "concurrent-first-admin-claim",
+      "concurrent-last-admin-demotion",
+      "concurrent-owner-demotion",
+      "concurrent-outbox-claim",
+      "concurrent-token-email-enqueue",
+      "concurrent-outbox-completion",
+      "concurrent-outbox-release",
+      "concurrent-password-reset-completion",
+      "concurrent-instant-link-completion",
+      "concurrent-sso-auth-completion",
+      "concurrent-solana-proof-completion",
+      "concurrent-webauthn-auth-completion",
+      "concurrent-webauthn-registration-completion",
+      "concurrent-signup-limit-status",
+      "concurrent-registration-account-creation",
+      "concurrent-registration-account-completion",
+      "concurrent-invite-code-redemption",
+      "concurrent-invite-gate-release",
+      "concurrent-account-deletion",
+      "concurrent-organization-deletion"
+    ],
+    "minimumConcurrentAttempts": 50,
+    "minimumIndependentWorkers": 2,
+    "requiredOutboxRecoveryCases": [
+      "expired-sending-lease",
+      "completed-response-lost-replay",
+      "stale-worker-cannot-complete-successor-lease",
+      "token-email-response-lost-replay"
+    ],
+    "requiredCompositeCases": [
+      "token-email-unknown-purpose-rollback",
+      "token-email-recipient-mismatch-rollback",
+      "token-email-non-live-token-rollback",
+      "token-email-duplicate-outbox-rollback",
+      "signup-limit-last-slot-atomic",
+      "registration-completion-rollback",
+      "registration-completion-response-lost-replay",
+      "same-redemption-replay",
+      "invite-gate-release-idempotent",
+      "invite-gate-release-stale-after-redemption",
+      "account-delete-proof-rollback",
+      "account-delete-owner-transfer",
+      "account-delete-sole-member-cascade",
+      "account-delete-shared-last-owner-rejected",
+      "organization-delete-full-cascade",
+      "organization-delete-rollback",
+      "account-delete-race-stale-root-write",
+      "account-delete-race-stale-child-insert",
+      "account-delete-postcommit-stale-root-write",
+      "account-delete-postcommit-stale-child-insert",
+      "organization-delete-race-stale-root-write",
+      "organization-delete-race-stale-child-insert",
+      "organization-delete-postcommit-stale-root-write",
+      "organization-delete-postcommit-stale-child-insert"
+    ]
+  }
+}

@@ -16,7 +16,7 @@ export function ErrorMessage({
   textStyle,
   testID = "error-message",
 }: ErrorMessageProps): React.ReactElement | null {
-  const { colors, spacing, typography } = useCedrosTheme();
+  const { colors, spacing, typography, radii } = useCedrosTheme();
 
   if (!error) {
     return null;
@@ -29,7 +29,7 @@ export function ErrorMessage({
       style={[
         {
           backgroundColor: colors.error + "20",
-          borderRadius: 8,
+          borderRadius: radii.field,
           padding: spacing.md,
           borderWidth: 1,
           borderColor: colors.error,

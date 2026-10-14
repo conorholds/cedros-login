@@ -10,6 +10,7 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 import { Button } from "../shared/Button";
 import { ErrorMessage } from "../shared/ErrorMessage";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
@@ -199,7 +200,7 @@ export function InviteForm({
               backgroundColor: colors.white,
               borderWidth: 1,
               borderColor: emailError ? colors.error : colors.gray[300],
-              borderRadius: 8,
+              borderRadius: radii.field,
               paddingVertical: spacing.md,
               paddingHorizontal: spacing.md,
               fontSize: typography.sizes.base,
@@ -240,7 +241,7 @@ export function InviteForm({
                   flex: 1,
                   paddingVertical: spacing.md,
                   paddingHorizontal: spacing.md,
-                  borderRadius: 8,
+                  borderRadius: radii.field,
                   borderWidth: 2,
                   borderColor:
                     selectedRole === role.value

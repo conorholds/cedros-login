@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cedros.ai/contracts/cedros-login/auth-response-v1.schema.json",
+  "title": "cedros-login:auth-response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["user", "isNewUser"],
+  "properties": {
+    "user": { "$ref": "cedros-login-user-context.schema.json#/$defs/user" },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accessToken", "refreshToken", "expiresIn"],
+      "properties": {
+        "accessToken": { "type": "string", "minLength": 1 },
+        "refreshToken": { "type": "string", "minLength": 1 },
+        "expiresIn": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "isNewUser": { "type": "boolean" },
+    "callbackData": { "type": "object", "additionalProperties": true },
+    "apiKey": { "type": "string", "minLength": 1 },
+    "emailQueued": { "type": "boolean" },
+    "postLogin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action"],
+      "properties": {
+        "action": {
+          "enum": ["setup_mfa", "enroll_wallet", "acknowledge_recovery", "choose_username", "choose_subscription", "welcome", "complete_profile", "redirect"]
+        },
+        "redirectUrl": { "type": "string" }
+      }
+    },
+    "inviteCodeRequired": { "const": true },
+    "pendingInviteToken": { "type": "string", "minLength": 1 },
+    "inviteGateHandoffStatus": { "enum": ["accepted", "rejected", "unavailable"] },
+    "inviteDiscount": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["percentOff", "code"],
+          "properties": {
+            "percentOff": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "code": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "method": { "enum": ["email", "password", "google", "apple", "solana", "webauthn", "sso"] }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 2,
+  "operations": {
+    "identity.verifications.consume-live-purpose-bound": {
+      "requestSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entryKey", "tokenHash", "allowedTokenTypes"],
+        "properties": {
+          "entryKey": { "type": "string", "minLength": 1 },
+          "tokenHash": { "type": "string", "minLength": 1 },
+          "allowedTokenTypes": {
+            "type": "array", "minItems": 1, "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "consume": { "enum": ["delete", "mark-used"], "default": "delete" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false, "required": ["payload"],
+        "properties": { "payload": { "type": "object" } }
+      }
+    },
+    "identity.setup.claim-first-admin": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false, "required": ["user", "email"],
+        "properties": {
+          "user": { "$ref": "#/$defs/newRow" },
+          "email": { "$ref": "#/$defs/newRow" }
+        }
+      },
+      "outputSchema": { "$ref": "#/$defs/createdOutput" }
+    },
+    "identity.system-admin.demote": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["entryKey", "expectedUpdatedAt"],
+        "properties": {
+          "entryKey": { "type": "string", "minLength": 1 },
+          "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["status", "updatedAt"],
+        "properties": {
+          "status": { "const": "demoted" },
+          "updatedAt": { "$ref": "#/$defs/timestamp" }
+        }
+      }
+    },
+    "identity.canonical-email.transition": {
+      "requestSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["user", "emails", "claimedEmail"],
+        "properties": {
+          "user": { "$ref": "#/$defs/versionedWrite" },
+          "emails": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["action", "entryKey"],
+              "properties": {
+                "action": { "enum": ["write", "delete"] },
+                "entryKey": { "type": "string", "minLength": 1 },
+                "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+                "data": { "type": "object" }
+              },
+              "allOf": [
+                {
+                  "if": { "properties": { "action": { "const": "write" } } },
+                  "then": { "required": ["data"] }
+                }
+              ]
+            }
+          },
+          "claimedEmail": { "type": "string", "format": "email" }
+        }
+      },
+      "outputSchema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["status", "updatedAt"],
+        "properties": {
+          "status": { "const": "transitioned" },
+          "updatedAt": { "$ref": "#/$defs/timestamp" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "newRow": {
+      "type": "object", "additionalProperties": false, "required": ["entryKey", "data"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "data": { "type": "object" }
+      }
+    },
+    "versionedWrite": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entryKey", "expectedUpdatedAt", "data"],
+      "properties": {
+        "entryKey": { "type": "string", "minLength": 1 },
+        "expectedUpdatedAt": { "$ref": "#/$defs/timestamp" },
+        "data": { "type": "object" }
+      }
+    },
+    "createdOutput": {
+      "type": "object", "additionalProperties": false, "required": ["status"],
+      "properties": { "status": { "const": "created" } }
+    }
+  }
+}

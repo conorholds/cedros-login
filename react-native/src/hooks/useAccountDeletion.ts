@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { getAuthApi } from "../services/api";
+import { useProviderAuthApi } from "../context/ApiServicesContext";
 import { useCedrosLogin } from "../context/CedrosLoginProvider";
 import { buildAccountDeletionUrl } from "../utils";
 import type { AuthError } from "../types";
@@ -17,6 +17,7 @@ export interface UseAccountDeletionReturn {
 
 export function useAccountDeletion(): UseAccountDeletionReturn {
   const { config, logout } = useCedrosLogin();
+  const authApi = useProviderAuthApi();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
@@ -30,7 +31,7 @@ export function useAccountDeletion(): UseAccountDeletionReturn {
       setIsLoading(true);
       setError(null);
       try {
-        await getAuthApi().deleteCurrentAccount(confirmText);
+        await authApi.deleteCurrentAccount(confirmText);
         await logout().catch(() => undefined);
       } catch (err) {
         const authError: AuthError =
@@ -46,7 +47,7 @@ export function useAccountDeletion(): UseAccountDeletionReturn {
         setIsLoading(false);
       }
     },
-    [logout],
+    [authApi, logout],
   );
 
   const requestDeletionEmail = useCallback(
@@ -54,7 +55,7 @@ export function useAccountDeletion(): UseAccountDeletionReturn {
       setIsLoading(true);
       setError(null);
       try {
-        await getAuthApi().requestAccountDeletion(email);
+        await authApi.requestAccountDeletion(email);
       } catch (err) {
         const authError: AuthError =
           err instanceof Error
@@ -69,7 +70,7 @@ export function useAccountDeletion(): UseAccountDeletionReturn {
         setIsLoading(false);
       }
     },
-    [],
+    [authApi],
   );
 
   const clearError = useCallback(() => {

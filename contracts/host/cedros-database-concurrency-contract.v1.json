@@ -1,0 +1,197 @@
+{
+  "$schema": "../schemas/cedros-database-concurrency-contract.schema.json",
+  "schemaVersion": 1,
+  "contractId": "cedros-data:database-concurrency-v1",
+  "capability": {
+    "id": "cedros-data:database-concurrency-v1",
+    "requiredForProduction": true,
+    "detectionPhase": "install-or-readiness",
+    "missingBehavior": "block-production-activation"
+  },
+  "compatibility": {
+    "currentWitPackage": "cedros:extension@0.1.0",
+    "currentGuestBehavior": "legacy-observe-only",
+    "hostUpgradeBehavior": "enforce-before-advertise"
+  },
+  "conflictTransport": {
+    "legacyMessageFormat": "cedros.db.v1|<unique|precondition|lease>|<operation-id>",
+    "categories": ["unique", "precondition", "lease"],
+    "httpStatus": 409,
+    "clientCode": "resource_conflict",
+    "piiAllowed": false
+  },
+  "uniqueConstraints": [
+    {
+      "id": "identity.users.normalized-email",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["email"],
+      "normalization": "trim-lowercase",
+      "predicate": "email is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.username",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["username"],
+      "normalization": "trim-lowercase",
+      "predicate": "username is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.google-id",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["googleId"],
+      "normalization": "none",
+      "predicate": "googleId is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.apple-id",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["appleId"],
+      "normalization": "none",
+      "predicate": "appleId is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.users.wallet-address",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:users",
+      "fields": ["walletAddress"],
+      "normalization": "none",
+      "predicate": "walletAddress is non-null and non-blank",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.user-emails.normalized-email",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:user-emails",
+      "fields": ["email"],
+      "normalization": "trim-lowercase",
+      "predicate": null,
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "identity.user-emails.one-primary",
+      "accessId": "cedros-login:identity-db",
+      "contentModelId": "cedros-login:user-emails",
+      "fields": ["userId"],
+      "normalization": "none",
+      "predicate": "isPrimary is true",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.orgs.slug",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:orgs",
+      "fields": ["slug"],
+      "normalization": "trim-lowercase",
+      "predicate": null,
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.memberships.user-org",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:memberships",
+      "fields": ["userId", "orgId"],
+      "normalization": "none",
+      "predicate": null,
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.invites.pending-email",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:invite-records",
+      "fields": ["orgId", "email"],
+      "normalization": "trim-lowercase",
+      "predicate": "acceptedAt is null and email is non-null",
+      "conflictCategory": "unique"
+    },
+    {
+      "id": "organization.invites.pending-wallet",
+      "accessId": "cedros-login:org-db",
+      "contentModelId": "cedros-login:invite-records",
+      "fields": ["orgId", "walletAddress"],
+      "normalization": "none",
+      "predicate": "acceptedAt is null and walletAddress is non-null",
+      "conflictCategory": "unique"
+    }
+  ],
+  "conditionalMutations": [
+    {
+      "id": "identity.verifications.consume-live-purpose-bound",
+      "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:verifications"],
+      "atomicity": "single-host-transaction",
+      "preconditions": [
+        "entry exists",
+        "tokenHash matches",
+        "tokenType is in the caller's explicit allowlist",
+        "usedAt is null",
+        "expiresAt is greater than host transaction time"
+      ],
+      "mutations": ["set usedAt to host transaction time or atomically delete the entry"],
+      "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.setup.claim-first-admin",
+      "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:users", "cedros-login:user-emails"],
+      "atomicity": "single-host-transaction",
+      "preconditions": ["no users row has isSystemAdmin equal to true", "normalized email is unclaimed"],
+      "mutations": ["create the first system-admin user and canonical primary-email row"],
+      "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.system-admin.demote",
+      "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:users"],
+      "atomicity": "single-host-transaction",
+      "preconditions": ["target row is unchanged", "another system-admin row exists when demoting an admin"],
+      "mutations": ["set target isSystemAdmin to false"],
+      "conflictCategory": "precondition"
+    },
+    {
+      "id": "organization.membership.change-role",
+      "accessId": "cedros-login:org-db",
+      "contentModelIds": ["cedros-login:memberships"],
+      "atomicity": "single-host-transaction",
+      "preconditions": ["target membership is unchanged", "another owner remains when demoting or removing an owner"],
+      "mutations": ["update or remove the target membership"],
+      "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.canonical-email.transition",
+      "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:users", "cedros-login:user-emails"],
+      "atomicity": "single-host-transaction",
+      "preconditions": ["source user and email rows match the supplied versions", "target normalized email is unclaimed"],
+      "mutations": ["update users compatibility fields and all affected primary-email rows atomically"],
+      "conflictCategory": "precondition"
+    },
+    {
+      "id": "identity.outbox.claim-delivery",
+      "accessId": "cedros-login:identity-db",
+      "contentModelIds": ["cedros-login:outbox"],
+      "atomicity": "single-host-transaction",
+      "preconditions": ["status is pending", "nextAttemptAt is not after host transaction time", "lease is absent or expired"],
+      "mutations": ["set status to sending, leaseOwner, leaseExpiresAt, and increment attempts"],
+      "conflictCategory": "lease"
+    }
+  ],
+  "acceptanceFixture": {
+    "path": "contracts/fixtures/cedros-database-concurrency-v1.json",
+    "requiredScenarioIds": [
+      "concurrent-normalized-email-claim",
+      "concurrent-purpose-bound-token-consume",
+      "concurrent-first-admin-claim",
+      "concurrent-last-admin-demotion",
+      "concurrent-owner-demotion",
+      "concurrent-outbox-claim"
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "extensionId": "cedros-login",
+  "version": "2.0.22",
+  "coverageRule": "This file records every non-self-serve runtime or operator handoff that remains after local package validation. A row is not evidence that the host is bound.",
+  "handoffRows": [
+    {
+      "item": "atomic identity and abuse-control operations",
+      "manifestId": "cedros-login:registration-db",
+      "type": "host capability set",
+      "runtimePackage": "cedros-login@2.0.22",
+      "hostHookRequired": "Cedros Data 0.1.91+ must advertise cedros-data:database-concurrency-v2, cedros-data:token-email-evidence-v1, cedros-data:identity-atomic-v1, cedros-data:session-atomic-v1, cedros-data:signup-limit-atomic-v1, cedros-data:abuse-budget-consume-v1, and cedros-data:extension-storage-cas-v1; match WIT checksum 2bb16879743cfd2748b7deefefcb82204c16b55a1c1a70385f4e9707a83d48f9; publish identity.outbox.enqueue-token-email, registration.signup-limit.status, registration.account.create, registration.account.complete, identity.sessions.rotate, identity.sessions.revoke, and /runtime/abuse-budget/consume-v1 with the repository contract schemas; and expose every additional operation used by contracts/host/cedros-database-concurrency-contract.v2.json in its authenticated capability registry.",
+      "status": "host-hook-requested",
+      "owner": "Cedros Data + Cedros Login",
+      "blocking": true,
+      "launchGate": "staging and production",
+      "evidenceRequired": "Authenticated GET /admin/runtime/wasm-extensions/capabilities plus the installed-host 50-vector concurrency run, an authoritative signup-limit status read, password-registration rollback and response-loss replay tests proving no partial or duplicate account, token, outbox, or signup-limit write, allowed/exhausted/datastore-unavailable abuse-budget checks proving fail-closed behavior, and compare-and-set races proving one TOTP/recovery-code spend across distinct pending logins."
+    },
+    {
+      "item": "invite-gate pending handoff",
+      "manifestId": "cedros-login:invite-gate-handoff",
+      "type": "CRM source event",
+      "runtimePackage": "cedros-login@2.0.22",
+      "hostHookRequired": "Bind source kind cedros_login and event invite_gate.pending; return accepted true only after the durable waitlist write and include a non-empty receiptId.",
+      "status": "host-hook-requested",
+      "owner": "Cedros CRM + Cedros Login",
+      "blocking": false,
+      "launchGate": "early-access registration only",
+      "evidenceRequired": "Installed-host accepted, rejected, and retry smoke paths; keep the invite gate disabled until the durable receipt path is bound."
+    },
+    {
+      "item": "login screen",
+      "manifestId": "cedros-login:login-screen",
+      "type": "native screen",
+      "runtimePackage": "@cedros/login-react-native@2.0.22",
+      "hostHookRequired": "Cedros mobile native screen loader",
+      "status": "unsupported",
+      "owner": "Cedros mobile",
+      "blocking": true,
+      "launchGate": "mobile production",
+      "evidenceRequired": "Bind the declared screen id and run a simulator or physical-device login smoke test."
+    },
+    {
+      "item": "provider",
+      "manifestId": "cedros-login:provider",
+      "type": "native provider",
+      "runtimePackage": "@cedros/login-react-native@2.0.22",
+      "hostHookRequired": "Cedros mobile native provider/context loader",
+      "status": "unsupported",
+      "owner": "Cedros mobile",
+      "blocking": true,
+      "launchGate": "mobile production",
+      "evidenceRequired": "Bind the declared provider id and verify authenticated, unauthenticated, refresh, and logout state on device."
+    },
+    {
+      "item": "Native OAuth account linking and durable backing-key cleanup",
+      "manifestId": "cedros-login:oauth-connection-cleanup",
+      "type": "host capability set",
+      "runtimePackage": "cedros-login@2.0.22",
+      "hostHookRequired": "Deploy the Cedros Data cleanup host revision 4c6a17691d0ba66ded13cdd1d7c021c430d1ad5b or a descendant that advertises cedros-data:mcp-connection-revoke-v1 before activating Login 2.0.0; older hosts must retain Login 1.x. Install Cedros Data with cedros-data:mcp-connection-revoke-v1 before activating Login; preserve raw token/revoke form bodies and publish the RFC8414 path-issuer alias. Persist immutable site issuance envelopes before transport and use durable cancellation tombstones and restart-safe source revocation retries. Portal supplies explicit consent and fresh canonical site authority.",
+      "status": "host-hook-requested",
+      "owner": "Cedros Data + Cedros Login + Cedros Portal",
+      "blocking": true,
+      "launchGate": "staging and production",
+      "evidenceRequired": "Installed-host PKCE and consent success/denial; no-site downscoping; code/refresh replay denial; cancellation versus issuance race; lost acknowledgement and offline-source cleanup after restart without live Login credentials. Historical missing-journal grants require explicit reconciliation, never marker backfill."
+    }
+  ],
+  "operatorHandoffs": [
+    {
+      "surface": "OIDC and federated-login egress",
+      "control": "CEDROS_EXTENSION_HTTP_ALLOWLIST",
+      "requiredAction": "Grant only the exact HTTPS issuer, discovery, JWKS, and token endpoint hosts configured for enabled providers. Leave the allowlist empty when federated login is disabled.",
+      "evidenceRequired": "Installed-host successful discovery/token exchange and a denied request to an unlisted host."
+    },
+    {
+      "surface": "email and avatar providers",
+      "control": "providerAccess grants",
+      "requiredAction": "Select host defaults for cedros-login:email-provider and cedros-login:image-storage only when those optional features are enabled; credentials remain host-owned.",
+      "evidenceRequired": "Provider-disabled failure path plus one accepted email and storage put/get/delete smoke path in staging."
+    }
+  ]
+}

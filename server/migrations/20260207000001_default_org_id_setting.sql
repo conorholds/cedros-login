@@ -1,0 +1,7 @@
+-- NOTE: intentionally no-op.
+--
+-- Security: do not auto-backfill default_org_id from existing tenant orgs.
+-- Any authenticated user can create a non-personal org, so selecting one
+-- implicitly can assign future signups to an attacker-controlled tenant.
+--
+-- default_org_id must be explicitly set during setup by an administrator.

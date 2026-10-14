@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from "react";
+import { useExternalEffect } from "../../hooks/effects";
+import React, { useRef } from "react";
 import {
   View,
   TextInput,
@@ -9,6 +10,7 @@ import {
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { radii } from "../../theme/radii";
 
 export interface OtpInputProps {
   value: string;
@@ -29,7 +31,7 @@ export function OtpInput({
 }: OtpInputProps): React.ReactElement {
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
-  useEffect(() => {
+  useExternalEffect(() => {
     // Focus first input on mount
     if (inputRefs.current[0] && value.length === 0) {
       inputRefs.current[0]?.focus();
@@ -113,7 +115,7 @@ export function OtpInput({
           style={{
             width: 48,
             height: 56,
-            borderRadius: 8,
+            borderRadius: radii.field,
             borderWidth: 2,
             borderColor:
               value[index] && !disabled

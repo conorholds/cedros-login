@@ -5,6 +5,10 @@ import { typography as defaultTypography } from "../theme/typography";
 import type { Colors } from "../theme/colors";
 import type { Spacing } from "../theme/spacing";
 import type { Typography } from "../theme/typography";
+import { radii as defaultRadii } from "../theme/radii";
+import { motion as defaultMotion } from "../theme/motion";
+import type { Radii } from "../theme/radii";
+import type { Motion } from "../theme/motion";
 
 /**
  * Full merged theme shape consumed by all components.
@@ -16,6 +20,8 @@ export interface CedrosTheme {
   colors: Colors;
   spacing: Spacing;
   typography: Typography;
+  radii: Radii;
+  motion: Motion;
 }
 
 /**
@@ -39,12 +45,23 @@ export interface CedrosThemeOverrides {
     sizes: Partial<Typography["sizes"]>;
     weights: Partial<Typography["weights"]>;
   }>;
+  radii?: Partial<Radii>;
+  motion?: Partial<{
+    distance: number;
+    staggerMs: number;
+    springs: Partial<{
+      responsive: Partial<Motion["springs"]["responsive"]>;
+      settle: Partial<Motion["springs"]["settle"]>;
+    }>;
+  }>;
 }
 
 const defaultTheme: CedrosTheme = {
   colors: defaultColors,
   spacing: defaultSpacing,
   typography: defaultTypography,
+  radii: defaultRadii,
+  motion: defaultMotion,
 };
 
 const ThemeContext = createContext<CedrosTheme>(defaultTheme);
@@ -94,10 +111,32 @@ export function CedrosThemeProvider({
       },
     };
 
+    const mergedRadii: Radii = {
+      ...defaultRadii,
+      ...(overrides.radii ?? {}),
+    };
+
+    const mergedMotion: Motion = {
+      ...defaultMotion,
+      ...(overrides.motion ?? {}),
+      springs: {
+        responsive: {
+          ...defaultMotion.springs.responsive,
+          ...(overrides.motion?.springs?.responsive ?? {}),
+        },
+        settle: {
+          ...defaultMotion.springs.settle,
+          ...(overrides.motion?.springs?.settle ?? {}),
+        },
+      },
+    };
+
     return {
       colors: mergedColors,
       spacing: mergedSpacing,
       typography: mergedTypography,
+      radii: mergedRadii,
+      motion: mergedMotion,
     };
   }, [overrides]);
 

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 2,
+  "operations": {
+    "registration.signup-limit.status": {
+      "params": {
+        "signupLimit": {
+          "enabled": true,
+          "period": "monthly",
+          "limit": 100,
+          "periodStart": "2026-07-01T00:00:00Z",
+          "resetsAt": "2026-08-01T00:00:00Z"
+        }
+      },
+      "output": {
+        "status": "available",
+        "used": 88,
+        "remaining": 12,
+        "limit": 100,
+        "period": "monthly",
+        "resetsAt": "2026-08-01T00:00:00Z"
+      }
+    },
+    "identity.verifications.consume-live-purpose-bound": {
+      "params": {"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["password_reset"]},
+      "output": {"payload":{}}
+    },
+    "identity.setup.claim-first-admin": {
+      "params": {"user":{"entryKey":"user-1","data":{}},"email":{"entryKey":"email-1","data":{}}},
+      "output": {"status":"created"}
+    },
+    "identity.system-admin.demote": {
+      "params": {"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z"},
+      "output": {"status":"demoted","updatedAt":"2026-07-10T00:00:01Z"}
+    },
+    "identity.canonical-email.transition": {
+      "params": {"user":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}},"emails":[{"action":"write","entryKey":"email-1","data":{}}],"claimedEmail":"user@example.com"},
+      "output": {"status":"transitioned","updatedAt":"2026-07-10T00:00:01Z"}
+    },
+    "organization.membership.change-role": {
+      "params": {"entryKey":"membership-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","action":"update","data":{}},
+      "output": {"status":"updated"}
+    },
+    "identity.account.delete": {
+      "params": {"userId":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z"},
+      "output": {"status":"deleted","detachedMemberships":1,"transferredOrganizations":0,"deletedOrganizations":0,"tombstoneGeneration":"generation-1"}
+    },
+    "organization.delete": {
+      "params": {"orgId":"org-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","actor":{"userId":"user-1","membershipEntryKey":"membership-1","expectedUpdatedAt":"2026-07-10T00:00:00Z"}},
+      "output": {"status":"deleted","deletedMemberships":1,"deletedInvites":0,"deletedCustomRoles":0,"deletedPolicies":0,"deletedSsoProviders":0,"tombstoneGeneration":"generation-1"}
+    },
+    "identity.outbox.claim-delivery": {
+      "params": {"entryKey":"outbox-1","leaseOwner":"worker-1","leaseSeconds":300},
+      "output": {"payload":{},"updatedAt":"2026-07-10T00:00:01Z"}
+    },
+    "identity.outbox.enqueue-token-email": {
+      "params": {
+        "verification": {
+          "entryKey": "00000000-0000-4000-8000-000000000011",
+          "data": {
+            "id": "00000000-0000-4000-8000-000000000011",
+            "userId": "user-1",
+            "tokenHash": "sha256:token-1",
+            "tokenType": "password_reset",
+            "targetEmail": "user@example.com",
+            "subjectId": null,
+            "createdAt": "2026-07-10T00:00:00Z",
+            "expiresAt": "2026-07-10T01:00:00Z",
+            "usedAt": null
+          }
+        },
+        "outbox": {
+          "entryKey": "00000000-0000-4000-8000-000000000012",
+          "data": {
+            "id": "00000000-0000-4000-8000-000000000012",
+            "userId": "user-1",
+            "to": "user@example.com",
+            "subject": "Reset your password",
+            "htmlBody": "<p>Reset your password</p>",
+            "textBody": "Reset your password",
+            "status": "pending",
+            "attempts": 0,
+            "maxAttempts": 5,
+            "createdAt": "2026-07-10T00:00:00Z",
+            "nextAttemptAt": "2026-07-10T00:00:00Z",
+            "lastError": null,
+            "providerAcceptedAt": null,
+            "providerMessageRef": null,
+            "leaseOwner": null,
+            "leaseExpiresAt": null
+          }
+        }
+      },
+      "output": {"status":"enqueued"}
+    },
+    "identity.outbox.complete-delivery": {
+      "params": {"entryKey":"outbox-1","leaseOwner":"worker-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","deliveryId":"cedros-login-outbox-outbox-1","providerAcceptedAt":"2026-07-10T00:00:01Z","providerMessageRef":null},
+      "output": {"status":"completed","alreadyApplied":false}
+    },
+    "identity.outbox.release-delivery": {
+      "params": {"entryKey":"outbox-1","leaseOwner":"worker-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","status":"pending","nextAttemptAt":"2026-07-10T00:05:00Z","lastErrorCode":"provider.temporary"},
+      "output": {"payload":{},"updatedAt":"2026-07-10T00:00:01Z"}
+    },
+    "identity.password-reset.complete": {
+      "params": {"verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["password_reset"]},"user":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}}},
+      "output": {"payload":{},"revokedSessions":2}
+    },
+    "identity.instant-link.complete": {
+      "params": {"verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["instant_link"]},"user":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}},"primaryEmail":{"entryKey":"email-1","data":{}},"session":{"entryKey":"session-1","data":{}}},
+      "output": {"payload":{},"status":"completed"}
+    },
+    "identity.sso-auth.complete": {
+      "params": {"verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["sso_state"]},"user":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}},"session":{"entryKey":"session-1","data":{}}},
+      "output": {"payload":{},"status":"completed"}
+    },
+    "identity.solana-proof.complete": {
+      "params": {"nonce":{"entryKey":"nonce-1","publicKey":"wallet-1","message":"message-1"},"user":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}},"session":{"entryKey":"session-1","data":{}}},
+      "output": {"walletAddress":"wallet-1","status":"completed"}
+    },
+    "identity.webauthn-auth.complete": {
+      "params": {"verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["webauthn_auth"]},"credential":{"entryKey":"credential-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}},"user":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z","data":{}},"session":{"entryKey":"session-1","data":{}}},
+      "output": {"payload":{},"status":"completed"}
+    },
+    "identity.webauthn-registration.complete": {
+      "params": {"verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["webauthn_register"]},"credential":{"entryKey":"credential-1","data":{}},"expectedUserId":"user-1"},
+      "output": {"payload":{},"status":"registered","alreadyApplied":false}
+    },
+    "registration.account.create": {
+      "params": {"user":{"entryKey":"user-1","data":{}},"primaryEmail":{"entryKey":"email-1","data":{}},"membership":{"entryKey":"membership-1","data":{}},"mfaVerification":{"entryKey":"mfa-1","data":{}},"inviteCodeAccount":{"entryKey":"user-1","data":{}},"verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["sso_state"]},"signupLimit":{"enabled":true,"period":"monthly","limit":100,"periodStart":"2026-07-01T00:00:00Z","resetsAt":"2026-08-01T00:00:00Z"}},
+      "output": {"userId":"user-1","status":"created","proofPayload":{}}
+    },
+    "registration.account.complete": {
+      "params": {
+        "user": {"entryKey":"user-1","data":{}},
+        "primaryEmail": {"entryKey":"email-1","data":{}},
+        "credential": {"entryKey":"credential-1","data":{}},
+        "membership": {"entryKey":"membership-1","data":{}},
+        "emailVerification": {"entryKey":"verification-1","data":{}},
+        "emailOutbox": {"entryKey":"outbox-1","data":{}},
+        "signupLimit": {"enabled":true,"period":"monthly","limit":100,"periodStart":"2026-07-01T00:00:00Z","resetsAt":"2026-08-01T00:00:00Z"}
+      },
+      "output": {"userId":"user-1","status":"created","proofPayload":null}
+    },
+    "registration.invite-code.redeem": {
+      "params": {"redemptionId":"redemption-1","verification":{"entryKey":"verification-1","tokenHash":"hash-1","allowedTokenTypes":["invite_code_pending"]},"inviteCode":{"entryKey":"invite-1","expectedUpdatedAt":"2026-07-10T00:00:00Z"},"account":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z"}},
+      "output": {"userId":"user-1","alreadyApplied":false}
+    },
+    "registration.invite-gate.release": {
+      "params": {"account":{"entryKey":"user-1","expectedUpdatedAt":"2026-07-10T00:00:00Z"}},
+      "output": {"userId":"user-1","status":"released","activatedAt":"2026-07-10T00:00:01Z","redemptionId":null,"inviteCodeId":null}
+    }
+  }
+}

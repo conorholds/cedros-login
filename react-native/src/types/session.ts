@@ -1,5 +1,5 @@
 /**
- * Active session information
+ * Active session information.
  */
 export interface Session {
   id: string;
@@ -12,7 +12,7 @@ export interface Session {
 }
 
 /**
- * Response from listing sessions
+ * Response from listing sessions.
  */
 export interface ListSessionsResponse {
   sessions: Session[];
@@ -22,7 +22,7 @@ export interface ListSessionsResponse {
 }
 
 /**
- * Response from revoking all sessions
+ * Response from revoking all sessions.
  */
 export interface RevokeAllSessionsResponse {
   revokedCount: number;
