@@ -23,8 +23,9 @@ non-nested directories. `make publish-all` is an alias for this source workflow.
 Preparation replaces the old `react/`, `server-rust/`, and package-artifact layout
 with the committed source tree, including Wasm, standalone server, React, native,
 contracts, documentation, and current license. Git history and remotes remain
-intact. Local agent configuration, environment secrets, build outputs, and ZIPs
-are excluded; environment examples and credential-free npm settings are retained.
+intact. Agent instructions at any depth, local agent configuration, environment
+secrets, build outputs, and ZIPs are excluded; environment examples and
+credential-free npm settings are retained.
 Only committed files are exported. Review the source for publication before
 running this workflow; file exclusions are not a full secret audit.
 

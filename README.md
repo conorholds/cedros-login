@@ -112,10 +112,10 @@ Source publication is a reference snapshot, not installed-host acceptance. The
 remaining provider, host, and release gates. Build archives and verify the exact
 host deployment before relying on them in production.
 
-Source changes should follow [AGENTS.md](AGENTS.md). Generated contracts,
-package manifests, and migrations are part of the reference implementation;
-build archives, dependency directories, local environment files, and workspace
-notes are excluded from version control.
+Keep source changes aligned with the documented contracts and affected tests.
+Generated contracts, package manifests, and migrations are part of the reference
+implementation; agent instructions, build archives, dependency directories, local
+environment files, and workspace notes are excluded from public source snapshots.
 
 Machine-readable `docs/cedros-*-map.json` files are validation inputs and
 release metadata, not generated build output. Their corresponding validators
