@@ -67,7 +67,7 @@ pub fn cedros_login_setup_seeds() -> CedrosExtensionSetupSeedsManifest {
                 event_id: CEDROS_LOGIN_REGISTRATION_CREATED_EVENT_ID,
                 subject_template: "New Cedros Login registration",
                 body_template:
-                    "A new account was created through Cedros Login. Review account activity in Cedros Data.",
+                    "A new account was created through Cedros Login. Review account activity in Cedros platform.",
                 tags: &["identity", "registrations", "notifications"],
             }),
             notification_seed(NotificationSeedInput {
@@ -79,7 +79,7 @@ pub fn cedros_login_setup_seeds() -> CedrosExtensionSetupSeedsManifest {
                 event_id: CEDROS_LOGIN_USER_LOGIN_EVENT_ID,
                 subject_template: "Cedros Login user login",
                 body_template:
-                    "A user successfully signed in through Cedros Login. Review login activity in Cedros Data.",
+                    "A user successfully signed in through Cedros Login. Review login activity in Cedros platform.",
                 tags: &["identity", "logins", "notifications"],
             }),
         ],

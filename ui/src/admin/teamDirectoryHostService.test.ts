@@ -146,7 +146,7 @@ describe('cedros-login team directory host service', () => {
     );
   });
 
-  it('exposes the Cedros Data contract: listTeamMembers, searchTeamMembers, listTeamMemberLogins', async () => {
+  it('exposes the Cedros platform contract: listTeamMembers, searchTeamMembers, listTeamMemberLogins', async () => {
     const service = createCedrosLoginTeamDirectoryService(hostContext({ org: manageUsersOrg }));
 
     // Roster for the core Team page + admin-page access pickers. The host's

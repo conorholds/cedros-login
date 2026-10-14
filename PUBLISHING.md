@@ -6,12 +6,12 @@ historical MIT releases retain their original notices in Git history.
 
 ## Prepare the public GitHub source checkout
 
-The existing `~/Workspace/published/cedros-login/` checkout remains linked to
-`conorholds/cedros-login`. Prepare it from a clean, committed source checkout:
+Export into a separate checkout of this public repository from clean,
+committed source:
 
 ```bash
-make publish-source PUBLISH_ARGS=--dry-run
-make publish-source
+make publish-source PUBLISH_REPO=/path/to/public-checkout PUBLISH_ARGS=--dry-run
+make publish-source PUBLISH_REPO=/path/to/public-checkout
 # Equivalent: ./scripts/publish.sh [committed-version] [--dry-run]
 ```
 
@@ -72,9 +72,8 @@ PUBLISH_REPO=/path/to/publish/react ./scripts/publish-ui.sh
 PUBLISH_REPO=/path/to/publish/react-native ./scripts/publish-react-native.sh
 ```
 
-Without an override, the scripts use package directories beneath
-`~/Workspace/published/cedros-login/`. Prefer separate package destinations once
-that checkout uses the source layout. `make publish-packages` prepares all three
+Use an explicit, separate destination for each package to avoid replacing
+the source checkout. `make publish-packages` prepares all three
 default package destinations; do not give that aggregate target a shared `PUBLISH_REPO`.
 An individual script accepts an explicit version as its first argument.
 

@@ -50,7 +50,7 @@
     "reactNative:./register"
   ],
   "blockedRuntimeGaps": [
-    "Cedros Data capability/WIT admission and live database transaction evidence remain host-coordinated.",
+    "Cedros platform capability/WIT admission and live database transaction evidence remain host-coordinated.",
     "React Native host loader remains host-coordinated.",
     "Supply-chain provenance/SBOM/signature evidence is not provided for marketplace trust verification."
   ]

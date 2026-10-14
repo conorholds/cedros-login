@@ -72,7 +72,7 @@ Upload only `dist/cedros-login-<version>.cedros-extension.zip` through Cedros lo
 package intake after `make cedros-package` passes. Do not upload the
 `.source-review.zip` unless Cedros approves a separate source review lane.
 
-Cedros Data hydrates `cedros-login:admin` from
+Cedros platform hydrates `cedros-login:admin` from
 `workspace/react/dist/admin/register.js` and executes server routes/jobs through
 `cedros-extension.server.wasm`. Native screen/provider activation still requires
 the mobile host handoff.

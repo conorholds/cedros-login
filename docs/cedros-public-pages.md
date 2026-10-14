@@ -1,7 +1,7 @@
 # Cedros Public Pages And Page Seeds
 
 Cedros Login declares Cedros-managed public route seeds. Each seed is an
-editable Cedros Data page row that is auto-created and published when the
+editable Cedros platform page row that is auto-created and published when the
 extension is enabled, so each public URL is live immediately after install.
 Runtime templates expose the Cedros document-template contract (`label` plus
 `zones[]`) because the host scaffolds the page document from
@@ -31,9 +31,9 @@ providers or raw canonical, hreflang, JSON-LD, or title tags for these routes.
 
 ## Runtime And Lifecycle
 
-The manifest declares `pageSeeds[]` and mirrors those ids in `surfaces.web.routeIds[]`. On enable, Cedros Data creates one editable page row per seed and publishes it. Manifest `contentTemplates[]` provide the stable metadata and ids; the executable web bootstrap supplies host-readable `label`, `zones[]`, and serializable starter `blocks[]`, so `/login`, `/register`, and related auth pages seed real authored content instead of empty zones.
+The manifest declares `pageSeeds[]` and mirrors those ids in `surfaces.web.routeIds[]`. On enable, Cedros platform creates one editable page row per seed and publishes it. Manifest `contentTemplates[]` provide the stable metadata and ids; the executable web bootstrap supplies host-readable `label`, `zones[]`, and serializable starter `blocks[]`, so `/login`, `/register`, and related auth pages seed real authored content instead of empty zones.
 
-Existing owner-created pages are preserved across disable, remove, and rollback. Re-enable never overwrites edited page rows — Cedros Data deduplicates by route and respects owner edits. Upgrades to seed titles/descriptions apply only to future installs unless Cedros approves an explicit content migration.
+Existing owner-created pages are preserved across disable, remove, and rollback. Re-enable never overwrites edited page rows — Cedros platform deduplicates by route and respects owner edits. Upgrades to seed titles/descriptions apply only to future installs unless Cedros approves an explicit content migration.
 
 ## Acceptance Checks
 

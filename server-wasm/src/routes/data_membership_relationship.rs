@@ -52,7 +52,7 @@ fn handle_inner(request: &RouteRequest) -> Result<RouteResponse, RouteError> {
     if matches!(body.action, Action::Ensure) {
         ensure()?;
     }
-    let relationship = status(DATA, "Cedros Data")?;
+    let relationship = status(DATA, "Cedros platform")?;
     let mut result = serde_json::json!({"relationship":relationship});
     if relationship.ready {
         let token = secrets::get(&token_key(DATA))?

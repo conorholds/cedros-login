@@ -1,4 +1,4 @@
-# Cedros Database Concurrency Contract v2
+# Cedros platformbase Concurrency Contract v2
 
 Cedros Login requires the `cedros-data:database-concurrency-v2` semantics for
 production Wasm activation. Version 2 strictly supersedes, but does not redefine, the six
@@ -25,7 +25,7 @@ the schemas and guest operation catalog.
 
 A host must install all 11 unique constraints,
 implement all 22 conditional operations, enable the lifecycle write guard, and
-pass the live acceptance suite before production activation. Cedros Data's
+pass the live acceptance suite before production activation. Cedros platform's
 Login-specific activation gate independently blocks Wasm install and boot
 binding when those invariants are unavailable. The extension manifest declares
 `cedros-data:database-concurrency-v2` as required, while the host remains the
@@ -92,7 +92,7 @@ stale root updates and child inserts from resurrecting deleted graphs.
 The contract term `single-host-serializable-transaction` describes the required
 observable isolation, not a mandatory PostgreSQL isolation-level setting. A host
 may instead use an equivalent mechanism that is phantom-safe for every declared
-predicate and race. Cedros Data 0.1.9 takes an exclusive per-root lifecycle
+predicate and race. Cedros platform 0.1.9 takes an exclusive per-root lifecycle
 advisory lock for deletion and the corresponding shared lock for every guarded
 root or child write, together with `FOR UPDATE` row locks and predicate sweeps in
 the same transaction. The live multi-worker acceptance vectors validate that
@@ -141,7 +141,7 @@ make cedros-db-concurrency-reference
 ```
 
 It checks 50 vectors with 50 serialized model attempts each and is explicitly
-model-only. It does not claim deployed concurrency evidence. Cedros Data must
+model-only. It does not claim deployed concurrency evidence. Cedros platform must
 run all 22 top-level scenarios and 28 recovery vectors against live Postgres
 with at least 50 attempts across at least two independent worker pools, checking
 the exact redacted marker on every rejected attempt and final database state.

@@ -67,18 +67,18 @@ The coordinated fixtures are:
 | --- | --- | --- |
 | Portal | `cedros-portal` | `session:introspect` |
 | Pay | `cedros-pay` | `session:introspect` |
-| Data | `cedros-data` | `memberships:read` |
+| platform | `cedros-data` | `memberships:read` |
 
 Portal already sends `cedros-portal`. Pay must be updated by the Pay team to
 send `cedros-pay`; provider-side setup alone cannot compensate for a missing
 caller ID.
 
-Data uses `GET /extensions/cedros-login/v1/organizations/{orgId}/members/{userId}`
+The Cedros platform uses `GET /extensions/cedros-login/v1/organizations/{orgId}/members/{userId}`
 to reauthorize delayed control-plane work against the current Login user and
 membership records. Its policy may use the explicit `"*"` organization entry
 because customer organization IDs are created dynamically. The wildcard applies
 only to `memberships:read`, even when the same policy also grants directory or
-profile scopes; those routes still require explicit organization IDs. Data's
+profile scopes; those routes still require explicit organization IDs. platform's
 verification probes the membership route without reading customer records and
 returns `membership: {status: 404, error: "not_found"}`. It does not require or
 probe `session:introspect`.

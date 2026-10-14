@@ -354,7 +354,7 @@ impl PasswordService {
 
     /// Validate an imported password hash uses Cedros Login's Argon2id PHC format.
     ///
-    /// This is used by extension install/activation bootstrap when Cedros Data
+    /// This is used by extension install/activation bootstrap when Cedros platform
     /// seeds the initial Login admin with an already-aligned password verifier.
     pub async fn validate_imported_hash(&self, hash: String) -> Result<String, AppError> {
         task::spawn_blocking(move || {

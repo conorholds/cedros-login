@@ -20,7 +20,7 @@ assertDeepEqual(manifest, bootstrap.manifest, 'bootstrap manifest');
 assertEqual(publicPages.extensionId, manifest.extensionId, 'public pages extensionId');
 assertEqual(publicPages.version, manifest.version, 'public pages version');
 if (!/auto-create.*editable.*page rows.*publish.*on enable/i.test(publicPages.contentRowPolicy?.installBehavior ?? '')) {
-  throw new Error('public page seeds must auto-create and publish editable Cedros Data page rows on enable');
+  throw new Error('public page seeds must auto-create and publish editable Cedros platform page rows on enable');
 }
 
 const pageSeeds = manifest.pageSeeds ?? [];

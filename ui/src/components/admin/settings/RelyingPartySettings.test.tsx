@@ -24,7 +24,7 @@ it('configures and verifies Data with membership authority rather than introspec
           relyingParties: [
             {
               relyingPartyId: 'cedros-data',
-              displayName: 'Cedros Data',
+              displayName: 'Cedros platform',
               ready: false,
               tokenConfigured: false,
               policyConfigured: false,

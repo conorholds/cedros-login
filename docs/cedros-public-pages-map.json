@@ -2,7 +2,7 @@
   "extensionId": "cedros-login",
   "version": "2.0.22",
   "contentRowPolicy": {
-    "pageSeeds": "editable Cedros Data page rows",
+    "pageSeeds": "editable Cedros platform page rows",
     "installBehavior": "auto-create editable page rows and publish them on enable so each public URL is live immediately",
     "ownerContentBehavior": "owners can edit copy after install; host provisioning seeds authored zones from manifest starter blocks"
   },

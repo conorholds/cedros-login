@@ -1,7 +1,7 @@
 //! Login attempts over the host DB seam (`cedros-login:login-attempts`).
 //!
 //! Retains purpose-specific MFA and invite proof failures for short-lived audit
-//! and lockout checks. General endpoint abuse budgets use Cedros Data's atomic,
+//! and lockout checks. General endpoint abuse budgets use Cedros platform's atomic,
 //! expiring abuse-budget capability instead of this ledger.
 use crate::host::db::{self, Query, LOGIN_ATTEMPTS};
 use crate::host::Result;

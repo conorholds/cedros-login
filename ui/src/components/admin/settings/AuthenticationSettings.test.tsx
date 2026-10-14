@@ -89,7 +89,7 @@ describe('AuthenticationSettings', () => {
     // Loading copy must already be the settled copy, or the card grows when state lands.
     const description = await screen.findByText(/Let invited members sign up/);
     expect(
-      screen.queryByText(/Available when the Cedros Data host provides waitlist controls/)
+      screen.queryByText(/Available when the Cedros platform host provides waitlist controls/)
     ).not.toBeInTheDocument();
 
     resolveState(earlyAccessState());
@@ -184,7 +184,7 @@ describe('AuthenticationSettings', () => {
   });
 
   it('keeps early access off when the host update fails', async () => {
-    setEarlyAccessEnabledMock.mockRejectedValue(new Error('Cedros Data could not save the mode.'));
+    setEarlyAccessEnabledMock.mockRejectedValue(new Error('Cedros platform could not save the mode.'));
     renderSettings({ earlyAccessHost: createEarlyAccessHost() });
 
     fireEvent.click(screen.getByRole('tab', { name: 'Invite codes' }));
@@ -192,7 +192,7 @@ describe('AuthenticationSettings', () => {
     fireEvent.click(earlyAccess);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Cedros Data could not save the mode.'
+      'Cedros platform could not save the mode.'
     );
     expect(earlyAccess).not.toBeChecked();
   });

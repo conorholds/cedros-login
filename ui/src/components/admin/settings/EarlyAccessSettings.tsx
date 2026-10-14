@@ -132,7 +132,7 @@ function earlyAccessDescription({
   waitlistModeEnabled?: boolean;
 }): string {
   if (!loaded) return EARLY_ACCESS_DESCRIPTION;
-  if (!available) return 'Available when the Cedros Data host provides waitlist controls.';
+  if (!available) return 'Available when the Cedros platform host provides waitlist controls.';
   if (!editable) return 'You need permission to update Site settings.';
   if (!waitlistModeEnabled) return 'Switch the site to Waitlist mode before enabling early access.';
   return EARLY_ACCESS_DESCRIPTION;

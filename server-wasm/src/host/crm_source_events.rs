@@ -1,4 +1,4 @@
-//! Trusted, identity-bearing source events submitted to the Cedros Data host.
+//! Trusted, identity-bearing source events submitted to the Cedros platform host.
 //! Unlike analytics, this seam may carry opaque Login account identifiers, but
 //! callers must still keep PII and auth tokens out of its payloads.
 

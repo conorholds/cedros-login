@@ -4,8 +4,17 @@ React Native authentication library for Cedros Login with email/password, Google
 
 ## Installation
 
+This guide describes the current source. Cedros sites load the native registration
+runtime from the extension archive. Published npm packages are released
+independently and may not contain the APIs shown here.
+
+For a custom application, build the current library from a source checkout:
+
 ```bash
-npm install @cedros/login-react-native
+npm --prefix react-native ci
+npm --prefix react-native run build
+# From your application directory, install the built source package:
+npm install /path/to/cedros-login/react-native
 ```
 
 Install AsyncStorage and the default secure token store:

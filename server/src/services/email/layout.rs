@@ -1,5 +1,5 @@
 //! Workbench adapted for email: inline sRGB colors, presentation tables, system
-//! fonts, and 44px touch targets. Keep in sync with Cedros Data's email layout.
+//! fonts, and 44px touch targets. Keep in sync with Cedros platform's email layout.
 //! HTML fragments passed to `document` are trusted, escaped by their renderers.
 
 pub fn escape_html(value: &str) -> String {

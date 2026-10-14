@@ -71,7 +71,7 @@ function hasTrustedOrigin(serverUrl: string, trustedServerUrl: string): boolean 
 
 function normalizeEarlyAccessState(value: unknown): CedrosLoginEarlyAccessState {
   if (!value || typeof value !== 'object') {
-    throw new Error('Cedros Data returned an invalid early-access state.');
+    throw new Error('Cedros platform returned an invalid early-access state.');
   }
   const state = value as Record<string, unknown>;
   if (
@@ -80,7 +80,7 @@ function normalizeEarlyAccessState(value: unknown): CedrosLoginEarlyAccessState 
     typeof state.waitlistModeEnabled !== 'boolean' ||
     typeof state.enabled !== 'boolean'
   ) {
-    throw new Error('Cedros Data returned an invalid early-access state.');
+    throw new Error('Cedros platform returned an invalid early-access state.');
   }
   return {
     available: state.available,

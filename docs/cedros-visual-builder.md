@@ -20,7 +20,7 @@ React admin and React web registration return the same runtime definitions:
 - `contentBlocks[]`: `Login Page Copy`, `Login Auth Form`, `Login Button`, and `Account Workspace` blocks with safe JSON schemas and React renderers.
 - `contentTemplates[]`: eight manifest metadata entries for sign in, account creation, recovery, reset, verification, instant-link return, invite acceptance, and account management. The matching runtime definitions carry host-required `label` and `zones[]` fields plus portable starter blocks.
 
-Cedros Data's current page-seed provisioner scaffolds the page document from
+Cedros platform's current page-seed provisioner scaffolds the page document from
 `template.zones[]`; it does not populate the starter `blocks[]` into the page
 body during install. The blocks remain ZIP-contained runtime metadata for host
 preset/rendering support, while page auto-provisioning depends on the `label`

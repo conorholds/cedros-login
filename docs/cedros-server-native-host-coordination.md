@@ -36,7 +36,7 @@ payloads, and route persistence/provider work through declared host capabilities
 Jobs keep metadata safe JSON, use idempotent run semantics, and surface failures
 through telemetry/Site Brain records.
 
-## Data, Settings, Providers, And Events
+## platform, Settings, Providers, And Events
 
 The server component uses Cedros host imports for database, settings, secrets,
 providers, logging, telemetry, routes, and jobs. The manifest explicitly declares

@@ -165,6 +165,13 @@ deep-pattern/AST rejection, safe shell arguments, and the comment/newline
 injection case against each package's resolved dependency tree. Run it after
 installing both locked dependency trees.
 
+Development tools also use a local BSD-licensed `sprintf-js` precision backport
+through the existing API Extractor argument parser. It clamps numeric precision
+while retaining normal formatting. The dependency regressions exercise CLI
+help, invalid arguments, and declaration rollup as well as the formatter. Both
+npm trees pin patched brace expansion, URI parsing, source-map, and TOML parsing
+releases. Standalone TLS and QUIC dependencies are updated in the lockfile.
+
 Security scans are point-in-time evidence. Refresh advisory databases and npm
 registry data for release decisions, then verify the exact built artifact and
 deployed host configuration. The repository's scoped RustSec ignore is valid

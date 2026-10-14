@@ -1,7 +1,7 @@
 //! Host-atomic abuse budgets for public identity routes.
 //!
 //! Every guarded request submits all applicable dimensions in one capability-
-//! gated call. Cedros Data applies the decision atomically and stores only
+//! gated call. Cedros platform applies the decision atomically and stores only
 //! host-hashed, expiring budget keys.
 
 use serde::{Deserialize, Serialize};

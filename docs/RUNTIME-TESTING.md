@@ -88,14 +88,14 @@ The host should schedule the two exported jobs:
 
 Production activation requires the semantics defined in
 `contracts/host/cedros-database-concurrency-contract.v2.json`. Package install
-does not depend on an advertised capability id. Cedros Data independently
+does not depend on an advertised capability id. Cedros platform independently
 refuses Login Wasm install and boot binding when its concurrency invariants are
 unavailable; the live acceptance suite verifies that host-owned gate. The host
 must atomically
 reclaim expired `sending` outbox leases. Run
 `make cedros-db-concurrency-reference` before packaging.
 
-Deploy a Cedros Data 0.1.82+ host with the current Cedros Login package. The
+Deploy a Cedros platform 0.1.82+ host with the current Cedros Login package. The
 guest must advertise the v2 database-concurrency contract and include the
 required parent `userId` on guarded outbox rows. Completion receipts bind
 `deliveryId` and `leaseOwner`; a lost-response replay by that owner is
@@ -155,7 +155,7 @@ All paths are relative to the extension mount (e.g.
       upload (if enabled), account-deletion request→confirm and `/account-deletion/me`.
 - [ ] **Admin** — `/admin/users` (+ mutations), `/admin/settings`,
       `/admin/sso-providers`, `/admin/audit` (gated on the host admin session).
-- [ ] **Database concurrency gate** — against a real, multi-worker Cedros Data
+- [ ] **Database concurrency gate** — against a real, multi-worker Cedros platform
       staging host, run at least 50 concurrent attempts for every scenario in
       `contracts/fixtures/cedros-database-concurrency-v2.json`. Prove the
       declared outcome across all 22 top-level scenarios and 28 recovery

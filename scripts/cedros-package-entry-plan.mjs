@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 /**
  * Files from `ui/dist/**` (the compiled React admin runtime) that the intake
- * ZIP must carry so Cedros Data can resolve `@cedros/login-react/admin/register`
+ * ZIP must carry so Cedros platform can resolve `@cedros/login-react/admin/register`
  * directly from the uploaded archive — no npm/tarball/workspace fetch.
  *
  * Excludes source maps (large, debug-only) and the MSW worker (test infra).

@@ -22,6 +22,11 @@
 
 ## Unreleased
 
+- Patch remaining development-tool advisories, including a local bounded-precision
+  formatter backport, and update standalone TLS/QUIC lockfile dependencies.
+- Use Cedros platform naming throughout documentation and public-facing copy;
+  distinguish current source builds from independently released registry packages.
+
 - Pin `shell-quote` to 1.11.0 to reject line terminators after comment tokens.
 - Resolve transitive `braces` to the reviewed 3.0.3-pn.3 depth-guard backport,
   preserving normal glob expansion while bounding deeply nested patterns and ASTs.
@@ -98,7 +103,7 @@
 - **Public block theming follows the host theme in both color modes.** The
   auth-form and account-workspace blocks no longer paint a hardcoded dark
   palette. Every themeable `--cedros-login-*` alias now resolves through the
-  host's `--cedros-runtime-*` block tokens (which Cedros Data flips for dark
+  host's `--cedros-runtime-*` block tokens (which Cedros platform flips for dark
   mode and rebinds to the live site theme), so the card, inputs, tabs and
   primary action match the surrounding page and follow site themes. Standalone
   and admin surfaces, where those tokens are undefined, are unchanged.
@@ -135,7 +140,7 @@
   kit and its canonical `cedros:extension@0.1.0` WIT checksum.
 - Declared the existing `cedros-data:database-concurrency-v2` dependency and
   the published `cedros-data:identity-atomic-v1` dependency. The minimum Cedros
-  Data version is now 0.1.10, making this a major compatibility release.
+  platform version is now 0.1.10, making this a major compatibility release.
 
 ### Fixed
 
@@ -165,7 +170,7 @@
 
 - **`adminModules[].sectionIcons` manifest field.** Declared a
   host-resolvable string icon (`account`) for `cedros-login:login` so the
-  Cedros Data sidebar can render an icon next to the Login entry even
+  Cedros platform sidebar can render an icon next to the Login entry even
   when sections are loaded from manifest metadata only (React `icon`
   ReactNodes don't survive serialization to the manifest-driven sidebar
   renderer, which is why the previous Settings entries shipped without

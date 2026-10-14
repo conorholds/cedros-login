@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Host-resolvable admin sidebar icon names.
 ///
-/// The Cedros Data host owns the icon registry; these are the names announced
+/// The Cedros platform host owns the icon registry; these are the names announced
 /// by the core team. Extensions reference one of these strings in
 /// `adminModules[].sectionIcons[sectionId]` so the host can render an icon
 /// next to the entry even when sections come from the manifest only and not
@@ -258,7 +258,7 @@ pub fn cedros_login_admin_modules(version: &str) -> Vec<CedrosExtensionAdminModu
         "CEDROS_LOGIN_ADMIN_SECTION_ICON '{CEDROS_LOGIN_ADMIN_SECTION_ICON}' is not in HOST_ADMIN_ICON_NAMES"
     );
 
-    // Team / Team Invites are owned by the Cedros Data host now — it keeps those
+    // Team / Team Invites are owned by the Cedros platform host now — it keeps those
     // pages core-owned and reads our roster through the cedros-login-team-directory
     // host service — so the extension only contributes the Login (auth) section.
     let mut section_icons = BTreeMap::new();

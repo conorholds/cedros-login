@@ -16,7 +16,7 @@ const readArchiveBootstrap = () =>
 
 describe('cedros-login extension registration', () => {
   it('exports the same admin bootstrap as both factory functions and bootstrap objects', () => {
-    // Cedros Data accepts any of these four entries, as either a bootstrap
+    // Cedros platform accepts any of these four entries, as either a bootstrap
     // object or a factory function. They must resolve to one shared object so
     // a host that picks any entry sees the same surfaces.
     expect(typeof registerCedrosAdminSurface).toBe('function');
@@ -28,7 +28,7 @@ describe('cedros-login extension registration', () => {
   });
 
   it('keeps the runtime bootstrap version-locked to the installed-extension archive', () => {
-    // Cedros Data hydration is gated on exact (extensionId, version) match
+    // Cedros platform hydration is gated on exact (extensionId, version) match
     // between the installed ZIP record and the trusted runtime bootstrap
     // registered via extensionRuntimeBootstraps / extensionRuntimeRegistry.
     // If the runtime drifts from the archive, the host refuses to hydrate

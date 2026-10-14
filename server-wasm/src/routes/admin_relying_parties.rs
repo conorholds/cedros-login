@@ -24,7 +24,7 @@ const SESSION_INTROSPECT_SCOPE: &str = "session:introspect";
 const SUPPORTED_RELYING_PARTIES: &[(&str, &str)] = &[
     ("cedros-portal", "Cedros Portal"),
     ("cedros-pay", "Cedros Pay"),
-    ("cedros-data", "Cedros Data"),
+    ("cedros-data", "Cedros platform"),
     ("cedros-casino", "Cedros Casino"),
 ];
 

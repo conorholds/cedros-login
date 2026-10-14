@@ -12,7 +12,7 @@ and links to the Login settings/admin surface.
 | Admin module | `cedros-login:admin` |
 | Runtime component | `LoginHealthDashboardCard` |
 | Admin action target | `cedros-login:login` |
-| Data source | Cedros Login admin/runtime context and redacted aggregate metrics |
+| platform source | Cedros Login admin/runtime context and redacted aggregate metrics |
 
 The card should display only aggregate account-system signals such as total
 accounts, recent registrations, verified account rate, active login counts,

@@ -2,7 +2,7 @@
 use super::super::ORG_DB;
 use super::super::{ACCOUNT_LIFECYCLE_DB, IDENTITY_DB, ORGANIZATION_LIFECYCLE_DB, REGISTRATION_DB};
 
-/// A host-owned mutation from Login's declared Cedros Data capabilities.
+/// A host-owned mutation from Login's declared Cedros platform capabilities.
 /// This enum is closed so callers cannot pair an operation with a wrong grant.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ConditionalOperation {

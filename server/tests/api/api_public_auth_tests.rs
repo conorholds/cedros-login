@@ -321,7 +321,7 @@ async fn test_native_admin_hash_import_requires_host_activation() {
         "passwordHash": "$argon2id$v=19$m=19456,t=2,p=1$c2FsdA$nhb9JHf9knLxhw2tOV70EvJ6zp/9VkvBAzCldwZS3r0",
         "passwordHashScheme": "cedros-login:argon2id-phc:v1",
         "name": "Site Owner",
-        "orgName": "Cedros Data Site"
+        "orgName": "Cedros platform Site"
     });
     let (import_status, import_response) = json_request(
         app.clone(),
@@ -345,7 +345,7 @@ async fn test_native_admin_hash_import_requires_host_activation() {
             "email": "owner@example.com",
             "password": "NativeSetupPassword1!",
             "name": "Site Owner",
-            "orgName": "Cedros Data Site"
+            "orgName": "Cedros platform Site"
         })),
     )
     .await;

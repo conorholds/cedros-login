@@ -25,7 +25,7 @@ records and validates the alignment.
 
 | Artifact | Source | Included in intake ZIP | Notes |
 |---|---|---:|---|
-| React admin runtime | `ui/dist/admin/register.js` and dependent chunks | yes | Cedros Data loads `./admin/register` directly from the ZIP. |
+| React admin runtime | `ui/dist/admin/register.js` and dependent chunks | yes | Cedros platform loads `./admin/register` directly from the ZIP. |
 | Server Wasm backend | `cedros-extension.server.wasm` | yes | Copied from the locked `wasm32-wasip2` build and packaged at the canonical root path. |
 | Source review ZIP | source entry plan from server, UI, RN, server-wasm, docs | no | Separate evidence artifact for human/source review. |
 | Runtime tarball | `dist/cedros-login-react-<version>.tgz` | no | Optional React package evidence; not the intake artifact. |
