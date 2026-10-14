@@ -185,7 +185,7 @@ test-publish-source:
 
 # Requires the locked UI and native dependencies; tests both security backports.
 test-dependency-security:
-	node --test scripts/dependency-security.test.mjs
+	node --test scripts/dependency-security.test.mjs ui/scripts/formatter-security.test.mjs react-native/scripts/formatter-security.test.mjs
 
 # Help
 help:

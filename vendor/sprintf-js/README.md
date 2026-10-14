@@ -1,7 +1,8 @@
 # sprintf precision guard
 
 Development-only backport of [sprintf-js 1.1.3](https://github.com/alexei/sprintf.js),
-retaining its BSD-3-Clause license and CommonJS API.
+retaining its BSD-3-Clause license and CommonJS API. The local fork uses
+version `1.1.4-cedros.0`; its upstream base is `1.1.3`.
 
 [CVE-2026-97058](https://github.com/advisories/GHSA-hp3w-g68c-fv3c) affects
 numeric precision passed without bounds to JavaScript number formatting.
